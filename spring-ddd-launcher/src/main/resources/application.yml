@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: spring-ddd
+  r2dbc:
+    url: r2dbc:pool:mysql://spring-ddd-db:3306/spring_ddd?useSSL=false&serverTimezone=Asia/Shanghai
+    username: test_user
+    password: QAZ123wsx456
