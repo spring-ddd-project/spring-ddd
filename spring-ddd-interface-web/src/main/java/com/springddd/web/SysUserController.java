@@ -4,10 +4,7 @@ import com.springddd.application.service.user.SysUserCommandService;
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -25,5 +22,10 @@ public class SysUserController {
     @PostMapping("/update")
     public Mono<ApiResponse> update(@RequestBody SysUserCommand command) {
         return ApiResponse.ok(sysUserCommandService.updateUser(command));
+    }
+
+    @DeleteMapping("/delete")
+    public Mono<Void> delete(@RequestBody SysUserCommand command) {
+        return sysUserCommandService.deleteUser(command);
     }
 }
