@@ -17,6 +17,8 @@ public class SysUserDomain extends AbstractDomainMask {
 
     private ExtendInfo extendInfo;
 
+    public void create() {}
+
     public void updateUser(Account newAccount, ExtendInfo newExtendInfo, Long deptId, String updateBy) {
         this.account = newAccount;
         this.extendInfo = newExtendInfo;
