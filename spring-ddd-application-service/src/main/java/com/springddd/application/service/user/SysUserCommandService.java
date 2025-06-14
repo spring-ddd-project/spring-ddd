@@ -16,6 +16,8 @@ public class SysUserCommandService {
 
     private final SysUserDomainFactory sysUserDomainFactory;
 
+    private final DeleteSysUserByIdsDomainService deleteSysUserByIdsDomainService;
+
     public Mono<Void> createUser(SysUserCommand command) {
         Account account = new Account();
         account.setUsername(new Username(command.getUsername()));
@@ -66,6 +68,6 @@ public class SysUserCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-
+        return deleteSysUserByIdsDomainService.deleteByIds(ids);
     }
 }
