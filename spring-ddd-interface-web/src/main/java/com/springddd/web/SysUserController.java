@@ -36,12 +36,12 @@ public class SysUserController {
     }
 
     @DeleteMapping("/delete")
-    public Mono<Void> delete(@RequestBody SysUserCommand command) {
-        return sysUserCommandService.deleteUser(command);
+    public Mono<ApiResponse> delete(@RequestBody SysUserCommand command) {
+        return ApiResponse.ok(sysUserCommandService.deleteUser(command));
     }
 
     @DeleteMapping("/wipe")
-    public Mono<Void> wipe(@RequestBody List<Long> ids) {
-        return sysUserCommandService.wipe(ids);
+    public Mono<ApiResponse> wipe(@RequestParam List<Long> ids) {
+        return ApiResponse.ok(sysUserCommandService.wipe(ids));
     }
 }
