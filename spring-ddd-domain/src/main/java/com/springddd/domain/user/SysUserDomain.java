@@ -11,4 +11,8 @@ public class SysUserDomain extends AbstractDomainMask {
     private UserId userId;
 
     private Account account;
+
+    private ExtendInfo extendInfo;
+
+    private Long deptId;
 }
