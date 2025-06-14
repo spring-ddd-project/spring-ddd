@@ -38,4 +38,10 @@ public class SysUserDomain extends AbstractDomainMask {
         }
         super.setUpdateTime(LocalDateTime.now());
     }
+
+    public void updateUserStatus(String status, String updateBy) {
+        this.account.setLockStatus(status);
+        super.setUpdateBy(updateBy);
+        super.setUpdateTime(LocalDateTime.now());
+    }
 }
