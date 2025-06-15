@@ -5,8 +5,9 @@ import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import com.springddd.infrastructure.persistence.mapper.SysUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -16,13 +17,14 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
 
     @Override
     public Mono<SysUserDomain> load(UserId aggregateRootId) {
-        return sysUserRepository.findById(aggregateRootId.getValue()).flatMap(e -> {
+        return sysUserRepository.findById(aggregateRootId.value()).flatMap(e -> {
             SysUserDomain sysUserDomain = new SysUserDomain();
 
             sysUserDomain.setUserId(new UserId(e.getId()));
 
             Account account = new Account();
             account.setUsername(new Username(e.getUsername()));
+            account.setPassword(new Password(e.getPassword()));
             account.setPhone(e.getPhone());
             account.setEmail(e.getEmail());
             account.setLockStatus(e.getLockStatus());
@@ -48,15 +50,11 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
     public Mono<Void> save(SysUserDomain aggregateRoot) {
         SysUserEntity entity = new SysUserEntity();
 
-        if (!ObjectUtils.isEmpty(aggregateRoot.getUserId())) {
-            entity.setId(aggregateRoot.getUserId().getValue());
-        }
+        entity.setId(Optional.ofNullable(aggregateRoot.getUserId()).map(UserId::value).orElse(null));
 
         Account account = aggregateRoot.getAccount();
         entity.setUsername(account.getUsername().getValue());
-        if (!ObjectUtils.isEmpty(account.getPassword())) {
-            entity.setPassword(account.getPassword().getValue());
-        }
+        entity.setPassword(account.getPassword().value());
         entity.setPhone(account.getPhone());
         entity.setEmail(account.getEmail());
         entity.setLockStatus(account.getLockStatus());
