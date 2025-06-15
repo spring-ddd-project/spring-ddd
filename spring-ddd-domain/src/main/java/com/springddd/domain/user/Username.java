@@ -1,18 +1,13 @@
 package com.springddd.domain.user;
 
-import com.springddd.domain.exception.UsernameException;
-import lombok.Data;
+import com.springddd.domain.user.exception.UsernameException;
 import org.springframework.util.ObjectUtils;
 
-@Data
-public class Username {
+public record Username(String value) {
 
-    private final String value;
-
-    public Username(String value) {
+    public Username {
         if (ObjectUtils.isEmpty(value)) {
             throw new UsernameException();
         }
-        this.value = value;
     }
 }

@@ -1,5 +1,6 @@
-package com.springddd.domain.exception;
+package com.springddd.domain.user.exception;
 
+import com.springddd.domain.DomainException;
 import lombok.Getter;
 
 @Getter
