@@ -53,7 +53,7 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
         entity.setId(Optional.ofNullable(aggregateRoot.getUserId()).map(UserId::value).orElse(null));
 
         Account account = aggregateRoot.getAccount();
-        entity.setUsername(account.getUsername().getValue());
+        entity.setUsername(account.getUsername().value());
         entity.setPassword(account.getPassword().value());
         entity.setPhone(account.getPhone());
         entity.setEmail(account.getEmail());
