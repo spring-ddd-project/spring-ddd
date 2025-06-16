@@ -1,0 +1,48 @@
+package com.springddd.web;
+
+
+import com.springddd.application.service.role.SysRoleCommandService;
+import com.springddd.application.service.role.SysRoleQueryService;
+import com.springddd.application.service.role.dto.SysRoleCommand;
+import com.springddd.application.service.role.dto.SysRoleQuery;
+import com.springddd.domain.util.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/sys/role")
+@RequiredArgsConstructor
+public class SysRoleController {
+
+    private final SysRoleCommandService sysRoleCommandService;
+
+    private final SysRoleQueryService sysRoleQueryService;
+
+    @PostMapping("/page")
+    public Mono<ApiResponse> page(SysRoleQuery query) {
+        return ApiResponse.ok(sysRoleQueryService.page(query));
+    }
+
+    @PostMapping("/create")
+    public Mono<ApiResponse> create(SysRoleCommand command) {
+        return ApiResponse.ok(sysRoleCommandService.createRole(command));
+    }
+
+    @PutMapping("/update")
+    public Mono<ApiResponse> update(SysRoleCommand command) {
+        return ApiResponse.ok(sysRoleCommandService.updateRole(command));
+    }
+
+    @DeleteMapping("/delete")
+    public Mono<ApiResponse> delete(SysRoleCommand command) {
+        return ApiResponse.ok(sysRoleCommandService.deleteRole(command));
+    }
+
+    @DeleteMapping("/wipe")
+    public Mono<ApiResponse> wipe(@RequestParam List<Long> ids) {
+        return ApiResponse.ok(sysRoleCommandService.wipe(ids));
+    }
+}
