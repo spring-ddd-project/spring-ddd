@@ -6,5 +6,5 @@ public interface DomainRepository<T extends AggregateRootId<?>, E extends Abstra
 
     Mono<E> load(T aggregateRootId);
 
-    Mono<Void> save(E aggregateRoot);
+    Mono<Long> save(E aggregateRoot);
 }
