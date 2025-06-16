@@ -6,6 +6,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Data
 @NoArgsConstructor
@@ -21,7 +22,6 @@ public class ApiResponse {
         this.data = data;
     }
 
-    // 成功响应
     public static ApiResponse success(Object data) {
         return new ApiResponse(0, "Success", data);
     }
@@ -30,7 +30,6 @@ public class ApiResponse {
         return new ApiResponse(0, "Success", null);
     }
 
-    // 错误响应
     public static ApiResponse error(Integer code, String message) {
         return new ApiResponse(code, message, null);
     }
@@ -39,7 +38,7 @@ public class ApiResponse {
         return new ApiResponse(500, message, null);
     }
 
-    // 响应式封装支持
+    // Reactive return for regular and paginated requests
     public static Mono<ApiResponse> ok(Mono<?> mono) {
         return mono.map(data -> {
             if (data instanceof PageResponse<?> page) {
@@ -49,6 +48,18 @@ public class ApiResponse {
         }).defaultIfEmpty(empty());
     }
 
+    // Reactive return with Validated parameter support for regular and paginated requests
+    public static <T, R> Mono<ApiResponse> ok(Mono<T> paramMono, Function<T, Mono<R>> handler) {
+        return paramMono
+                .flatMap(handler)
+                .map(data -> {
+                    if (data instanceof PageResponse<?> page) {
+                        return page(page.getItems(), page.getTotal(), page.getPageNum(), page.getPageSize());
+                    }
+                    return success(data);
+                })
+                .defaultIfEmpty(empty());
+    }
 
     public static Mono<ApiResponse> ok(Flux<?> flux) {
         return flux.collectList()
@@ -59,5 +70,6 @@ public class ApiResponse {
     public static <T> ApiResponse page(List<T> records, long total, int pageNum, int pageSize) {
         return success(new PageResponse<>(records, total, pageNum, pageSize));
     }
+
 }
 

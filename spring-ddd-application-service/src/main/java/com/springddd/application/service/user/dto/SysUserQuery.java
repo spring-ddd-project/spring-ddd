@@ -1,5 +1,6 @@
 package com.springddd.application.service.user.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -29,7 +30,9 @@ public class SysUserQuery implements Serializable {
 
     private String version;
 
+    @NotNull(message = "pageNum can not be null")
     private Integer pageNum;
 
+    @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
