@@ -1,10 +1,13 @@
 package com.springddd.application.service.role;
 
 import com.springddd.domain.role.*;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
+@Component
 public class SysRoleDomainFactoryImpl implements SysRoleDomainFactory {
+
     @Override
     public SysRoleDomain newInstance(RoleId roleId, RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, Long deptId, String createBy) {
         SysRoleDomain sysRoleDomain = new SysRoleDomain();

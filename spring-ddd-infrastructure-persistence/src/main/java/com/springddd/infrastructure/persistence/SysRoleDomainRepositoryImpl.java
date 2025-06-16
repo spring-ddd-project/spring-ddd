@@ -45,7 +45,7 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
     }
 
     @Override
-    public Mono<Void> save(SysRoleDomain aggregateRoot) {
+    public Mono<Long> save(SysRoleDomain aggregateRoot) {
         SysRoleEntity sysRoleEntity = new SysRoleEntity();
 
         sysRoleEntity.setId(Optional.ofNullable(aggregateRoot.getRoleId()).map(RoleId::value).orElse(null));
@@ -67,6 +67,6 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         sysRoleEntity.setUpdateBy(aggregateRoot.getUpdateBy());
         sysRoleEntity.setUpdateTime(aggregateRoot.getUpdateTime());
 
-        return sysRoleRepository.save(sysRoleEntity).then();
+        return sysRoleRepository.save(sysRoleEntity).map(SysRoleEntity::getId);
     }
 }
