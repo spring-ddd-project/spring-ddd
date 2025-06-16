@@ -1,4 +1,4 @@
-package com.springddd.domain.exception;
+package com.springddd.domain;
 
 import lombok.Getter;
 
