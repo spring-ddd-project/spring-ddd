@@ -18,7 +18,7 @@ public class SysUserCommandService {
 
     private final DeleteSysUserByIdsDomainService deleteSysUserByIdsDomainService;
 
-    public Mono<Void> createUser(SysUserCommand command) {
+    public Mono<Long> createUser(SysUserCommand command) {
         Account account = new Account();
         account.setUsername(new Username(command.getUsername()));
         // TODO Passwords will be encrypted using BCryptPasswordEncoder going forward.
