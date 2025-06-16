@@ -7,6 +7,7 @@ import com.springddd.application.service.role.dto.SysRoleCommand;
 import com.springddd.application.service.role.dto.SysRoleQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -22,22 +23,22 @@ public class SysRoleController {
     private final SysRoleQueryService sysRoleQueryService;
 
     @PostMapping("/page")
-    public Mono<ApiResponse> page(SysRoleQuery query) {
-        return ApiResponse.ok(sysRoleQueryService.page(query));
+    public Mono<ApiResponse> page(@Validated @RequestBody Mono<SysRoleQuery> query) {
+        return ApiResponse.ok(query,sysRoleQueryService::page);
     }
 
     @PostMapping("/create")
-    public Mono<ApiResponse> create(SysRoleCommand command) {
+    public Mono<ApiResponse> create(@RequestBody SysRoleCommand command) {
         return ApiResponse.ok(sysRoleCommandService.createRole(command));
     }
 
     @PutMapping("/update")
-    public Mono<ApiResponse> update(SysRoleCommand command) {
+    public Mono<ApiResponse> update(@RequestBody SysRoleCommand command) {
         return ApiResponse.ok(sysRoleCommandService.updateRole(command));
     }
 
     @DeleteMapping("/delete")
-    public Mono<ApiResponse> delete(SysRoleCommand command) {
+    public Mono<ApiResponse> delete(@RequestBody SysRoleCommand command) {
         return ApiResponse.ok(sysRoleCommandService.deleteRole(command));
     }
 
