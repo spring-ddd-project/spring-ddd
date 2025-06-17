@@ -24,7 +24,7 @@ public class SysRoleQueryService {
     private final SysRoleViewMapStruct sysRoleViewMapStruct;
 
     public Mono<PageResponse<SysRoleView>> page(SysRoleQuery query) {
-        Criteria criteria = Criteria.empty();
+        Criteria criteria = Criteria.where("delete_status").is("0");
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
@@ -33,5 +33,10 @@ public class SysRoleQueryService {
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysRoleEntity.class);
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    }
+
+    public Mono<List<SysRoleView>> queryAllRoles() {
+        Criteria criteria = Criteria.where("delete_status").is("0");
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(criteria)).all().collectList().map(sysRoleViewMapStruct::toViewList);
     }
 }
