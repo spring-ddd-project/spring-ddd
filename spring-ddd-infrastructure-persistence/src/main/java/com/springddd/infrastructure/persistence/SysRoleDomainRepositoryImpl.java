@@ -4,12 +4,12 @@ import com.springddd.domain.role.*;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
 import com.springddd.infrastructure.persistence.mapper.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-@Component
+@Repository
 @RequiredArgsConstructor
 public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
 
