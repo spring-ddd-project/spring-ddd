@@ -7,6 +7,6 @@ import lombok.Getter;
 public class PasswordNullException extends DomainException {
 
     public PasswordNullException() {
-        super(1000, "密码不能为空");
+        super(1000, "error.user.password.null");
     }
 }
