@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SysUserRoleCommandService {
@@ -14,6 +16,8 @@ public class SysUserRoleCommandService {
     private final SysUserRoleDomainRepository sysUserRoleDomainRepository;
 
     private final SysUserRoleDomainFactory sysUserRoleDomainFactory;
+
+    private final DeleteSysUserRoleByIdsDomainService deleteSysUserRoleByIdsDomainService;
 
     public Mono<Long> create(SysUserRoleCommand command) {
         SysUserRoleDomain domain = sysUserRoleDomainFactory.newInstance(new UserId(command.getUserId()),
@@ -34,5 +38,9 @@ public class SysUserRoleCommandService {
             domain.delete("TODO");
             return sysUserRoleDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return deleteSysUserRoleByIdsDomainService.deleteByIds(ids);
     }
 }
