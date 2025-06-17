@@ -54,8 +54,8 @@ public class SysUserController {
     }
 
     @PostMapping("/queryRolesByUserId")
-    public Mono<ApiResponse> queryRolesByUserId(@RequestBody SysUserRoleQuery query) {
-        return ApiResponse.ok(sysUserRoleQueryService.queryLinkUserAndRole(query));
+    public Mono<ApiResponse> queryRolesByUserId(@RequestParam("userId") Long userId) {
+        return ApiResponse.ok(sysUserRoleQueryService.queryLinkUserAndRole(userId));
     }
 
     @PostMapping("/linkUserAndRole")
