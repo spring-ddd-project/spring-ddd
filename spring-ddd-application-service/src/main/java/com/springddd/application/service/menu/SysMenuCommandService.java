@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SysMenuCommandService {
@@ -13,6 +15,8 @@ public class SysMenuCommandService {
     private final SysMenuDomainFactory sysMenuDomainFactory;
 
     private final SysMenuDomainRepository sysMenuDomainRepository;
+
+    private final DeleteSysMenuByIdsDomainService deleteSysMenuByIdsDomainService;
 
     public Mono<Long> create(SysMenuCommand command) {
         MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
@@ -62,5 +66,9 @@ public class SysMenuCommandService {
             domain.delete("TODO");
             return sysMenuDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return deleteSysMenuByIdsDomainService.deleteByIds(ids);
     }
 }
