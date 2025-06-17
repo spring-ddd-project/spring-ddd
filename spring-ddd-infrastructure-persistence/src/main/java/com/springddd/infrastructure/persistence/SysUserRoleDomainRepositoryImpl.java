@@ -6,7 +6,7 @@ import com.springddd.domain.user.SysUserRoleDomainRepository;
 import com.springddd.domain.user.UserId;
 import com.springddd.domain.user.UserRoleId;
 import com.springddd.infrastructure.persistence.entity.SysUserRoleEntity;
-import com.springddd.infrastructure.persistence.mapper.SysUserRoleRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysUserRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
