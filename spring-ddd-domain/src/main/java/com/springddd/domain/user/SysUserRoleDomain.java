@@ -19,9 +19,10 @@ public class SysUserRoleDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void update(UserId userId, RoleId roleId, String updateBy) {
+    public void update(UserId userId, RoleId roleId, Long deptId, String updateBy) {
         this.userId = userId;
         this.roleId = roleId;
+        super.setDeptId(deptId);
         super.setUpdateBy(updateBy);
         super.setUpdateTime(LocalDateTime.now());
     }
