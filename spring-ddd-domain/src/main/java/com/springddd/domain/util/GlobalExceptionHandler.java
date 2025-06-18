@@ -30,8 +30,8 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(DomainException.class)
     public Mono<ApiResponse> handleDomainException(DomainException e, Locale locale) {
-        String localizedMessage = messageSource.getMessage(e.getMessageKey(), e.getArgs(), locale);
-        return Mono.just(ApiResponse.error(e.getErrorCode(), localizedMessage));
+        String message = messageSource.getMessage(e.getMessageKey(), e.getArgs(), locale);
+        return Mono.just(ApiResponse.error(e.getCode(), message));
     }
 
     /**
