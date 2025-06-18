@@ -1,18 +1,25 @@
 package com.springddd.domain;
 
+import com.springddd.domain.util.ErrorCode;
 import lombok.Getter;
 
 @Getter
-public abstract class DomainException extends RuntimeException{
+public abstract class DomainException extends RuntimeException {
 
-    private final int errorCode;
-    private final String messageKey;
+    private final ErrorCode errorCode;
     private final Object[] args;
 
-    public DomainException(int errorCode, String messageKey, Object... args) {
-        super(messageKey);
+    public DomainException(ErrorCode errorCode, Object... args) {
+        super(errorCode.getMessageKey());
         this.errorCode = errorCode;
-        this.messageKey = messageKey;
         this.args = args;
+    }
+
+    public int getCode() {
+        return errorCode.getCode();
+    }
+
+    public String getMessageKey() {
+        return errorCode.getMessageKey();
     }
 }
