@@ -1,12 +1,13 @@
 package com.springddd.domain.role.exception;
 
 import com.springddd.domain.DomainException;
+import com.springddd.domain.util.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public class RoleNameNullException extends DomainException {
 
     public RoleNameNullException() {
-        super(1100, "角色名称不能为空");
+        super(ErrorCode.ROLE_NAME_NULL);
     }
 }
