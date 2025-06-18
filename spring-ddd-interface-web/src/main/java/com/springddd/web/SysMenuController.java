@@ -23,7 +23,7 @@ public class SysMenuController {
 
     @PostMapping("/page")
     public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysMenuQuery> query) {
-        return ApiResponse.ok(query, sysMenuQueryService::page);
+        return ApiResponse.validated(query, sysMenuQueryService::page);
     }
 
     @PostMapping("/getByMenuId")

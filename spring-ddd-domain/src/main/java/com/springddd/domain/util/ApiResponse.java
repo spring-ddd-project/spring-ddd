@@ -49,7 +49,7 @@ public class ApiResponse {
     }
 
     // Reactive return with Validated parameter support for regular and paginated requests
-    public static <T, R> Mono<ApiResponse> ok(Mono<T> paramMono, Function<T, Mono<R>> handler) {
+    public static <T, R> Mono<ApiResponse> validated(Mono<T> paramMono, Function<T, Mono<R>> handler) {
         return paramMono
                 .flatMap(handler)
                 .map(data -> {

@@ -24,12 +24,7 @@ public class SysRoleController {
 
     @PostMapping("/page")
     public Mono<ApiResponse> page(@Validated @RequestBody Mono<SysRoleQuery> query) {
-        return ApiResponse.ok(query,sysRoleQueryService::page);
-    }
-
-    @PostMapping("/queryAllRoles")
-    public Mono<ApiResponse> queryAllRoles() {
-        return ApiResponse.ok(sysRoleQueryService.queryAllRoles());
+        return ApiResponse.validated(query,sysRoleQueryService::page);
     }
 
     @PostMapping("/create")
