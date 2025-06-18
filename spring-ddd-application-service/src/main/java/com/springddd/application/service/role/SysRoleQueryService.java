@@ -34,9 +34,4 @@ public class SysRoleQueryService {
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
-
-    public Mono<List<SysRoleView>> queryAllRoles() {
-        Criteria criteria = Criteria.where("delete_status").is("0");
-        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(criteria)).all().collectList().map(sysRoleViewMapStruct::toViewList);
-    }
 }
