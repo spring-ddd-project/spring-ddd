@@ -9,12 +9,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class SysUserQueryService {
 
