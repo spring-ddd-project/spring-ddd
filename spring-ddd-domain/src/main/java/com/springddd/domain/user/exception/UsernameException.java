@@ -1,12 +1,13 @@
 package com.springddd.domain.user.exception;
 
 import com.springddd.domain.DomainException;
+import com.springddd.domain.util.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public class UsernameException extends DomainException {
 
     public UsernameException() {
-        super(1001, "用户名不能为空");
+        super(ErrorCode.USER_NAME_NULL);
     }
 }
