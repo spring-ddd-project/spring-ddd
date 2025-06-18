@@ -1,10 +1,11 @@
 package com.springddd.application.service.role;
 
+import com.springddd.application.service.role.dto.SysRoleMenuView;
 import com.springddd.domain.menu.MenuId;
-import com.springddd.domain.role.LinkRoleAndMenusDomainService;
-import com.springddd.domain.role.RoleId;
+import com.springddd.domain.role.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -13,9 +14,29 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LinkRoleAndMenusDomainServiceImpl implements LinkRoleAndMenusDomainService {
 
+    private final SysRoleMenuQueryService sysRoleMenuQueryService;
+
+    private final DeleteSysRoleMenuByIdsDomainService deleteSysRoleMenuByIdsDomainService;
+
+    private final SysRoleMenuDomainRepository sysRoleMenuDomainRepository;
+
+    private final SysRoleMenuDomainFactory sysRoleMenuDomainFactory;
 
     @Override
     public Mono<Void> link(RoleId roleId, List<MenuId> menuIds) {
-        return null;
+        return sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId.value()).flatMap(sysRoleMenuViews -> {
+            List<Long> ids = sysRoleMenuViews.stream().map(SysRoleMenuView::getId).toList();
+            if (CollectionUtils.isEmpty(ids))
+                return Mono.empty();
+            Mono<Void> deleted = deleteSysRoleMenuByIdsDomainService.deleteByIds(ids);
+
+            List<Mono<Long>> saved = menuIds.stream().map(menuId -> {
+                SysRoleMenuDomain domain = sysRoleMenuDomainFactory.newInstance(roleId, menuId, null, "TODO");
+                domain.create();
+                return sysRoleMenuDomainRepository.save(domain);
+            }).toList();
+
+            return deleted.thenMany(Mono.when(saved)).then();
+        });
     }
 }
