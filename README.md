@@ -1,6 +1,6 @@
 # Spring DDD
 
-This Spring Boot DDD framework helps you build faster with CQRS and Event Sourcing, improving business code development efficiency.
+This Spring DDD framework helps you build faster with CQRS and Event Sourcing, improving business code development efficiency.
 
 ## Getting Started
 

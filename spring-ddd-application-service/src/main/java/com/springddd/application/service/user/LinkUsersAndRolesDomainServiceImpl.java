@@ -26,9 +26,6 @@ public class LinkUsersAndRolesDomainServiceImpl implements LinkUsersAndRolesDoma
     public Mono<Void> link(Long userId, List<Long> roleIds) {
         return sysUserRoleQueryService.queryLinkUserAndRole(userId).flatMap(sysUserRoleViews -> {
             List<Long> ids = sysUserRoleViews.stream().map(SysUserRoleView::getId).toList();
-            if (CollectionUtils.isEmpty(ids)) {
-                return Mono.empty();
-            }
             Mono<Void> wiped = deleteSysUserRoleByIdsDomainService.deleteByIds(ids);
 
             List<Mono<Long>> saved = roleIds.stream()
