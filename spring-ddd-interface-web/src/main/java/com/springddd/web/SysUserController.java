@@ -23,7 +23,7 @@ public class SysUserController {
 
     @PostMapping("/page")
     public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserQuery> query) {
-        return ApiResponse.ok(query, sysUserQueryService::page);
+        return ApiResponse.validated(query, sysUserQueryService::page);
     }
 
     @PostMapping("/create")
