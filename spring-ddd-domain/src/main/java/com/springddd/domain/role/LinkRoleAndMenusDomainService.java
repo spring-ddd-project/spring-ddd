@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface LinkRoleAndMenusDomainService {
 
-    Mono<Void> link(RoleId roleId, List<MenuId> menuIds);
+    Mono<Void> link(Long roleId, List<Long> menuIds);
 }
