@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Component
 public class SysRoleMenuDomainFactoryImpl implements SysRoleMenuDomainFactory {
     @Override
-    public SysRoleMenuDomain create(RoleId roleId, MenuId menuId, Long deptId, String createBy) {
+    public SysRoleMenuDomain newInstance(RoleId roleId, MenuId menuId, Long deptId, String createBy) {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
         domain.setRoleId(roleId);
         domain.setMenuId(menuId);
