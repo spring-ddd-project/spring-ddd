@@ -13,7 +13,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,6 +25,8 @@ public class SecurityConfig {
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     private final JwtReactiveAuthenticationManager jwtAuthenticationManager;
+
+    private final AuthorizationManagerConfig authorizationManagerConfig;
 
     @Bean
     public ReactiveAuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
@@ -52,7 +54,7 @@ public class SecurityConfig {
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
                         .pathMatchers("/auth/login").permitAll()
-                        .anyExchange().authenticated()
+                        .anyExchange().access(authorizationManagerConfig)
                 )
                 .addFilterAt(jwtAuthenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
                 .build();
