@@ -23,15 +23,15 @@ public class LinkRoleAndMenusDomainServiceImpl implements LinkRoleAndMenusDomain
     private final SysRoleMenuDomainFactory sysRoleMenuDomainFactory;
 
     @Override
-    public Mono<Void> link(RoleId roleId, List<MenuId> menuIds) {
-        return sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId.value()).flatMap(sysRoleMenuViews -> {
+    public Mono<Void> link(Long roleId, List<Long> menuIds) {
+        return sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId).flatMap(sysRoleMenuViews -> {
             List<Long> ids = sysRoleMenuViews.stream().map(SysRoleMenuView::getId).toList();
             if (CollectionUtils.isEmpty(ids))
                 return Mono.empty();
             Mono<Void> deleted = deleteSysRoleMenuByIdsDomainService.deleteByIds(ids);
 
             List<Mono<Long>> saved = menuIds.stream().map(menuId -> {
-                SysRoleMenuDomain domain = sysRoleMenuDomainFactory.newInstance(roleId, menuId, null, "TODO");
+                SysRoleMenuDomain domain = sysRoleMenuDomainFactory.newInstance(new RoleId(roleId), new MenuId(menuId), null, "TODO");
                 domain.create();
                 return sysRoleMenuDomainRepository.save(domain);
             }).toList();
