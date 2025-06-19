@@ -22,7 +22,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class AuthUserDetailsService implements ReactiveUserDetailsService {
+public class AuthReactiveUserDetailsService implements ReactiveUserDetailsService {
 
     private final SysUserQueryService sysUserQueryService;
 
