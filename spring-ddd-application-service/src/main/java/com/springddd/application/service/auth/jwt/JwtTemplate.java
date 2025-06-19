@@ -12,7 +12,11 @@ import java.util.Map;
 @Configuration
 public class JwtTemplate {
 
-    private final String SECRET_KEY = "r)],&w1%g$26idpK7@.UmZ-=SXwy_Hkb-hf~3ebr,2QHI8YEIbg3_&tMW8UwzQ1f";
+    private final String SECRET_KEY;
+
+    public JwtTemplate(JwtSecret jwtSecret) {
+        this.SECRET_KEY = jwtSecret.getKey();
+    }
 
     public String generateToken(Map<String, Object> map) {
         return Jwts.builder()
