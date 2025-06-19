@@ -16,7 +16,7 @@ public class SysRoleMenuCommandService {
 
     private final DeleteSysRoleMenuByIdsDomainService deleteSysRoleMenuByIdsDomainService;
 
-    public Mono<Void> create(RoleId roleId, List<MenuId> menuIds) {
+    public Mono<Void> create(Long roleId, List<Long> menuIds) {
         return linkRoleAndMenusDomainService.link(roleId, menuIds);
     }
 
