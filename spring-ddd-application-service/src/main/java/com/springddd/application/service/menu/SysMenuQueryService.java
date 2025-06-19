@@ -5,6 +5,7 @@ import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
+import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -17,6 +18,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class SysMenuQueryService {
+
+    private final SysMenuRepository sysMenuRepository;
 
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
@@ -33,6 +36,6 @@ public class SysMenuQueryService {
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
-        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where("id").is(menuId)), SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
+        return sysMenuRepository.findById(menuId).map(sysMenuViewMapStruct::toView);
     }
 }
