@@ -29,7 +29,7 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
             return Mono.just(new AuthorizationDecision(true));
         }
 
-        return sysMenuQueryService.queryByMenuPath(path)
+        return sysMenuQueryService.queryByMenuComponent(path)
                 .flatMap(menu -> {
                     if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
                         return Mono.just(new AuthorizationDecision(false));
