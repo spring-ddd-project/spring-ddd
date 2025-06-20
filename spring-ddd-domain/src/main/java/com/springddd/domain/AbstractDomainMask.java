@@ -18,7 +18,7 @@ public abstract class AbstractDomainMask {
 
     private LocalDateTime updateTime;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
-    private String version;
+    private Integer version;
 }
