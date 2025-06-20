@@ -34,7 +34,7 @@ public class SysMenuQuery implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
     @NotNull(message = "pageNum can not be null")
     private Integer pageNum;
