@@ -20,7 +20,8 @@ public enum ErrorCode {
     MENU_TYPE_NULL(1202, "error.menu.type.null"),
     MENU_ICON_NULL(1203, "error.menu.icon.null"),
     MENU_PATH_NULL(1204, "error.menu.path.null"),
-    MENU_ID_NULL(1205, "error.menu.id.null");
+    MENU_ID_NULL(1205, "error.menu.id.null"),
+    MENU_COMPONENT_NULL(1206, "error.menu.component.null");
 
     private final int code;
     private final String messageKey;
