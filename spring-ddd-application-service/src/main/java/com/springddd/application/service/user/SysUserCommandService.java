@@ -3,6 +3,7 @@ package com.springddd.application.service.user;
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.domain.user.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -18,11 +19,12 @@ public class SysUserCommandService {
 
     private final DeleteSysUserByIdsDomainService deleteSysUserByIdsDomainService;
 
+    private final PasswordEncoder passwordEncoder;
+
     public Mono<Long> createUser(SysUserCommand command) {
         Account account = new Account();
         account.setUsername(new Username(command.getUsername()));
-        // TODO Passwords will be encrypted using BCryptPasswordEncoder going forward.
-        account.setPassword(new Password(command.getPassword()));
+        account.setPassword(new Password(passwordEncoder.encode(command.getPassword())));
         account.setPhone(command.getPhone());
         account.setEmail(command.getEmail());
         account.setLockStatus(command.getLockStatus());
@@ -31,8 +33,7 @@ public class SysUserCommandService {
         extendInfo.setAvatar(command.getAvatar());
         extendInfo.setSex(command.getSex());
 
-        // TODO CreateBy and UpdateBy will be retrieved from the JWT token going forward.
-        SysUserDomain sysUserDomain = sysUserDomainFactory.newInstance(account, extendInfo, command.getDeptId(), "TODO");
+        SysUserDomain sysUserDomain = sysUserDomainFactory.newInstance(account, extendInfo, command.getDeptId());
         sysUserDomain.create();
 
         return sysUserDomainRepository.save(sysUserDomain);
@@ -42,8 +43,7 @@ public class SysUserCommandService {
         return sysUserDomainRepository.load(new UserId(command.getId())).flatMap(domain -> {
             Account account = new Account();
             account.setUsername(new Username(command.getUsername()));
-            // TODO Passwords will be encrypted using BCryptPasswordEncoder going forward.
-            account.setPassword(new Password(domain.getAccount().getPassword().value()));
+            account.setPassword(new Password(passwordEncoder.encode(domain.getAccount().getPassword().value())));
             account.setEmail(command.getEmail());
             account.setPhone(command.getPhone());
             account.setLockStatus(command.getLockStatus());
@@ -52,8 +52,7 @@ public class SysUserCommandService {
             extendInfo.setAvatar(command.getAvatar());
             extendInfo.setSex(command.getSex());
 
-            // TODO CreateBy and UpdateBy will be retrieved from the JWT token going forward.
-            domain.updateUser(account, extendInfo, command.getDeptId(), "TODO");
+            domain.updateUser(account, extendInfo, command.getDeptId());
             return sysUserDomainRepository.save(domain);
         }).then();
     }
@@ -61,8 +60,7 @@ public class SysUserCommandService {
     public Mono<Void> deleteUser(SysUserCommand command) {
         return sysUserDomainRepository.load(new UserId(command.getId())).flatMap(domain -> {
 
-            // TODO CreateBy and UpdateBy will be retrieved from the JWT token going forward.
-            domain.delete("TODO");
+            domain.delete();
             return sysUserDomainRepository.save(domain);
         }).then();
     }

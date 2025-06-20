@@ -4,8 +4,6 @@ import com.springddd.domain.AbstractDomainMask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SysMenuDomain extends AbstractDomainMask {
@@ -22,18 +20,14 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     public void update(MenuId parentId,
                        MenuBasicInfo menuBasicInfo,
-                       MenuExtendInfo menuExtendInfo, Long deptId, String updateBy) {
+                       MenuExtendInfo menuExtendInfo, Long deptId) {
         this.parentId = parentId;
         this.menuBasicInfo = menuBasicInfo;
         this.menuExtendInfo = menuExtendInfo;
         super.setDeptId(deptId);
-        super.setUpdateBy(updateBy);
-        super.setUpdateTime(LocalDateTime.now());
     }
 
-    public void delete(String updateBy) {
+    public void delete() {
         super.setDeleteStatus("1");
-        super.setUpdateBy(updateBy);
-        super.setUpdateTime(LocalDateTime.now());
     }
 }
