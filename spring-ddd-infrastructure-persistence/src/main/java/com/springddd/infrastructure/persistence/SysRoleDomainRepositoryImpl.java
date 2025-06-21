@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -45,6 +46,7 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(SysRoleDomain aggregateRoot) {
         SysRoleEntity sysRoleEntity = new SysRoleEntity();
 
