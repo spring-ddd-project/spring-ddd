@@ -6,6 +6,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
@@ -26,7 +27,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         String token = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (ObjectUtils.isEmpty(token)) {
-            return Mono.empty();
+            return Mono.error(new AccessDeniedException("No authorization header"));
         }
 
         try {
@@ -42,7 +43,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
             );
         } catch (Exception e) {
-            return Mono.empty();
+            return Mono.error(new AccessDeniedException(e.getMessage()));
         }
     }
 }
