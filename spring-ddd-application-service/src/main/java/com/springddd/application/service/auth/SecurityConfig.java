@@ -1,6 +1,6 @@
 package com.springddd.application.service.auth;
 
-import com.springddd.application.service.auth.jwt.JwtFilter;
+import com.springddd.application.service.auth.jwt.JwtAuthenticationConverter;
 import com.springddd.application.service.auth.jwt.JwtReactiveAuthenticationManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +22,7 @@ public class SecurityConfig {
 
     private final AuthUserDetailsService authUserDetailsService;
 
-    private final JwtFilter jwtFilter;
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     private final JwtReactiveAuthenticationManager jwtAuthenticationManager;
 
@@ -42,7 +42,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationWebFilter jwtAuthenticationWebFilter() {
         AuthenticationWebFilter filter = new AuthenticationWebFilter(jwtAuthenticationManager);
-        filter.setServerAuthenticationConverter(jwtFilter);
+        filter.setServerAuthenticationConverter(jwtAuthenticationConverter);
         return filter;
     }
 

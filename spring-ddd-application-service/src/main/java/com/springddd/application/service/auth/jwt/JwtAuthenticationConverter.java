@@ -18,7 +18,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JwtFilter implements ServerAuthenticationConverter {
+public class JwtAuthenticationConverter implements ServerAuthenticationConverter {
 
     private final JwtTemplate jwtTemplate;
 
