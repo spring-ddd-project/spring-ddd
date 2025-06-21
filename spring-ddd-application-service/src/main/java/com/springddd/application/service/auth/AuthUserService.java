@@ -90,7 +90,7 @@ public class AuthUserService {
     }
 
     public Mono<Void> clearCache() {
-        return reactiveRedisCacheHelper.deleteCache(reactiveRedisCacheHelper.buildKey("user:" + SecurityUtils.getUserId().toString() + ":token", SecurityUtils.getUserId().toString()));
+        return reactiveRedisCacheHelper.deleteCache("user:" + SecurityUtils.getUserId() + ":*");
     }
 
 }
