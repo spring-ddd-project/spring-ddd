@@ -1,5 +1,7 @@
 spring:
   r2dbc:
-    url: r2dbc:pool:mysql://spring-ddd-db:3306/spring_ddd?useSSL=false&serverTimezone=Asia/Shanghai
+    url: r2dbc:pool:mysql://spring-ddd-db:3306/spring_ddd
     username: test_user
     password: QAZ123wsx456
+jwt:
+  secret: 'r)],&w1%g$26idpK7@.UmZ-=SXwy_Hkb-hf~3ebr,2QHI8YEIbg3_&tMW8UwzQ1f'
