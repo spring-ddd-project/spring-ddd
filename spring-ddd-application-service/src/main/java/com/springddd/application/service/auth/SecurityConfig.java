@@ -1,5 +1,7 @@
 package com.springddd.application.service.auth;
 
+import com.springddd.application.service.auth.exception.CustomAccessDeniedHandler;
+import com.springddd.application.service.auth.exception.CustomAuthenticationEntryPoint;
 import com.springddd.application.service.auth.jwt.JwtAuthenticationConverter;
 import com.springddd.application.service.auth.jwt.JwtReactiveAuthenticationManager;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,12 @@ public class SecurityConfig {
 
     private final AuthorizationManagerConfig authorizationManagerConfig;
 
+    private final SecurityProperties securityProperties;
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+
     @Bean
     public ReactiveAuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         UserDetailsRepositoryReactiveAuthenticationManager authManager =
@@ -53,10 +61,14 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/auth/login").permitAll()
+                        .pathMatchers(securityProperties.getIgnorePaths().toArray(new String[0])).permitAll()
                         .anyExchange().access(authorizationManagerConfig)
                 )
                 .addFilterAt(jwtAuthenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
                 .build();
     }
 
