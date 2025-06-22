@@ -2,7 +2,6 @@ package com.springddd.application.service.auth.jwt;
 
 import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
-import com.springddd.domain.menu.MenuPermission;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +16,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -40,32 +38,30 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
             return Mono.empty();
         }
 
-        String token = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (ObjectUtils.isEmpty(token)) {
-            return Mono.error(new AccessDeniedException("Missing Authorization header"));
+        if (ObjectUtils.isEmpty(authHeader) || !authHeader.startsWith("Bearer ")) {
+            return Mono.error(new AccessDeniedException("Missing or invalid Authorization header"));
         }
+
+        // Extract the token part by removing the "Bearer" prefix and trimming any extra whitespace.
+        String token = authHeader.substring(7).trim().replaceAll("\\s+", "");
 
         try {
             Jws<Claims> claims = jwtTemplate.parseToken(token);
             String username = claims.getPayload().get("username", String.class);
-            List<String> permissions = claims.getPayload().get("permissions", List.class);
 
             AuthUser user = new AuthUser();
             user.setUsername(username);
-            user.setPermissions(
-                    permissions.stream()
-                            .map(MenuPermission::new)
-                            .toList()
-            );
 
             return Mono.just(
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
             );
         } catch (Exception e) {
-            return Mono.error(new AccessDeniedException(e.getMessage()));
+            return Mono.error(new AccessDeniedException("Invalid JWT token: " + e.getMessage()));
         }
     }
+
 
 }
 
