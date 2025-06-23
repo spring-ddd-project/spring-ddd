@@ -3,6 +3,15 @@ spring:
     url: r2dbc:pool:mysql://spring-ddd-db:3306/spring_ddd
     username: test_user
     password: QAZ123wsx456
+  data:
+    redis:
+      host: spring-ddd-redis
+      lettuce:
+        pool:
+          max-active: 64
+          max-idle: 32
+          min-idle: 8
+          max-wait: 4s
 
 jwt:
   secret: 'r)],&w1%g$26idpK7@.UmZ-=SXwy_Hkb-hf~3ebr,2QHI8YEIbg3_&tMW8UwzQ1f'
