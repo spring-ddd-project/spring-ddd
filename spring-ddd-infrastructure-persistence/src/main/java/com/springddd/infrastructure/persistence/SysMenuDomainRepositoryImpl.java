@@ -23,24 +23,10 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             sysMenuDomain.setMenuId(new MenuId(e.getId()));
             sysMenuDomain.setParentId(new MenuId(e.getParentId()));
 
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
-            menuBasicInfo.setMenuName(new MenuName(e.getName()));
-            menuBasicInfo.setMenuRedirect(new MenuRedirect(e.getRedirect()));
-            menuBasicInfo.setMenuPermission(new MenuPermission(e.getPermission()));
-            menuBasicInfo.setMenuPath(new MenuPath(e.getPath()));
-            menuBasicInfo.setMenuComponent(new MenuComponent(e.getComponent()));
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(e.getName()), new MenuPath(e.getPath()), new MenuComponent(e.getComponent()), new MenuRedirect(e.getRedirect()), new MenuPermission(e.getPermission()));
             sysMenuDomain.setMenuBasicInfo(menuBasicInfo);
 
-            MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-            menuExtendInfo.setOrder(e.getSortOrder());
-            menuExtendInfo.setTitle(e.getTitle());
-            menuExtendInfo.setAffixTab(e.getAffixTab());
-            menuExtendInfo.setNoBasicLayout(e.getNoBasicLayout());
-            menuExtendInfo.setIcon(e.getIcon());
-            menuExtendInfo.setMenuType(e.getMenuType());
-            menuExtendInfo.setVisible(e.getVisible());
-            menuExtendInfo.setEmbedded(e.getEmbedded());
-            menuExtendInfo.setMenuStatus(e.getMenuStatus());
+            MenuExtendInfo menuExtendInfo = new MenuExtendInfo(e.getSortOrder(), e.getTitle(), e.getAffixTab(), e.getNoBasicLayout(), e.getIcon(), e.getMenuType(), e.getVisible(), e.getEmbedded(), e.getMenuStatus());
             sysMenuDomain.setMenuExtendInfo(menuExtendInfo);
 
             sysMenuDomain.setDeptId(e.getDeptId());
@@ -63,22 +49,22 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(MenuId::value).orElse(null));
 
         MenuBasicInfo menuBasicInfo = aggregateRoot.getMenuBasicInfo();
-        entity.setName(menuBasicInfo.getMenuName().value());
-        entity.setPermission(Optional.ofNullable(menuBasicInfo.getMenuPermission()).map(MenuPermission::value).orElse(null));
-        entity.setRedirect(Optional.ofNullable(menuBasicInfo.getMenuRedirect()).map(MenuRedirect::value).orElse(null));
-        entity.setPath(Optional.ofNullable(menuBasicInfo.getMenuPath()).map(MenuPath::value).orElse(null));
-        entity.setComponent(Optional.ofNullable(menuBasicInfo.getMenuComponent()).map(MenuComponent::value).orElse(null));
+        entity.setName(menuBasicInfo.menuName().value());
+        entity.setPermission(Optional.ofNullable(menuBasicInfo.menuPermission()).map(MenuPermission::value).orElse(null));
+        entity.setRedirect(Optional.ofNullable(menuBasicInfo.menuRedirect()).map(MenuRedirect::value).orElse(null));
+        entity.setPath(Optional.ofNullable(menuBasicInfo.menuPath()).map(MenuPath::value).orElse(null));
+        entity.setComponent(Optional.ofNullable(menuBasicInfo.menuComponent()).map(MenuComponent::value).orElse(null));
 
         MenuExtendInfo menuExtendInfo = aggregateRoot.getMenuExtendInfo();
-        entity.setSortOrder(menuExtendInfo.getOrder());
-        entity.setTitle(menuExtendInfo.getTitle());
-        entity.setAffixTab(menuExtendInfo.getAffixTab());
-        entity.setNoBasicLayout(menuExtendInfo.getNoBasicLayout());
-        entity.setIcon(menuExtendInfo.getIcon());
-        entity.setMenuType(menuExtendInfo.getMenuType());
-        entity.setVisible(menuExtendInfo.getVisible());
-        entity.setEmbedded(menuExtendInfo.getEmbedded());
-        entity.setMenuStatus(menuExtendInfo.getMenuStatus());
+        entity.setSortOrder(menuExtendInfo.order());
+        entity.setTitle(menuExtendInfo.title());
+        entity.setAffixTab(menuExtendInfo.affixTab());
+        entity.setNoBasicLayout(menuExtendInfo.noBasicLayout());
+        entity.setIcon(menuExtendInfo.icon());
+        entity.setMenuType(menuExtendInfo.menuType());
+        entity.setVisible(menuExtendInfo.visible());
+        entity.setEmbedded(menuExtendInfo.embedded());
+        entity.setMenuStatus(menuExtendInfo.menuStatus());
 
         entity.setDeptId(aggregateRoot.getDeptId());
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
