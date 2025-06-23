@@ -24,7 +24,7 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
 
             RoleBasicInfo roleBasicInfo = new RoleBasicInfo(
                     new RoleName(e.getRoleName()), new RoleCode(e.getRoleCode()),
-                    new RoleDataScope(e.getDataScope()), new RoleOwner(e.getOwner()));
+                    new RoleDataScope(e.getDataScope()), new RoleOwner(e.getOwnerStatus()));
             sysRoleDomain.setRoleBasicInfo(roleBasicInfo);
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(e.getRoleDesc(), e.getRoleStatus());
@@ -53,7 +53,7 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         sysRoleEntity.setRoleName(roleBasicInfo.roleName().value());
         sysRoleEntity.setRoleCode(roleBasicInfo.roleCode().value());
         sysRoleEntity.setDataScope(roleBasicInfo.roleDataScope().value());
-        sysRoleEntity.setOwner(roleBasicInfo.roleOwner().value());
+        sysRoleEntity.setOwnerStatus(roleBasicInfo.roleOwner().value());
 
         RoleExtendInfo roleExtendInfo = aggregateRoot.getRoleExtendInfo();
         sysRoleEntity.setRoleDesc(roleExtendInfo.roleDesc());
