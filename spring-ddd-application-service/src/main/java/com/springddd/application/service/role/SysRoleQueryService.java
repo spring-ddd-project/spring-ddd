@@ -34,4 +34,8 @@ public class SysRoleQueryService {
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
+
+    public Mono<SysRoleView> getById(Long id) {
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("id").is(id))).one().map(sysRoleViewMapStruct::toView);
+    }
 }
