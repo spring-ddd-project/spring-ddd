@@ -2,6 +2,7 @@ package com.springddd.application.service.auth.jwt;
 
 import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.user.UserId;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
     private final PathPatternParser pathPatternParser = new PathPatternParser();
 
-
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         boolean isIgnored = securityProperties.getIgnorePaths().stream()
@@ -49,10 +49,10 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
         try {
             Jws<Claims> claims = jwtTemplate.parseToken(token);
-            String username = claims.getPayload().get("username", String.class);
+            UserId userId = claims.getPayload().get("userId", UserId.class);
 
             AuthUser user = new AuthUser();
-            user.setUsername(username);
+            user.setUserId(userId);
 
             return Mono.just(
                     new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
