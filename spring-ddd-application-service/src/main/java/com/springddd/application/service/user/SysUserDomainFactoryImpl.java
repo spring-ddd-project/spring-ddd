@@ -6,23 +6,16 @@ import com.springddd.domain.user.SysUserDomain;
 import com.springddd.domain.user.SysUserDomainFactory;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
-
 @Component
 public class SysUserDomainFactoryImpl implements SysUserDomainFactory {
 
     @Override
-    public SysUserDomain newInstance(Account account, ExtendInfo extendInfo, Long deptId, String createBy) {
+    public SysUserDomain newInstance(Account account, ExtendInfo extendInfo, Long deptId) {
         SysUserDomain sysUserDomain = new SysUserDomain();
         sysUserDomain.setAccount(account);
         sysUserDomain.setExtendInfo(extendInfo);
 
-        LocalDateTime now = LocalDateTime.now();
         sysUserDomain.setDeptId(deptId);
-        sysUserDomain.setCreateBy(createBy);
-        sysUserDomain.setCreateTime(now);
-        sysUserDomain.setUpdateBy(createBy);
-        sysUserDomain.setUpdateTime(now);
         sysUserDomain.setDeleteStatus("0");
         return sysUserDomain;
     }

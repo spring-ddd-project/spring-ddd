@@ -22,7 +22,7 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    private final AuthUserDetailsService authUserDetailsService;
+    private final AuthReactiveUserDetailsService authReactiveUserDetailsService;
 
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
@@ -39,7 +39,7 @@ public class SecurityConfig {
     @Bean
     public ReactiveAuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         UserDetailsRepositoryReactiveAuthenticationManager authManager =
-                new UserDetailsRepositoryReactiveAuthenticationManager(authUserDetailsService);
+                new UserDetailsRepositoryReactiveAuthenticationManager(authReactiveUserDetailsService);
         authManager.setPasswordEncoder(passwordEncoder);
         return authManager;
     }
