@@ -33,8 +33,7 @@ public class LinkUsersAndRolesDomainServiceImpl implements LinkUsersAndRolesDoma
                         SysUserRoleDomain domain = sysUserRoleDomainFactory.newInstance(
                                 new UserId(userId),
                                 new RoleId(rid),
-                                null,
-                                "TODO"
+                                null
                         );
                         domain.create();
                         return sysUserRoleDomainRepository.save(domain);
