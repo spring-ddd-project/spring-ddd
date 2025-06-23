@@ -48,6 +48,10 @@ public class AuthUser implements Serializable, UserDetails {
                     .map(p -> new SimpleGrantedAuthority(p.value()))
                     .collect(Collectors.toUnmodifiableSet());
         }
+        SecurityUtils.setUserId(userId.value());
+        SecurityUtils.setUsername(username);
+        SecurityUtils.setRoles(roles);
+        SecurityUtils.setPermissions(permissions);
         return cachedAuthorities;
     }
 
