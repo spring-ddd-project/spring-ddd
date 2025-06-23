@@ -42,7 +42,7 @@ public class AuthUserService {
                     map.put("userId", user.getUserId().value());
 
                     String token = jwtTemplate.generateToken(map);
-                    String cacheKey = "user:" + user.getUserId().value();
+                    String cacheKey = "user:token:" + user.getUserId().value();
 
                     Mono<Boolean> cacheOp = Mono.empty();
 
@@ -50,8 +50,8 @@ public class AuthUserService {
                         cacheOp = reactiveRedisCacheHelper.deleteCache(cacheKey)
                                 .then(
                                         reactiveRedisCacheHelper.setCache(
-                                                reactiveRedisCacheHelper.buildKey("user:", user.getUserId().value().toString()),
-                                                user,
+                                                reactiveRedisCacheHelper.buildKey("user:token", user.getUserId().value().toString()),
+                                                token,
                                                 Duration.ofDays(100)
                                         )
                                 );
@@ -83,7 +83,7 @@ public class AuthUserService {
     }
 
     public Mono<Void> clearCache() {
-        return reactiveRedisCacheHelper.deleteCache(reactiveRedisCacheHelper.buildKey("user:", SecurityUtils.getUserId().toString()));
+        return reactiveRedisCacheHelper.deleteCache(reactiveRedisCacheHelper.buildKey("user:token:", SecurityUtils.getUserId().toString()));
     }
 
 }
