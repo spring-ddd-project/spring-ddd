@@ -28,7 +28,7 @@ public class SysRoleCommandService {
         roleExtendInfo.setRoleDesc(command.getRoleDesc());
         roleExtendInfo.setRoleStatus(command.getRoleStatus());
 
-        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDeptId(), "TODO");
+        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDeptId());
         domain.create();
 
         return sysRoleDomainRepository.save(domain);
@@ -46,14 +46,14 @@ public class SysRoleCommandService {
             roleExtendInfo.setRoleDesc(command.getRoleDesc());
             roleExtendInfo.setRoleStatus(command.getRoleStatus());
 
-            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDeptId(), "TODO");
+            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDeptId());
             return sysRoleDomainRepository.save(domain);
         }).then();
     }
 
     public Mono<Void> deleteRole(SysRoleCommand sysRoleCommand) {
         return sysRoleDomainRepository.load(new RoleId(sysRoleCommand.getId())).flatMap(domain -> {
-            domain.delete("TODO");
+            domain.delete();
             return sysRoleDomainRepository.save(domain);
         }).then();
     }

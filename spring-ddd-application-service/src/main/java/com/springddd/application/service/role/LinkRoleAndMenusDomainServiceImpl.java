@@ -29,7 +29,7 @@ public class LinkRoleAndMenusDomainServiceImpl implements LinkRoleAndMenusDomain
             Mono<Void> deleted = deleteSysRoleMenuByIdsDomainService.deleteByIds(ids);
 
             List<Mono<Long>> saved = menuIds.stream().map(menuId -> {
-                SysRoleMenuDomain domain = sysRoleMenuDomainFactory.newInstance(new RoleId(roleId), new MenuId(menuId), null, "TODO");
+                SysRoleMenuDomain domain = sysRoleMenuDomainFactory.newInstance(new RoleId(roleId), new MenuId(menuId), null);
                 domain.create();
                 return sysRoleMenuDomainRepository.save(domain);
             }).toList();
