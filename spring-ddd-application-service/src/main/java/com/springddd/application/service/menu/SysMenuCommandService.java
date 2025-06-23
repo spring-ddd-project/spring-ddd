@@ -33,7 +33,7 @@ public class SysMenuCommandService {
         menuExtendInfo.setMenuStatus(command.getMenuStatus());
 
         SysMenuDomain sysMenuDomain = sysMenuDomainFactory.create(
-                new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId(), "TODO");
+                new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId());
         sysMenuDomain.create();
 
         return sysMenuDomainRepository.save(sysMenuDomain);
@@ -55,7 +55,7 @@ public class SysMenuCommandService {
             menuExtendInfo.setEmbedded(command.getEmbedded());
             menuExtendInfo.setMenuStatus(command.getMenuStatus());
 
-            domain.update(new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId(), "TODO");
+            domain.update(new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId());
 
             return sysMenuDomainRepository.save(domain);
         }).then();
@@ -63,7 +63,7 @@ public class SysMenuCommandService {
 
     public Mono<Void> delete(SysMenuCommand command) {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
-            domain.delete("TODO");
+            domain.delete();
             return sysMenuDomainRepository.save(domain);
         }).then();
     }
