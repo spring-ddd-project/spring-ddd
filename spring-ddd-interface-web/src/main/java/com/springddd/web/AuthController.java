@@ -20,6 +20,11 @@ public class AuthController {
         return ApiResponse.validated(query, authUserService::getToken);
     }
 
+    @PostMapping("/logout")
+    public Mono<ApiResponse> logout() {
+        return ApiResponse.ok(authUserService.clearCache());
+    }
+
     @PostMapping("/user/info")
     public Mono<ApiResponse> userInfo() {
         return ApiResponse.ok(authUserService.getUserInfo());
