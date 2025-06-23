@@ -82,5 +82,9 @@ public class AuthUserService {
         );
     }
 
+    public Mono<Void> clearCache() {
+        return reactiveRedisCacheHelper.deleteCache(reactiveRedisCacheHelper.buildKey("user:", SecurityUtils.getUserId().toString()));
+    }
+
 }
 
