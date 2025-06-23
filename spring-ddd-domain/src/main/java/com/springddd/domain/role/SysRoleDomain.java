@@ -4,8 +4,6 @@ import com.springddd.domain.AbstractDomainMask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-import java.time.LocalDateTime;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SysRoleDomain extends AbstractDomainMask {
@@ -18,17 +16,13 @@ public class SysRoleDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void updateRole(RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, Long deptId, String updateBy) {
+    public void updateRole(RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, Long deptId) {
         this.roleBasicInfo = roleBasicInfo;
         this.roleExtendInfo = roleExtendInfo;
         super.setDeptId(deptId);
-        super.setUpdateBy(updateBy);
-        super.setUpdateTime(LocalDateTime.now());
     }
 
-    public void delete(String updateBy) {
+    public void delete() {
         super.setDeleteStatus("1");
-        super.setUpdateBy(updateBy);
-        super.setUpdateTime(LocalDateTime.now());
     }
 }
