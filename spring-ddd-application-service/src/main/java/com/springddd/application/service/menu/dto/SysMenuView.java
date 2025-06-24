@@ -17,6 +17,8 @@ public class SysMenuView implements Serializable {
 
     private String path;
 
+    private String component;
+
     private String icon;
 
     private String visible;
