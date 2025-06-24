@@ -25,6 +25,7 @@ public class SysMenuCommandService {
         menuBasicInfo.setMenuIcon(new MenuIcon(command.getIcon()));
         menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
         menuBasicInfo.setMenuType(new MenuType(command.getMenuType()));
+        menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
 
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
         menuExtendInfo.setSortOrder(command.getSortOrder());
@@ -48,6 +49,7 @@ public class SysMenuCommandService {
             menuBasicInfo.setMenuIcon(new MenuIcon(command.getIcon()));
             menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
             menuBasicInfo.setMenuType(new MenuType(command.getMenuType()));
+            menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
             menuExtendInfo.setSortOrder(command.getSortOrder());
