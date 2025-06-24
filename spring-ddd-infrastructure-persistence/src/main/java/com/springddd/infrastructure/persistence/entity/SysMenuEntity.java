@@ -23,6 +23,8 @@ public class SysMenuEntity {
 
     private String path;
 
+    private String component;
+
     private String icon;
 
     private String visible;
