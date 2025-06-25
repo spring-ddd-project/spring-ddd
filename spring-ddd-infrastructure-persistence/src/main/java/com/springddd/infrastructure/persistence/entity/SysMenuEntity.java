@@ -31,19 +31,19 @@ public class SysMenuEntity {
 
     private String title;
 
-    private String affixTab;
+    private Boolean affixTab;
 
-    private String noBasicLayout;
+    private Boolean noBasicLayout;
 
     private String icon;
 
-    private String menuType;
+    private Boolean menuType;
 
-    private String visible;
+    private Boolean visible;
 
-    private String embedded;
+    private Boolean embedded;
 
-    private String menuStatus;
+    private Boolean menuStatus;
 
     private Long deptId;
 
