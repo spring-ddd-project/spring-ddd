@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SysDictItemDomain extends AbstractDomainMask {
 
-    private DictId itemId;
+    private DictItemId itemId;
 
     private DictId dictId;
 
