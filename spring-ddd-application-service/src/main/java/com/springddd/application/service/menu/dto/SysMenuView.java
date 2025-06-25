@@ -3,9 +3,12 @@ package com.springddd.application.service.menu.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class SysMenuView implements Serializable {
+
+    private Meta meta;
 
     private Long id;
 
@@ -33,5 +36,19 @@ public class SysMenuView implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
+
+    private List<SysMenuView> children;
+
+    @Data
+    public static class Meta implements Serializable{
+
+        private Integer order;
+
+        private String title;
+
+        private Boolean affixTab;
+
+        private Boolean noBasicLayout;
+    }
 }

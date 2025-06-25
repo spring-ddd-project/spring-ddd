@@ -44,8 +44,8 @@ public class SysRoleEntity {
     @LastModifiedDate
     private LocalDateTime updateTime;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
     @Version
-    private String version;
+    private Integer version;
 }
