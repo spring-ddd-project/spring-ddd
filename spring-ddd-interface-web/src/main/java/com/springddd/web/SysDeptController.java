@@ -25,6 +25,11 @@ public class SysDeptController {
         return ApiResponse.validated(query, sysDeptQueryService::index);
     }
 
+    @PostMapping("/tree")
+    public Mono<ApiResponse> tree() {
+        return ApiResponse.ok(sysDeptQueryService.deptTree());
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysDeptCommand command) {
         return ApiResponse.ok(sysDeptCommandService.create(command));
