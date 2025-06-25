@@ -5,11 +5,21 @@ import lombok.Data;
 @Data
 public class MenuExtendInfo {
 
-    private Integer sortOrder;
+    private Integer order;
 
-    private String visible;
+    private String title;
 
-    private String embedded;
+    private Boolean affixTab;
 
-    private String menuStatus;
+    private Boolean noBasicLayout;
+
+    private String icon;
+
+    private Boolean menuType;
+
+    private Boolean visible;
+
+    private Boolean embedded;
+
+    private Boolean menuStatus;
 }

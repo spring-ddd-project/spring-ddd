@@ -22,9 +22,9 @@ public class SysRoleQuery implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
-    private String version;
+    private Integer version;
 
     @NotNull(message = "pageNum can not be null")
     private Integer pageNum;

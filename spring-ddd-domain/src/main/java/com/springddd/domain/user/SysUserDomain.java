@@ -26,7 +26,7 @@ public class SysUserDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        super.setDeleteStatus("1");
+        super.setDeleteStatus(true);
     }
 
     public void updateUserStatus(String status) {
