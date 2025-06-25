@@ -23,6 +23,6 @@ public class SysRoleDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        super.setDeleteStatus("1");
+        super.setDeleteStatus(true);
     }
 }
