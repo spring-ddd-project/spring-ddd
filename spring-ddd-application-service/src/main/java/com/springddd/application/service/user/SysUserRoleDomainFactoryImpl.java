@@ -16,7 +16,7 @@ public class SysUserRoleDomainFactoryImpl implements SysUserRoleDomainFactory {
         sysUserRoleDomain.setRoleId(roleId);
 
         sysUserRoleDomain.setDeptId(deptId);
-        sysUserRoleDomain.setDeleteStatus("0");
+        sysUserRoleDomain.setDeleteStatus(false);
         return sysUserRoleDomain;
     }
 }
