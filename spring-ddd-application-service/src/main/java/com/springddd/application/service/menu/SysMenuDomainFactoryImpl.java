@@ -14,7 +14,7 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
         domain.setMenuExtendInfo(menuExtendInfo);
 
         domain.setDeptId(deptId);
-        domain.setDeleteStatus("0");
+        domain.setDeleteStatus(false);
         return domain;
     }
 }

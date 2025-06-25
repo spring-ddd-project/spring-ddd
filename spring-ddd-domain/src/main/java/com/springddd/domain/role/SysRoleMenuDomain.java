@@ -28,6 +28,6 @@ public class SysRoleMenuDomain extends AbstractDomainMask {
     }
 
     public void delete(String updateBy) {
-        super.setDeleteStatus("1");
+        super.setDeleteStatus(true);
     }
 }
