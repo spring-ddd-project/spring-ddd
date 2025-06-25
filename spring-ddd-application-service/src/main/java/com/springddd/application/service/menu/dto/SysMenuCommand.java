@@ -13,23 +13,31 @@ public class SysMenuCommand implements Serializable {
 
     private String name;
 
-    private String permission;
-
     private String path;
 
     private String component;
 
+    private String redirect;
+
+    private String permission;
+
+    private Integer order;
+
+    private String title;
+
+    private Boolean affixTab;
+
+    private Boolean noBasicLayout;
+
     private String icon;
 
-    private String visible;
+    private Boolean menuType;
 
-    private Integer sortOrder;
+    private Boolean visible;
 
-    private String embedded;
+    private Boolean embedded;
 
-    private String menuType;
-
-    private String menuStatus;
+    private Boolean menuStatus;
 
     private Long deptId;
 

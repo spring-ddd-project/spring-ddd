@@ -22,13 +22,17 @@ public class SysMenuCommandService {
         MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
         menuBasicInfo.setMenuName(new MenuName(command.getName()));
         menuBasicInfo.setMenuPermission(new MenuPermission(command.getPermission()));
-        menuBasicInfo.setMenuIcon(new MenuIcon(command.getIcon()));
+        menuBasicInfo.setMenuRedirect(new MenuRedirect(command.getRedirect()));
         menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
-        menuBasicInfo.setMenuType(new MenuType(command.getMenuType()));
         menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
 
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-        menuExtendInfo.setSortOrder(command.getSortOrder());
+        menuExtendInfo.setOrder(command.getOrder());
+        menuExtendInfo.setTitle(command.getTitle());
+        menuExtendInfo.setAffixTab(command.getAffixTab());
+        menuExtendInfo.setNoBasicLayout(command.getNoBasicLayout());
+        menuExtendInfo.setIcon(command.getIcon());
+        menuExtendInfo.setMenuType(command.getMenuType());
         menuExtendInfo.setVisible(command.getVisible());
         menuExtendInfo.setEmbedded(command.getEmbedded());
         menuExtendInfo.setMenuStatus(command.getMenuStatus());
@@ -46,13 +50,16 @@ public class SysMenuCommandService {
             MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
             menuBasicInfo.setMenuName(new MenuName(command.getName()));
             menuBasicInfo.setMenuPermission(new MenuPermission(command.getPermission()));
-            menuBasicInfo.setMenuIcon(new MenuIcon(command.getIcon()));
             menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
-            menuBasicInfo.setMenuType(new MenuType(command.getMenuType()));
             menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-            menuExtendInfo.setSortOrder(command.getSortOrder());
+            menuExtendInfo.setOrder(command.getOrder());
+            menuExtendInfo.setTitle(command.getTitle());
+            menuExtendInfo.setAffixTab(command.getAffixTab());
+            menuExtendInfo.setNoBasicLayout(command.getNoBasicLayout());
+            menuExtendInfo.setIcon(command.getIcon());
+            menuExtendInfo.setMenuType(command.getMenuType());
             menuExtendInfo.setVisible(command.getVisible());
             menuExtendInfo.setEmbedded(command.getEmbedded());
             menuExtendInfo.setMenuStatus(command.getMenuStatus());
