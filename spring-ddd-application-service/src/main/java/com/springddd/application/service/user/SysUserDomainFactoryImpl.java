@@ -16,7 +16,7 @@ public class SysUserDomainFactoryImpl implements SysUserDomainFactory {
         sysUserDomain.setExtendInfo(extendInfo);
 
         sysUserDomain.setDeptId(deptId);
-        sysUserDomain.setDeleteStatus("0");
+        sysUserDomain.setDeleteStatus(false);
         return sysUserDomain;
     }
 }
