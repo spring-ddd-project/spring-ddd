@@ -1,6 +1,6 @@
 package com.springddd.application.service.dict;
 
-import com.springddd.domain.dict.DeleteSysDictByIdsDomainService;
+import com.springddd.domain.dict.WipeSysDictByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysDictRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DeleteSysDictByIdsDomainServiceImpl implements DeleteSysDictByIdsDomainService {
+public class WipeSysDictByIdsDomainServiceImpl implements WipeSysDictByIdsDomainService {
 
     private final SysDictRepository sysDictRepository;
 
