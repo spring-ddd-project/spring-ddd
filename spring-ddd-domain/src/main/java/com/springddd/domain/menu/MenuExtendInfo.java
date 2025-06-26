@@ -15,7 +15,7 @@ public class MenuExtendInfo {
 
     private String icon;
 
-    private Boolean menuType;
+    private Integer menuType;
 
     private Boolean visible;
 
