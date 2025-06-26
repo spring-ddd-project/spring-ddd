@@ -23,6 +23,8 @@ public class SysUserCommandService {
 
     private final BatchDeleteSysUserByIdDomainService batchDeleteSysUserByIdDomainService;
 
+    private final BatchRestoreSysUserByIdDomainService batchRestoreSysUserByIdDomainService;
+
     public Mono<Long> createUser(SysUserCommand command) {
         Account account = new Account();
         account.setUsername(new Username(command.getUsername()));
@@ -73,5 +75,9 @@ public class SysUserCommandService {
 
     public Mono<Void> batchDelete(List<Long> ids) {
         return batchDeleteSysUserByIdDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> batchRestore(List<Long> ids) {
+        return batchRestoreSysUserByIdDomainService.restore(ids);
     }
 }
