@@ -37,22 +37,18 @@ public class AuthUser implements Serializable, UserDetails {
 
     private List<MenuPermission> permissions;
 
-    private transient Collection<? extends GrantedAuthority> cachedAuthorities;
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (cachedAuthorities == null) {
-            cachedAuthorities = CollectionUtils.isEmpty(permissions)
-                    ? List.of()
-                    : permissions.stream()
-                    .map(p -> new SimpleGrantedAuthority(p.value()))
-                    .collect(Collectors.toUnmodifiableSet());
-        }
+        Collection<? extends GrantedAuthority> objects = CollectionUtils.isEmpty(permissions)
+                ? List.of()
+                : permissions.stream()
+                .map(p -> new SimpleGrantedAuthority(p.value()))
+                .collect(Collectors.toUnmodifiableSet());
         SecurityUtils.setUserId(userId.value());
         SecurityUtils.setUsername(username);
         SecurityUtils.setRoles(roles);
         SecurityUtils.setPermissions(permissions);
-        return cachedAuthorities;
+        return objects;
     }
 
 

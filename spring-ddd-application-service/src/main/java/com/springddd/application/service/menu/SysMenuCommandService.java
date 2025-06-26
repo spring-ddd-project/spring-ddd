@@ -50,6 +50,7 @@ public class SysMenuCommandService {
             MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
             menuBasicInfo.setMenuName(new MenuName(command.getName()));
             menuBasicInfo.setMenuPermission(new MenuPermission(command.getPermission()));
+            menuBasicInfo.setMenuRedirect(new MenuRedirect(command.getRedirect()));
             menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
             menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
 

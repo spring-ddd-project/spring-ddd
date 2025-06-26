@@ -27,7 +27,7 @@ public class SysMenuEntity {
 
     private String permission;
 
-    private Integer order;
+    private Integer sortOrder;
 
     private String title;
 
@@ -37,7 +37,7 @@ public class SysMenuEntity {
 
     private String icon;
 
-    private Boolean menuType;
+    private Integer menuType;
 
     private Boolean visible;
 
