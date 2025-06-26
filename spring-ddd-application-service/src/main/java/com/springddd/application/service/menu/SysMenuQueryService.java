@@ -12,6 +12,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,6 +64,9 @@ public class SysMenuQueryService {
     }
 
     private Mono<List<SysMenuView>> loadParentsAndBuildTree(List<SysMenuView> menus) {
+        if (CollectionUtils.isEmpty(menus)) {
+            return Mono.empty();
+        }
         Map<Long, SysMenuView> menuMap = new HashMap<>();
         menus.forEach(menu -> menuMap.put(menu.getId(), menu));
 

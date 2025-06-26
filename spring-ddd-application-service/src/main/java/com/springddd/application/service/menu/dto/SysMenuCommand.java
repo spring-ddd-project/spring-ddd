@@ -31,7 +31,7 @@ public class SysMenuCommand implements Serializable {
 
     private String icon;
 
-    private Boolean menuType;
+    private Integer menuType;
 
     private Boolean visible;
 
