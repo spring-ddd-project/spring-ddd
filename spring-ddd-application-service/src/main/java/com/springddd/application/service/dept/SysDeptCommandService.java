@@ -16,7 +16,7 @@ public class SysDeptCommandService {
 
     private final SysDeptDomainFactory sysDeptDomainFactory;
 
-    private final DeleteSysDeptByIdsDomainService deleteSysDeptByIdsDomainService;
+    private final WipeSysDeptByIdsDomainService wipeSysDeptByIdsDomainService;
 
     public Mono<Long> create(SysDeptCommand command) {
         DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(command.getDeptName()));
@@ -46,6 +46,6 @@ public class SysDeptCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysDeptByIdsDomainService.deleteByIds(ids);
+        return wipeSysDeptByIdsDomainService.deleteByIds(ids);
     }
 }
