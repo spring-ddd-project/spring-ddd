@@ -25,6 +25,11 @@ public class SysMenuController {
         return ApiResponse.validated(query, sysMenuQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody Mono<SysMenuQuery> query) {
+        return ApiResponse.validated(query, sysMenuQueryService::recycle);
+    }
+
     @PostMapping("/all")
     public Mono<ApiResponse> all() {
         return ApiResponse.ok(sysMenuQueryService.queryByPermissions());
