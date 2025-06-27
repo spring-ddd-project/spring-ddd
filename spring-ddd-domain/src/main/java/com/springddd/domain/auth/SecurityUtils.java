@@ -54,5 +54,9 @@ public class SecurityUtils {
         return SecurityUtils.permissions;
     }
 
+    public static Integer concurrency() {
+        return Runtime.getRuntime().availableProcessors() * 2;
+    }
+
 }
 
