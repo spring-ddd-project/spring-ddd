@@ -25,15 +25,23 @@ public class SysDeptQueryService {
     private final SysDeptViewMapStruct sysDeptViewMapStruct;
 
     public Mono<PageResponse<SysDeptView>> index(SysDeptQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is(false);
+        Criteria criteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria);
         Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, Integer.MAX_VALUE));
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    }
+
+    public Mono<PageResponse<SysDeptView>> recycle(SysDeptQuery query) {
+        Criteria criteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(true);
+        Query qry = Query.query(criteria);
+        Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
     public Mono<List<SysDeptView>> deptTree() {
-        return r2dbcEntityTemplate.select(SysDeptEntity.class).matching(Query.query(Criteria.where("delete_status").is(false)))
+        return r2dbcEntityTemplate.select(SysDeptEntity.class).matching(Query.query(Criteria.where(SysDeptQuery.Fields.deleteStatus).is(false)))
                 .all().collectList().map(sysDeptViewMapStruct::toViews)
                 .flatMap(views -> ReactiveTreeUtils.buildTree(
                         views,
