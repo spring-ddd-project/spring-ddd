@@ -205,7 +205,7 @@ public class SysMenuQueryService {
         return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithoutPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
     }
 
-    public Mono<List<SysMenuView>> allMenu() {
-        return sysMenuRepository.findAll().filter(menu -> !menu.getDeleteStatus()).collectList().map(sysMenuViewMapStruct::toViewList);
+    public Mono<List<SysMenuView>> queryAllMenu() {
+        return sysMenuRepository.findAll().collectList().map(sysMenuViewMapStruct::toViewList);
     }
 }
