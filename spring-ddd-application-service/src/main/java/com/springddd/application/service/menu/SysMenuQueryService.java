@@ -96,7 +96,16 @@ public class SysMenuQueryService {
         menus.forEach(menu -> menuMap.put(menu.getId(), menu));
 
         return Flux.fromIterable(menus)
-                .flatMap(menu -> loadParentChain(menu.getParentId(), menuMap))
+                .flatMap(menu -> ReactiveTreeUtils.loadParentChain(
+                        menu.getParentId(),
+                        menuMap,
+                        parentId -> r2dbcEntityTemplate.selectOne(
+                                Query.query(Criteria.where(SysMenuQuery.Fields.id).is(parentId).and(SysMenuQuery.Fields.deleteStatus).is(false)),
+                                SysMenuEntity.class
+                        ).map(sysMenuViewMapStruct::toView),
+                        SysMenuView::getId,
+                        SysMenuView::getParentId
+                ))
                 .then(Mono.fromCallable(() -> new ArrayList<>(menuMap.values())))
                 .flatMap(flatList -> ReactiveTreeUtils.buildTree(
                         flatList,
@@ -104,26 +113,10 @@ public class SysMenuQueryService {
                         SysMenuView::getParentId,
                         SysMenuView::setChildren,
                         menu -> menu.getParentId() == null || menu.getParentId() == 0,
-                        null,
+                        Comparator.comparing(e -> e.getMeta().getOrder()),
                         null,
                         30
                 ));
-    }
-
-    private Mono<Void> loadParentChain(Long parentId, Map<Long, SysMenuView> menuMap) {
-        if (parentId == null || parentId == 0 || menuMap.containsKey(parentId)) {
-            return Mono.empty();
-        }
-
-        return r2dbcEntityTemplate.selectOne(
-                        Query.query(Criteria.where(SysMenuQuery.Fields.id).is(parentId)),
-                        SysMenuEntity.class
-                )
-                .map(sysMenuViewMapStruct::toView)
-                .flatMap(parent -> {
-                    menuMap.put(parent.getId(), parent);
-                    return loadParentChain(parent.getParentId(), menuMap);
-                });
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
