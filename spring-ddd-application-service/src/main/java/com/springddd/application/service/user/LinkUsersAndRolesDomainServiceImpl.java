@@ -5,6 +5,7 @@ import com.springddd.domain.role.RoleId;
 import com.springddd.domain.user.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -23,6 +24,7 @@ public class LinkUsersAndRolesDomainServiceImpl implements LinkUsersAndRolesDoma
     private final SysUserRoleDomainFactory sysUserRoleDomainFactory;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Void> link(Long userId, List<Long> roleIds) {
         return sysUserRoleQueryService.queryLinkUserAndRole(userId).flatMap(sysUserRoleViews -> {
             List<Long> ids = sysUserRoleViews.stream().map(SysUserRoleView::getId).toList();
