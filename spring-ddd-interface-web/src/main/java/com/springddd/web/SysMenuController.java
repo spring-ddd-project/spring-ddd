@@ -21,7 +21,7 @@ public class SysMenuController {
 
     private final SysMenuCommandService sysMenuCommandService;
 
-    @PostMapping("/page")
+    @PostMapping("/index")
     public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysMenuQuery> query) {
         return ApiResponse.validated(query, sysMenuQueryService::page);
     }
@@ -29,6 +29,11 @@ public class SysMenuController {
     @PostMapping("/all")
     public Mono<ApiResponse> all() {
         return ApiResponse.ok(sysMenuQueryService.queryAll());
+    }
+
+    @PostMapping("/getParentTree")
+    public Mono<ApiResponse> getParentTree() {
+        return ApiResponse.ok(sysMenuQueryService.getParentTree());
     }
 
     @PostMapping("/getByMenuId")
@@ -46,7 +51,7 @@ public class SysMenuController {
         return ApiResponse.ok(sysMenuCommandService.update(command));
     }
 
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public Mono<ApiResponse> delete(@RequestBody SysMenuCommand command) {
         return ApiResponse.ok(sysMenuCommandService.delete(command));
     }

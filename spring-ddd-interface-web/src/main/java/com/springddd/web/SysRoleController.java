@@ -37,7 +37,7 @@ public class SysRoleController {
         return ApiResponse.ok(sysRoleCommandService.updateRole(command));
     }
 
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public Mono<ApiResponse> delete(@RequestBody SysRoleCommand command) {
         return ApiResponse.ok(sysRoleCommandService.deleteRole(command));
     }
