@@ -35,8 +35,11 @@ public enum ErrorCode {
     DICT_ITEM_LABEL_NULL(1405, "error.dict.item.label.null"),
     DICT_ITEM_VALUE_NULL(1406, "error.dict.item.value.null"),
     DICT_ITEM_SORTORDER_NULL(1407, "error.dict.item.sortOrder.null"),
-    DICT_ITEM_ITEMSTATUS_NULL(1408, "error.dict.item.itemStatus.null")
+    DICT_ITEM_ITEMSTATUS_NULL(1408, "error.dict.item.itemStatus.null"),
 
+    GEN_INFO_PACKAGE_NAME_NULL(1500, "error.gen.info.package.name.null"),
+    GEN_INFO_TABLE_NAME_NULL(1501, "error.gen.info.table.name.null"),
+    GEN_INFO_CLASS_NAME_NULL(1502, "error.gen.info.class.name.null")
 
     ;
 
