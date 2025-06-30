@@ -51,7 +51,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         // Extract the token part by removing the "Bearer" prefix and trimming any extra whitespace.
         String token = authHeader.substring(7).trim().replaceAll("\\s+", "");
 
-        return reactiveRedisCacheHelper.getCache("user:token:" + SecurityUtils.getUserId(), String.class)
+        return reactiveRedisCacheHelper.getCache("user:" + SecurityUtils.getUserId() + ":token", String.class)
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
