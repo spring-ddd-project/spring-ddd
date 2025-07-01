@@ -15,6 +15,13 @@ public class SecurityUtils {
 
     private static List<MenuPermission> permissions;
 
+    public static void setAuthUserContext(AuthUser user) {
+        setUserId(user.getUserId().value());
+        setUsername(user.getUsername());
+        setRoles(user.getRoles());
+        setPermissions(user.getPermissions());
+    }
+
     public static void setUserId(Long userId) {
         SecurityUtils.userId = userId;
     }

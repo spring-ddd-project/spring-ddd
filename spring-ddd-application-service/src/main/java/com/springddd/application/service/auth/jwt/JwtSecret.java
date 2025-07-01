@@ -7,6 +7,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Data
 public class JwtSecret {
+
     @Value("${jwt.secret}")
     private String key;
+
+    @Value("${jwt.ttl}")
+    private Integer ttl;
 }
