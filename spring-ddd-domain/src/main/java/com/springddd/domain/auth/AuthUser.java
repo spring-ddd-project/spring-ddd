@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -39,16 +40,13 @@ public class AuthUser implements Serializable, UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<? extends GrantedAuthority> objects = CollectionUtils.isEmpty(permissions)
+        return CollectionUtils.isEmpty(permissions)
                 ? List.of()
                 : permissions.stream()
-                .map(p -> new SimpleGrantedAuthority(p.value()))
+                .map(MenuPermission::value)
+                .filter(StringUtils::hasText)
+                .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toUnmodifiableSet());
-        SecurityUtils.setUserId(userId.value());
-        SecurityUtils.setUsername(username);
-        SecurityUtils.setRoles(roles);
-        SecurityUtils.setPermissions(permissions);
-        return objects;
     }
 
 
