@@ -24,14 +24,9 @@ public class ReactiveRedisCacheHelper {
     private final ObjectMapper objectMapper;
 
     // Unified cache access with cache miss fallback, null-value protection, TTL, and error fallback
-    public <T> Mono<T> getOrLoad(
-            String key,
-            Class<T> clazz,
-            Duration ttl,
-            Supplier<Mono<T>> dbLoader) {
-
+    public <R> Mono<R> getOrLoad(String key, Class<?> clazz, Duration ttl, Supplier<Mono<R>> dbLoader) {
         return redisTemplate.opsForValue().get(key)
-                .flatMap(json -> deserialize(json, clazz))
+                .flatMap(json -> deserialize(json, clazz).map(obj -> (R) obj))
                 .switchIfEmpty(
                         dbLoader.get()
                                 .flatMap(value -> {
@@ -47,11 +42,9 @@ public class ReactiveRedisCacheHelper {
                                 })
                 )
                 .publishOn(Schedulers.boundedElastic())
-                .onErrorResume(e -> {
-                    // Fallback to DB if Redis fails
-                    return dbLoader.get();
-                });
+                .onErrorResume(e -> dbLoader.get());
     }
+
 
     // Batch cache retrieval (processed one-by-one)
     public <T> Flux<T> getOrLoadBatch(
