@@ -22,7 +22,7 @@ public class SysRoleController {
 
     private final SysRoleQueryService sysRoleQueryService;
 
-    @PostMapping("/page")
+    @PostMapping("/index")
     public Mono<ApiResponse> page(@Validated @RequestBody Mono<SysRoleQuery> query) {
         return ApiResponse.validated(query,sysRoleQueryService::page);
     }
