@@ -13,6 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -20,13 +21,18 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
 
     private final SysMenuQueryService sysMenuQueryService;
 
+    private final SecurityProperties securityProperties;
+
     @Override
     public Mono<AuthorizationDecision> check(Mono<Authentication> authenticationMono, AuthorizationContext context) {
         ServerWebExchange exchange = context.getExchange();
         String path = exchange.getRequest().getPath().value();
 
-        if ("/auth/login".equals(path) || "/error".equals(path)) {
-            return Mono.just(new AuthorizationDecision(true));
+        List<String> ignorePaths = securityProperties.getIgnorePaths();
+        for (String ignorePath : ignorePaths) {
+            if (ignorePath.equals(path)) {
+                return Mono.just(new AuthorizationDecision(true));
+            }
         }
 
         return sysMenuQueryService.queryByMenuComponent(path)
