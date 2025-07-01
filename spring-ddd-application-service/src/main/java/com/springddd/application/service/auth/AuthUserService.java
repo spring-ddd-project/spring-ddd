@@ -50,7 +50,7 @@ public class AuthUserService {
                         cacheOp = reactiveRedisCacheHelper.deleteCache(cacheKey)
                                 .then(
                                         reactiveRedisCacheHelper.setCache(
-                                                reactiveRedisCacheHelper.buildKey("user:" + user.getUserId().value() + ":token", user.getUserId().value().toString()),
+                                                reactiveRedisCacheHelper.buildKey("user", user.getUserId().value().toString() + ":token"),
                                                 token,
                                                 Duration.ofDays(100)
                                         )
