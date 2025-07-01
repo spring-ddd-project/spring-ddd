@@ -131,9 +131,15 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> getParentTree() {
-        return reactiveRedisCacheHelper
-                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menus", List.class)
-                .map(list -> (List<SysMenuView>) list);
+        String key = "user:" + SecurityUtils.getUserId() + ":menus";
+        Duration ttl = Duration.ofDays(1);
+
+        return reactiveRedisCacheHelper.getOrLoad(
+                key,
+                List.class,
+                ttl,
+                this::queryAll
+        );
     }
 
 }
