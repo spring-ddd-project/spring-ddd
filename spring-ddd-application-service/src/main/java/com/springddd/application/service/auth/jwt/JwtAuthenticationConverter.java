@@ -61,10 +61,10 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                     // Token matches cache, continue with parsing
                     try {
                         Jws<Claims> claims = jwtTemplate.parseToken(token);
-                        UserId userId = claims.getPayload().get("userId", UserId.class);
+                        Long userId = claims.getPayload().get("userId", Long.class);
 
                         AuthUser user = new AuthUser();
-                        user.setUserId(userId);
+                        user.setUserId(new UserId(userId));
 
                         return Mono.just(
                                 new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities())
