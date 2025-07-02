@@ -15,9 +15,9 @@ public class SysRoleCommand implements Serializable {
 
     private String roleDesc;
 
-    private String dataScope;
+    private Integer dataScope;
 
-    private String roleStatus;
+    private Boolean roleStatus;
 
     private Long deptId;
 
