@@ -7,5 +7,5 @@ public class RoleExtendInfo {
 
     private String roleDesc;
 
-    private String roleStatus;
+    private Boolean roleStatus;
 }

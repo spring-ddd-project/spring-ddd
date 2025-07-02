@@ -64,7 +64,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
 
         MenuBasicInfo menuBasicInfo = aggregateRoot.getMenuBasicInfo();
         entity.setName(menuBasicInfo.getMenuName().value());
-        entity.setPermission(menuBasicInfo.getMenuPermission().value());
+        entity.setPermission(Optional.ofNullable(menuBasicInfo.getMenuPermission()).map(MenuPermission::value).orElse(null));
         entity.setRedirect(Optional.ofNullable(menuBasicInfo.getMenuRedirect()).map(MenuRedirect::value).orElse(null));
         entity.setPath(Optional.ofNullable(menuBasicInfo.getMenuPath()).map(MenuPath::value).orElse(null));
         entity.setComponent(Optional.ofNullable(menuBasicInfo.getMenuComponent()).map(MenuComponent::value).orElse(null));
