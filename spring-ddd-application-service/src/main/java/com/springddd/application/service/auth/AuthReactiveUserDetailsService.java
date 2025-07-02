@@ -9,14 +9,17 @@ import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.menu.MenuPermission;
+import com.springddd.domain.menu.exception.MenuPermissionDeniedException;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.SynchronousSink;
 
 import java.util.List;
 
@@ -65,7 +68,13 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                 .flatMap(roleMenuView ->
                                                         sysMenuQueryService.queryByMenuId(roleMenuView.getMenuId())
                                                 )
-                                                .map(SysMenuView::getPermission)
+                                                .handle((SysMenuView menu, SynchronousSink<String> sink) -> {
+                                                    if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
+                                                        sink.error(new MenuPermissionDeniedException());
+                                                    } else {
+                                                        sink.next(menu.getPermission());
+                                                    }
+                                                })
                                                 .distinct()
                                                 .map(MenuPermission::new)
                                                 .collectList()

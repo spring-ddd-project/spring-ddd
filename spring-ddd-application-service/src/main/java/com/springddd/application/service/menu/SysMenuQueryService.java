@@ -51,7 +51,7 @@ public class SysMenuQueryService {
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
-        return sysMenuRepository.findById(menuId).map(sysMenuViewMapStruct::toView);
+        return sysMenuRepository.findById(menuId).filter(e -> e.getMenuType() != 3).map(sysMenuViewMapStruct::toView);
     }
 
     public Mono<SysMenuView> queryByMenuComponent(String component) {
