@@ -60,6 +60,12 @@ public class AuthUserService {
                                                 token,
                                                 Duration.ofDays(jwtSecret.getTtl())
                                         )
+                                ).then(
+                                        reactiveRedisCacheHelper.setCache(
+                                                reactiveRedisCacheHelper.buildKey("user", user.getUserId().value().toString() + ":detail"),
+                                                user,
+                                                Duration.ofDays(jwtSecret.getTtl())
+                                        )
                                 );
                     }
 

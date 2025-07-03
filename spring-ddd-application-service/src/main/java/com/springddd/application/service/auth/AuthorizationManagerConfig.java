@@ -2,6 +2,7 @@ package com.springddd.application.service.auth;
 
 import com.springddd.application.service.menu.SysMenuQueryService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<AuthorizationContext> {
@@ -45,6 +47,7 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
         return sysMenuQueryService.queryByMenuComponent(path)
                 .flatMap(menu -> {
                     if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
+                        log.error("\n#AuthorizationManagerConfig#[Menu permission is empty]:{}", menu);
                         return Mono.just(new AuthorizationDecision(false));
                     }
 
@@ -59,8 +62,12 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
                                         return new AuthorizationDecision(true);
                                     }
                                 }
+                                log.error("\n#AuthorizationManagerConfig#[User authorities is empty]:{}", auth);
                                 return new AuthorizationDecision(false);
                             });
-                }).defaultIfEmpty(new AuthorizationDecision(false));
+                }).switchIfEmpty(Mono.fromSupplier(() -> {
+                    log.error("\n#AuthorizationManagerConfig#[No menu found for path]:{}", path);
+                    return new AuthorizationDecision(false);
+                }));
     }
 }
