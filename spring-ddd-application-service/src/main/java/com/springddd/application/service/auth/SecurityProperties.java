@@ -11,5 +11,8 @@ import java.util.List;
 @ConfigurationProperties(prefix = "spring.security")
 @Data
 public class SecurityProperties {
+
     private List<String> ignorePaths = new ArrayList<>();
+
+    private List<String> tokenOnlyPaths = new ArrayList<>();
 }
