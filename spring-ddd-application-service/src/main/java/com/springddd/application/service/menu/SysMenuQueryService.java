@@ -15,14 +15,12 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -51,7 +49,7 @@ public class SysMenuQueryService {
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
-        return sysMenuRepository.findById(menuId).filter(e -> e.getMenuType() != 3).map(sysMenuViewMapStruct::toView);
+        return sysMenuRepository.findById(menuId).map(sysMenuViewMapStruct::toView);
     }
 
     public Mono<SysMenuView> queryByMenuComponent(String component) {
@@ -70,7 +68,14 @@ public class SysMenuQueryService {
                 )
                 .collectList()
                 .flatMap(this::loadParentsAndBuildTree)
-                .flatMap(menus -> cacheTree(menus).thenReturn(menus));
+                .flatMap(menus -> {
+                    Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
+
+                    List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
+                    Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
+
+                    return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
+                });
     }
 
     private Mono<List<SysMenuView>> loadParentsAndBuildTree(List<SysMenuView> menus) {
@@ -129,14 +134,59 @@ public class SysMenuQueryService {
         return rootMenus;
     }
 
-    private Mono<Void> cacheTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menus", menus, Duration.ofDays(jwtSecret.getTtl())).then();
+    private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
+        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
     }
 
     public Mono<List<SysMenuView>> getParentTree() {
         return reactiveRedisCacheHelper
-                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menus", List.class)
+                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithoutPermissions", List.class)
                 .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
     }
 
+    private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
+        return menus.stream()
+                .map(this::filterOutInvalidMenusRecursively)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private SysMenuView filterOutInvalidMenusRecursively(SysMenuView menu) {
+        if (menu.getMenuType() == 3 || !StringUtils.hasText(menu.getPath())) {
+            return null;
+        }
+
+        List<SysMenuView> validChildren = Optional.ofNullable(menu.getChildren())
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(this::filterOutInvalidMenusRecursively)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        SysMenuView copy = copyMenuWithoutChildren(menu);
+        copy.setChildren(validChildren);
+        return copy;
+    }
+
+    private SysMenuView copyMenuWithoutChildren(SysMenuView menu) {
+        SysMenuView copy = new SysMenuView();
+        copy.setMeta(menu.getMeta());
+        copy.setId(menu.getId());
+        copy.setParentId(menu.getParentId());
+        copy.setMenuType(menu.getMenuType());
+        copy.setPath(menu.getPath());
+        copy.setName(menu.getName());
+        copy.setComponent(menu.getComponent());
+        copy.setPermission(menu.getPermission());
+        copy.setMenuType(menu.getMenuType());
+        copy.setVisible(menu.getVisible());
+        copy.setEmbedded(menu.getEmbedded());
+        copy.setMenuStatus(menu.getMenuStatus());
+        return copy;
+    }
+
+    private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
+        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithoutPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
+
+    }
 }
