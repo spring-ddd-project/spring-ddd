@@ -21,6 +21,7 @@ public class SysMenuDomainButtonStrategy implements SysMenuDomainStrategy {
         MenuBasicInfo basicInfo = new MenuBasicInfo();
         basicInfo.setMenuName(menuBasicInfo.getMenuName());
         basicInfo.setMenuPermission(menuBasicInfo.getMenuPermission());
+        basicInfo.setMenuComponent(menuBasicInfo.getMenuComponent());
         domain.setMenuBasicInfo(basicInfo);
 
         MenuExtendInfo extendInfo = new MenuExtendInfo();
