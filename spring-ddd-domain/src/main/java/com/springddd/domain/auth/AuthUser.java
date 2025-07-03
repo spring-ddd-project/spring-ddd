@@ -1,5 +1,6 @@
 package com.springddd.domain.auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
@@ -38,6 +39,7 @@ public class AuthUser implements Serializable, UserDetails {
 
     private List<MenuPermission> permissions;
 
+    @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return CollectionUtils.isEmpty(permissions)
