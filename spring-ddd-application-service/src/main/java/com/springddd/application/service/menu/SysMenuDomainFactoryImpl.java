@@ -17,7 +17,7 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
         SysMenuDomain domain = new SysMenuDomain();
 
         for (SysMenuDomainStrategy strategy : strategies) {
-            if (strategy.check(menuExtendInfo.getMenuType())) {
+            if (strategy.check(menuExtendInfo.menuType())) {
                 domain = strategy.handle(menuBasicInfo, menuExtendInfo);
             }
         }

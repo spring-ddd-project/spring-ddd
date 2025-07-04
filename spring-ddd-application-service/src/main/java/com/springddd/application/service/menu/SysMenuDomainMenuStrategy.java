@@ -18,22 +18,15 @@ public class SysMenuDomainMenuStrategy implements SysMenuDomainStrategy {
     public SysMenuDomain handle(MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
 
-        MenuBasicInfo basicInfo = new MenuBasicInfo();
-        basicInfo.setMenuName(menuBasicInfo.getMenuName());
-        basicInfo.setMenuPath(menuBasicInfo.getMenuPath());
-        basicInfo.setMenuComponent(menuBasicInfo.getMenuComponent());
+        MenuBasicInfo basicInfo = new MenuBasicInfo(
+                menuBasicInfo.menuName(),
+                menuBasicInfo.menuPath(),
+                menuBasicInfo.menuComponent(),
+                null,
+                menuBasicInfo.menuPermission());
         domain.setMenuBasicInfo(basicInfo);
 
-        MenuExtendInfo extendInfo = new MenuExtendInfo();
-        extendInfo.setOrder(menuExtendInfo.getOrder());
-        extendInfo.setTitle(menuExtendInfo.getTitle());
-        extendInfo.setIcon(menuExtendInfo.getIcon());
-        extendInfo.setMenuType(menuExtendInfo.getMenuType());
-        extendInfo.setEmbedded(menuExtendInfo.getEmbedded());
-        extendInfo.setAffixTab(menuExtendInfo.getAffixTab());
-        extendInfo.setNoBasicLayout(menuExtendInfo.getNoBasicLayout());
-        extendInfo.setVisible(menuExtendInfo.getVisible());
-        extendInfo.setMenuStatus(menuExtendInfo.getMenuStatus());
+        MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.affixTab(), menuExtendInfo.noBasicLayout(), menuExtendInfo.icon(), menuExtendInfo.menuType(), menuExtendInfo.visible(), menuExtendInfo.embedded(), menuExtendInfo.menuStatus());
         domain.setMenuExtendInfo(extendInfo);
         return domain;
     }
