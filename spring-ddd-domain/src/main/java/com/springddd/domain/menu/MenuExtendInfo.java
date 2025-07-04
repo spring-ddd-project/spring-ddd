@@ -1,39 +1,17 @@
 package com.springddd.domain.menu;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+public record MenuExtendInfo(Integer order, String title, Boolean affixTab, Boolean noBasicLayout, String icon,
+                             Integer menuType, Boolean visible, Boolean embedded, Boolean menuStatus) {
 
-@Data
-@NoArgsConstructor
-public class MenuExtendInfo {
+    // Catalog
+    public MenuExtendInfo(Integer order, String title, Integer menuType, String icon, Boolean MenuStatus, Boolean visible) {
+        this(order, title, null, null, icon, menuType, visible, null, MenuStatus);
+    }
 
-    private Integer order;
+    // Menu default
 
-    private String title;
-
-    private Boolean affixTab;
-
-    private Boolean noBasicLayout;
-
-    private String icon;
-
-    private Integer menuType;
-
-    private Boolean visible;
-
-    private Boolean embedded;
-
-    private Boolean menuStatus;
-
-    public MenuExtendInfo(Integer order, String title, Boolean affixTab, Boolean noBasicLayout, String icon, Integer menuType, Boolean visible, Boolean embedded, Boolean menuStatus) {
-        this.order = order;
-        this.title = title;
-        this.affixTab = affixTab;
-        this.noBasicLayout = noBasicLayout;
-        this.icon = icon;
-        this.menuType = menuType;
-        this.visible = visible;
-        this.embedded = embedded;
-        this.menuStatus = menuStatus;
+    // Button
+    public MenuExtendInfo(Integer order, String title, Integer menuType, Boolean MenuStatus) {
+        this(order, title, null, null, null, menuType, null, null, MenuStatus);
     }
 }
