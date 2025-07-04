@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GenColumnsCommandService {
@@ -13,6 +15,8 @@ public class GenColumnsCommandService {
     private final GenColumnsDomainRepository genColumnsDomainRepository;
 
     private final GenColumnsDomainFactory genColumnsDomainFactory;
+
+    private final WipeGenColumnsByIdsDomainService wipeGenColumnsByIdsDomainService;
 
     public Mono<Long> create(GenColumnsCommand command) {
         GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropValueObject(command.getPropValueObject()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
@@ -36,5 +40,9 @@ public class GenColumnsCommandService {
             domain.delete();
             return genColumnsDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return wipeGenColumnsByIdsDomainService.wipeByIds(ids);
     }
 }
