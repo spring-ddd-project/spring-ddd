@@ -22,15 +22,10 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
             SysRoleDomain sysRoleDomain = new SysRoleDomain();
             sysRoleDomain.setRoleId(new RoleId(e.getId()));
 
-            RoleBasicInfo roleBasicInfo = new RoleBasicInfo();
-            roleBasicInfo.setRoleName(new RoleName(e.getRoleName()));
-            roleBasicInfo.setRoleCode(new RoleCode(e.getRoleCode()));
-            roleBasicInfo.setRoleDataScope(new RoleDataScope(e.getDataScope()));
+            RoleBasicInfo roleBasicInfo = new RoleBasicInfo(new RoleName(e.getRoleName()), new RoleCode(e.getRoleCode()), new RoleDataScope(e.getDataScope()));
             sysRoleDomain.setRoleBasicInfo(roleBasicInfo);
 
-            RoleExtendInfo roleExtendInfo = new RoleExtendInfo();
-            roleExtendInfo.setRoleDesc(e.getRoleDesc());
-            roleExtendInfo.setRoleStatus(e.getRoleStatus());
+            RoleExtendInfo roleExtendInfo = new RoleExtendInfo(e.getRoleDesc(), e.getRoleStatus());
             sysRoleDomain.setRoleExtendInfo(roleExtendInfo);
 
             sysRoleDomain.setDeptId(e.getDeptId());
@@ -53,13 +48,13 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         sysRoleEntity.setId(Optional.ofNullable(aggregateRoot.getRoleId()).map(RoleId::value).orElse(null));
 
         RoleBasicInfo roleBasicInfo = aggregateRoot.getRoleBasicInfo();
-        sysRoleEntity.setRoleName(roleBasicInfo.getRoleName().value());
-        sysRoleEntity.setRoleCode(roleBasicInfo.getRoleCode().value());
-        sysRoleEntity.setDataScope(roleBasicInfo.getRoleDataScope().value());
+        sysRoleEntity.setRoleName(roleBasicInfo.roleName().value());
+        sysRoleEntity.setRoleCode(roleBasicInfo.roleCode().value());
+        sysRoleEntity.setDataScope(roleBasicInfo.roleDataScope().value());
 
         RoleExtendInfo roleExtendInfo = aggregateRoot.getRoleExtendInfo();
-        sysRoleEntity.setRoleDesc(roleExtendInfo.getRoleDesc());
-        sysRoleEntity.setRoleStatus(roleExtendInfo.getRoleStatus());
+        sysRoleEntity.setRoleDesc(roleExtendInfo.roleDesc());
+        sysRoleEntity.setRoleStatus(roleExtendInfo.roleStatus());
 
         sysRoleEntity.setDeptId(aggregateRoot.getDeptId());
         sysRoleEntity.setDeleteStatus(aggregateRoot.getDeleteStatus());
