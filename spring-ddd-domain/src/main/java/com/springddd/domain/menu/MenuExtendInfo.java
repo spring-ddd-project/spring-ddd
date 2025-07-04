@@ -11,7 +11,7 @@ public record MenuExtendInfo(Integer order, String title, Boolean affixTab, Bool
     // Menu default
 
     // Button
-    public MenuExtendInfo(Integer order, String title, Integer menuType, Boolean MenuStatus) {
-        this(order, title, null, null, null, menuType, null, null, MenuStatus);
+    public MenuExtendInfo(Integer order, Integer menuType, Boolean MenuStatus) {
+        this(order, null, null, null, null, menuType, null, null, MenuStatus);
     }
 }
