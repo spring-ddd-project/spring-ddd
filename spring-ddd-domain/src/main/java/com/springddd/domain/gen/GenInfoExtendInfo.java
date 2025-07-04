@@ -1,6 +1,6 @@
 package com.springddd.domain.gen;
 
-public record GenInfoExtendInfo(Byte propValueObject,
+public record GenInfoExtendInfo(Boolean propValueObject,
                                 String propColumnKey,
                                 String propColumnName,
                                 String propColumnType,
@@ -8,12 +8,12 @@ public record GenInfoExtendInfo(Byte propValueObject,
                                 String propJavaEntity,
                                 String propJavaType,
                                 Long propDictId,
-                                Byte tableVisible,
-                                Byte tableOrder,
-                                Byte tableFilter,
+                                Boolean tableVisible,
+                                Boolean tableOrder,
+                                Boolean tableFilter,
                                 Integer tableFilterComponent,
                                 Integer tableFilterType,
                                 Integer formComponent,
-                                Byte formVisible,
-                                Byte formRequired) {
+                                Boolean formVisible,
+                                Boolean formRequired) {
 }
