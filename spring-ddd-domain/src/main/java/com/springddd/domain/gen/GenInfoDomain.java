@@ -14,7 +14,7 @@ public class GenInfoDomain extends AbstractDomainMask {
 
     private GenInfoExtendInfo extendInfo;
 
-    public void create(GenInfoExtendInfo extendInfo) {
+    public void create() {
     }
 
     public void update(GenInfoBasicInfo basicInfo, GenInfoExtendInfo extendInfo) {
