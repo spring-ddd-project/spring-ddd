@@ -137,9 +137,15 @@ public class SysMenuQueryService {
         return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
     }
 
-    public Mono<List<SysMenuView>> getParentTree() {
+    public Mono<List<SysMenuView>> getMenuTreeWithoutPermission() {
         return reactiveRedisCacheHelper
                 .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithoutPermissions", List.class)
+                .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+    }
+
+    public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
+        return reactiveRedisCacheHelper
+                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithPermissions", List.class)
                 .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
     }
 
