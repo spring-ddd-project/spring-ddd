@@ -31,9 +31,14 @@ public class SysMenuController {
         return ApiResponse.ok(sysMenuQueryService.queryAll());
     }
 
-    @PostMapping("/getParentTree")
-    public Mono<ApiResponse> getParentTree() {
-        return ApiResponse.ok(sysMenuQueryService.getParentTree());
+    @PostMapping("/getMenuTreeWithoutPermission")
+    public Mono<ApiResponse> getMenuTreeWithoutPermission() {
+        return ApiResponse.ok(sysMenuQueryService.getMenuTreeWithoutPermission());
+    }
+
+    @PostMapping("/getMenuTreeWithPermission")
+    public Mono<ApiResponse> getMenuTreeWithPermission() {
+        return ApiResponse.ok(sysMenuQueryService.getMenuTreeWithPermission());
     }
 
     @PostMapping("/getByMenuId")
