@@ -18,13 +18,10 @@ public class SysMenuCommandService {
 
     private final DeleteSysMenuByIdsDomainService deleteSysMenuByIdsDomainService;
 
+    private final List<SysMenuDomainStrategy> strategies;
+
     public Mono<Long> create(SysMenuCommand command) {
-        MenuBasicInfo menuBasicInfo = new MenuBasicInfo(
-                command.getName(),
-                command.getPath(),
-                command.getComponent(),
-                command.getRedirect(),
-                command.getPermission());
+        MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(command.getName()), new MenuPath(command.getPath()), new MenuComponent(command.getComponent()), new MenuRedirect(command.getRedirect()), new MenuPermission(command.getPermission()));
 
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
@@ -46,13 +43,7 @@ public class SysMenuCommandService {
 
     public Mono<Void> update(SysMenuCommand command) {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
-
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(
-                    command.getName(),
-                    command.getPath(),
-                    command.getComponent(),
-                    command.getRedirect(),
-                    command.getPermission());
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(command.getName()), new MenuPath(command.getPath()), new MenuComponent(command.getComponent()), new MenuRedirect(command.getRedirect()), new MenuPermission(command.getPermission()));
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                     command.getOrder(),
@@ -64,6 +55,12 @@ public class SysMenuCommandService {
                     command.getVisible(),
                     command.getEmbedded(),
                     command.getMenuStatus());
+
+            for (SysMenuDomainStrategy strategy : strategies) {
+                if (strategy.check(command.getMenuType())) {
+                    domain = strategy.handle(menuBasicInfo, menuExtendInfo);
+                }
+            }
 
             domain.update(new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId());
 
