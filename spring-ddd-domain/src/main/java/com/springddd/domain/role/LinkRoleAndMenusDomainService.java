@@ -1,6 +1,5 @@
 package com.springddd.domain.role;
 
-import com.springddd.domain.menu.MenuId;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
