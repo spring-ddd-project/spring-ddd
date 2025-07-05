@@ -6,7 +6,6 @@ import com.springddd.domain.role.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
