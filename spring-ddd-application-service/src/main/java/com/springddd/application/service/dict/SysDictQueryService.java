@@ -23,6 +23,8 @@ public class SysDictQueryService {
 
     private final SysDictItemQueryService sysDictItemQueryService;
 
+    private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
+
     public Mono<PageResponse<SysDictView>> index(SysDictPageQuery query) {
         Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(false);
         if (!ObjectUtils.isEmpty(query.getDictName())) {
@@ -63,12 +65,12 @@ public class SysDictQueryService {
                         .map(SysDictItemView::getItemLabel));
     }
 
-    public Mono<Long> queryDictByCode(String code) {
+    public Mono<List<SysDictItemView>> queryDictByCode(String code) {
         Criteria criteria = Criteria
                 .where(SysDictQuery.Fields.deleteStatus).is(false)
                 .and(SysDictQuery.Fields.dictCode).is(code);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).one().map(sysDictViewMapStruct::toView)
-                .map(SysDictView::getId);
+                .flatMap(view -> sysDictItemQueryService.queryItemLabelByDictId(view.getId()));
     }
 }
