@@ -19,7 +19,7 @@ public class GenColumnsEntity {
 
     private Boolean propValueObject;
 
-    private Boolean propColumnKey;
+    private String propColumnKey;
 
     private String propColumnName;
 
