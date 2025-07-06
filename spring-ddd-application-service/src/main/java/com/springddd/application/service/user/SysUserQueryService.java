@@ -23,7 +23,7 @@ public class SysUserQueryService {
     private final SysUserViewMapStruct sysUserViewMapStruct;
 
     public Mono<PageResponse<SysUserView>> page(SysUserQuery query) {
-        Criteria criteria = Criteria.empty();
+        Criteria criteria = Criteria.where("delete_status").is(0);
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
