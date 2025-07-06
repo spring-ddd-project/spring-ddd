@@ -21,7 +21,7 @@ public class SysUserController {
 
     private final SysUserQueryService sysUserQueryService;
 
-    @PostMapping("/page")
+    @PostMapping("/index")
     public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserQuery> query) {
         return ApiResponse.validated(query, sysUserQueryService::page);
     }
@@ -31,7 +31,7 @@ public class SysUserController {
         return ApiResponse.ok(sysUserCommandService.createUser(command));
     }
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public Mono<ApiResponse> update(@RequestBody SysUserCommand command) {
         return ApiResponse.ok(sysUserCommandService.updateUser(command));
     }
