@@ -69,9 +69,9 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                         sysMenuQueryService.queryByMenuId(roleMenuView.getMenuId())
                                                 )
                                                 .handle((SysMenuView menu, SynchronousSink<String> sink) -> {
-                                                    if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
+                                                    if (menu == null) {
                                                         sink.error(new MenuPermissionDeniedException());
-                                                    } else {
+                                                    } else if (!ObjectUtils.isEmpty(menu.getPermission())) {
                                                         sink.next(menu.getPermission());
                                                     }
                                                 })

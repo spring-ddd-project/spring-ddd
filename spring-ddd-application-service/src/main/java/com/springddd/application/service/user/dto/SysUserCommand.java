@@ -18,9 +18,9 @@ public class SysUserCommand implements Serializable {
 
     private String email;
 
-    private String sex;
+    private Boolean sex;
 
-    private String lockStatus;
+    private Boolean lockStatus;
 
     private Long deptId;
 

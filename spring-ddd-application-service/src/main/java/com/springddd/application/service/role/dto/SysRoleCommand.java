@@ -19,6 +19,8 @@ public class SysRoleCommand implements Serializable {
 
     private Boolean roleStatus;
 
+    private Boolean ownerStatus;
+
     private Long deptId;
 
     private Boolean deleteStatus;

@@ -30,6 +30,8 @@ public class SysRoleEntity {
 
     private Boolean roleStatus;
 
+    private Boolean ownerStatus;
+
     private Long deptId;
 
     @CreatedBy
