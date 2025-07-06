@@ -21,7 +21,7 @@ public class SysRoleCommandService {
     public Mono<Long> createRole(SysRoleCommand command) {
         RoleBasicInfo roleBasicInfo = new RoleBasicInfo(
                 new RoleName(command.getRoleName()), new RoleCode(command.getRoleCode()),
-                new RoleDataScope(command.getDataScope()), new RoleOwner(command.getOwner()));
+                new RoleDataScope(command.getDataScope()), new RoleOwner(command.getOwnerStatus()));
 
         RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
@@ -36,7 +36,7 @@ public class SysRoleCommandService {
 
             RoleBasicInfo roleBasicInfo = new RoleBasicInfo(
                     new RoleName(command.getRoleName()), new RoleCode(command.getRoleCode()),
-                    new RoleDataScope(command.getDataScope()), new RoleOwner(command.getOwner()));
+                    new RoleDataScope(command.getDataScope()), new RoleOwner(command.getOwnerStatus()));
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 

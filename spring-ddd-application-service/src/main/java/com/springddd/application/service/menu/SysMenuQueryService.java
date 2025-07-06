@@ -4,7 +4,10 @@ import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
+import com.springddd.application.service.role.SysRoleQueryService;
+import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
@@ -37,6 +40,8 @@ public class SysMenuQueryService {
 
     private final JwtSecret jwtSecret;
 
+    private final SysRoleQueryService sysRoleQueryService;
+
     public Mono<PageResponse<SysMenuView>> page(SysMenuQuery query) {
         Criteria criteria = Criteria.where("delete_status").is("0");
         Query qry = Query.query(criteria)
@@ -57,7 +62,7 @@ public class SysMenuQueryService {
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
 
-    public Mono<List<SysMenuView>> queryAll() {
+    public Mono<List<SysMenuView>> queryByPermissions() {
         return Flux.fromIterable(SecurityUtils.getPermissions())
                 .flatMap(p ->
                         r2dbcEntityTemplate.selectOne(
@@ -144,10 +149,34 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
-        return reactiveRedisCacheHelper
-                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithPermissions", List.class)
-                .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+        List<RoleCode> codes = SecurityUtils.getRoles();
+
+        if (CollectionUtils.isEmpty(codes)) {
+            return Mono.empty();
+        }
+
+        return Flux.fromIterable(codes)
+                .flatMap(code -> sysRoleQueryService.getByCode(code.value()))
+                .filter(Objects::nonNull)
+                .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
+                .hasElements()
+                .flatMap(hasOwner -> {
+                    if (hasOwner) {
+                        return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                                .matching(Query.empty())
+                                .all()
+                                .collectList()
+                                .map(sysMenuViewMapStruct::toViewList)
+                                .flatMap(this::loadParentsAndBuildTree);
+                    } else {
+                        return reactiveRedisCacheHelper
+                                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithPermissions", List.class)
+                                .map(list -> (List<SysMenuView>) list)
+                                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+                    }
+                });
     }
+
 
     private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
         return menus.stream()
