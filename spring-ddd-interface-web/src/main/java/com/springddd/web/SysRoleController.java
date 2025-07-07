@@ -27,6 +27,11 @@ public class SysRoleController {
         return ApiResponse.validated(query,sysRoleQueryService::page);
     }
 
+    @PostMapping("/all")
+    public Mono<ApiResponse> all() {
+        return ApiResponse.ok(sysRoleQueryService.getAllRole());
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysRoleCommand command) {
         return ApiResponse.ok(sysRoleCommandService.createRole(command));
