@@ -56,7 +56,10 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                 .map(pathPatternParser::parse)
                 .anyMatch(pattern -> pattern.matches(exchange.getRequest().getPath()));
 
-        return reactiveRedisCacheHelper.getCache("user:" + SecurityUtils.getUserId() + ":token", String.class)
+        Jws<Claims> claims = jwtTemplate.parseToken(token);
+        Long userId = claims.getPayload().get("userId", Long.class);
+
+        return reactiveRedisCacheHelper.getCache("user:" + userId + ":token", String.class)
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
@@ -70,9 +73,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
                     // Token matches cache, continue with parsing
                     try {
-                        Jws<Claims> claims = jwtTemplate.parseToken(token);
-                        Long userId = claims.getPayload().get("userId", Long.class);
-
                         String userCacheKey = "user:" + userId + ":detail";
                         return reactiveRedisCacheHelper.getCache(userCacheKey, AuthUser.class)
                                 .switchIfEmpty(Mono.error(new AccessDeniedException("User detail not found in cache")))
