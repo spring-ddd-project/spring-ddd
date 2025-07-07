@@ -6,7 +6,6 @@ import com.springddd.application.service.menu.dto.SysMenuCommand;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -22,8 +21,8 @@ public class SysMenuController {
     private final SysMenuCommandService sysMenuCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysMenuQuery> query) {
-        return ApiResponse.validated(query, sysMenuQueryService::page);
+    public Mono<ApiResponse> index(@RequestBody Mono<SysMenuQuery> query) {
+        return ApiResponse.validated(query, sysMenuQueryService::index);
     }
 
     @PostMapping("/all")
