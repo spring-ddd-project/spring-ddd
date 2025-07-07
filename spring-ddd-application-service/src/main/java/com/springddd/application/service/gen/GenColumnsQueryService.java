@@ -76,7 +76,7 @@ public class GenColumnsQueryService {
                                     .doOnNext(bind -> {
                                         column.setPropJavaType(bind.getEntityType());
                                         column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
-//                                        column.setFormComponent(bind.getComponentName());
+                                        column.setFormComponent(bind.getComponentType());
                                         columnList.add(column);
                                     })
                                     .then())
