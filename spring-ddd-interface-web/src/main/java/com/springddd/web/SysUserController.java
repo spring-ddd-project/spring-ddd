@@ -26,6 +26,11 @@ public class SysUserController {
         return ApiResponse.validated(query, sysUserQueryService::page);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recyclePage(@RequestBody @Validated Mono<SysUserQuery> query) {
+        return ApiResponse.validated(query, sysUserQueryService::recycle);
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysUserCommand command) {
         return ApiResponse.ok(sysUserCommandService.createUser(command));
@@ -42,7 +47,7 @@ public class SysUserController {
     }
 
     @DeleteMapping("/wipe")
-    public Mono<ApiResponse> wipe(@RequestParam List<Long> ids) {
+    public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(sysUserCommandService.wipe(ids));
     }
 }
