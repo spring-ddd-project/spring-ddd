@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SysDeptDomain extends AbstractDomainMask {
 
-    private DeptId deptId;
+    private DeptId id;
 
     private DeptId parentId;
 
