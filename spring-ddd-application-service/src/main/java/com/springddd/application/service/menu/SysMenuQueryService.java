@@ -9,6 +9,7 @@ import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.util.PageResponse;
+import com.springddd.domain.util.ReactiveTreeUtils;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
@@ -92,7 +93,16 @@ public class SysMenuQueryService {
         return Flux.fromIterable(menus)
                 .flatMap(menu -> loadParentChain(menu.getParentId(), menuMap))
                 .then(Mono.fromCallable(() -> new ArrayList<>(menuMap.values())))
-                .map(this::buildMenuTree);
+                .flatMap(flatList -> ReactiveTreeUtils.buildTree(
+                        flatList,
+                        SysMenuView::getId,
+                        SysMenuView::getParentId,
+                        SysMenuView::setChildren,
+                        menu -> menu.getParentId() == null || menu.getParentId() == 0,
+                        null,
+                        null,
+                        30
+                ));
     }
 
     private Mono<Void> loadParentChain(Long parentId, Map<Long, SysMenuView> menuMap) {
@@ -109,33 +119,6 @@ public class SysMenuQueryService {
                     menuMap.put(parent.getId(), parent);
                     return loadParentChain(parent.getParentId(), menuMap);
                 });
-    }
-
-
-    private List<SysMenuView> buildMenuTree(List<SysMenuView> flatList) {
-        Map<Long, SysMenuView> idToMenuMap = new HashMap<>();
-        List<SysMenuView> rootMenus = new ArrayList<>();
-
-        for (SysMenuView menu : flatList) {
-            idToMenuMap.put(menu.getId(), menu);
-            menu.setChildren(new ArrayList<>());
-        }
-
-        for (SysMenuView menu : flatList) {
-            Long parentId = menu.getParentId();
-            if (parentId == null || parentId == 0) {
-                rootMenus.add(menu);
-            } else {
-                SysMenuView parent = idToMenuMap.get(parentId);
-                if (parent != null) {
-                    parent.getChildren().add(menu);
-                } else {
-                    rootMenus.add(menu);
-                }
-            }
-        }
-
-        return rootMenus;
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
@@ -176,7 +159,6 @@ public class SysMenuQueryService {
                     }
                 });
     }
-
 
     private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
         return menus.stream()
