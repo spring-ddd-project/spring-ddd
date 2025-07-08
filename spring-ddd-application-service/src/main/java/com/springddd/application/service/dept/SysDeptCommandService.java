@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SysDeptCommandService {
@@ -13,6 +15,8 @@ public class SysDeptCommandService {
     private final SysDeptDomainRepository sysDeptDomainRepository;
 
     private final SysDeptDomainFactory sysDeptDomainFactory;
+
+    private final DeleteSysDeptByIdsDomainService deleteSysDeptByIdsDomainService;
 
     public Mono<Long> create(SysDeptCommand command) {
         DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(command.getDeptName()));
@@ -39,5 +43,9 @@ public class SysDeptCommandService {
             domain.delete();
             return sysDeptDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return deleteSysDeptByIdsDomainService.deleteByIds(ids);
     }
 }
