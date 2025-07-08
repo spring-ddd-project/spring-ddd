@@ -15,4 +15,16 @@ public class SysDeptDomain extends AbstractDomainMask {
     private DeptBasicInfo deptBasicInfo;
 
     private DeptExtendInfo deptExtendInfo;
+
+    public void create() {}
+
+    public void update(DeptId parentId, DeptBasicInfo basicInfo, DeptExtendInfo extendInfo) {
+        this.parentId = parentId;
+        this.deptBasicInfo = basicInfo;
+        this.deptExtendInfo = extendInfo;
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
 }
