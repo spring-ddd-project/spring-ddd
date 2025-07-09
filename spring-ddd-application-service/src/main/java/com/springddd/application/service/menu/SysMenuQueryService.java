@@ -5,7 +5,6 @@ import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.application.service.role.SysRoleQueryService;
-import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.util.PageResponse;
@@ -44,7 +43,7 @@ public class SysMenuQueryService {
     private final SysRoleQueryService sysRoleQueryService;
 
     public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is("0");
+        Criteria criteria = Criteria.where("delete_status").is(false);
         Query qry = Query.query(criteria)
                 .limit(Integer.MAX_VALUE)
                 .offset(0L);
