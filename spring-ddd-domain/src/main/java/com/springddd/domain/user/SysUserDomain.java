@@ -1,6 +1,7 @@
 package com.springddd.domain.user;
 
 import com.springddd.domain.AbstractDomainMask;
+import com.springddd.domain.dept.exception.DeptIdNullException;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.util.ObjectUtils;
@@ -20,9 +21,10 @@ public class SysUserDomain extends AbstractDomainMask {
     public void updateUser(Account newAccount, ExtendInfo newExtendInfo, Long deptId) {
         this.account = newAccount;
         this.extendInfo = newExtendInfo;
-        if (!ObjectUtils.isEmpty(deptId)) {
-            super.setDeptId(deptId);
+        if (ObjectUtils.isEmpty(deptId)) {
+            throw new DeptIdNullException();
         }
+        super.setDeptId(deptId);
     }
 
     public void delete() {
