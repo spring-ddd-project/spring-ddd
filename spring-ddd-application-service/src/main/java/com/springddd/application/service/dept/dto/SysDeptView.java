@@ -3,6 +3,7 @@ package com.springddd.application.service.dept.dto;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class SysDeptView implements Serializable {
@@ -19,4 +20,5 @@ public class SysDeptView implements Serializable {
 
     private Boolean deleteStatus;
 
+    private List<SysDeptView> children;
 }
