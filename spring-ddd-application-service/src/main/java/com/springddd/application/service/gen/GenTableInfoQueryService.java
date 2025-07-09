@@ -19,6 +19,11 @@ public class GenTableInfoQueryService {
     private final DatabaseClient databaseClient;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
+
+        if (ObjectUtils.isEmpty(query.getDatabaseName())) {
+            return Mono.empty();
+        }
+
         int offset = (query.getPageNum() - 1) * query.getPageSize();
         int limit = query.getPageSize();
 
