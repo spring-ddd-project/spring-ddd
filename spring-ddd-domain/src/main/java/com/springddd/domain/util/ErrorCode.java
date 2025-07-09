@@ -24,7 +24,8 @@ public enum ErrorCode {
     MENU_COMPONENT_NULL(1206, "error.menu.component.null"),
     MENU_PERMISSION_DENIED(1207, "error.menu.permission.denied"),
 
-    DEPT_NAME_NULL(1300, "error.dept.name.null")
+    DEPT_NAME_NULL(1300, "error.dept.name.null"),
+    DEPT_ID_NULL(1301, "error.dept.id.null"),
 
 
     ;
