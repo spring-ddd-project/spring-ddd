@@ -35,6 +35,7 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setPropColumnType(domain.getBasicInfo().type().value());
             entity.setPropColumnComment(domain.getBasicInfo().comment().value());
             entity.setPropJavaEntity(domain.getBasicInfo().entity().value());
+            entity.setPropJavaType(domain.getBasicInfo().type().value());
 
             entity.setPropDictId(domain.getExtendInfo().propDictId());
             entity.setTableVisible(domain.getExtendInfo().tableVisible());
