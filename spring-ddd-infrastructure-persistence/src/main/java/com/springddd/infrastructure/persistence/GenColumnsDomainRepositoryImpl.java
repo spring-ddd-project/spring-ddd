@@ -21,7 +21,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             GenColumnsDomain genColumnsDomain = new GenColumnsDomain();
 
             genColumnsDomain.setId(new GenColumnsId(e.getId()));
-            genColumnsDomain.setInfoId(new GenInfoId(e.getInfoId()));
+            genColumnsDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
 
             GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(e.getPropAggregate()), new PropColumnKey(e.getPropColumnKey()), new PropColumnName(e.getPropColumnName()), new PropColumnType(e.getPropColumnType()), new PropColumnComment(e.getPropColumnComment()), new PropJavaEntity(e.getPropJavaEntity()));
             genColumnsDomain.setBasicInfo(basicInfo);

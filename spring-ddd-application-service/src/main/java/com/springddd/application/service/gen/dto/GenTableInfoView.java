@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class GenTableInfoView implements Serializable {
 
+    private String tableSchema;
+
     private String tableName;
 
     private String tableComment;
