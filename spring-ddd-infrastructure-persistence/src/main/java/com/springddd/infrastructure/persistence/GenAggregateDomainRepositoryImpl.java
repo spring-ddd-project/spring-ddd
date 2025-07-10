@@ -23,10 +23,10 @@ public class GenAggregateDomainRepositoryImpl implements GenAggregateDomainRepos
             genAggregateDomain.setAggregateId(new AggregateId(e.getId()));
             genAggregateDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
 
-            GenAggregateBasicInfo basicInfo = new GenAggregateBasicInfo(new Aggregate(e.getAggregate()), new ValueObject(e.getValueObject()));
-            genAggregateDomain.setBasicInfo(basicInfo);
+            GenAggregateValueObject valueObject = new GenAggregateValueObject(e.getObjectName(), e.getObjectValue(), e.getObjectType());
+            genAggregateDomain.setValueObject(valueObject);
 
-            GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(e.getDomainMask());
+            GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(e.getHasCreated());
             genAggregateDomain.setExtendInfo(extendInfo);
 
             genAggregateDomain.setCreateBy(e.getCreateBy());
@@ -46,10 +46,11 @@ public class GenAggregateDomainRepositoryImpl implements GenAggregateDomainRepos
         entity.setId(Optional.ofNullable(aggregateRoot.getAggregateId()).map(AggregateId::value).orElse(null));
         entity.setInfoId(aggregateRoot.getInfoId().value());
 
-        entity.setAggregate(aggregateRoot.getBasicInfo().aggregate().value());
-        entity.setValueObject(aggregateRoot.getBasicInfo().valueObject().value());
+        entity.setObjectName(aggregateRoot.getValueObject().objectName());
+        entity.setObjectValue(aggregateRoot.getValueObject().objectValue());
+        entity.setObjectType(aggregateRoot.getValueObject().objectType());
 
-        entity.setDomainMask(aggregateRoot.getExtendInfo().domainMask());
+        entity.setHasCreated(aggregateRoot.getExtendInfo().hasCreated());
 
         entity.setCreateBy(aggregateRoot.getCreateBy());
         entity.setCreateTime(aggregateRoot.getCreateTime());
