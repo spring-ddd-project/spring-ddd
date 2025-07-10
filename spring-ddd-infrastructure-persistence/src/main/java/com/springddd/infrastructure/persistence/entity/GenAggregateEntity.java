@@ -17,11 +17,11 @@ public class GenAggregateEntity {
 
     private Long infoId;
 
-    private String aggregate;
+    private String objectName;
 
-    private String valueObject;
+    private String objectValue;
 
-    private String domainMask;
+    private Byte objectType;
 
     @CreatedBy
     private String createBy;
