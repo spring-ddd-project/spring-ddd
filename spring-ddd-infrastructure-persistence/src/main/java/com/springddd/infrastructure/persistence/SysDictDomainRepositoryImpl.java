@@ -21,6 +21,8 @@ public class SysDictDomainRepositoryImpl implements SysDictDomainRepository {
         return sysDictRepository.findById(aggregateRootId.value()).map(e -> {
             SysDictDomain sysDictDomain = new SysDictDomain();
 
+            sysDictDomain.setDictId(new DictId(e.getId()));
+
             DictBasicInfo dictBasicInfo = new DictBasicInfo(new DictName(e.getDictName()), new DictCode(e.getDictCode()));
             sysDictDomain.setDictBasicInfo(dictBasicInfo);
 
