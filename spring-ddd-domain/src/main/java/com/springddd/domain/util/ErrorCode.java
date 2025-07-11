@@ -30,7 +30,12 @@ public enum ErrorCode {
     DICT_NAME_NULL(1400, "error.dict.name.null"),
     DICT_CODE_NULL(1401, "error.dict.code.null"),
     DICT_SORTORDER_NULL(1402, "error.dict.sortOrder.null"),
-    DICT_DICTSTATUS_NULL(1403, "error.dict.dictStatus.null")
+    DICT_DICTSTATUS_NULL(1403, "error.dict.dictStatus.null"),
+    DICT_ID_NULL(1404, "error.dict.id.null"),
+    DICT_ITEM_LABEL_NULL(1405, "error.dict.item.label.null"),
+    DICT_ITEM_VALUE_NULL(1406, "error.dict.item.value.null"),
+    DICT_ITEM_SORTORDER_NULL(1407, "error.dict.item.sortOrder.null"),
+    DICT_ITEM_ITEMSTATUS_NULL(1408, "error.dict.item.itemStatus.null")
 
 
     ;
