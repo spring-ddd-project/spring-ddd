@@ -27,7 +27,7 @@ public class SysDictCommandService {
     }
 
     public Mono<Void> update(SysDictCommand command) {
-        return sysDictDomainRepository.load(new DictId(command.getId())).map(domain -> {
+        return sysDictDomainRepository.load(new DictId(command.getId())).flatMap(domain -> {
             DictBasicInfo basicInfo = new DictBasicInfo(new DictName(command.getDictName()), new DictCode(command.getDictCode()));
             DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
 
@@ -37,7 +37,7 @@ public class SysDictCommandService {
     }
 
     public Mono<Void> delete(SysDictCommand command) {
-        return sysDictDomainRepository.load(new DictId(command.getId())).map(domain -> {
+        return sysDictDomainRepository.load(new DictId(command.getId())).flatMap(domain -> {
             domain.delete();
             return sysDictDomainRepository.save(domain);
         }).then();
