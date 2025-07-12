@@ -38,4 +38,9 @@ public class GenAggregateQueryService {
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenAggregateEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
+
+    public Mono<List<GenAggregateView>> queryAggregateByInfoId(Long infoId) {
+        Criteria criteria = Criteria.where(GenAggregateQuery.Fields.infoId).is(infoId);
+        return r2dbcEntityTemplate.select(GenAggregateEntity.class).matching(Query.query(criteria)).all().collectList().map(aggregateViewMapStruct::toViews);
+    }
 }
