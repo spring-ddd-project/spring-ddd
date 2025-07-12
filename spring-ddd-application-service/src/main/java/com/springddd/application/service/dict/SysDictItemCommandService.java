@@ -33,7 +33,7 @@ public class SysDictItemCommandService {
             DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(command.getItemLabel()), new ItemValue(command.getItemValue()));
             DictItemExtendInfo extendInfo = new DictItemExtendInfo(command.getSortOrder(), command.getItemStatus());
 
-            domain.update(new DictId(command.getDictId()), basicInfo, extendInfo);
+            domain.update(basicInfo, extendInfo);
 
             return sysDictItemDomainRepository.save(domain);
         }).then();

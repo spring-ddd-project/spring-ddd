@@ -26,6 +26,11 @@ public class SysDictController {
         return ApiResponse.validated(query, sysDictQueryService::index);
     }
 
+    @PostMapping("/getItemLabel")
+    public Mono<ApiResponse> getItemLabel(@RequestParam("dictCode") String dictCode, @RequestParam("itemValue") Integer itemValue) {
+        return ApiResponse.ok(sysDictQueryService.queryItemLabelByDictCode(dictCode, itemValue));
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysDictCommand command) {
         return ApiResponse.ok(sysDictCommandService.create(command));
