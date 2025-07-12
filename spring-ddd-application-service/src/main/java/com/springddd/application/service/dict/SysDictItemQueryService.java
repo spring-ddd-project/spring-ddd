@@ -10,6 +10,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -23,7 +24,11 @@ public class SysDictItemQueryService {
     private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
     public Mono<PageResponse<SysDictItemView>> index(SysDictItemPageQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is(false);
+        Criteria criteria = Criteria
+                .where("delete_status").is(false);
+        if (!ObjectUtils.isEmpty(query) && !ObjectUtils.isEmpty(query.getDictId())) {
+            criteria.and("dict_id").is(query.getDictId());
+        }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
