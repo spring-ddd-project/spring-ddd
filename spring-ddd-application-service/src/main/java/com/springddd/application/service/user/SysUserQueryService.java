@@ -1,5 +1,6 @@
 package com.springddd.application.service.user;
 
+import com.springddd.application.service.user.dto.SysUserPageQuery;
 import com.springddd.application.service.user.dto.SysUserQuery;
 import com.springddd.application.service.user.dto.SysUserView;
 import com.springddd.application.service.user.dto.SysUserViewMapStruct;
@@ -22,8 +23,8 @@ public class SysUserQueryService {
 
     private final SysUserViewMapStruct sysUserViewMapStruct;
 
-    public Mono<PageResponse<SysUserView>> page(SysUserQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is(0);
+    public Mono<PageResponse<SysUserView>> page(SysUserPageQuery query) {
+        Criteria criteria = Criteria.where(SysUserPageQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
@@ -35,8 +36,8 @@ public class SysUserQueryService {
 
     }
 
-    public Mono<PageResponse<SysUserView>> recycle(SysUserQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is(1);
+    public Mono<PageResponse<SysUserView>> recycle(SysUserPageQuery query) {
+        Criteria criteria = Criteria.where(SysUserPageQuery.Fields.deleteStatus).is(true);
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
@@ -47,7 +48,7 @@ public class SysUserQueryService {
     }
 
     public Mono<SysUserView> queryUserByUsername(String username) {
-        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where("username").is(username)), SysUserEntity.class)
+        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where(SysUserQuery.Fields.username).is(username)), SysUserEntity.class)
                 .map(sysUserViewMapStruct::toView);
     }
 }

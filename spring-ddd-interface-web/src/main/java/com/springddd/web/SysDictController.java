@@ -26,6 +26,11 @@ public class SysDictController {
         return ApiResponse.validated(query, sysDictQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictPageQuery> query) {
+        return ApiResponse.validated(query, sysDictQueryService::recycle);
+    }
+
     @PostMapping("/getItemLabel")
     public Mono<ApiResponse> getItemLabel(@RequestParam("dictCode") String dictCode, @RequestParam("itemValue") Integer itemValue) {
         return ApiResponse.ok(sysDictQueryService.queryItemLabelByDictCode(dictCode, itemValue));
@@ -42,12 +47,17 @@ public class SysDictController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysDictCommand command) {
-        return ApiResponse.ok(sysDictCommandService.delete(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDictCommandService.delete(ids));
     }
 
     @DeleteMapping("/wipe")
     public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(sysDictCommandService.wipe(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDictCommandService.restore(ids));
     }
 }
