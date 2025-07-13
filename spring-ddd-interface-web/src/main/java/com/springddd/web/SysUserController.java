@@ -50,4 +50,9 @@ public class SysUserController {
     public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(sysUserCommandService.wipe(ids));
     }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysUserCommandService.batchRestore(ids));
+    }
 }

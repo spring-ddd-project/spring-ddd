@@ -31,6 +31,10 @@ public class SysUserDomain extends AbstractDomainMask {
         super.setDeleteStatus(true);
     }
 
+    public void restore() {
+        super.setDeleteStatus(false);
+    }
+
     public void updateUserStatus(Boolean status) {
         this.account.setLockStatus(status);
     }
