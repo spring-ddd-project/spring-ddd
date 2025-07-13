@@ -21,6 +21,8 @@ public class SysUserCommandService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final BatchDeleteSysUserByIdDomainService batchDeleteSysUserByIdDomainService;
+
     public Mono<Long> createUser(SysUserCommand command) {
         Account account = new Account();
         account.setUsername(new Username(command.getUsername()));
@@ -67,5 +69,9 @@ public class SysUserCommandService {
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeSysUserByIdsDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> batchDelete(List<Long> ids) {
+        return batchDeleteSysUserByIdDomainService.deleteByIds(ids);
     }
 }
