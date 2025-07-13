@@ -70,6 +70,6 @@ public class SysUserCommandService {
     }
 
     public Mono<Void> restore(List<Long> ids) {
-        return restoreSysUserByIdDomainService.restore(ids);
+        return restoreSysUserByIdDomainService.restoreByIds(ids);
     }
 }
