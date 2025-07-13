@@ -24,4 +24,8 @@ public class SysDictDomain extends AbstractDomainMask {
     public void delete() {
         super.setDeleteStatus(true);
     }
+
+    public void restore() {
+        super.setDeleteStatus(false);
+    }
 }
