@@ -17,7 +17,7 @@ public class LinkUsersAndRolesDomainServiceImpl implements LinkUsersAndRolesDoma
 
     private final SysUserRoleQueryService sysUserRoleQueryService;
 
-    private final DeleteSysUserRoleByIdsDomainService deleteSysUserRoleByIdsDomainService;
+    private final WipeSysUserRoleByIdsDomainService wipeSysUserRoleByIdsDomainService;
 
     private final SysUserRoleDomainRepository sysUserRoleDomainRepository;
 
@@ -28,7 +28,7 @@ public class LinkUsersAndRolesDomainServiceImpl implements LinkUsersAndRolesDoma
     public Mono<Void> link(Long userId, List<Long> roleIds) {
         return sysUserRoleQueryService.queryLinkUserAndRole(userId).flatMap(sysUserRoleViews -> {
             List<Long> ids = sysUserRoleViews.stream().map(SysUserRoleView::getId).toList();
-            Mono<Void> wiped = deleteSysUserRoleByIdsDomainService.deleteByIds(ids);
+            Mono<Void> wiped = wipeSysUserRoleByIdsDomainService.deleteByIds(ids);
 
             List<Mono<Long>> saved = roleIds.stream()
                     .map(rid -> {

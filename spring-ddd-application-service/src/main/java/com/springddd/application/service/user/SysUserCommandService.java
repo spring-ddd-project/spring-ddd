@@ -17,9 +17,13 @@ public class SysUserCommandService {
 
     private final SysUserDomainFactory sysUserDomainFactory;
 
-    private final DeleteSysUserByIdsDomainService deleteSysUserByIdsDomainService;
+    private final WipeSysUserByIdsDomainService wipeSysUserByIdsDomainService;
 
     private final PasswordEncoder passwordEncoder;
+
+    private final DeleteSysUserByIdDomainService deleteSysUserByIdDomainService;
+
+    private final RestoreSysUserByIdDomainService restoreSysUserByIdDomainService;
 
     public Mono<Long> createUser(SysUserCommand command) {
         Account account = new Account();
@@ -57,15 +61,15 @@ public class SysUserCommandService {
         }).then();
     }
 
-    public Mono<Void> deleteUser(SysUserCommand command) {
-        return sysUserDomainRepository.load(new UserId(command.getId())).flatMap(domain -> {
-
-            domain.delete();
-            return sysUserDomainRepository.save(domain);
-        }).then();
+    public Mono<Void> wipe(List<Long> ids) {
+        return wipeSysUserByIdsDomainService.deleteByIds(ids);
     }
 
-    public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysUserByIdsDomainService.deleteByIds(ids);
+    public Mono<Void> delete(List<Long> ids) {
+        return deleteSysUserByIdDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysUserByIdDomainService.restoreByIds(ids);
     }
 }
