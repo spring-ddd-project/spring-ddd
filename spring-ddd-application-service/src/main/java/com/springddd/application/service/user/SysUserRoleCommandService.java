@@ -13,13 +13,13 @@ public class SysUserRoleCommandService {
 
     private final LinkUsersAndRolesDomainService linkUsersAndRolesDomainService;
 
-    private final DeleteSysUserRoleByIdsDomainService deleteSysUserRoleByIdsDomainService;
+    private final WipeSysUserRoleByIdsDomainService wipeSysUserRoleByIdsDomainService;
 
     public Mono<Void> create(Long userId, List<Long> roleIds) {
         return linkUsersAndRolesDomainService.link(userId, roleIds);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysUserRoleByIdsDomainService.deleteByIds(ids);
+        return wipeSysUserRoleByIdsDomainService.deleteByIds(ids);
     }
 }

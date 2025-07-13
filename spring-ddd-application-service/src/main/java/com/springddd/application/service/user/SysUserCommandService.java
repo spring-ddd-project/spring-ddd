@@ -17,7 +17,7 @@ public class SysUserCommandService {
 
     private final SysUserDomainFactory sysUserDomainFactory;
 
-    private final DeleteSysUserByIdsDomainService deleteSysUserByIdsDomainService;
+    private final WipeSysUserByIdsDomainService wipeSysUserByIdsDomainService;
 
     private final PasswordEncoder passwordEncoder;
 
@@ -66,6 +66,6 @@ public class SysUserCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysUserByIdsDomainService.deleteByIds(ids);
+        return wipeSysUserByIdsDomainService.deleteByIds(ids);
     }
 }
