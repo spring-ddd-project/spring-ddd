@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface BatchRestoreSysUserByIdDomainService {
+public interface RestoreSysUserByIdDomainService {
 
     Mono<Void> restore(List<Long> ids);
 }

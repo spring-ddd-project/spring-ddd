@@ -43,7 +43,7 @@ public class SysUserController {
 
     @PostMapping("/delete")
     public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
-        return ApiResponse.ok(sysUserCommandService.batchDelete(ids));
+        return ApiResponse.ok(sysUserCommandService.delete(ids));
     }
 
     @DeleteMapping("/wipe")
@@ -53,6 +53,6 @@ public class SysUserController {
 
     @PostMapping("/restore")
     public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
-        return ApiResponse.ok(sysUserCommandService.batchRestore(ids));
+        return ApiResponse.ok(sysUserCommandService.restore(ids));
     }
 }
