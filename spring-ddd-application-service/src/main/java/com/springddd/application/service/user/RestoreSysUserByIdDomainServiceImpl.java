@@ -18,7 +18,7 @@ public class RestoreSysUserByIdDomainServiceImpl implements RestoreSysUserByIdDo
     private final SysUserDomainRepository sysUserDomainRepository;
 
     @Override
-    public Mono<Void> restore(List<Long> ids) {
+    public Mono<Void> restoreByIds(List<Long> ids) {
         return Flux.fromIterable(ids)
                 .flatMap(id -> sysUserDomainRepository.load(new UserId(id))
                         .flatMap(domain -> {

@@ -20,6 +20,8 @@ public class SysDictCommandService {
 
     private final DeleteSysDictByIdDomainService deleteSysDictByIdDomainService;
 
+    private final RestoreSysDictByIdDomainService restoreSysDictByIdDomainService;
+
     public Mono<Long> create(SysDictCommand command) {
         DictBasicInfo basicInfo = new DictBasicInfo(new DictName(command.getDictName()), new DictCode(command.getDictCode()));
         DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
@@ -44,5 +46,9 @@ public class SysDictCommandService {
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeSysDictByIdsDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysDictByIdDomainService.restoreByIds(ids);
     }
 }
