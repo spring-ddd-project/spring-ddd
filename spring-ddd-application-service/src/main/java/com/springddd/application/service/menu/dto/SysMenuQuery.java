@@ -1,10 +1,12 @@
 package com.springddd.application.service.menu.dto;
 
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
 
 @Data
+@FieldNameConstants
 public class SysMenuQuery implements Serializable {
 
     private Long id;
@@ -42,8 +44,4 @@ public class SysMenuQuery implements Serializable {
     private Long deptId;
 
     private Boolean deleteStatus;
-
-    private Integer pageNum;
-
-    private Integer pageSize;
 }
