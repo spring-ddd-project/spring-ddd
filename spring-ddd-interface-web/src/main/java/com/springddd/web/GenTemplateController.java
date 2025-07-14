@@ -26,6 +26,11 @@ public class GenTemplateController {
         return ApiResponse.validated(query, genTemplateQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<GenTemplatePageQuery> query) {
+        return ApiResponse.validated(query, genTemplateQueryService::recycle);
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody GenTemplateCommand command) {
         return ApiResponse.ok(genTemplateCommandService.create(command));
