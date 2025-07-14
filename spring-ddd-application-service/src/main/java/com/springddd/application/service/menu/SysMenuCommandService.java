@@ -16,7 +16,7 @@ public class SysMenuCommandService {
 
     private final SysMenuDomainRepository sysMenuDomainRepository;
 
-    private final DeleteSysMenuByIdsDomainService deleteSysMenuByIdsDomainService;
+    private final WipeSysMenuByIdsDomainService wipeSysMenuByIdsDomainService;
 
     private final List<SysMenuDomainStrategy> strategies;
 
@@ -78,6 +78,6 @@ public class SysMenuCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysMenuByIdsDomainService.deleteByIds(ids);
+        return wipeSysMenuByIdsDomainService.deleteByIds(ids);
     }
 }
