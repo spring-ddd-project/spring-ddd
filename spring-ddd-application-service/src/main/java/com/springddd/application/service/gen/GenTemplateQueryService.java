@@ -42,4 +42,10 @@ public class GenTemplateQueryService {
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenTemplateEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
+
+    public Mono<GenTemplateView> queryByTemplateName(String name) {
+        return r2dbcEntityTemplate.selectOne(Query.query(Criteria
+                .where(GenTemplateQuery.Fields.deleteStatus).is(false)
+                .and(GenTemplateQuery.Fields.templateName).is(name)), GenTemplateEntity.class).map(genTemplateViewMapStruct::toView);
+    }
 }
