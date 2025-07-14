@@ -56,8 +56,8 @@ public class SysMenuController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysMenuCommand command) {
-        return ApiResponse.ok(sysMenuCommandService.delete(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysMenuCommandService.delete(ids));
     }
 
     @DeleteMapping("/wipe")
