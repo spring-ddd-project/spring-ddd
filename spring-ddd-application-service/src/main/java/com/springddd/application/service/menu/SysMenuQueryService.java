@@ -63,7 +63,7 @@ public class SysMenuQueryService {
     }
 
     public Mono<SysMenuView> queryByMenuComponent(String component) {
-        Criteria criteria = Criteria.where("component").is(component);
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.component).is(component);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
@@ -72,7 +72,7 @@ public class SysMenuQueryService {
         return Flux.fromIterable(SecurityUtils.getPermissions())
                 .flatMap(p ->
                         r2dbcEntityTemplate.selectOne(
-                                Query.query(Criteria.where("permission").is(p.value())),
+                                Query.query(Criteria.where(SysMenuQuery.Fields.permission).is(p.value())),
                                 SysMenuEntity.class
                         ).map(sysMenuViewMapStruct::toView)
                 )
@@ -116,7 +116,7 @@ public class SysMenuQueryService {
         }
 
         return r2dbcEntityTemplate.selectOne(
-                        Query.query(Criteria.where("id").is(parentId)),
+                        Query.query(Criteria.where(SysMenuQuery.Fields.id).is(parentId)),
                         SysMenuEntity.class
                 )
                 .map(sysMenuViewMapStruct::toView)
