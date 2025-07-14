@@ -43,13 +43,19 @@ public class SysMenuQueryService {
     private final SysRoleQueryService sysRoleQueryService;
 
     public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is(false);
-        Query qry = Query.query(criteria)
-                .limit(Integer.MAX_VALUE)
-                .offset(0L);
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
+        Query qry = Query.query(criteria);
         Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList().map(sysMenuViewMapStruct::toViewList);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 11, 1));
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    }
+
+    public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
+        Query qry = Query.query(criteria);
+        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList().map(sysMenuViewMapStruct::toViewList);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
