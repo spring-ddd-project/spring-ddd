@@ -9,6 +9,7 @@ import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
+import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -48,21 +49,20 @@ public class AuthUserService {
                     map.put("userId", user.getUserId().value());
 
                     String token = jwtTemplate.generateToken(map);
-                    String cacheKey = "user:" + user.getUserId().value() + ":token";
 
                     Mono<Boolean> cacheOp = Mono.empty();
 
                     if (!CollectionUtils.isEmpty(user.getPermissions())) {
-                        cacheOp = reactiveRedisCacheHelper.deleteCache(cacheKey)
+                        cacheOp = reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
                                 .then(
                                         reactiveRedisCacheHelper.setCache(
-                                                reactiveRedisCacheHelper.buildKey("user", user.getUserId().value().toString() + ":token"),
+                                                CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()),
                                                 token,
                                                 Duration.ofDays(jwtSecret.getTtl())
                                         )
                                 ).then(
                                         reactiveRedisCacheHelper.setCache(
-                                                reactiveRedisCacheHelper.buildKey("user", user.getUserId().value().toString() + ":detail"),
+                                                CacheKeys.USER_DETAIL.buildKey(user.getUserId().value()),
                                                 user,
                                                 Duration.ofDays(jwtSecret.getTtl())
                                         )
@@ -96,7 +96,7 @@ public class AuthUserService {
     }
 
     public Mono<Void> clearCache() {
-        return reactiveRedisCacheHelper.deleteCache("user:" + SecurityUtils.getUserId() + ":*");
+        return reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_ALL.buildKey(SecurityUtils.getUserId()));
     }
 
 }
