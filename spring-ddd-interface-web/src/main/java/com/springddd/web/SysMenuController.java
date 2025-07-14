@@ -60,6 +60,11 @@ public class SysMenuController {
         return ApiResponse.ok(sysMenuCommandService.delete(ids));
     }
 
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysMenuCommandService.restore(ids));
+    }
+
     @DeleteMapping("/wipe")
     public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(sysMenuCommandService.wipe(ids));

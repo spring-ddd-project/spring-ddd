@@ -22,6 +22,8 @@ public class SysMenuCommandService {
 
     private final DeleteSysMenuByIdDomainService deleteSysMenuByIdDomainService;
 
+    private final RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
+
     public Mono<Long> create(SysMenuCommand command) {
         MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(command.getName()), new MenuPath(command.getPath()), new MenuComponent(command.getComponent()), new MenuRedirect(command.getRedirect()), new MenuPermission(command.getPermission()));
 
@@ -78,5 +80,9 @@ public class SysMenuCommandService {
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeSysMenuByIdsDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysMenuByIdDomainService.restoreByIds(ids);
     }
 }
