@@ -1,6 +1,6 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.domain.menu.DeleteSysMenuByIdsDomainService;
+import com.springddd.domain.menu.WipeSysMenuByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DeleteSysMenuByIdsDomainServiceImpl implements DeleteSysMenuByIdsDomainService {
+public class WipeSysMenuByIdsDomainServiceImpl implements WipeSysMenuByIdsDomainService {
 
     private final SysMenuRepository sysMenuRepository;
 

@@ -26,6 +26,11 @@ public class SysDictItemController {
         return ApiResponse.validated(query, sysDictItemQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictItemPageQuery> query) {
+        return ApiResponse.validated(query, sysDictItemQueryService::recycle);
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysDictItemCommand command) {
         return ApiResponse.ok(sysDictItemCommandService.create(command));
@@ -37,8 +42,13 @@ public class SysDictItemController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysDictItemCommand command) {
-        return ApiResponse.ok(sysDictItemCommandService.delete(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDictItemCommandService.delete(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDictItemCommandService.restore(ids));
     }
 
     @DeleteMapping("/wipe")

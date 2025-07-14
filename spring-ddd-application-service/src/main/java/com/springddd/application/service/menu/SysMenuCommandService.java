@@ -16,9 +16,13 @@ public class SysMenuCommandService {
 
     private final SysMenuDomainRepository sysMenuDomainRepository;
 
-    private final DeleteSysMenuByIdsDomainService deleteSysMenuByIdsDomainService;
+    private final WipeSysMenuByIdsDomainService wipeSysMenuByIdsDomainService;
 
     private final List<SysMenuDomainStrategy> strategies;
+
+    private final DeleteSysMenuByIdDomainService deleteSysMenuByIdDomainService;
+
+    private final RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
 
     public Mono<Long> create(SysMenuCommand command) {
         MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(command.getName()), new MenuPath(command.getPath()), new MenuComponent(command.getComponent()), new MenuRedirect(command.getRedirect()), new MenuPermission(command.getPermission()));
@@ -70,14 +74,15 @@ public class SysMenuCommandService {
         }).then();
     }
 
-    public Mono<Void> delete(SysMenuCommand command) {
-        return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
-            domain.delete();
-            return sysMenuDomainRepository.save(domain);
-        }).then();
+    public Mono<Void> delete(List<Long> ids) {
+        return deleteSysMenuByIdDomainService.deleteByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysMenuByIdsDomainService.deleteByIds(ids);
+        return wipeSysMenuByIdsDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysMenuByIdDomainService.restoreByIds(ids);
     }
 }
