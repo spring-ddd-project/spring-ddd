@@ -26,6 +26,11 @@ public class SysDictItemController {
         return ApiResponse.validated(query, sysDictItemQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictItemPageQuery> query) {
+        return ApiResponse.validated(query, sysDictItemQueryService::recycle);
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysDictItemCommand command) {
         return ApiResponse.ok(sysDictItemCommandService.create(command));
