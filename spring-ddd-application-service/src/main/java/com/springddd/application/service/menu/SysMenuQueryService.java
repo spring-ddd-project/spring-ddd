@@ -205,7 +205,7 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), menus, Duration.ofDays(jwtSecret.getTtl())).then();
+        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), menus, CacheKeys.MENU_WITHOUT_PERMISSIONS.ttl()).then();
     }
 
     public Mono<List<SysMenuView>> queryAllMenu() {
