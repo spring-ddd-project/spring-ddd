@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface DeleteSysMenuByIdsDomainService {
+public interface WipeSysMenuByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
