@@ -25,6 +25,11 @@ public class SysDeptController {
         return ApiResponse.validated(query, sysDeptQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody Mono<SysDeptQuery> query) {
+        return ApiResponse.validated(query, sysDeptQueryService::recycle);
+    }
+
     @PostMapping("/tree")
     public Mono<ApiResponse> tree() {
         return ApiResponse.ok(sysDeptQueryService.deptTree());
