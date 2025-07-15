@@ -25,6 +25,11 @@ public class SysDeptController {
         return ApiResponse.validated(query, sysDeptQueryService::index);
     }
 
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestBody Mono<SysDeptQuery> query) {
+        return ApiResponse.validated(query, sysDeptQueryService::recycle);
+    }
+
     @PostMapping("/tree")
     public Mono<ApiResponse> tree() {
         return ApiResponse.ok(sysDeptQueryService.deptTree());
@@ -41,8 +46,13 @@ public class SysDeptController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysDeptCommand command) {
-        return ApiResponse.ok(sysDeptCommandService.delete(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDeptCommandService.delete(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDeptCommandService.restore(ids));
     }
 
     @DeleteMapping("/wipe")
