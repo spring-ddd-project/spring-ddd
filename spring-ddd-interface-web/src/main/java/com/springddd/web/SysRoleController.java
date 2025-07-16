@@ -43,8 +43,13 @@ public class SysRoleController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysRoleCommand command) {
-        return ApiResponse.ok(sysRoleCommandService.deleteRole(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysRoleCommandService.deleteRole(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysRoleCommandService.restore(ids));
     }
 
     @DeleteMapping("/wipe")
