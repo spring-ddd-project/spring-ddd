@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface DeleteSysRoleMenuByIdsDomainService {
+public interface RestoreSysRoleByIdDomainService {
 
-    Mono<Void> deleteByIds(List<Long> ids);
+    Mono<Void> restoreByIds(List<Long> ids);
 }
