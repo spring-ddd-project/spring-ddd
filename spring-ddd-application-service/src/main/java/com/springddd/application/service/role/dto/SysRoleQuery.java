@@ -1,11 +1,12 @@
 package com.springddd.application.service.role.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
 
 @Data
+@FieldNameConstants
 public class SysRoleQuery implements Serializable {
 
     private Long id;
@@ -27,10 +28,4 @@ public class SysRoleQuery implements Serializable {
     private Boolean deleteStatus;
 
     private Integer version;
-
-    @NotNull(message = "pageNum can not be null")
-    private Integer pageNum;
-
-    @NotNull(message = "pageSize can not be null")
-    private Integer pageSize;
 }
