@@ -4,6 +4,7 @@ package com.springddd.web;
 import com.springddd.application.service.role.SysRoleCommandService;
 import com.springddd.application.service.role.SysRoleQueryService;
 import com.springddd.application.service.role.dto.SysRoleCommand;
+import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.application.service.role.dto.SysRoleQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,13 @@ public class SysRoleController {
     private final SysRoleQueryService sysRoleQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> page(@Validated @RequestBody Mono<SysRoleQuery> query) {
-        return ApiResponse.validated(query,sysRoleQueryService::page);
+    public Mono<ApiResponse> index(@Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query, sysRoleQueryService::index);
+    }
+
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query, sysRoleQueryService::recycle);
     }
 
     @PostMapping("/all")
@@ -43,8 +49,13 @@ public class SysRoleController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysRoleCommand command) {
-        return ApiResponse.ok(sysRoleCommandService.deleteRole(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysRoleCommandService.deleteRole(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysRoleCommandService.restore(ids));
     }
 
     @DeleteMapping("/wipe")
