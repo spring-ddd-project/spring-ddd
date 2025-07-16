@@ -18,6 +18,10 @@ public class SysRoleCommandService {
 
     private final WipeSysRoleByIdsDomainService wipeSysRoleByIdsDomainService;
 
+    private final DeleteSysRoleByIdDomainService deleteSysRoleByIdDomainService;
+
+    private final RestoreSysRoleByIdDomainService restoreSysRoleByIdDomainService;
+
     public Mono<Long> createRole(SysRoleCommand command) {
         RoleBasicInfo roleBasicInfo = new RoleBasicInfo(
                 new RoleName(command.getRoleName()), new RoleCode(command.getRoleCode()),
@@ -45,11 +49,12 @@ public class SysRoleCommandService {
         }).then();
     }
 
-    public Mono<Void> deleteRole(SysRoleCommand sysRoleCommand) {
-        return sysRoleDomainRepository.load(new RoleId(sysRoleCommand.getId())).flatMap(domain -> {
-            domain.delete();
-            return sysRoleDomainRepository.save(domain);
-        }).then();
+    public Mono<Void> deleteRole(List<Long> ids) {
+        return deleteSysRoleByIdDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysRoleByIdDomainService.restoreByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
