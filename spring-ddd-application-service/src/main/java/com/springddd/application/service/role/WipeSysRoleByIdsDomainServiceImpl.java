@@ -1,7 +1,7 @@
 package com.springddd.application.service.role;
 
-import com.springddd.domain.role.DeleteSysRoleMenuByIdsDomainService;
-import com.springddd.infrastructure.persistence.r2dbc.SysRoleMenuRepository;
+import com.springddd.domain.role.WipeSysRoleByIdsDomainService;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,13 +11,13 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DeleteSysRoleMenuByIdsDomainServiceImpl implements DeleteSysRoleMenuByIdsDomainService {
+public class WipeSysRoleByIdsDomainServiceImpl implements WipeSysRoleByIdsDomainService {
 
-    private final SysRoleMenuRepository sysRoleMenuRepository;
+    private final SysRoleRepository sysRoleRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> deleteByIds(List<Long> ids) {
-        return sysRoleMenuRepository.deleteAllById(ids);
+        return sysRoleRepository.deleteAllById(ids);
     }
 }
