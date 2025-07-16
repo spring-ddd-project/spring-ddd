@@ -25,7 +25,12 @@ public class SysRoleController {
 
     @PostMapping("/index")
     public Mono<ApiResponse> index(@Validated @RequestBody Mono<SysRolePageQuery> query) {
-        return ApiResponse.validated(query,sysRoleQueryService::index);
+        return ApiResponse.validated(query, sysRoleQueryService::index);
+    }
+
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query, sysRoleQueryService::recycle);
     }
 
     @PostMapping("/all")
