@@ -1,6 +1,7 @@
 package com.springddd.application.service.role;
 
 
+import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.application.service.role.dto.SysRoleQuery;
 import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.application.service.role.dto.SysRoleViewMapStruct;
@@ -26,8 +27,8 @@ public class SysRoleQueryService {
 
     private final SysRoleRepository sysRoleRepository;
 
-    public Mono<PageResponse<SysRoleView>> page(SysRoleQuery query) {
-        Criteria criteria = Criteria.where("delete_status").is("0");
+    public Mono<PageResponse<SysRoleView>> index(SysRolePageQuery query) {
+        Criteria criteria = Criteria.where(SysRoleQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
@@ -39,11 +40,11 @@ public class SysRoleQueryService {
     }
 
     public Mono<SysRoleView> getById(Long id) {
-        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("id").is(id))).one().map(sysRoleViewMapStruct::toView);
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where(SysRoleQuery.Fields.id).is(id))).one().map(sysRoleViewMapStruct::toView);
     }
 
     public Mono<SysRoleView> getByCode(String code) {
-        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("role_code").is(code))).one().map(sysRoleViewMapStruct::toView);
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where(SysRoleQuery.Fields.roleCode).is(code))).one().map(sysRoleViewMapStruct::toView);
     }
 
     public Mono<List<SysRoleView>> getAllRole() {
