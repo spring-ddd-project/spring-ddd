@@ -16,7 +16,7 @@ public class SysRoleCommandService {
 
     private final SysRoleDomainFactory sysRoleDomainFactory;
 
-    private final DeleteSysRoleByIdsDomainService deleteSysRoleByIdsDomainService;
+    private final WipeSysRoleByIdsDomainService wipeSysRoleByIdsDomainService;
 
     public Mono<Long> createRole(SysRoleCommand command) {
         RoleBasicInfo roleBasicInfo = new RoleBasicInfo(
@@ -53,6 +53,6 @@ public class SysRoleCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysRoleByIdsDomainService.deleteByIds(ids);
+        return wipeSysRoleByIdsDomainService.deleteByIds(ids);
     }
 }
