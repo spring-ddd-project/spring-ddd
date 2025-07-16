@@ -76,4 +76,27 @@ public class ReactiveTreeUtils {
             buildChildren(child, idGetter, childrenSetter, parentIdMap, sorter, maxDepth, currentDepth + 1);
         }
     }
+
+    /**
+     * Recursively load all parent nodes and add them to the menuMap.
+     */
+    public static <T, ID> Mono<Void> loadParentChain(
+            ID parentId,
+            Map<ID, T> nodeMap,
+            Function<ID, Mono<T>> parentLoader,
+            Function<T, ID> idGetter,
+            Function<T, ID> parentIdGetter
+    ) {
+        if (parentId == null || nodeMap.containsKey(parentId)) {
+            return Mono.empty();
+        }
+
+        return parentLoader.apply(parentId)
+                .flatMap(parent -> {
+                    ID id = idGetter.apply(parent);
+                    nodeMap.put(id, parent);
+                    ID nextParentId = parentIdGetter.apply(parent);
+                    return loadParentChain(nextParentId, nodeMap, parentLoader, idGetter, parentIdGetter);
+                });
+    }
 }
