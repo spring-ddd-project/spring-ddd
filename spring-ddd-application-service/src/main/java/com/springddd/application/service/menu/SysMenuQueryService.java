@@ -92,7 +92,8 @@ public class SysMenuQueryService {
                         menu -> menu.getParentId() == null || menu.getParentId() == 0,
                         Comparator.comparing(o -> o.getMeta().getOrder()),
                         menu -> !menu.getDeleteStatus(),
-                        30
+                        30,
+                        menu -> !menu.getDeleteStatus()
                 ))
                 .flatMap(menus -> {
                     Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
@@ -147,7 +148,8 @@ public class SysMenuQueryService {
                                         menu -> menu.getParentId() == null || menu.getParentId() == 0,
                                         Comparator.comparing(o -> o.getMeta().getOrder()),
                                         menu -> !menu.getDeleteStatus(),
-                                        30
+                                        30,
+                                        m -> !m.getDeleteStatus()
                                 ));
                     } else {
                         return reactiveRedisCacheHelper
@@ -201,5 +203,9 @@ public class SysMenuQueryService {
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
         return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithoutPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
+    }
+
+    public Mono<List<SysMenuView>> allMenu() {
+        return sysMenuRepository.findAll().filter(menu -> !menu.getDeleteStatus()).collectList().map(sysMenuViewMapStruct::toViewList);
     }
 }
