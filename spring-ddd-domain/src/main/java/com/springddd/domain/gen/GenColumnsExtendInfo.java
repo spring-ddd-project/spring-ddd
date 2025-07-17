@@ -9,7 +9,7 @@ public record GenColumnsExtendInfo(Long propDictId,
                                    Boolean tableFilter,
                                    Integer tableFilterComponent,
                                    Integer tableFilterType,
-                                   Integer formComponent,
+                                   Byte formComponent,
                                    Boolean formVisible,
                                    Boolean formRequired) {
     public GenColumnsExtendInfo {
