@@ -48,7 +48,9 @@ public class SysUserQueryService {
     }
 
     public Mono<SysUserView> queryUserByUsername(String username) {
-        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where(SysUserQuery.Fields.username).is(username)), SysUserEntity.class)
+        return r2dbcEntityTemplate.selectOne(Query.query(
+                Criteria.where(SysUserQuery.Fields.username)
+                        .is(username).and(SysUserQuery.Fields.deleteStatus).is(false)), SysUserEntity.class)
                 .map(sysUserViewMapStruct::toView);
     }
 }
