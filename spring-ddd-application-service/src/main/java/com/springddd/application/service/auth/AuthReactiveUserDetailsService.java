@@ -9,7 +9,6 @@ import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.menu.MenuPermission;
-import com.springddd.domain.menu.exception.MenuPermissionDeniedException;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.publisher.SynchronousSink;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -68,20 +67,21 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                 .flatMap(roleMenuView ->
                                                         sysMenuQueryService.queryByMenuId(roleMenuView.getMenuId())
                                                 )
-                                                .handle((SysMenuView menu, SynchronousSink<String> sink) -> {
-                                                    if (menu == null) {
-                                                        sink.error(new MenuPermissionDeniedException());
-                                                    } else if (!ObjectUtils.isEmpty(menu.getPermission())) {
-                                                        sink.next(menu.getPermission());
-                                                    }
-                                                })
-                                                .distinct()
-                                                .map(MenuPermission::new)
                                                 .collectList()
-                                                .map(permissions -> {
+                                                .map(menus -> {
+                                                    user.setMenuIds(menus.stream().map(SysMenuView::getId).toList());
+
+                                                    List<MenuPermission> permissions = menus.stream()
+                                                            .map(SysMenuView::getPermission)
+                                                            .filter(permission -> !ObjectUtils.isEmpty(permission))
+                                                            .distinct()
+                                                            .map(MenuPermission::new)
+                                                            .collect(Collectors.toList());
+
                                                     user.setPermissions(permissions);
                                                     return user;
                                                 });
+
                                     }));
 
                 });
