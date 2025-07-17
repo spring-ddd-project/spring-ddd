@@ -23,7 +23,6 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -69,10 +68,10 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> queryByPermissions() {
-        return Flux.fromIterable(SecurityUtils.getPermissions())
-                .flatMap(p ->
+        return Flux.fromIterable(SecurityUtils.getMenuIds())
+                .flatMap(mId ->
                         r2dbcEntityTemplate.selectOne(
-                                Query.query(Criteria.where(SysMenuQuery.Fields.permission).is(p.value())),
+                                Query.query(Criteria.where(SysMenuQuery.Fields.id).is(mId)),
                                 SysMenuEntity.class
                         ).map(sysMenuViewMapStruct::toView)
                 )

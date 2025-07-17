@@ -39,6 +39,8 @@ public class AuthUser implements Serializable, UserDetails {
 
     private List<MenuPermission> permissions;
 
+    private List<Long> menuIds;
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
