@@ -23,7 +23,7 @@ public class SysUserRoleQueryService {
 
     public Mono<List<SysUserRoleView>> queryLinkUserAndRole(Long userId) {
         Criteria criteria = Criteria.
-                where("user_id").is(userId).and("delete_status").is("0");
+                where(SysUserRoleQuery.Fields.userId).is(userId).and(SysUserRoleQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.select(SysUserRoleEntity.class).matching(qry).all().collectList().map(sysUserRoleViewMapStruct::toViewList);
     }
