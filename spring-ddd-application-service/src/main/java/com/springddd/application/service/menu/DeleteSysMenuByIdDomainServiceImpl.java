@@ -30,7 +30,7 @@ public class DeleteSysMenuByIdDomainServiceImpl implements DeleteSysMenuByIdDoma
         }
 
         // Delete this node and all its child nodes.
-        return sysMenuQueryService.allMenu()
+        return sysMenuQueryService.queryAllMenu()
                 .flatMapMany(flatList ->
                         Flux.fromIterable(ids)
                                 .flatMap(id -> {
