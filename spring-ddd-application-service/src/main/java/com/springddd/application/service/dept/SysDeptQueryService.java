@@ -51,6 +51,7 @@ public class SysDeptQueryService {
                         v -> v.getParentId() == null,
                         Comparator.comparing(SysDeptView::getSortOrder),
                         f -> f.getDeptStatus() == true,
-                        30));
+                        30,
+                        d -> !d.getDeptStatus()));
     }
 }
