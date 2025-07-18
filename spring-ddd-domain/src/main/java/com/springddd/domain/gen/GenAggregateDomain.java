@@ -10,7 +10,7 @@ public class GenAggregateDomain extends AbstractDomainMask {
 
     private AggregateId aggregateId;
 
-    private GenProjectInfoId infoId;
+    private InfoId infoId;
 
     private GenAggregateValueObject valueObject;
 
@@ -18,7 +18,7 @@ public class GenAggregateDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void update(GenProjectInfoId infoId, GenAggregateValueObject valueObject, GenAggregateExtendInfo extendInfo) {
+    public void update(InfoId infoId, GenAggregateValueObject valueObject, GenAggregateExtendInfo extendInfo) {
         this.infoId = infoId;
         this.valueObject = valueObject;
         this.extendInfo = extendInfo;
