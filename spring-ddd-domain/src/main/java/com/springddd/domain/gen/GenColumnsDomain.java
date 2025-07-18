@@ -8,11 +8,13 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GenColumnsDomain extends AbstractDomainMask {
 
-    private GenColumnsId id;
+    private ColumnsId id;
 
     private GenProjectInfoId infoId;
 
     private GenColumnsProp prop;
+
+    private Table table;
 
     private GenColumnsExtendInfo extendInfo;
 
