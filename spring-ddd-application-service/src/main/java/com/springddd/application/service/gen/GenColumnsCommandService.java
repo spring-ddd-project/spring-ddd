@@ -24,7 +24,8 @@ public class GenColumnsCommandService {
     public Mono<Long> create(GenColumnsCommand command) {
         Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
         Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
-        GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+        Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+        GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
         GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
         domain.create();
         return genColumnsDomainRepository.save(domain);
@@ -34,7 +35,8 @@ public class GenColumnsCommandService {
         return genColumnsDomainRepository.load(new ColumnsId(command.getId())).flatMap(domain -> {
             Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
-            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+            Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
             domain.update(prop, extendInfo);
             return genColumnsDomainRepository.save(domain);
         }).then();
@@ -56,7 +58,8 @@ public class GenColumnsCommandService {
                 .map(command -> {
                     Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                     Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
-                    GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                    Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                    GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
                     GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
                     domain.create();
                     return domain;
@@ -72,7 +75,8 @@ public class GenColumnsCommandService {
                         .map(domain -> {
                             Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
-                            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                            Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
                             domain.update(prop, extendInfo);
                             return domain;
                         })
