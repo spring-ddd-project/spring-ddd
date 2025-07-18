@@ -2,12 +2,14 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenColumnsCommand;
 import com.springddd.domain.gen.*;
+import com.springddd.domain.gen.exception.I18nLocaleNullException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +70,7 @@ public class GenColumnsCommandService {
                     return domain;
                 })
                 .collectList()
-                .flatMap(genColumnsBatchSaveDomainService::batchSave)
+                .flatMap(localeValidation())
                 .then();
     }
 
@@ -86,7 +88,24 @@ public class GenColumnsCommandService {
                         })
                 )
                 .collectList()
-                .flatMap(genColumnsBatchSaveDomainService::batchSave)
+                .flatMap(localeValidation())
                 .then();
+    }
+
+    private Function<List<GenColumnsDomain>, Mono<? extends Void>> localeValidation() {
+        return list -> {
+            List<String> locales = list.stream()
+                    .map(d -> d.getI18n().locale())
+                    .toList();
+
+            boolean allEmpty = locales.stream().allMatch(l -> l == null || l.isBlank());
+            boolean allNonEmpty = locales.stream().allMatch(l -> l != null && !l.isBlank());
+
+            if (allEmpty || allNonEmpty) {
+                return genColumnsBatchSaveDomainService.batchSave(list);
+            } else {
+                return Mono.error(new I18nLocaleNullException());
+            }
+        };
     }
 }
