@@ -1,8 +1,5 @@
 package com.springddd.application.service.gen;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springddd.application.service.gen.dto.GenFileView;
 import com.springddd.domain.gen.GenerateDomainService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -11,15 +8,9 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @Component
 @RequiredArgsConstructor
@@ -31,70 +22,61 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final Configuration configuration;
 
-    private final ObjectMapper objectMapper;
-
     @Override
-    public Mono<byte[]> generate(String tableName, String projectName) {
+    public Mono<Void> generate(String tableName, String projectName) {
         return genTableInfoQueryService.buildData(tableName)
-                .flatMap(context -> templateQueryService.queryAllTemplate()
-                        .flatMapMany(Flux::fromIterable)
-                        .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
-                                .map(renderedContent -> {
-                                    String layer;
-                                    String fileDir;
-                                    String fileName = template.getTemplateName() + ".java";
+                .flatMap(context -> {
+                    context.put("projectName", projectName);
 
-                                    fileDir = switch (template.getTemplateName()) {
-                                        case "entity" -> {
-                                            layer = projectName + "-infrastructure-persistence";
-                                            yield "com.ddd.infrastructure.persistence.entity";
-                                        }
-                                        case "r2dbc" -> {
-                                            layer = projectName + "-infrastructure-persistence";
-                                            yield "com.ddd.infrastructure.persistence.r2dbc";
-                                        }
-                                        default -> {
-                                            layer = "others";
-                                            yield "others";
-                                        }
-                                    };
-
-                                    return new GenFileView(layer, fileDir, fileName, renderedContent);
-                                }))
-                        .collectList()
-                        .doOnNext(fileResults -> {
-                            try {
-                                System.out.println("file json = " + objectMapper.writeValueAsString(fileResults));
-                            } catch (JsonProcessingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        })
-                        .flatMap(fileResults -> {
-                            try {
-                                byte[] zipBytes = createZip(fileResults);
-                                return Mono.just(zipBytes);
-                            } catch (IOException e) {
-                                return Mono.error(e);
-                            }
-                        })
-                );
+                    return templateQueryService.queryAllTemplate()
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
+                                    .flatMap(renderedCode -> {
+                                        String filePath = generateFilePath(template.getTemplateName(), context);
+                                        return saveGeneratedFile(filePath, renderedCode);
+                                    }))
+                            .then();
+                });
     }
 
     /**
-     * build zip data
+     * build location
+     * projectName-application-infrastructure.persistence/packageName/infrastructure/persistence/entity/ClassNameEntity.java
      */
-    private byte[] createZip(List<GenFileView> files) throws IOException {
-        ByteArrayOutputStream b = new ByteArrayOutputStream();
-        try (ZipOutputStream zos = new ZipOutputStream(b)) {
-            for (GenFileView file : files) {
-                // zip location, example: infrastructure-persistence/entity/Entity.java
-                String zipEntryPath = file.getLayer() + "/" + file.getFileDir() + "/" + file.getFileName();
-                zos.putNextEntry(new ZipEntry(zipEntryPath));
-                zos.write(file.getContent().getBytes(StandardCharsets.UTF_8));
-                zos.closeEntry();
-            }
-        }
-        return b.toByteArray();
+    private String generateFilePath(String templateName, Map<String, Object> context) {
+        String projectName = (String) context.get("projectName");
+        String packageName = (String) context.get("packageName");
+        String className = (String) context.get("className");
+        String requestName = (String) context.get("requestName");
+
+        String packagePath = packageName.replace('.', '/');
+
+        return switch (templateName) {
+            case "entity" -> projectName + "-application-infrastructure.persistence/"
+                    + packagePath + "/infrastructure/persistence/entity/"
+                    + className + "Entity.java";
+            case "r2dbc" -> projectName + "-application-infrastructure.persistence/"
+                    + packagePath + "/infrastructure/persistence/r2dbc/"
+                    + className + "R2dbc.java";
+            case "repository" -> projectName + "-application-infrastructure.persistence/"
+                    + packagePath + "/infrastructure/persistence/"
+                    + className + "Repository.java";
+            case "request" -> projectName + "-application-domain/"
+                    + packagePath + "/domain/"
+                    + requestName + "/"
+                    + className + "Request.java";
+
+
+            default -> projectName + "-application-domain/"
+                    + packagePath + "/domain/"
+                    + requestName + "/"
+                    + className + templateName + ".java";
+        };
+    }
+
+    private Mono<Void> saveGeneratedFile(String filePath, String content) {
+        System.out.println("Saving file: " + filePath);
+        return Mono.empty();
     }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
