@@ -27,7 +27,10 @@ public class SysUserQueryService {
     public Mono<PageResponse<SysUserView>> page(SysUserPageQuery query) {
         Criteria criteria = Criteria.where(SysUserPageQuery.Fields.deleteStatus).is(false);
         if (!ObjectUtils.isEmpty(query.getUsername())) {
-            criteria = criteria.and(SysUserQuery.Fields.username).is(query.getUsername());
+            criteria = criteria.and(SysUserQuery.Fields.username).like(query.getUsername());
+        }
+        if (!ObjectUtils.isEmpty(query.getPhone())) {
+            criteria = criteria.and(SysUserQuery.Fields.phone).like(query.getPhone());
         }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
