@@ -24,8 +24,6 @@ public class SysMenuView implements Serializable {
 
     private String permission;
 
-    private String icon;
-
     private Integer menuType;
 
     private Boolean visible;
@@ -50,5 +48,7 @@ public class SysMenuView implements Serializable {
         private Boolean affixTab;
 
         private Boolean noBasicLayout;
+
+        private String icon;
     }
 }
