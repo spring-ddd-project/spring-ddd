@@ -164,25 +164,28 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + className + "Controller.java";
 
             // vue
-            case "index.vue" -> "apps/web-ele/src/views"
+            case "index.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "index.vue";
-            case "recycle.vue" -> "apps/web-ele/src/views"
+            case "recycle.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "recycle.vue";
-            case "form.vue" -> "apps/web-ele/src/views"
+            case "form.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "form.vue";
-
-
-
-            default -> projectName + "-application-domain/"
-                    + packagePath + "/domain/"
+            case "api.ts" -> "apps/web-ele/src/api/"
+                    + moduleName + "/"
                     + requestName + "/"
-                    + className + templateName + ".java";
+                    + className + "index.ts";
+            case "i18n.en.json" -> "apps/web-ele/src/locales/langs/en-US/"
+                    + requestName + ".json";
+            case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
+                    + requestName + ".json";
+
+            default -> projectName + ".txt";
         };
     }
 
