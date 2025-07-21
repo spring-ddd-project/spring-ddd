@@ -1,11 +1,14 @@
 package com.springddd.application.service.gen;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
@@ -18,6 +21,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GenTableInfoQueryService {
 
     private final DatabaseClient databaseClient;
@@ -29,6 +33,8 @@ public class GenTableInfoQueryService {
     private final GenAggregateQueryService aggregateQueryService;
 
     private final ReactiveRedisCacheHelper cacheHelper;
+
+    private final ObjectMapper objectMapper;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -132,8 +138,21 @@ public class GenTableInfoQueryService {
         return Mono.just(context);
     }
 
-    public Mono<List> preview() {
-        return cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), List.class);
+    public Mono<List<ProjectTreeView>> preview() {
+        return cacheHelper.getCache(
+                        CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
+                        List.class
+                )
+                .flatMap(list -> {
+                    try {
+                        List<ProjectTreeView> treeViewList = objectMapper.convertValue(list, new TypeReference<>() {});
+                        return Mono.just(treeViewList);
+                    } catch (Exception e) {
+                        log.error("\n===> #GenTableInfoQueryService.preview#:{}", e.toString());
+                        return Mono.error(new RuntimeException("Error deserializing ProjectTreeView list"));
+                    }
+                });
     }
+
 
 }
