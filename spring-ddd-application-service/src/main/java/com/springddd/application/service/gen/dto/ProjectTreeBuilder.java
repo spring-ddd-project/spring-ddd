@@ -1,47 +1,39 @@
 package com.springddd.application.service.gen.dto;
 
-import java.util.*;
+import java.util.ArrayList;
 
 public class ProjectTreeBuilder {
 
-    public static ProjectTreeView buildTreeFromPaths(List<String> paths) {
-        ProjectTreeView root = new ProjectTreeView();
-        root.setLabel("root");
+    public ProjectTreeView buildTree(String filePath, String content) {
+        String[] parts = filePath.split("/");
 
-        Map<String, ProjectTreeView> nodeMap = new HashMap<>();
-
-        for (String path : paths) {
-            String[] parts = path.split("/");
-            ProjectTreeView currentNode = root;
-
-            for (String part : parts) {
-                ProjectTreeView childNode = currentNode.getChildren().stream()
-                        .filter(child -> child.getLabel().equals(part))
-                        .findFirst()
-                        .orElse(null);
-
-                if (childNode == null) {
-                    childNode = new ProjectTreeView();
-                    childNode.setLabel(part);
-                    childNode.setChildren(new ArrayList<>());
-                    currentNode.getChildren().add(childNode);
-                }
-
-                currentNode = childNode;
-            }
-        }
-
-        return root;
+        return buildTreeRecursive(parts, 0, content);
     }
 
-    public static void printTree(ProjectTreeView tree, String indent) {
-        if (tree.getChildren().isEmpty()) {
-            System.out.println(indent + "└───" + tree.getLabel());
-        } else {
-            System.out.println(indent + "├───" + tree.getLabel());
-            for (ProjectTreeView child : tree.getChildren()) {
-                printTree(child, indent + "│   ");
-            }
+    private ProjectTreeView buildTreeRecursive(String[] parts, int index, String content) {
+        if (index >= parts.length) {
+            return null;
         }
+
+        String currentPart = parts[index];
+
+        ProjectTreeView currentNode = new ProjectTreeView();
+        currentNode.setLabel(currentPart);
+        currentNode.setChildren(new ArrayList<>());
+
+        if (index == parts.length - 1 && isFile(currentPart)) {
+            currentNode.setValue(content);
+        }
+
+        ProjectTreeView childNode = buildTreeRecursive(parts, index + 1, content);
+        if (childNode != null) {
+            currentNode.getChildren().add(childNode);
+        }
+
+        return currentNode;
+    }
+
+    private boolean isFile(String part) {
+        return part.contains(".");
     }
 }
