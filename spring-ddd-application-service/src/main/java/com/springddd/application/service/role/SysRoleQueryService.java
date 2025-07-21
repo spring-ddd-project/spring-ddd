@@ -13,6 +13,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -29,6 +30,12 @@ public class SysRoleQueryService {
 
     public Mono<PageResponse<SysRoleView>> index(SysRolePageQuery query) {
         Criteria criteria = Criteria.where(SysRoleQuery.Fields.deleteStatus).is(false);
+        if (!ObjectUtils.isEmpty(query.getRoleName())) {
+            criteria = criteria.and(SysRoleQuery.Fields.roleName).like(query.getRoleName());
+        }
+        if (!ObjectUtils.isEmpty(query.getRoleCode())) {
+            criteria = criteria.and(SysRoleQuery.Fields.roleCode).like(query.getRoleCode());
+        }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
