@@ -2,6 +2,7 @@ package com.springddd.application.service.gen.dto;
 
 import java.util.ArrayList;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  *
@@ -33,6 +34,7 @@ public class ProjectTreeBuilder {
     public ProjectTreeView buildTree(String filePath, String content) {
         String[] parts = filePath.split("/");
         ProjectTreeView root = new ProjectTreeView();
+        root.setId(UUID.randomUUID().toString());
         root.setLabel("");
         root.setChildren(new ArrayList<>());
 
@@ -54,6 +56,7 @@ public class ProjectTreeBuilder {
             child = opt.get();
         } else {
             child = new ProjectTreeView();
+            child.setId(UUID.randomUUID().toString());
             child.setLabel(part);
             child.setChildren(new ArrayList<>());
             parent.getChildren().add(child);
