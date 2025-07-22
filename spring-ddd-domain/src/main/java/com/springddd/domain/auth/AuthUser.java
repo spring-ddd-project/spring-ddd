@@ -1,7 +1,6 @@
 package com.springddd.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.Data;
@@ -37,7 +36,7 @@ public class AuthUser implements Serializable, UserDetails {
 
     private List<RoleCode> roles;
 
-    private List<MenuPermission> permissions;
+    private List<String> permissions;
 
     private List<Long> menuIds;
 
@@ -47,7 +46,6 @@ public class AuthUser implements Serializable, UserDetails {
         return CollectionUtils.isEmpty(permissions)
                 ? List.of()
                 : permissions.stream()
-                .map(MenuPermission::value)
                 .filter(StringUtils::hasText)
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toUnmodifiableSet());
