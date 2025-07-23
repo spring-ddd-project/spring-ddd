@@ -36,7 +36,7 @@ public class ProjectTreeBuilder {
 
         ProjectTreeView root = new ProjectTreeView();
         root.setId(UUID.randomUUID().toString());
-        root.setLabel("");
+        root.setLabel("TEMP");
         root.setChildren(new ArrayList<>());
 
         ProjectTreeView currentNode = root;
@@ -68,26 +68,39 @@ public class ProjectTreeBuilder {
         return root;
     }
 
-    private void insertNode(ProjectTreeView parent, String part, String content) {
-        Optional<ProjectTreeView> opt = parent.getChildren()
-                .stream()
-                .filter(c -> c.getLabel().equals(part))
-                .findFirst();
+    /**
+     * Check if a node with a specific file path exists and insert the file if necessary.
+     */
+    public boolean insertOrUpdateNode(ProjectTreeView root, String filePath, String content) {
+        String[] parts = filePath.split("/");
 
-        ProjectTreeView child;
-        if (opt.isPresent()) {
-            child = opt.get();
-        } else {
-            child = new ProjectTreeView();
-            child.setId(UUID.randomUUID().toString());
-            child.setLabel(part);
-            child.setChildren(new ArrayList<>());
-            parent.getChildren().add(child);
-        }
+        ProjectTreeView currentNode = root;
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            Optional<ProjectTreeView> opt = currentNode.getChildren()
+                    .stream()
+                    .filter(c -> c.getLabel().equals(part))
+                    .findFirst();
 
-        if (isFile(part)) {
-            child.setValue(content);
+            ProjectTreeView child;
+            if (opt.isPresent()) {
+                child = opt.get();
+            } else {
+                child = new ProjectTreeView();
+                child.setId(UUID.randomUUID().toString());
+                child.setLabel(part);
+                child.setChildren(new ArrayList<>());
+                currentNode.getChildren().add(child);
+            }
+
+            // If it's the last part of the path, we insert the file content
+            if (i == parts.length - 1 && isFile(part)) {
+                child.setValue(content);
+            }
+
+            currentNode = child;
         }
+        return true;
     }
 
     private boolean isFile(String part) {
