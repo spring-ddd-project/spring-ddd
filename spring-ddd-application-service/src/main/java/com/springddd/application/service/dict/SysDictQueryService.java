@@ -26,10 +26,10 @@ public class SysDictQueryService {
     public Mono<PageResponse<SysDictView>> index(SysDictPageQuery query) {
         Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(false);
         if (!ObjectUtils.isEmpty(query.getDictName())) {
-            criteria = criteria.and(SysDictQuery.Fields.dictName).like(query.getDictName());
+            criteria = criteria.and(SysDictQuery.Fields.dictName).like("%" + query.getDictName() + "%");
         }
         if (!ObjectUtils.isEmpty(query.getDictCode())) {
-            criteria = criteria.and(SysDictQuery.Fields.dictCode).like(query.getDictCode());
+            criteria = criteria.and(SysDictQuery.Fields.dictCode).like("%" + query.getDictCode() + "%");
         }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
