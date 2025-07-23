@@ -6,6 +6,7 @@ import com.springddd.domain.util.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -21,24 +22,40 @@ public class GenTableInfoQueryService {
         int offset = (query.getPageNum() - 1) * query.getPageSize();
         int limit = query.getPageSize();
 
-        String dataSql = """
+        StringBuilder dataSql = new StringBuilder("""
                     SELECT table_name, table_comment, create_time, table_collation
                     FROM information_schema.TABLES
                     WHERE table_schema = :db
-                    ORDER BY create_time DESC
-                    LIMIT :limit OFFSET :offset
-                """;
+                """);
 
-        String countSql = """
+        StringBuilder countSql = new StringBuilder("""
                     SELECT COUNT(*) AS total
                     FROM information_schema.TABLES
                     WHERE table_schema = :db
-                """;
+                """);
 
-        Mono<List<GenTableInfoView>> data = databaseClient.sql(dataSql)
+        if (query.getTableName() != null && !query.getTableName().isEmpty()) {
+            dataSql.append(" AND table_name LIKE :tn");
+            countSql.append(" AND table_name LIKE :tn");
+        }
+
+        dataSql.append(" ORDER BY create_time DESC LIMIT :limit OFFSET :offset");
+
+        DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(dataSql.toString())
                 .bind("db", "spring_ddd")
                 .bind("limit", limit)
-                .bind("offset", offset)
+                .bind("offset", offset);
+
+        DatabaseClient.GenericExecuteSpec countSpec = databaseClient.sql(countSql.toString())
+                .bind("db", "spring_ddd");
+
+        if (!ObjectUtils.isEmpty(query.getTableName())) {
+            String tableNameLike = "%" + query.getTableName() + "%";
+            dataSpec = dataSpec.bind("tn", tableNameLike);
+            countSpec = countSpec.bind("tn", tableNameLike);
+        }
+
+        Mono<List<GenTableInfoView>> data = dataSpec
                 .map((row, meta) -> new GenTableInfoView(
                         row.get("table_name", String.class),
                         row.get("table_comment", String.class),
@@ -48,8 +65,7 @@ public class GenTableInfoQueryService {
                 .all()
                 .collectList();
 
-        Mono<Long> count = databaseClient.sql(countSql)
-                .bind("db", "spring_ddd")
+        Mono<Long> count = countSpec
                 .map((row, meta) -> row.get("total", Long.class))
                 .one()
                 .defaultIfEmpty(0L);
