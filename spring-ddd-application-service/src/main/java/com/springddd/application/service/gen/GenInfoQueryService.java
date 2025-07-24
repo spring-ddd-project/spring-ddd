@@ -10,6 +10,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,6 +25,9 @@ public class GenInfoQueryService {
 
     public Mono<PageResponse<GenInfoView>> index(GenInfoPageQuery query) {
         Criteria criteria = Criteria.where(GenInfoPageQuery.Fields.deleteStatus).is(false);
+        if (!ObjectUtils.isEmpty(query.getTableName())) {
+            criteria = criteria.and(GenInfoPageQuery.Fields.tableName).is(query.getTableName());
+        }
         Query qry = Query.query(criteria);
         Mono<List<GenInfoView>> list = r2dbcEntityTemplate.select(GenInfoEntity.class).matching(qry).all().collectList().map(genInfoViewMapStruct::toViews);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenInfoEntity.class);
