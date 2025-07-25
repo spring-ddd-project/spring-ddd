@@ -2,10 +2,8 @@ package com.springddd.web;
 
 import com.springddd.application.service.gen.GenInfoCommandService;
 import com.springddd.application.service.gen.GenInfoQueryService;
-import com.springddd.application.service.gen.GenTableInfoQueryService;
 import com.springddd.application.service.gen.dto.GenInfoCommand;
 import com.springddd.application.service.gen.dto.GenInfoPageQuery;
-import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -15,20 +13,13 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/gen")
+@RequestMapping("/gen/info")
 @RequiredArgsConstructor
-public class GenController {
-
-    private final GenTableInfoQueryService genTableInfoQueryService;
+public class GenInfoController {
 
     private final GenInfoQueryService genInfoQueryService;
 
     private final GenInfoCommandService genInfoCommandService;
-
-    @PostMapping("/table/index")
-    public Mono<ApiResponse> tableIndex(@RequestBody @Validated Mono<GenTableInfoPageQuery> query) {
-        return ApiResponse.validated(query, genTableInfoQueryService::index);
-    }
 
     @PostMapping("/index")
     public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenInfoPageQuery> query) {
