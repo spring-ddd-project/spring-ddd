@@ -18,6 +18,8 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     private Button button;
 
+    private AdvancedOptions advancedOptions;
+
     private MenuExtendInfo menuExtendInfo;
 
     public void create() {}
