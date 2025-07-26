@@ -23,6 +23,38 @@ public class GenInfoEntity {
 
     private String requestName;
 
+    private Byte propValueObject;
+
+    private String propColumnKey;
+
+    private String propColumnName;
+
+    private String propColumnType;
+
+    private String propColumnComment;
+
+    private String propJavaEntity;
+
+    private String propJavaType;
+
+    private Long propDictId;
+
+    private Byte tableVisible;
+
+    private Byte tableOrder;
+
+    private Byte tableFilter;
+
+    private Integer tableFilterComponent;
+
+    private Integer tableFilterType;
+
+    private Integer formComponent;
+
+    private Byte formVisible;
+
+    private Byte formRequired;
+
     private Boolean deleteStatus;
 
     @CreatedBy
