@@ -39,7 +39,24 @@ public enum ErrorCode {
 
     GEN_INFO_PACKAGE_NAME_NULL(1500, "error.gen.info.package.name.null"),
     GEN_INFO_TABLE_NAME_NULL(1501, "error.gen.info.table.name.null"),
-    GEN_INFO_CLASS_NAME_NULL(1502, "error.gen.info.class.name.null")
+    GEN_INFO_CLASS_NAME_NULL(1502, "error.gen.info.class.name.null"),
+    GEN_INFO_REQUEST_NAME_NULL(1503, "error.gen.info.request.name.null"),
+    GEN_INFO_VALUE_OBJECT_NULL(1504, "error.gen.info.value.object.null"),
+    GEN_INFO_COLUMN_KEY_NULL(1505, "error.gen.info.column.key.null"),
+    GEN_INFO_COLUMN_NAME_NULL(1506, "error.gen.info.column.name.null"),
+    GEN_INFO_COLUMN_TYPE_NULL(1507, "error.gen.info.column.type.null"),
+    GEN_INFO_COLUMN_COMMENT_NULL(1508, "error.gen.info.column.comment.null"),
+    GEN_INFO_JAVA_ENTITY_NULL(1509, "error.gen.info.java.entity.null"),
+    GEN_INFO_JAVA_TYPE_NULL(1510, "error.gen.info.java.type.null"),
+    GEN_INFO_DICT_ID_NULL(1511, "error.gen.info.dict.id.null"),
+    GEN_INFO_VISIBLE_NULL(1512, "error.gen.info.visible.null"),
+    GEN_INFO_ORDER_NULL(1513, "error.gen.info.order.null"),
+    GEN_INFO_FILTER_NULL(1514, "error.gen.info.filter.null"),
+    GEN_INFO_FILTER_COMPONENT_NULL(1515, "error.gen.info.filter.component.null"),
+    GEN_INFO_FILTER_TYPE_NULL(1516, "error.gen.info.filter.type.null"),
+    GEN_INFO_FORM_COMPONENT_NULL(1517, "error.gen.info.form.component.null"),
+    GEN_INFO_FORM_VISIBLE_NULL(1518, "error.gen.info.form.visible.null"),
+    GEN_INFO_FORM_REQUIRED_NULL(1519, "error.gen.info.form.required.null")
 
     ;
 
