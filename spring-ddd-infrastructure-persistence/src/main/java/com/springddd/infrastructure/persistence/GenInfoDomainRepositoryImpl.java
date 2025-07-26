@@ -24,7 +24,24 @@ public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
             GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()), new RequestName(e.getRequestName()));
             genInfoDomain.setBasicInfo(basicInfo);
 
-            genInfoDomain.setId(new GenInfoId(e.getId()));
+            GenInfoExtendInfo extendInfo = new GenInfoExtendInfo(e.getPropValueObject(),
+                    e.getPropColumnKey(),
+                    e.getPropColumnName(),
+                    e.getPropColumnType(),
+                    e.getPropColumnComment(),
+                    e.getPropJavaEntity(),
+                    e.getPropJavaType(),
+                    e.getPropDictId(),
+                    e.getTableVisible(),
+                    e.getTableOrder(),
+                    e.getTableFilter(),
+                    e.getTableFilterComponent(),
+                    e.getTableFilterType(),
+                    e.getFormComponent(),
+                    e.getFormVisible(),
+                    e.getFormRequired()
+            );
+            genInfoDomain.setExtendInfo(extendInfo);
 
             genInfoDomain.setDeleteStatus(e.getDeleteStatus());
             genInfoDomain.setCreateBy(e.getCreateBy());
