@@ -17,7 +17,7 @@ public class GenInfoView implements Serializable {
 
     private String requestName;
 
-    private Byte propValueObject;
+    private Boolean propValueObject;
 
     private String propColumnKey;
 
@@ -33,11 +33,11 @@ public class GenInfoView implements Serializable {
 
     private Long propDictId;
 
-    private Byte tableVisible;
+    private Boolean tableVisible;
 
-    private Byte tableOrder;
+    private Boolean tableOrder;
 
-    private Byte tableFilter;
+    private Boolean tableFilter;
 
     private Integer tableFilterComponent;
 
@@ -45,9 +45,9 @@ public class GenInfoView implements Serializable {
 
     private Integer formComponent;
 
-    private Byte formVisible;
+    private Boolean formVisible;
 
-    private Byte formRequired;
+    private Boolean formRequired;
 
     private Boolean deleteStatus;
 }
