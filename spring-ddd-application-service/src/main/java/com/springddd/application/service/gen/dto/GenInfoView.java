@@ -50,4 +50,13 @@ public class GenInfoView implements Serializable {
     private Boolean formRequired;
 
     private Boolean deleteStatus;
+
+    public GenInfoView() {}
+
+    public GenInfoView(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment) {
+        this.propColumnKey = propColumnKey;
+        this.propColumnName = propColumnName;
+        this.propColumnType = propColumnType;
+        this.propColumnComment = propColumnComment;
+    }
 }
