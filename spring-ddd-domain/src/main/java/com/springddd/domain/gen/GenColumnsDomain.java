@@ -7,4 +7,12 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class GenColumnsDomain extends AbstractDomainMask {
+
+    private GenColumnsId id;
+
+    private GenInfoId infoId;
+
+    private GenColumnsBasicInfo basicInfo;
+
+    private GenColumnsExtendInfo extendInfo;
 }
