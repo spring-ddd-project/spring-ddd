@@ -46,30 +46,6 @@ public class GenInfoQueryService {
             throw new TableNameNullException();
         }
 
-        String sql = """
-                SELECT
-                  column_key AS "propColumnKey",
-                  column_name AS "propColumnName",
-                  data_type AS "propColumnType",
-                  column_comment AS "propColumnComment"
-                FROM
-                  information_schema.COLUMNS
-                WHERE
-                  table_name = :tn
-                """;
-
-        DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(sql)
-                .bind("tn", tableName);
-
-        Mono<List<GenInfoView>> columnData = dataSpec
-                .map((row, meta) -> new GenInfoView(
-                        row.get("propColumnKey", String.class),
-                        row.get("propColumnName", String.class),
-                        row.get("propColumnType", String.class),
-                        row.get("propColumnComment", String.class)
-                ))
-                .all()
-                .collectList();
 
         Criteria criteria = Criteria
                 .where(GenInfoQuery.Fields.deleteStatus).is(false)
