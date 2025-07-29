@@ -44,4 +44,6 @@ public class GenColumnsQuery implements Serializable {
     private Boolean formVisible;
 
     private Boolean formRequired;
+
+    private Boolean deleteStatus;
 }
