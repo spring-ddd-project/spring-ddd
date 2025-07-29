@@ -42,4 +42,11 @@ public class GenColumnsView implements Serializable {
     private Boolean formVisible;
 
     private Boolean formRequired;
+
+    public GenColumnsView(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment) {
+        this.propColumnKey = propColumnKey;
+        this.propColumnName = propColumnName;
+        this.propColumnType = propColumnType;
+        this.propColumnComment = propColumnComment;
+    }
 }
