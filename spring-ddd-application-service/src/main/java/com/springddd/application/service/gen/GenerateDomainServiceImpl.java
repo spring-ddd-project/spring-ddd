@@ -223,10 +223,10 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         ProjectTreeView otherRoot = findOrCreateRootNode("README");
 
         // Depending on the file path, process under the correct root
-        if (filePath.contains("-application-infrastructure/persistence/") ||
-                filePath.contains("-application-domain/") ||
+        if (filePath.contains("-infrastructure/persistence/") ||
+                filePath.contains("-domain/") ||
                 filePath.contains("-application-service/") ||
-                filePath.contains("-application-web/")) {
+                filePath.contains("-interface-web/")) {
             return processPath(filePath, content, applicationRoot);
         } else if (filePath.contains("apps/web-ele/src/views/") ||
                 filePath.contains("apps/web-ele/src/api/") ||
