@@ -16,6 +16,4 @@ public class GenInfoView implements Serializable {
     private String className;
 
     private String requestName;
-
-    private Boolean deleteStatus;
 }

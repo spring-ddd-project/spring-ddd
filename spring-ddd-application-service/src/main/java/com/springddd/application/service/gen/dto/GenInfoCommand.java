@@ -16,6 +16,4 @@ public class GenInfoCommand implements Serializable {
     private String className;
 
     private String requestName;
-
-    private Boolean deleteStatus;
 }
