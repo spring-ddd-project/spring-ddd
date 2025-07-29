@@ -1,5 +1,6 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.application.service.gen.dto.GenAggregateView;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
@@ -62,6 +63,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         String packageName = (String) context.get("packageName");
         String className = (String) context.get("className");
         String requestName = (String) context.get("requestName");
+        List<GenAggregateView> aggregateViews = (List<GenAggregateView>) context.get("aggregateViews");
 
         String srcPath = "src/main/java/";
         String packagePath = packageName.replace('.', '/');
@@ -82,15 +84,15 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "aggregateRoot" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + className + "Id.java";
+                    + aggregateViews.stream().filter(q -> q.getObjectType() == 1 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
             case "objectValue" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + className + ".java";
+                    + aggregateViews.stream().filter(q -> q.getObjectType() == 2 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
             case "extendInfo" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + className + "ExtendInfo.java";
+                    + aggregateViews.stream().filter(q -> q.getObjectType() == 3 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + "ExtendInfo.java";
             case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
@@ -118,59 +120,48 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
             // application-service
             case "command" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
-                    + moduleName + "/"
-                    + requestName + "/dto/"
+                    + packagePath + "/application/service/"
+                    + moduleName + "/dto/"
                     + className + "Command.java";
             case "query" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + requestName + "/dto/"
+                    + moduleName +"/dto/"
                     + className + "Query.java";
             case "view" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
-                    + moduleName + "/"
-                    + requestName + "/dto/"
+                    + packagePath + "/application/service/"
+                    + moduleName + "/dto/"
                     + className + "View.java";
             case "mapstruct" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
-                    + moduleName + "/"
-                    + requestName + "/dto/"
+                    + packagePath + "/application/service/"
+                    + moduleName + "/dto/"
                     + className + "ViewMapstruct.java";
             case "pageQuery" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
-                    + moduleName + "/"
-                    + requestName + "/dto/"
+                    + packagePath + "/application/service/"
+                    + moduleName + "/dto/"
                     + className + "PageQuery.java";
             case "factoryImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "DomainFactoryImpl.java";
             case "deleteDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Delete" + className + "DomainServiceImpl.java";
             case "wipeDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Wipe" + className + "DomainServiceImpl.java";
             case "restoreDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Restore" + className + "DomainServiceImpl.java";
             case "commandService" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "CommandService.java";
             case "queryService" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "QueryService.java";
 
             // interface-web
