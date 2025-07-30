@@ -65,10 +65,12 @@ public class GenColumnsQueryService {
                 .map(tuple -> {
                     List<GenColumnsView> columnList = tuple.getT1();
                     List<GenColumnsView> coreColumnList = tuple.getT2();
-                    for (GenColumnsView column : columnList) {
-                        // TODO
+                    for (GenColumnsView column : coreColumnList) {
+                        column.setPropJavaType(DatabaseType.mapDatabaseTypeToJavaType(column.getPropColumnType()));
+                        column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
+                        columnList.add(column);
                     }
-                    return coreColumnList;
+                    return columnList;
                 });
     }
 }
