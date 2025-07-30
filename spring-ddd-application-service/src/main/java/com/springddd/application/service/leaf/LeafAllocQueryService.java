@@ -8,6 +8,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -38,5 +39,13 @@ public class LeafAllocQueryService {
         Mono<List<LeafAllocView>> list = r2dbcEntityTemplate.select(LeafAllocEntity.class).matching(qry).all().collectList().map(mapStruct::toViews);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), LeafAllocEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    }
+
+    public Mono<List<String>> getAllTags() {
+        return r2dbcEntityTemplate.select(LeafAllocEntity.class).all().collectList().flatMapMany(entities ->                     // 3️⃣ Turn the list back into a stream (Flux)
+                        Flux.fromIterable(mapStruct.toViews(entities))
+                                .map(LeafAllocView::getBizTag)
+                )
+                .collectList();
     }
 }
