@@ -49,7 +49,7 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
             </#list>
 
             <#list columnsViews as columnsView>
-                <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
+                <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
                 <#list fields as field>
                     <#if columnsView.propJavaEntity == field>
             domain.set${field?cap_first}(e.get${field?cap_first}());
@@ -90,7 +90,7 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
         </#list>
 
         <#list columnsViews as columnsView>
-            <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
+            <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
             <#list fields as field>
                 <#if columnsView.propJavaEntity == field>
         entity.set${field?cap_first}(domain.get${field?cap_first}());
