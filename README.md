@@ -8,4 +8,4 @@ This Spring Boot DDD framework helps you build faster with CQRS and Event Sourci
 
 ## License
 
-Spring DDD is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+Spring DDD is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
