@@ -25,15 +25,17 @@ public class GenInfoQueryService {
 
     private final GenInfoViewMapStruct genInfoViewMapStruct;
 
-    public Mono<PageResponse<GenInfoView>> index(GenInfoPageQuery query) {
+    public Mono<PageResponse<GenInfoView>> index(GenInfoQuery query) {
         Criteria criteria = Criteria.where(GenInfoPageQuery.Fields.deleteStatus).is(false);
         if (!ObjectUtils.isEmpty(query.getTableName())) {
             criteria = criteria.and(GenInfoPageQuery.Fields.tableName).is(query.getTableName());
         }
-        Query qry = Query.query(criteria);
+        Query qry = Query.query(criteria)
+                .limit(Integer.MAX_VALUE)
+                .offset(0);
         Mono<List<GenInfoView>> list = r2dbcEntityTemplate.select(GenInfoEntity.class).matching(qry).all().collectList().map(genInfoViewMapStruct::toViews);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenInfoEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
     public Mono<GenInfoView> queryGenInfoByTableName(String tableName) {
