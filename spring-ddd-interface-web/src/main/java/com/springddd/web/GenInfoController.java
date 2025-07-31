@@ -3,10 +3,9 @@ package com.springddd.web;
 import com.springddd.application.service.gen.GenInfoCommandService;
 import com.springddd.application.service.gen.GenInfoQueryService;
 import com.springddd.application.service.gen.dto.GenInfoCommand;
-import com.springddd.application.service.gen.dto.GenInfoPageQuery;
+import com.springddd.application.service.gen.dto.GenInfoQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -22,8 +21,8 @@ public class GenInfoController {
     private final GenInfoCommandService genInfoCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenInfoPageQuery> query) {
-        return ApiResponse.validated(query, genInfoQueryService::index);
+    public Mono<ApiResponse> index(@RequestBody GenInfoQuery query) {
+        return ApiResponse.ok(genInfoQueryService.index(query));
     }
 
     @PostMapping("/queryInfoByTableName")
