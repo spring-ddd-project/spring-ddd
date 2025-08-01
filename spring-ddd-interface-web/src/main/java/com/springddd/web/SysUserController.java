@@ -17,8 +17,13 @@ public class SysUserController {
 
     private final SysUserCommandService sysUserCommandService;
 
-    @PostMapping("/save")
-    public Mono<ApiResponse> save(@RequestBody SysUserCommand command) {
+    @PostMapping("/create")
+    public Mono<ApiResponse> create(@RequestBody SysUserCommand command) {
         return ApiResponse.ok(sysUserCommandService.createUser(command));
+    }
+
+    @PostMapping("/update")
+    public Mono<ApiResponse> update(@RequestBody SysUserCommand command) {
+        return ApiResponse.ok(sysUserCommandService.updateUser(command));
     }
 }
