@@ -39,6 +39,10 @@ public class SysDictQueryService {
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
+    public Mono<List<SysDictView>> queryAll() {
+        return r2dbcEntityTemplate.select(SysDictEntity.class).matching(Query.query(Criteria.where(SysDictQuery.Fields.deleteStatus).is(false))).all().collectList().map(sysDictViewMapStruct::toViews);
+    }
+
     public Mono<PageResponse<SysDictView>> recycle(SysDictPageQuery query) {
         Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(true);
         Query qry = Query.query(criteria)
