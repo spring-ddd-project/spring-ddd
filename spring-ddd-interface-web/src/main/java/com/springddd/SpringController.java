@@ -1,8 +1,8 @@
 package com.springddd;
 
 
-import com.springddd.entity.TestUserEntity;
-import com.springddd.mapper.TestUserMapper;
+import com.springddd.domain.TestUserEntity;
+import com.springddd.infrastructure.persistence.mapper.TestUserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
