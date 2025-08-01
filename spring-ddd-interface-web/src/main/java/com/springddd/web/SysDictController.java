@@ -26,6 +26,11 @@ public class SysDictController {
         return ApiResponse.validated(query, sysDictQueryService::index);
     }
 
+    @PostMapping("/queryAll")
+    public Mono<ApiResponse> getAll() {
+        return ApiResponse.ok(sysDictQueryService.queryAll());
+    }
+
     @PostMapping("/recycle")
     public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictPageQuery> query) {
         return ApiResponse.validated(query, sysDictQueryService::recycle);
