@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/sys")
 @RequiredArgsConstructor
@@ -27,5 +29,10 @@ public class SysUserController {
     @DeleteMapping("/delete")
     public Mono<Void> delete(@RequestBody SysUserCommand command) {
         return sysUserCommandService.deleteUser(command);
+    }
+
+    @DeleteMapping("/wipe")
+    public Mono<Void> wipe(@RequestBody List<Long> ids) {
+        return sysUserCommandService.wipe(ids);
     }
 }
