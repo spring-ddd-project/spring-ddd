@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
-@RequestMapping("/sys")
+@RequestMapping("/sys/user")
 @RequiredArgsConstructor
 public class SysUserController {
 
