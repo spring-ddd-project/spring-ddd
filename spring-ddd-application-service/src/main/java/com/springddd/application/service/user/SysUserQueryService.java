@@ -1,0 +1,42 @@
+package com.springddd.application.service.user;
+
+import com.springddd.application.service.user.dto.SysUserQuery;
+import com.springddd.application.service.user.dto.SysUserView;
+import com.springddd.domain.util.PageResponse;
+import com.springddd.infrastructure.persistence.entity.SysUserEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
+import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Component
+@RequiredArgsConstructor
+public class SysUserQueryService {
+
+    private final R2dbcEntityTemplate r2dbcEntityTemplate;
+
+    public Mono<PageResponse<SysUserView>> page(SysUserQuery query) {
+        Criteria criteria = Criteria.empty();
+        Query qry = Query.query(criteria)
+                .limit(query.getPageSize())
+                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+        Mono<List<SysUserView>> list = r2dbcEntityTemplate.select(SysUserEntity.class).matching(qry).all().collectList()
+                .map(entityList -> entityList.stream()
+                        .map(entity -> {
+                            SysUserView view = new SysUserView();
+                            BeanUtils.copyProperties(entity, view);
+                            return view;
+                        }).collect(Collectors.toList()));
+
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysUserEntity.class);
+        return Mono.zip(list, count)
+                .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+
+    }
+}
