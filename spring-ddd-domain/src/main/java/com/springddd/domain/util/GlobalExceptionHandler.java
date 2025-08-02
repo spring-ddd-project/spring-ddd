@@ -1,6 +1,6 @@
 package com.springddd.domain.util;
 
-import com.springddd.domain.exception.DomainException;
+import com.springddd.domain.DomainException;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
