@@ -13,6 +13,7 @@ import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -43,7 +44,8 @@ public class SysMenuQueryService {
 
     public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
-        Query qry = Query.query(criteria);
+        Query qry = Query.query(criteria)
+                .sort(Sort.by("sort_order"));
         Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList().map(sysMenuViewMapStruct::toViewList);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
