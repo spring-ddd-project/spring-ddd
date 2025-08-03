@@ -62,4 +62,13 @@ public class SysDictQueryService {
                 .flatMap(sysDictView -> sysDictItemQueryService.queryItemLabelByItemValueAndDictId(sysDictView.getId(), itemValue)
                         .map(SysDictItemView::getItemLabel));
     }
+
+    public Mono<Long> queryDictByCode(String code) {
+        Criteria criteria = Criteria
+                .where(SysDictQuery.Fields.deleteStatus).is(false)
+                .and(SysDictQuery.Fields.dictCode).is(code);
+        Query qry = Query.query(criteria);
+        return r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).one().map(sysDictViewMapStruct::toView)
+                .map(SysDictView::getId);
+    }
 }
