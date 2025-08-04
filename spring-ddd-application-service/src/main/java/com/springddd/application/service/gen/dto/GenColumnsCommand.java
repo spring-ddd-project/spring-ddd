@@ -13,7 +13,7 @@ public class GenColumnsCommand implements Serializable {
 
     private Boolean propValueObject;
 
-    private String propColumnKey;
+    private Boolean propColumnKey;
 
     private String propColumnName;
 

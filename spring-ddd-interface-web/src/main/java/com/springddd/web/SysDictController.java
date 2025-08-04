@@ -31,6 +31,11 @@ public class SysDictController {
         return ApiResponse.ok(sysDictQueryService.queryAll());
     }
 
+    @PostMapping("/queryItemByDictCode")
+    public Mono<ApiResponse> getItemByDictCode(@RequestParam("dictCode") String dictCode) {
+        return ApiResponse.ok(sysDictQueryService.queryDictByCode(dictCode));
+    }
+
     @PostMapping("/recycle")
     public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictPageQuery> query) {
         return ApiResponse.validated(query, sysDictQueryService::recycle);
