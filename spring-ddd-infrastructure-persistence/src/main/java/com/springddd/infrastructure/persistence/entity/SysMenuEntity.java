@@ -1,5 +1,6 @@
 package com.springddd.infrastructure.persistence.entity;
 
+import com.springddd.domain.util.IdGenerate;
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
@@ -10,6 +11,8 @@ import java.time.LocalDateTime;
 @Table("sys_menu")
 public class SysMenuEntity {
 
+    @Id
+    @IdGenerate
     private Long id;
 
     private Long parentId;
