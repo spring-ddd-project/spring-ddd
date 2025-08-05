@@ -15,7 +15,7 @@ public class GenColumnsQuery implements Serializable {
 
     private Boolean propValueObject;
 
-    private Boolean propColumnKey;
+    private String propColumnKey;
 
     private String propColumnName;
 
