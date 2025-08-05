@@ -2,7 +2,7 @@ package com.springddd.infrastructure.persistence;
 
 import com.springddd.domain.user.*;
 import com.springddd.infrastructure.persistence.entity.SysUserEntity;
-import com.springddd.infrastructure.persistence.mapper.SysUserRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
