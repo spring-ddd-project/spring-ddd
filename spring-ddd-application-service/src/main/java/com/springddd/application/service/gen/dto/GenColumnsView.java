@@ -13,7 +13,7 @@ public class GenColumnsView implements Serializable {
 
     private Boolean propValueObject;
 
-    private Boolean propColumnKey;
+    private String propColumnKey;
 
     private String propColumnName;
 
@@ -43,7 +43,7 @@ public class GenColumnsView implements Serializable {
 
     private Boolean formRequired;
 
-    public GenColumnsView(Boolean propColumnKey, String propColumnName, String propColumnType, String propColumnComment) {
+    public GenColumnsView(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment) {
         this.propColumnKey = propColumnKey;
         this.propColumnName = propColumnName;
         this.propColumnType = propColumnType;
