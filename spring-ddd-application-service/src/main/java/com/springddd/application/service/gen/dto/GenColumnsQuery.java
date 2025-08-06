@@ -13,7 +13,7 @@ public class GenColumnsQuery implements Serializable {
 
     private Long infoId;
 
-    private Boolean propValueObject;
+    private String propAggregate;
 
     private String propColumnKey;
 
