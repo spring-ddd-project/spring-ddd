@@ -4,6 +4,7 @@ import com.springddd.domain.DomainException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -56,6 +57,9 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public Mono<ApiResponse> handleGenericException(Exception e) {
+        if (e instanceof BadCredentialsException) {
+            return Mono.just(ApiResponse.error(302, e.getMessage()));
+        }
         e.printStackTrace();
         return Mono.just(ApiResponse.error("Internal Server Error: " + e.getMessage()));
     }

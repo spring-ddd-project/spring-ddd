@@ -34,4 +34,9 @@ public class SysUserQueryService {
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
 
     }
+
+    public Mono<SysUserView> queryUserByUsername(String username) {
+        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where("username").is(username)), SysUserEntity.class)
+                .map(sysUserViewMapStruct::toView);
+    }
 }
