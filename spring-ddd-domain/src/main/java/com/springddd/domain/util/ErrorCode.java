@@ -56,7 +56,8 @@ public enum ErrorCode {
     GEN_INFO_FILTER_TYPE_NULL(1516, "error.gen.info.filter.type.null"),
     GEN_INFO_FORM_COMPONENT_NULL(1517, "error.gen.info.form.component.null"),
     GEN_INFO_FORM_VISIBLE_NULL(1518, "error.gen.info.form.visible.null"),
-    GEN_INFO_FORM_REQUIRED_NULL(1519, "error.gen.info.form.required.null")
+    GEN_INFO_FORM_REQUIRED_NULL(1519, "error.gen.info.form.required.null"),
+    GEN_INFO_AGGREGATE_NULL(1520, "error.gen.info.aggregate.null"),
 
     ;
 
