@@ -23,7 +23,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             genColumnsDomain.setId(new GenColumnsId(e.getId()));
             genColumnsDomain.setInfoId(new GenInfoId(e.getInfoId()));
 
-            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropValueObject(e.getPropValueObject()), new PropColumnKey(e.getPropColumnKey()), new PropColumnName(e.getPropColumnName()), new PropColumnType(e.getPropColumnType()), new PropColumnComment(e.getPropColumnComment()), new PropJavaEntity(e.getPropJavaEntity()));
+            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(e.getPropAggregate()), new PropColumnKey(e.getPropColumnKey()), new PropColumnName(e.getPropColumnName()), new PropColumnType(e.getPropColumnType()), new PropColumnComment(e.getPropColumnComment()), new PropJavaEntity(e.getPropJavaEntity()));
             genColumnsDomain.setBasicInfo(basicInfo);
 
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
@@ -46,7 +46,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenColumnsId::value).orElse(null));
         entity.setInfoId(aggregateRoot.getInfoId().value());
 
-        entity.setPropValueObject(aggregateRoot.getBasicInfo().valueObject().value());
+        entity.setPropAggregate(aggregateRoot.getBasicInfo().aggregate().value());
         entity.setPropColumnKey(aggregateRoot.getBasicInfo().key().value());
         entity.setPropColumnName(aggregateRoot.getBasicInfo().name().value());
         entity.setPropColumnType(aggregateRoot.getBasicInfo().type().value());
