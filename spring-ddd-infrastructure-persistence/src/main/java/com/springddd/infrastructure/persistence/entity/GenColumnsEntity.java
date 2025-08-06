@@ -17,7 +17,7 @@ public class GenColumnsEntity {
 
     private Long infoId;
 
-    private Boolean propValueObject;
+    private String propAggregate;
 
     private String propColumnKey;
 
