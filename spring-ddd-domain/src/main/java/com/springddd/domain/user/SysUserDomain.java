@@ -5,8 +5,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.util.ObjectUtils;
 
-import java.time.LocalDateTime;
-
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SysUserDomain extends AbstractDomainMask {
@@ -25,17 +23,13 @@ public class SysUserDomain extends AbstractDomainMask {
         if (!ObjectUtils.isEmpty(deptId)) {
             super.setDeptId(deptId);
         }
-        super.setUpdateTime(LocalDateTime.now());
     }
 
     public void delete() {
         super.setDeleteStatus("1");
-        super.setUpdateTime(LocalDateTime.now());
     }
 
-    public void updateUserStatus(String status, String updateBy) {
+    public void updateUserStatus(String status) {
         this.account.setLockStatus(status);
-        super.setUpdateBy(updateBy);
-        super.setUpdateTime(LocalDateTime.now());
     }
 }
