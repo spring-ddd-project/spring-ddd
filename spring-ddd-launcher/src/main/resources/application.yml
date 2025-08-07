@@ -3,3 +3,6 @@ spring:
     name: spring-ddd
   profiles:
     active: '@env@'
+  security:
+    ignore-paths:
+      - /auth/login
