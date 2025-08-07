@@ -29,6 +29,11 @@ public class GenColumnsController {
         return ApiResponse.ok(genColumnsCommandService.create(command));
     }
 
+    @PostMapping("/batchCreate")
+    public Mono<ApiResponse> batchCreate(@RequestBody List<GenColumnsCommand> commands) {
+        return ApiResponse.ok(genColumnsCommandService.batchSave(commands));
+    }
+
     @PutMapping("/update")
     public Mono<ApiResponse> update(@RequestBody GenColumnsCommand command) {
         return ApiResponse.ok(genColumnsCommandService.update(command));
