@@ -32,7 +32,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             sysMenuDomain.setMenuBasicInfo(menuBasicInfo);
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-            menuExtendInfo.setSortOrder(e.getSortOrder());
+            menuExtendInfo.setSortOrder(e.getOrder());
             menuExtendInfo.setVisible(e.getVisible());
             menuExtendInfo.setEmbedded(e.getEmbedded());
             menuExtendInfo.setMenuStatus(e.getMenuStatus());
@@ -65,7 +65,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         entity.setComponent(menuBasicInfo.getMenuComponent().value());
 
         MenuExtendInfo menuExtendInfo = aggregateRoot.getMenuExtendInfo();
-        entity.setSortOrder(menuExtendInfo.getSortOrder());
+        entity.setOrder(menuExtendInfo.getSortOrder());
         entity.setVisible(menuExtendInfo.getVisible());
         entity.setEmbedded(menuExtendInfo.getEmbedded());
         entity.setMenuStatus(menuExtendInfo.getMenuStatus());

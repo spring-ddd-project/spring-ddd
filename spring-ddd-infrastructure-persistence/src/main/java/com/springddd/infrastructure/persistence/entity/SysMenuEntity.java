@@ -19,25 +19,35 @@ public class SysMenuEntity {
 
     private String name;
 
-    private String permission;
-
     private String path;
 
     private String component;
 
+    private String redirect;
+
+    private String permission;
+
+    private Integer order;
+
+    private String title;
+
+    private String affixTab;
+
+    private String noBasicLayout;
+
     private String icon;
+
+    private String menuType;
 
     private String visible;
 
-    private Integer sortOrder;
-
     private String embedded;
-
-    private String menuType;
 
     private String menuStatus;
 
     private Long deptId;
+
+    private Boolean deleteStatus;
 
     @CreatedBy
     private String createBy;
@@ -51,8 +61,6 @@ public class SysMenuEntity {
     @LastModifiedDate
     private LocalDateTime updateTime;
 
-    private String deleteStatus;
-
     @Version
-    private String version;
+    private Integer version;
 }
