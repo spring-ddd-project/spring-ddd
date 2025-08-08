@@ -18,6 +18,10 @@ public class GenColumnBindCommandService {
 
     private final WipeGenColumnBindByIdsDomainService wipeGenColumnBindByIdsDomainService;
 
+    private final DeleteGenColumnBindDomainService deleteGenColumnBindDomainService;
+
+    private final RestoreGenColumnBindDomainService restoreGenColumnBindDomainService;
+
     public Mono<Long> create(GenColumnBindCommand command) {
         GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnName(command.getColumnName()), new EntityName(command.getEntityName()), new ComponentName(command.getComponentName()));
         GenColumnBindDomain genColumnBindDomain = genColumnBindDomainFactory.newInstance(basicInfo);
@@ -33,14 +37,15 @@ public class GenColumnBindCommandService {
         }).then();
     }
 
-    public Mono<Void> delete(GenColumnBindCommand command) {
-        return genColumnBindDomainRepository.load(new ColumnBindId(command.getId())).flatMap(domain -> {
-            domain.delete();
-            return genColumnBindDomainRepository.save(domain);
-        }).then();
+    public Mono<Void> delete(List<Long> ids) {
+        return deleteGenColumnBindDomainService.deleteByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeGenColumnBindByIdsDomainService.wipeByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreGenColumnBindDomainService.restoreByIds(ids);
     }
 }
