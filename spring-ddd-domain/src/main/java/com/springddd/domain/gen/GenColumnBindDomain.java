@@ -11,4 +11,14 @@ public class GenColumnBindDomain extends AbstractDomainMask {
     private ColumnBindId bindId;
 
     private GenColumnBindBasicInfo basicInfo;
+
+    public void create() {}
+
+    public void update(GenColumnBindBasicInfo basicInfo) {
+        this.basicInfo = basicInfo;
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
 }
