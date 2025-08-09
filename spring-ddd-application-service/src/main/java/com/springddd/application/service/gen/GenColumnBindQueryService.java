@@ -25,8 +25,8 @@ public class GenColumnBindQueryService {
 
     public Mono<PageResponse<GenColumnBindView>> index(GenColumnBindPageQuery query) {
         Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(false);
-        if (!ObjectUtils.isEmpty(query.getColumnName())) {
-            criteria = criteria.and(GenColumnBindPageQuery.Fields.columnName).like("%" + query.getColumnName() + "%");
+        if (!ObjectUtils.isEmpty(query.getColumnType())) {
+            criteria = criteria.and(GenColumnBindPageQuery.Fields.columnType).like("%" + query.getColumnType() + "%");
         }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
