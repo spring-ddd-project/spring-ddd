@@ -21,7 +21,8 @@ public enum ErrorCode {
     MENU_ICON_NULL(1203, "error.menu.icon.null"),
     MENU_PATH_NULL(1204, "error.menu.path.null"),
     MENU_ID_NULL(1205, "error.menu.id.null"),
-    MENU_COMPONENT_NULL(1206, "error.menu.component.null");
+    MENU_COMPONENT_NULL(1206, "error.menu.component.null"),
+    MENU_PERMISSION_DENIED(1207, "error.menu.permission.denied");
 
     private final int code;
     private final String messageKey;
