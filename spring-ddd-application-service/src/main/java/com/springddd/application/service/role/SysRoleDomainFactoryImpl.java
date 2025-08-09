@@ -14,7 +14,7 @@ public class SysRoleDomainFactoryImpl implements SysRoleDomainFactory {
         sysRoleDomain.setRoleExtendInfo(roleExtendInfo);
 
         sysRoleDomain.setDeptId(deptId);
-        sysRoleDomain.setDeleteStatus("0");
+        sysRoleDomain.setDeleteStatus(false);
         return sysRoleDomain;
     }
 }

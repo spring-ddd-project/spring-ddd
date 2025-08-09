@@ -15,7 +15,7 @@ public class SysRoleMenuView implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
-    private String version;
+    private Integer version;
 }
