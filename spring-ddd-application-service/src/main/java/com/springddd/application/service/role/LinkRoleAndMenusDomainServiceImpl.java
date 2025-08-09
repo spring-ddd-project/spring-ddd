@@ -5,6 +5,7 @@ import com.springddd.domain.menu.MenuId;
 import com.springddd.domain.role.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -23,6 +24,7 @@ public class LinkRoleAndMenusDomainServiceImpl implements LinkRoleAndMenusDomain
     private final SysRoleMenuDomainFactory sysRoleMenuDomainFactory;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Void> link(Long roleId, List<Long> menuIds) {
         return sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId).flatMap(sysRoleMenuViews -> {
             List<Long> ids = sysRoleMenuViews.stream().map(SysRoleMenuView::getId).toList();
