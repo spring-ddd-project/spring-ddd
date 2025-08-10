@@ -13,5 +13,5 @@ public class GenColumnBindCommand implements Serializable {
 
     private String entityType;
 
-    private String componentName;
+    private Integer componentType;
 }
