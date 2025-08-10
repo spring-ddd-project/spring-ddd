@@ -21,7 +21,7 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
             GenColumnBindDomain genColumnBindDomain = new GenColumnBindDomain();
             genColumnBindDomain.setBindId(new ColumnBindId(e.getId()));
 
-            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(e.getColumnType()), new EntityType(e.getEntityType()), new ComponentName(e.getComponentName()));
+            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(e.getColumnType()), new EntityType(e.getEntityType()), new ComponentType(e.getComponentType()));
             genColumnBindDomain.setBasicInfo(basicInfo);
 
             genColumnBindDomain.setDeleteStatus(e.getDeleteStatus());
@@ -43,7 +43,7 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
         GenColumnBindBasicInfo basicInfo = aggregateRoot.getBasicInfo();
         entity.setColumnType(basicInfo.columnType().value());
         entity.setEntityType(basicInfo.entityType().value());
-        entity.setComponentName(basicInfo.componentName().value());
+        entity.setComponentType(basicInfo.componentType().value());
 
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         entity.setCreateBy(aggregateRoot.getCreateBy());
