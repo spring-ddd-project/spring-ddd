@@ -49,8 +49,4 @@ public class GenColumnsView implements Serializable {
         this.propColumnType = propColumnType;
         this.propColumnComment = propColumnComment;
     }
-
-    public void defaultView() {
-
-    }
 }
