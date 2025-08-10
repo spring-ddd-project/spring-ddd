@@ -23,7 +23,7 @@ public class GenColumnBindCommandService {
     private final RestoreGenColumnBindDomainService restoreGenColumnBindDomainService;
 
     public Mono<Long> create(GenColumnBindCommand command) {
-        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(command.getColumnType()), new EntityType(command.getEntityType()), new ComponentName(command.getComponentName()));
+        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(command.getColumnType()), new EntityType(command.getEntityType()), new ComponentType(command.getComponentType()));
         GenColumnBindDomain genColumnBindDomain = genColumnBindDomainFactory.newInstance(basicInfo);
         genColumnBindDomain.create();
         return genColumnBindDomainRepository.save(genColumnBindDomain);
@@ -31,7 +31,7 @@ public class GenColumnBindCommandService {
 
     public Mono<Void> update(GenColumnBindCommand command) {
         return genColumnBindDomainRepository.load(new ColumnBindId(command.getId())).flatMap(domain -> {
-            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(command.getColumnType()), new EntityType(command.getEntityType()), new ComponentName(command.getComponentName()));
+            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(command.getColumnType()), new EntityType(command.getEntityType()), new ComponentType(command.getComponentType()));
             domain.update(basicInfo);
             return genColumnBindDomainRepository.save(domain);
         }).then();
