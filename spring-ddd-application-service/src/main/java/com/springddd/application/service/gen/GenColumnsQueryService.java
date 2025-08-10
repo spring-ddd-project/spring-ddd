@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +27,8 @@ public class GenColumnsQueryService {
     private final GenInfoViewMapStruct genInfoViewMapStruct;
 
     private final DatabaseClient databaseClient;
+
+    private final GenColumnBindQueryService genColumnBindQueryService;
 
     public Mono<PageResponse<GenColumnsView>> queryColumnsByGenInfoId(Long infoId) {
 
@@ -62,16 +65,28 @@ public class GenColumnsQueryService {
                 .and(GenColumnsQuery.Fields.infoId).is(infoId);
         Query qry = Query.query(criteria);
         Mono<List<GenColumnsView>> columns = r2dbcEntityTemplate.select(GenColumnsEntity.class).matching(qry).all().collectList().map(genColumnsViewMapStruct::toViews).defaultIfEmpty(new ArrayList<>());
+
         return Mono.zip(columns, coreColumns)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     List<GenColumnsView> columnList = tuple.getT1();
                     List<GenColumnsView> coreColumnList = tuple.getT2();
-                    for (GenColumnsView column : coreColumnList) {
-                        column.setPropJavaType(DatabaseType.mapDatabaseTypeToJavaType(column.getPropColumnType()));
-                        column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
-                        columnList.add(column);
-                    }
-                    return new PageResponse<>(columnList, 0, 0, 0);
+
+                    List<Mono<Void>> asyncOperations = coreColumnList.stream()
+                            .map(column -> genColumnBindQueryService.queryByColumnType(column.getPropColumnType())
+                                    .doOnNext(bind -> {
+                                        column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
+                                        column.setPropJavaType(bind.getEntityType());
+                                        column.setFormComponent(bind.getComponentType());
+                                        column.setTableVisible(true);
+                                        column.setFormVisible(true);
+                                        columnList.add(column);
+                                    })
+                                    .then())
+                            .collect(Collectors.toList());
+
+                    return Mono.when(asyncOperations)
+                            .then(Mono.fromCallable(() -> new PageResponse<>(columnList, 0, 0, 0)));
                 });
+
     }
 }
