@@ -19,7 +19,7 @@ public class GenColumnBindEntity {
 
     private String entityType;
 
-    private String componentName;
+    private Integer componentType;
 
     private Boolean deleteStatus;
 
