@@ -19,23 +19,23 @@ public class SysMenuCommandService {
     private final DeleteSysMenuByIdsDomainService deleteSysMenuByIdsDomainService;
 
     public Mono<Long> create(SysMenuCommand command) {
-        MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
-        menuBasicInfo.setMenuName(new MenuName(command.getName()));
-        menuBasicInfo.setMenuPermission(new MenuPermission(command.getPermission()));
-        menuBasicInfo.setMenuRedirect(new MenuRedirect(command.getRedirect()));
-        menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
-        menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
+        MenuBasicInfo menuBasicInfo = new MenuBasicInfo(
+                command.getName(),
+                command.getPath(),
+                command.getComponent(),
+                command.getRedirect(),
+                command.getPermission());
 
-        MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-        menuExtendInfo.setOrder(command.getOrder());
-        menuExtendInfo.setTitle(command.getTitle());
-        menuExtendInfo.setAffixTab(command.getAffixTab());
-        menuExtendInfo.setNoBasicLayout(command.getNoBasicLayout());
-        menuExtendInfo.setIcon(command.getIcon());
-        menuExtendInfo.setMenuType(command.getMenuType());
-        menuExtendInfo.setVisible(command.getVisible());
-        menuExtendInfo.setEmbedded(command.getEmbedded());
-        menuExtendInfo.setMenuStatus(command.getMenuStatus());
+        MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
+                command.getOrder(),
+                command.getTitle(),
+                command.getAffixTab(),
+                command.getNoBasicLayout(),
+                command.getIcon(),
+                command.getMenuType(),
+                command.getVisible(),
+                command.getEmbedded(),
+                command.getMenuStatus());
 
         SysMenuDomain sysMenuDomain = sysMenuDomainFactory.create(
                 new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId());
@@ -47,23 +47,23 @@ public class SysMenuCommandService {
     public Mono<Void> update(SysMenuCommand command) {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
 
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
-            menuBasicInfo.setMenuName(new MenuName(command.getName()));
-            menuBasicInfo.setMenuPermission(new MenuPermission(command.getPermission()));
-            menuBasicInfo.setMenuRedirect(new MenuRedirect(command.getRedirect()));
-            menuBasicInfo.setMenuPath(new MenuPath(command.getPath()));
-            menuBasicInfo.setMenuComponent(new MenuComponent(command.getComponent()));
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(
+                    command.getName(),
+                    command.getPath(),
+                    command.getComponent(),
+                    command.getRedirect(),
+                    command.getPermission());
 
-            MenuExtendInfo menuExtendInfo = new MenuExtendInfo();
-            menuExtendInfo.setOrder(command.getOrder());
-            menuExtendInfo.setTitle(command.getTitle());
-            menuExtendInfo.setAffixTab(command.getAffixTab());
-            menuExtendInfo.setNoBasicLayout(command.getNoBasicLayout());
-            menuExtendInfo.setIcon(command.getIcon());
-            menuExtendInfo.setMenuType(command.getMenuType());
-            menuExtendInfo.setVisible(command.getVisible());
-            menuExtendInfo.setEmbedded(command.getEmbedded());
-            menuExtendInfo.setMenuStatus(command.getMenuStatus());
+            MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
+                    command.getOrder(),
+                    command.getTitle(),
+                    command.getAffixTab(),
+                    command.getNoBasicLayout(),
+                    command.getIcon(),
+                    command.getMenuType(),
+                    command.getVisible(),
+                    command.getEmbedded(),
+                    command.getMenuStatus());
 
             domain.update(new MenuId(command.getParentId()), menuBasicInfo, menuExtendInfo, command.getDeptId());
 
