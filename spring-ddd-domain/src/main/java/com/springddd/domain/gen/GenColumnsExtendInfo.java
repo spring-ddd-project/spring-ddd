@@ -25,9 +25,6 @@ public record GenColumnsExtendInfo(Long propDictId,
         if (tableFilter && ObjectUtils.isEmpty(tableFilterComponent)) {
             throw new FilterComponentNullException();
         }
-        if (ObjectUtils.isEmpty(tableFilterType)) {
-            throw new FilterTypeNullException();
-        }
         if (ObjectUtils.isEmpty(formComponent)) {
             throw new FormComponentNullException();
         }
