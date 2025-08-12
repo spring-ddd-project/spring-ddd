@@ -42,12 +42,14 @@ public class GenColumnsQueryService {
                   information_schema.COLUMNS
                 WHERE
                   table_name = :tn
+                AND table_schema = :db
                 """;
 
         Mono<List<GenColumnsView>> coreColumns = r2dbcEntityTemplate.select(GenInfoEntity.class).matching(Query.query(Criteria.where("id").is(infoId))).one().map(genInfoViewMapStruct::toView)
                 .flatMap(genInfo -> {
                     DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(sql)
-                            .bind("tn", genInfo.getTableName());
+                            .bind("tn", genInfo.getTableName())
+                            .bind("db", "spring_ddd");
 
                     return dataSpec
                             .map((row, meta) -> new GenColumnsView(
