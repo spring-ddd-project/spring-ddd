@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class GenInfoView implements Serializable {
+public class GenProjectInfoCommand implements Serializable {
 
     private Long id;
 

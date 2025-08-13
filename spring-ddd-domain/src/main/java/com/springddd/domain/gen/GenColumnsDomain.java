@@ -13,7 +13,7 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     private GenColumnsId id;
 
-    private GenInfoId infoId;
+    private GenProjectInfoId infoId;
 
     private GenColumnsBasicInfo basicInfo;
 
