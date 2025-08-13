@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface WipeGenInfoByIdsDomainService {
+public interface WipeGenProjectInfoByIdsDomainService {
 
     Mono<Void> wipeByIds(List<Long> ids);
 }

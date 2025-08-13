@@ -8,7 +8,7 @@ import java.io.Serializable;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GenInfoPageQuery extends GenInfoQuery implements Serializable {
+public class GenProjectInfoPageQuery extends GenProjectInfoQuery implements Serializable {
 
     @NotNull(message = "pageNum can not be null")
     private Integer pageNum;
