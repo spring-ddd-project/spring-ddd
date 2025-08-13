@@ -1,11 +1,13 @@
 package com.springddd.application.service.gen.dto;
 
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 
 import java.io.Serializable;
 
 @Data
-public class GenInfoCommand implements Serializable {
+@FieldNameConstants
+public class GenProjectInfoQuery implements Serializable {
 
     private Long id;
 
@@ -16,4 +18,6 @@ public class GenInfoCommand implements Serializable {
     private String className;
 
     private String requestName;
+
+    private Boolean deleteStatus;
 }

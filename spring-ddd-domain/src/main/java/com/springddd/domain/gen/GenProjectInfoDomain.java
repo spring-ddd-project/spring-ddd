@@ -6,18 +6,18 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class GenInfoDomain extends AbstractDomainMask {
+public class GenProjectInfoDomain extends AbstractDomainMask {
 
-    private GenInfoId id;
+    private GenProjectInfoId id;
 
-    private GenInfoBasicInfo basicInfo;
+    private GenProjectInfoBasicInfo basicInfo;
 
-    private GenInfoExtendInfo extendInfo;
+    private GenProjectInfoExtendInfo extendInfo;
 
     public void create() {
     }
 
-    public void update(GenInfoBasicInfo basicInfo, GenInfoExtendInfo extendInfo) {
+    public void update(GenProjectInfoBasicInfo basicInfo, GenProjectInfoExtendInfo extendInfo) {
         this.basicInfo = basicInfo;
         this.extendInfo = extendInfo;
     }

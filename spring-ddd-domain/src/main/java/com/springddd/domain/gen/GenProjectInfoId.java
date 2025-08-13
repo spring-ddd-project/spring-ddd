@@ -2,5 +2,5 @@ package com.springddd.domain.gen;
 
 import com.springddd.domain.AggregateRootId;
 
-public record GenInfoId(Long value) implements AggregateRootId<Long> {
+public record GenProjectInfoId(Long value) implements AggregateRootId<Long> {
 }
