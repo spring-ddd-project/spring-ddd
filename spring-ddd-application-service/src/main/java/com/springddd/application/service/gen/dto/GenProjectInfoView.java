@@ -9,6 +9,8 @@ public class GenProjectInfoView implements Serializable {
 
     private Long id;
 
+    private String databaseName;
+
     private String tableName;
 
     private String packageName;
