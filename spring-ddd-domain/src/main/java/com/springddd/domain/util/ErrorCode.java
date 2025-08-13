@@ -59,6 +59,7 @@ public enum ErrorCode {
     GEN_INFO_FORM_REQUIRED_NULL(1519, "error.gen.info.form.required.null"),
     GEN_INFO_AGGREGATE_NULL(1520, "error.gen.info.aggregate.null"),
     GEN_BIND_COMPONENT_TYPE_NULL(1521, "error.gen.bind.component.type.null"),
+    GEN_INFO_DATABASE_NAME_NULL(1522, "error.gen.info.database.name.null"),
 
     ;
 

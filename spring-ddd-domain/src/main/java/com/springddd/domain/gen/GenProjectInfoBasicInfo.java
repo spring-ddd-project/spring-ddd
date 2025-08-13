@@ -1,4 +1,4 @@
 package com.springddd.domain.gen;
 
-public record GenProjectInfoBasicInfo(TableName tableName, PackageName packageName, ClassName className) {
+public record GenProjectInfoBasicInfo(DatabaseName databaseName, TableName tableName, PackageName packageName, ClassName className) {
 }
