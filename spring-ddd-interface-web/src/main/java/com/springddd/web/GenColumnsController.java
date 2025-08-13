@@ -20,8 +20,9 @@ public class GenColumnsController {
     private final GenColumnsCommandService genColumnsCommandService;
 
     @PostMapping("/queryByInfoId")
-    public Mono<ApiResponse> getByInfoId(@RequestParam("infoId") Long infoId) {
-        return ApiResponse.ok(genColumnsQueryService.queryColumnsByGenInfoId(infoId));
+    public Mono<ApiResponse> getByInfoId(@RequestParam("infoId") Long infoId,
+                                         @RequestParam("databaseName") String databaseName) {
+        return ApiResponse.ok(genColumnsQueryService.queryColumnsByGenInfoId(infoId, databaseName));
     }
 
     @PostMapping("/create")
