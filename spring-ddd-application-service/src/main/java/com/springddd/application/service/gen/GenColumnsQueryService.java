@@ -3,14 +3,13 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.entity.GenInfoEntity;
+import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class GenColumnsQueryService {
 
     private final GenColumnsViewMapStruct genColumnsViewMapStruct;
 
-    private final GenInfoViewMapStruct genInfoViewMapStruct;
+    private final GenProjectInfoViewMapStruct genProjectInfoViewMapStruct;
 
     private final DatabaseClient databaseClient;
 
@@ -47,7 +46,7 @@ public class GenColumnsQueryService {
                 AND table_schema = :db
                 """;
 
-        Mono<List<GenColumnsView>> coreColumns = r2dbcEntityTemplate.select(GenInfoEntity.class).matching(Query.query(Criteria.where("id").is(infoId))).one().map(genInfoViewMapStruct::toView)
+        Mono<List<GenColumnsView>> coreColumns = r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(Query.query(Criteria.where("id").is(infoId))).one().map(genProjectInfoViewMapStruct::toView)
                 .flatMap(genInfo -> {
                     DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(sql)
                             .bind("tn", genInfo.getTableName())
