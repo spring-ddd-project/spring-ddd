@@ -8,8 +8,8 @@ import org.springframework.data.relational.core.mapping.Table;
 import java.time.LocalDateTime;
 
 @Data
-@Table("gen_info")
-public class GenInfoEntity {
+@Table("gen_project_info")
+public class GenProjectInfoEntity {
 
     @Id
     @IdGenerate
