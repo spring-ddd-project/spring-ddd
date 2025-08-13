@@ -24,7 +24,7 @@ public class GenColumnsCommandService {
     public Mono<Long> create(GenColumnsCommand command) {
         GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
         GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
-        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenInfoId(command.getInfoId()), basicInfo, extendInfo);
+        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
         domain.create();
         return genColumnsDomainRepository.save(domain);
     }
@@ -54,7 +54,7 @@ public class GenColumnsCommandService {
         for (GenColumnsCommand command : commands) {
             GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
-            GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenInfoId(command.getInfoId()), basicInfo, extendInfo);
+            GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
             domain.batchCreate(domain);
             domains.add(domain);
         }
