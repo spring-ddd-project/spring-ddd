@@ -10,10 +10,12 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -70,24 +72,47 @@ public class GenColumnsQueryService {
 
         return Mono.zip(columns, coreColumns)
                 .flatMap(tuple -> {
-                    List<GenColumnsView> columnList = tuple.getT1();
-                    List<GenColumnsView> coreColumnList = tuple.getT2();
+                    List<GenColumnsView> db = tuple.getT1();
+                    List<GenColumnsView> notDb = tuple.getT2();
 
-                    List<Mono<Void>> asyncOperations = coreColumnList.stream()
+                    List<GenColumnsView> result = new ArrayList<>();
+
+                    List<Mono<Void>> asyncOperations = notDb.stream()
                             .map(column -> genColumnBindQueryService.queryByColumnType(column.getPropColumnType())
                                     .doOnNext(bind -> {
                                         column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
-                                        column.setPropJavaType(bind.getEntityType());
-                                        column.setFormComponent(bind.getComponentType());
-                                        column.setTableVisible(true);
-                                        column.setFormVisible(true);
-                                        columnList.add(column);
+
+                                        Optional<GenColumnsView> matchedDbColumn = db.stream()
+                                                .filter(dbColumn -> dbColumn.getPropColumnType().equals(column.getPropColumnType()))
+                                                .findFirst();
+
+                                        if (matchedDbColumn.isPresent()) {
+                                            GenColumnsView dbColumn = matchedDbColumn.get();
+                                            column.setPropJavaType(dbColumn.getPropJavaType());
+                                            column.setFormComponent(dbColumn.getFormComponent());
+                                            column.setTableVisible(dbColumn.getTableVisible());
+                                            column.setTableOrder(dbColumn.getTableOrder());
+                                            column.setTableFilter(dbColumn.getTableFilter());
+                                            column.setTableFilterComponent(dbColumn.getTableFilterComponent());
+                                            column.setTableFilterType(dbColumn.getTableFilterType());
+                                            column.setFormVisible(dbColumn.getFormVisible());
+                                            column.setFormComponent(dbColumn.getFormComponent());
+                                            column.setFormRequired(dbColumn.getFormRequired());
+                                            column.setPropDictId(dbColumn.getPropDictId());
+                                        } else {
+                                            column.setPropJavaType(bind.getEntityType());
+                                            column.setFormComponent(bind.getComponentType());
+                                            column.setTableVisible(true);
+                                            column.setFormVisible(true);
+                                        }
+
+                                        result.add(column);
                                     })
                                     .then())
                             .collect(Collectors.toList());
 
                     return Mono.when(asyncOperations)
-                            .then(Mono.fromCallable(() -> new PageResponse<>(columnList, 0, 0, 0)));
+                            .then(Mono.fromCallable(() -> new PageResponse<>(result, 0, 0, 0)));
                 });
 
     }
