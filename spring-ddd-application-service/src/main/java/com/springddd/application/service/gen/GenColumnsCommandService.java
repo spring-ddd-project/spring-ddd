@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -51,15 +50,17 @@ public class GenColumnsCommandService {
     }
 
     public Mono<Void> batchSave(List<GenColumnsCommand> commands) {
-        List<GenColumnsDomain> domains = new ArrayList<>();
-        for (GenColumnsCommand command : commands) {
-            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
-            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
-            GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
-            domain.create();
-            domains.add(domain);
-        }
-        return genColumnsBatchSaveDomainService.batchSave(domains);
+        return Flux.fromIterable(commands)
+                .map(command -> {
+                    GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
+                    GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                    GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
+                    domain.create();
+                    return domain;
+                })
+                .collectList()
+                .flatMap(genColumnsBatchSaveDomainService::batchSave)
+                .then();
     }
 
     public Mono<Void> batchUpdate(List<GenColumnsCommand> commands) {
