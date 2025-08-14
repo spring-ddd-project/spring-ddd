@@ -7,7 +7,7 @@ public record PropAggregate(String value) {
 
     public PropAggregate {
         if (ObjectUtils.isEmpty(value)) {
-            throw new AggregateNullException();
+//            throw new AggregateNullException();
         }
     }
 }
