@@ -1,6 +1,5 @@
 package com.springddd.application.service.menu.dto;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -44,9 +43,7 @@ public class SysMenuQuery implements Serializable {
 
     private Boolean deleteStatus;
 
-    @NotNull(message = "pageNum can not be null")
     private Integer pageNum;
 
-    @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }

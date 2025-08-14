@@ -6,6 +6,7 @@ import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.application.service.role.dto.SysRoleViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -22,6 +23,8 @@ public class SysRoleQueryService {
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final SysRoleViewMapStruct sysRoleViewMapStruct;
+
+    private final SysRoleRepository sysRoleRepository;
 
     public Mono<PageResponse<SysRoleView>> page(SysRoleQuery query) {
         Criteria criteria = Criteria.where("delete_status").is("0");
@@ -41,5 +44,9 @@ public class SysRoleQueryService {
 
     public Mono<SysRoleView> getByCode(String code) {
         return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("role_code").is(code))).one().map(sysRoleViewMapStruct::toView);
+    }
+
+    public Mono<List<SysRoleView>> getAllRole() {
+        return sysRoleRepository.findAll().collectList().map(sysRoleViewMapStruct::toViewList);
     }
 }
