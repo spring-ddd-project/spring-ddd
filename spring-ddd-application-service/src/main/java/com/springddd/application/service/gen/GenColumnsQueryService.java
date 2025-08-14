@@ -93,6 +93,8 @@ public class GenColumnsQueryService {
 
                                                 if (matchedDbColumn.isPresent()) {
                                                     GenColumnsView dbColumn = matchedDbColumn.get();
+                                                    column.setId(dbColumn.getId());
+                                                    column.setInfoId(dbColumn.getInfoId());
                                                     column.setPropJavaType(dbColumn.getPropJavaType());
                                                     column.setFormComponent(dbColumn.getFormComponent());
                                                     column.setTableVisible(dbColumn.getTableVisible());

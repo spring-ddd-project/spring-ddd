@@ -4,6 +4,7 @@ import com.springddd.application.service.gen.dto.GenColumnsCommand;
 import com.springddd.domain.gen.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -55,9 +56,24 @@ public class GenColumnsCommandService {
             GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
             GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
-            domain.batchCreate(domain);
+            domain.create();
             domains.add(domain);
         }
         return genColumnsBatchSaveDomainService.batchSave(domains);
+    }
+
+    public Mono<Void> batchUpdate(List<GenColumnsCommand> commands) {
+        return Flux.fromIterable(commands)
+                .flatMap(command -> genColumnsDomainRepository.load(new GenColumnsId(command.getId()))
+                        .map(domain -> {
+                            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropAggregate(command.getPropAggregate()), new PropColumnKey(command.getPropColumnKey()), new PropColumnName(command.getPropColumnName()), new PropColumnType(command.getPropColumnType()), new PropColumnComment(command.getPropColumnComment()), new PropJavaEntity(command.getPropJavaEntity()));
+                            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
+                            domain.update(basicInfo, extendInfo);
+                            return domain;
+                        })
+                )
+                .collectList()
+                .flatMap(genColumnsBatchSaveDomainService::batchSave)
+                .then();
     }
 }
