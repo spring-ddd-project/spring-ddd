@@ -28,7 +28,7 @@ public class SysMenuController {
 
     @PostMapping("/all")
     public Mono<ApiResponse> all() {
-        return ApiResponse.ok(sysMenuQueryService.queryAll());
+        return ApiResponse.ok(sysMenuQueryService.queryByPermissions());
     }
 
     @PostMapping("/getMenuTreeWithoutPermission")
