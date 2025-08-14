@@ -10,7 +10,6 @@ import java.io.Serializable;
 @Data
 public class GenTableInfoPageQuery extends GenTableInfoQuery implements Serializable {
 
-    @NotNull(message = "Database Name can not be null")
     private String databaseName;
 
     @NotNull(message = "pageNum can not be null")
