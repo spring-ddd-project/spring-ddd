@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class SysDictItemCommandService {
@@ -13,6 +15,8 @@ public class SysDictItemCommandService {
     private final SysDictItemDomainRepository sysDictItemDomainRepository;
 
     private final SysDictItemDomainFactory sysDictItemDomainFactory;
+
+    private final DeleteSysDictItemByIdsDomainService deleteSysDictItemByIdsDomainService;
 
     public Mono<Long> create(SysDictItemCommand command) {
         DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(command.getItemLabel()), new ItemValue(command.getItemValue()));
@@ -40,5 +44,9 @@ public class SysDictItemCommandService {
             domain.delete();
             return sysDictItemDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return deleteSysDictItemByIdsDomainService.deleteByIds(ids);
     }
 }
