@@ -61,14 +61,6 @@ public class SysUserCommandService {
         }).then();
     }
 
-    public Mono<Void> deleteUser(SysUserCommand command) {
-        return sysUserDomainRepository.load(new UserId(command.getId())).flatMap(domain -> {
-
-            domain.delete();
-            return sysUserDomainRepository.save(domain);
-        }).then();
-    }
-
     public Mono<Void> wipe(List<Long> ids) {
         return wipeSysUserByIdsDomainService.deleteByIds(ids);
     }
