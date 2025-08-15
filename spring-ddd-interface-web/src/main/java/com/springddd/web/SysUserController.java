@@ -3,7 +3,7 @@ package com.springddd.web;
 import com.springddd.application.service.user.SysUserCommandService;
 import com.springddd.application.service.user.SysUserQueryService;
 import com.springddd.application.service.user.dto.SysUserCommand;
-import com.springddd.application.service.user.dto.SysUserQuery;
+import com.springddd.application.service.user.dto.SysUserPageQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -22,12 +22,12 @@ public class SysUserController {
     private final SysUserQueryService sysUserQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserQuery> query) {
+    public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserPageQuery> query) {
         return ApiResponse.validated(query, sysUserQueryService::page);
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recyclePage(@RequestBody @Validated Mono<SysUserQuery> query) {
+    public Mono<ApiResponse> recyclePage(@RequestBody @Validated Mono<SysUserPageQuery> query) {
         return ApiResponse.validated(query, sysUserQueryService::recycle);
     }
 
