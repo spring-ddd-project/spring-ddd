@@ -1,7 +1,7 @@
 package com.springddd.application.service.user;
 
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.user.BatchDeleteSysUserByIdDomainService;
+import com.springddd.domain.user.DeleteSysUserByIdDomainService;
 import com.springddd.domain.user.SysUserDomainRepository;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class BatchDeleteSysUserByIdDomainServiceImpl implements BatchDeleteSysUserByIdDomainService {
+public class DeleteSysUserByIdDomainServiceImpl implements DeleteSysUserByIdDomainService {
 
     private final SysUserDomainRepository sysUserDomainRepository;
 
