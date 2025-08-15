@@ -1,7 +1,7 @@
 package com.springddd.application.service.user;
 
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.user.BatchDeleteSysUserByIdDomainService;
+import com.springddd.domain.user.BatchRestoreSysUserByIdDomainService;
 import com.springddd.domain.user.SysUserDomainRepository;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -13,16 +13,16 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class BatchDeleteSysUserByIdDomainServiceImpl implements BatchDeleteSysUserByIdDomainService {
+public class BatchRestoreSysUserByIdDomainServiceImpl implements BatchRestoreSysUserByIdDomainService {
 
     private final SysUserDomainRepository sysUserDomainRepository;
 
     @Override
-    public Mono<Void> deleteByIds(List<Long> ids) {
+    public Mono<Void> restore(List<Long> ids) {
         return Flux.fromIterable(ids)
                 .flatMap(id -> sysUserDomainRepository.load(new UserId(id))
                         .flatMap(domain -> {
-                            domain.delete();
+                            domain.restore();
                             return sysUserDomainRepository.save(domain);
                         }), SecurityUtils.concurrency())
                 .then();
