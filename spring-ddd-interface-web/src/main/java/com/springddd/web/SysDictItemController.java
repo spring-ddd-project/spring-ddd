@@ -42,8 +42,8 @@ public class SysDictItemController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestBody SysDictItemCommand command) {
-        return ApiResponse.ok(sysDictItemCommandService.delete(command));
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(sysDictItemCommandService.delete(ids));
     }
 
     @DeleteMapping("/wipe")
