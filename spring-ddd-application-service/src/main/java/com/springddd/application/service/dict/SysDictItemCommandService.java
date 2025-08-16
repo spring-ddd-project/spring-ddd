@@ -16,7 +16,7 @@ public class SysDictItemCommandService {
 
     private final SysDictItemDomainFactory sysDictItemDomainFactory;
 
-    private final DeleteSysDictItemByIdsDomainService deleteSysDictItemByIdsDomainService;
+    private final WipeSysDictItemByIdsDomainService wipeSysDictItemByIdsDomainService;
 
     public Mono<Long> create(SysDictItemCommand command) {
         DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(command.getItemLabel()), new ItemValue(command.getItemValue()));
@@ -47,6 +47,6 @@ public class SysDictItemCommandService {
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return deleteSysDictItemByIdsDomainService.deleteByIds(ids);
+        return wipeSysDictItemByIdsDomainService.deleteByIds(ids);
     }
 }
