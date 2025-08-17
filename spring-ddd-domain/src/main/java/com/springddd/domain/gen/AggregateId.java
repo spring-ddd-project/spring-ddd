@@ -1,4 +1,6 @@
 package com.springddd.domain.gen;
 
-public record AggregateId(Long value) {
+import com.springddd.domain.AggregateRootId;
+
+public record AggregateId(Long value) implements AggregateRootId<Long> {
 }
