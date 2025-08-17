@@ -10,6 +10,8 @@ public class GenAggregateDomain extends AbstractDomainMask {
 
     private AggregateId aggregateId;
 
+    private GenProjectInfoId infoId;
+
     private GenAggregateBasicInfo basicInfo;
 
     private GenAggregateExtendInfo extendInfo;
