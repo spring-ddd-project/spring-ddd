@@ -6,6 +6,7 @@ spring:
   security:
     ignore-paths:
       - /auth/login
+      - /auth/logout
     token-only-paths:
       - /auth/codes
       - /auth/user/info
