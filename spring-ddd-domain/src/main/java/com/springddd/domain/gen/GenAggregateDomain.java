@@ -15,4 +15,12 @@ public class GenAggregateDomain extends AbstractDomainMask {
     private GenAggregateBasicInfo basicInfo;
 
     private GenAggregateExtendInfo extendInfo;
+
+    public void create() {}
+
+    public void update(GenProjectInfoId infoId, GenAggregateBasicInfo basicInfo, GenAggregateExtendInfo extendInfo) {
+        this.infoId = infoId;
+        this.basicInfo = basicInfo;
+        this.extendInfo = extendInfo;
+    }
 }
