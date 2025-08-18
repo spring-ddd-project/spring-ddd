@@ -57,7 +57,9 @@ public class SysRoleQueryService {
     }
 
     public Mono<SysRoleView> getByCode(String code) {
-        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where(SysRoleQuery.Fields.roleCode).is(code))).one().map(sysRoleViewMapStruct::toView);
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria
+                .where(SysRoleQuery.Fields.roleCode).is(code)
+                .and(SysRoleQuery.Fields.deleteStatus).is(false))).one().map(sysRoleViewMapStruct::toView);
     }
 
     public Mono<List<SysRoleView>> getAllRole() {

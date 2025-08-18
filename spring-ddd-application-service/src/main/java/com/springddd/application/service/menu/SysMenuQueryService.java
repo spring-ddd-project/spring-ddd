@@ -71,7 +71,9 @@ public class SysMenuQueryService {
         return Flux.fromIterable(SecurityUtils.getMenuIds())
                 .flatMap(mId ->
                         r2dbcEntityTemplate.selectOne(
-                                Query.query(Criteria.where(SysMenuQuery.Fields.id).is(mId)),
+                                Query.query(Criteria
+                                        .where(SysMenuQuery.Fields.id).is(mId)
+                                        .and(SysMenuQuery.Fields.deleteStatus).is(false)),
                                 SysMenuEntity.class
                         ).map(sysMenuViewMapStruct::toView)
                 )
@@ -81,13 +83,15 @@ public class SysMenuQueryService {
                         SysMenuView::getId,
                         SysMenuView::getParentId,
                         parentId -> r2dbcEntityTemplate.selectOne(
-                                Query.query(Criteria.where(SysMenuQuery.Fields.id).is(parentId)),
+                                Query.query(Criteria
+                                        .where(SysMenuQuery.Fields.id).is(parentId)
+                                        .and(SysMenuQuery.Fields.deleteStatus).is(false)),
                                 SysMenuEntity.class
                         ).map(sysMenuViewMapStruct::toView),
                         SysMenuView::setChildren,
                         menu -> menu.getParentId() == null || menu.getParentId() == 0,
                         Comparator.comparing(o -> o.getMeta().getOrder()),
-                        null,
+                        menu -> !menu.getDeleteStatus(),
                         30
                 ))
                 .flatMap(menus -> {
@@ -125,7 +129,7 @@ public class SysMenuQueryService {
                 .flatMap(hasOwner -> {
                     if (hasOwner) {
                         return r2dbcEntityTemplate.select(SysMenuEntity.class)
-                                .matching(Query.empty())
+                                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
                                 .all()
                                 .collectList()
                                 .map(sysMenuViewMapStruct::toViewList)
@@ -134,13 +138,15 @@ public class SysMenuQueryService {
                                         SysMenuView::getId,
                                         SysMenuView::getParentId,
                                         parentId -> r2dbcEntityTemplate.selectOne(
-                                                Query.query(Criteria.where(SysMenuQuery.Fields.id).is(parentId).and(SysMenuQuery.Fields.deleteStatus).is(false)),
+                                                Query.query(
+                                                        Criteria.where(SysMenuQuery.Fields.id).is(parentId)
+                                                        .and(SysMenuQuery.Fields.deleteStatus).is(false)),
                                                 SysMenuEntity.class
                                         ).map(sysMenuViewMapStruct::toView),
                                         SysMenuView::setChildren,
                                         menu -> menu.getParentId() == null || menu.getParentId() == 0,
                                         Comparator.comparing(o -> o.getMeta().getOrder()),
-                                        null,
+                                        menu -> !menu.getDeleteStatus(),
                                         30
                                 ));
                     } else {
