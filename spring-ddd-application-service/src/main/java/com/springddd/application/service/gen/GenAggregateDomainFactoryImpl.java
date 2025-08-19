@@ -7,10 +7,10 @@ import org.springframework.stereotype.Component;
 public class GenAggregateDomainFactoryImpl implements GenAggregateDomainFactory {
 
     @Override
-    public GenAggregateDomain newInstance(GenProjectInfoId infoId, GenAggregateBasicInfo basicInfo, GenAggregateExtendInfo extendInfo) {
+    public GenAggregateDomain newInstance(GenProjectInfoId infoId, GenAggregateValueObject valueObject, GenAggregateExtendInfo extendInfo) {
         GenAggregateDomain domain = new GenAggregateDomain();
         domain.setInfoId(infoId);
-        domain.setBasicInfo(basicInfo);
+        domain.setValueObject(valueObject);
         domain.setExtendInfo(extendInfo);
         return domain;
     }
