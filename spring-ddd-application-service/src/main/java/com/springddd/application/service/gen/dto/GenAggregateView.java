@@ -11,9 +11,11 @@ public class GenAggregateView implements Serializable {
 
     private Long infoId;
 
-    private String aggregate;
+    private String objectName;
 
-    private String valueObject;
+    private String objectValue;
 
-    private String domainMask;
+    private Byte objectType;
+
+    private Boolean hasCreated;
 }
