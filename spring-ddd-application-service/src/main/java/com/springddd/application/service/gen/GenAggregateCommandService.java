@@ -19,10 +19,10 @@ public class GenAggregateCommandService {
     private final WipeGenAggregateDomainService wipeGenAggregateDomainService;
 
     public Mono<Long> create(GenAggregateCommand command) {
-        GenAggregateBasicInfo basicInfo = new GenAggregateBasicInfo(new Aggregate(command.getAggregate()), new ValueObject(command.getValueObject()));
-        GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getDomainMask());
+        GenAggregateValueObject valueObject = new GenAggregateValueObject(command.getObjectName(), command.getObjectValue(), command.getObjectType());
+        GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getHasCreated());
 
-        GenAggregateDomain domain = aggregateDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
+        GenAggregateDomain domain = aggregateDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), valueObject, extendInfo);
         domain.create();
         return genAggregateDomainRepository.save(domain);
     }
@@ -30,9 +30,9 @@ public class GenAggregateCommandService {
     public Mono<Void> update(GenAggregateCommand command) {
         return genAggregateDomainRepository.load(new AggregateId(command.getId()))
                 .flatMap(domain -> {
-                    GenAggregateBasicInfo basicInfo = new GenAggregateBasicInfo(new Aggregate(command.getAggregate()), new ValueObject(command.getValueObject()));
-                    GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getDomainMask());
-                    domain.update(new GenProjectInfoId(command.getInfoId()), basicInfo, extendInfo);
+                    GenAggregateValueObject valueObject = new GenAggregateValueObject(command.getObjectName(), command.getObjectValue(), command.getObjectType());
+                    GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getHasCreated());
+                    domain.update(new GenProjectInfoId(command.getInfoId()), valueObject, extendInfo);
                     return genAggregateDomainRepository.save(domain);
                 }).then();
     }
