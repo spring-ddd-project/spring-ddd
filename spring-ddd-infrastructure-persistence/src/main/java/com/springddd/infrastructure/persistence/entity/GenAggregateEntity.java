@@ -23,6 +23,8 @@ public class GenAggregateEntity {
 
     private Byte objectType;
 
+    private Boolean hasCreated;
+
     @CreatedBy
     private String createBy;
 
