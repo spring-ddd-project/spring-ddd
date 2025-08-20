@@ -13,4 +13,15 @@ public class GenInfoDomain extends AbstractDomainMask {
     private GenInfoBasicInfo basicInfo;
 
     private GenInfoExtendInfo extendInfo;
+
+    public void create() {}
+
+    public void update(GenInfoBasicInfo basicInfo, GenInfoExtendInfo extendInfo) {
+        this.basicInfo = basicInfo;
+        this.extendInfo = extendInfo;
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
 }
