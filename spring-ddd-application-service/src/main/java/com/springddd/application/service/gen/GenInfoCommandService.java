@@ -22,7 +22,7 @@ public class GenInfoCommandService {
         GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(command.getTableName()), new PackageName(command.getPackageName()), new ClassName(command.getClassName()));
         GenInfoExtendInfo extendInfo = new GenInfoExtendInfo(command.getRequestName());
         GenInfoDomain genInfoDomain = genInfoDomainFactory.newInstance(basicInfo, extendInfo);
-        genInfoDomain.create(extendInfo);
+        genInfoDomain.create();
         return genInfoDomainRepository.save(genInfoDomain);
     }
 
