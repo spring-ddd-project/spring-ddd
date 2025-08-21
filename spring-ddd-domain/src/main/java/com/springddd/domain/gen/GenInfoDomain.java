@@ -16,7 +16,9 @@ public class GenInfoDomain extends AbstractDomainMask {
 
     private GenInfoExtendInfo extendInfo;
 
-    public void create() {}
+    public void create(GenInfoExtendInfo extendInfo) {
+        check(extendInfo);
+    }
 
     public void update(GenInfoBasicInfo basicInfo, GenInfoExtendInfo extendInfo) {
         this.basicInfo = basicInfo;
@@ -50,9 +52,7 @@ public class GenInfoDomain extends AbstractDomainMask {
         if (ObjectUtils.isEmpty(info.propJavaType())) {
             throw new JavaTypeNullException();
         }
-        if (ObjectUtils.isEmpty(info.propDictId())) {
-            throw new DictIdNullException();
-        }
+
         if (ObjectUtils.isEmpty(info.tableVisible())) {
             throw new VisibleNullException();
         }
