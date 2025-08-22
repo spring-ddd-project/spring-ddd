@@ -1,10 +1,8 @@
 package com.springddd.application.service.dict;
 
-import com.springddd.application.service.dict.dto.SysDictItemPageQuery;
-import com.springddd.application.service.dict.dto.SysDictItemQuery;
-import com.springddd.application.service.dict.dto.SysDictItemView;
-import com.springddd.application.service.dict.dto.SysDictItemViewMapStruct;
+import com.springddd.application.service.dict.dto.*;
 import com.springddd.domain.util.PageResponse;
+import com.springddd.infrastructure.persistence.entity.SysDictEntity;
 import com.springddd.infrastructure.persistence.entity.SysDictItemEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
@@ -60,4 +58,20 @@ public class SysDictItemQueryService {
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.select(SysDictItemEntity.class).matching(qry).one().map(sysDictItemViewMapStruct::toView);
     }
+
+    public Mono<List<SysDictItemView>> queryItemLabelByDictCode(String dictCode) {
+        Criteria criteria = Criteria
+                .where(SysDictQuery.Fields.deleteStatus).is(false)
+                .and(SysDictQuery.Fields.dictCode).is(dictCode);
+        Query qry = Query.query(criteria);
+        return r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).one().flatMap(sysDictEntity -> {
+            Criteria cri = Criteria
+                    .where(SysDictItemQuery.Fields.deleteStatus).is(false)
+                    .and(SysDictItemQuery.Fields.dictId).is(sysDictEntity.getId());
+            Query q = Query.query(cri);
+            return r2dbcEntityTemplate.select(SysDictItemEntity.class).matching(q).all().collectList().map(sysDictItemViewMapStruct::toViews);
+        });
+    }
+
+    ;
 }
