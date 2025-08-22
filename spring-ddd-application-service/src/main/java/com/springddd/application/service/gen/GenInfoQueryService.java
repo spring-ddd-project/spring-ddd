@@ -11,9 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
-import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
@@ -26,8 +24,6 @@ public class GenInfoQueryService {
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final GenInfoViewMapStruct genInfoViewMapStruct;
-
-    private final DatabaseClient databaseClient;
 
     public Mono<PageResponse<GenInfoView>> index(GenInfoPageQuery query) {
         Criteria criteria = Criteria.where(GenInfoPageQuery.Fields.deleteStatus).is(false);
