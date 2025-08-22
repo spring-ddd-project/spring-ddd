@@ -1,6 +1,7 @@
 package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.*;
+import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.entity.GenInfoEntity;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class GenColumnsQueryService {
 
     private final DatabaseClient databaseClient;
 
-    public Mono<List<GenColumnsView>> queryColumnsByGenInfoId(Long infoId) {
+    public Mono<PageResponse<GenColumnsView>> queryColumnsByGenInfoId(Long infoId) {
 
         String sql = """
                 SELECT
@@ -70,7 +71,7 @@ public class GenColumnsQueryService {
                         column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
                         columnList.add(column);
                     }
-                    return columnList;
+                    return new PageResponse<>(columnList, 0, 0, 0);
                 });
     }
 }
