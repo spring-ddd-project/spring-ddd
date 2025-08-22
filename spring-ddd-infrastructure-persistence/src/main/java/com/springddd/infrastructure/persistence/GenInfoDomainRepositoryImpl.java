@@ -21,26 +21,10 @@ public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
             GenInfoDomain genInfoDomain = new GenInfoDomain();
             genInfoDomain.setId(new GenInfoId(e.getId()));
 
-            GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()), new RequestName(e.getRequestName()));
+            GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
             genInfoDomain.setBasicInfo(basicInfo);
 
-            GenInfoExtendInfo extendInfo = new GenInfoExtendInfo(e.getPropValueObject(),
-                    e.getPropColumnKey(),
-                    e.getPropColumnName(),
-                    e.getPropColumnType(),
-                    e.getPropColumnComment(),
-                    e.getPropJavaEntity(),
-                    e.getPropJavaType(),
-                    e.getPropDictId(),
-                    e.getTableVisible(),
-                    e.getTableOrder(),
-                    e.getTableFilter(),
-                    e.getTableFilterComponent(),
-                    e.getTableFilterType(),
-                    e.getFormComponent(),
-                    e.getFormVisible(),
-                    e.getFormRequired()
-            );
+            GenInfoExtendInfo extendInfo = new GenInfoExtendInfo(e.getRequestName());
             genInfoDomain.setExtendInfo(extendInfo);
 
             genInfoDomain.setDeleteStatus(e.getDeleteStatus());
@@ -63,24 +47,9 @@ public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
         entity.setTableName(aggregateRoot.getBasicInfo().tableName().value());
         entity.setPackageName(aggregateRoot.getBasicInfo().packageName().value());
         entity.setClassName(aggregateRoot.getBasicInfo().className().value());
-        entity.setRequestName(aggregateRoot.getBasicInfo().requestName().value());
 
-        entity.setPropValueObject(aggregateRoot.getExtendInfo().propValueObject());
-        entity.setPropColumnKey(aggregateRoot.getExtendInfo().propColumnKey());
-        entity.setPropColumnName(aggregateRoot.getExtendInfo().propColumnName());
-        entity.setPropColumnType(aggregateRoot.getExtendInfo().propColumnType());
-        entity.setPropColumnComment(aggregateRoot.getExtendInfo().propColumnComment());
-        entity.setPropJavaEntity(aggregateRoot.getExtendInfo().propJavaEntity());
-        entity.setPropJavaType(aggregateRoot.getExtendInfo().propJavaType());
-        entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
-        entity.setTableVisible(aggregateRoot.getExtendInfo().tableVisible());
-        entity.setTableOrder(aggregateRoot.getExtendInfo().tableOrder());
-        entity.setTableFilter(aggregateRoot.getExtendInfo().tableFilter());
-        entity.setTableFilterComponent(aggregateRoot.getExtendInfo().tableFilterComponent());
-        entity.setTableFilterType(aggregateRoot.getExtendInfo().tableFilterType());
-        entity.setFormComponent(aggregateRoot.getExtendInfo().formComponent());
-        entity.setFormVisible(aggregateRoot.getExtendInfo().formVisible());
-        entity.setFormRequired(aggregateRoot.getExtendInfo().formRequired());
+        entity.setRequestName(aggregateRoot.getExtendInfo().requestName());
+
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         entity.setCreateBy(aggregateRoot.getCreateBy());
         entity.setCreateTime(aggregateRoot.getCreateTime());
