@@ -1,5 +1,8 @@
 package com.springddd.application.service.gen;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenTableInfoView;
 import com.springddd.domain.util.PageResponse;
@@ -9,14 +12,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class GenTableInfoQueryService {
 
     private final DatabaseClient databaseClient;
+
+    private final GenProjectInfoQueryService projectInfoQueryService;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -83,5 +93,33 @@ public class GenTableInfoQueryService {
                         query.getPageNum(),
                         query.getPageSize()
                 ));
+    }
+
+    public Mono<Void> generate(String tableName) {
+        return projectInfoQueryService.queryGenInfoByTableName(tableName)
+                .flatMap(projectInfo -> {
+                    Map<String, Object> context = new HashMap<>();
+                    context.put("packageName", projectInfo.getPackageName());
+                    context.put("className", projectInfo.getClassName());
+
+//                    generateFile("entity.mustache", context,
+//                            "output/" + projectInfo.getPackageName().replace('.', '/') + "/entity/" + projectInfo.getClassName() + ".java");
+                    generateFile("entity.mustache", context,
+                            "./" + projectInfo.getClassName() + ".java");
+
+                    return Mono.empty();
+                });
+    }
+
+    private void generateFile(String templateName, Map<String, Object> context, String outputPath) {
+        try {
+            MustacheFactory mf = new DefaultMustacheFactory();
+            Mustache mustache = mf.compile("templates/" + templateName);
+            try (Writer writer = new FileWriter(outputPath)) {
+                mustache.execute(writer, context).flush();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
