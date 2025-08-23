@@ -1,20 +1,16 @@
 package com.springddd.application.service.gen;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenTableInfoView;
 import com.springddd.domain.util.PageResponse;
+import gg.jte.TemplateEngine;
+import gg.jte.output.StringOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +23,8 @@ public class GenTableInfoQueryService {
     private final DatabaseClient databaseClient;
 
     private final GenProjectInfoQueryService projectInfoQueryService;
+
+    private final TemplateEngine templateEngine;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -98,28 +96,23 @@ public class GenTableInfoQueryService {
     public Mono<Void> generate(String tableName) {
         return projectInfoQueryService.queryGenInfoByTableName(tableName)
                 .flatMap(projectInfo -> {
+
+                    String templateName = "entity";
                     Map<String, Object> context = new HashMap<>();
                     context.put("packageName", projectInfo.getPackageName());
+                    context.put("tableName", projectInfo.getTableName());
                     context.put("className", projectInfo.getClassName());
 
-//                    generateFile("entity.mustache", context,
-//                            "output/" + projectInfo.getPackageName().replace('.', '/') + "/entity/" + projectInfo.getClassName() + ".java");
-                    generateFile("entity.mustache", context,
-                            "./" + projectInfo.getClassName() + ".java");
+                    generateToFile(templateName + ".jte", context);
 
                     return Mono.empty();
                 });
     }
 
-    private void generateFile(String templateName, Map<String, Object> context, String outputPath) {
-        try {
-            MustacheFactory mf = new DefaultMustacheFactory();
-            Mustache mustache = mf.compile("templates/" + templateName);
-            try (Writer writer = new FileWriter(outputPath)) {
-                mustache.execute(writer, context).flush();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void generateToFile(String templateName, Map<String, Object> params) {
+        StringOutput output = new StringOutput();
+        templateEngine.render(templateName, params, output);
+        String code = output.toString();
+        System.out.println("code = " + code);
     }
 }
