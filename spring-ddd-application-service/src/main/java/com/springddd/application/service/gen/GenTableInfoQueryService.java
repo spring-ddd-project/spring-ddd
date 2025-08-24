@@ -3,12 +3,12 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenTableInfoView;
 import com.springddd.domain.util.PageResponse;
-import gg.jte.TemplateEngine;
-import gg.jte.output.StringOutput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ public class GenTableInfoQueryService {
 
     private final GenProjectInfoQueryService projectInfoQueryService;
 
-    private final TemplateEngine templateEngine;
+    private final TemplateEngine engine;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -103,16 +103,17 @@ public class GenTableInfoQueryService {
                     context.put("tableName", projectInfo.getTableName());
                     context.put("className", projectInfo.getClassName());
 
-                    generateToFile(templateName + ".jte", context);
+                    String entity = renderTemplate(templateName, context);
+                    System.out.println("entity = " + entity);
 
                     return Mono.empty();
                 });
     }
 
-    public void generateToFile(String templateName, Map<String, Object> params) {
-        StringOutput output = new StringOutput();
-        templateEngine.render(templateName, params, output);
-        String code = output.toString();
-        System.out.println("code = " + code);
+    public String renderTemplate(String templateName, Map<String, Object> dataModel) {
+        Context context = new Context();
+        context.setVariables(dataModel);
+        return engine.process(templateName, context);
     }
+
 }
