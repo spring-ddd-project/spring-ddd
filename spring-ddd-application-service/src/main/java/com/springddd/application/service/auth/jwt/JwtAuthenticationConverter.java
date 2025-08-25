@@ -76,6 +76,10 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                         String userCacheKey = "user:" + userId + ":detail";
                         return reactiveRedisCacheHelper.getCache(userCacheKey, AuthUser.class)
                                 .switchIfEmpty(Mono.error(new AccessDeniedException("User detail not found in cache")))
+                                .flatMap(u -> {
+                                    SecurityUtils.setAuthUserContext(u);
+                                    return Mono.just(u);
+                                })
                                 .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
 
                     } catch (Exception e) {
