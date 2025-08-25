@@ -11,9 +11,9 @@ public class GenColumnBindQuery implements Serializable {
 
     private Long id;
 
-    private String columnName;
+    private String columnType;
 
-    private String entityName;
+    private String entityType;
 
     private String componentName;
 
