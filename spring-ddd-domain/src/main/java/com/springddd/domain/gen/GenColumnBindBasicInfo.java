@@ -1,4 +1,4 @@
 package com.springddd.domain.gen;
 
-public record GenColumnBindBasicInfo(ColumnName columnName, EntityName entityName, ComponentName componentName) {
+public record GenColumnBindBasicInfo(ColumnType columnType, EntityType entityType, ComponentName componentName) {
 }
