@@ -9,8 +9,6 @@ public class GenProjectInfoCommand implements Serializable {
 
     private Long id;
 
-    private String databaseName;
-
     private String tableName;
 
     private String packageName;

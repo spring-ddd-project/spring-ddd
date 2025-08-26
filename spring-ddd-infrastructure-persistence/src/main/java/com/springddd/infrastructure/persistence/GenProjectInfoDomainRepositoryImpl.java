@@ -21,7 +21,7 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
             GenProjectInfoDomain genInfoDomain = new GenProjectInfoDomain();
             genInfoDomain.setId(new GenProjectInfoId(e.getId()));
 
-            GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new DatabaseName(e.getDatabaseName()), new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
+            GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
             genInfoDomain.setBasicInfo(basicInfo);
 
             GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(e.getRequestName());
@@ -44,7 +44,6 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
 
         entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenProjectInfoId::value).orElse(null));
 
-        entity.setDatabaseName(aggregateRoot.getBasicInfo().databaseName().value());
         entity.setTableName(aggregateRoot.getBasicInfo().tableName().value());
         entity.setPackageName(aggregateRoot.getBasicInfo().packageName().value());
         entity.setClassName(aggregateRoot.getBasicInfo().className().value());
