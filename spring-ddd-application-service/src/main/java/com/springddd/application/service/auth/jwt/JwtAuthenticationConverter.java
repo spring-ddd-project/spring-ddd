@@ -49,7 +49,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
             return Mono.error(new AccessDeniedException("Missing or invalid Authorization header"));
         }
 
-        // Extract the token part by removing the "Bearer" prefix and trimming any extra whitespace.
+        // Extract the token part by removing the "Bearer " prefix and trimming any extra whitespace.
         String token = authHeader.substring(7).trim().replaceAll("\\s+", "");
 
         boolean isTokenOnly = securityProperties.getTokenOnlyPaths().stream()
@@ -65,10 +65,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                     if (!cachedToken.equals(token)) {
                         log.error("\n#JwtAuthenticationConverter#[token does not exist]: {}", token);
                         return Mono.error(new AccessDeniedException("Invalid Request"));
-                    }
-
-                    if (isTokenOnly) {
-                        return Mono.empty();
                     }
 
                     // Token matches cache, continue with parsing
