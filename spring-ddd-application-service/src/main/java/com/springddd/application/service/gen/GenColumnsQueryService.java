@@ -88,11 +88,13 @@ public class GenColumnsQueryService {
                                                 column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
 
                                                 Optional<GenColumnsView> matchedDbColumn = db.stream()
-                                                        .filter(dbColumn -> dbColumn.getPropColumnType().equals(column.getPropColumnType()))
+                                                        .filter(dbColumn -> dbColumn.getPropColumnName().equals(column.getPropColumnName()))
                                                         .findFirst();
 
                                                 if (matchedDbColumn.isPresent()) {
                                                     GenColumnsView dbColumn = matchedDbColumn.get();
+                                                    column.setId(dbColumn.getId());
+                                                    column.setInfoId(dbColumn.getInfoId());
                                                     column.setPropJavaType(dbColumn.getPropJavaType());
                                                     column.setFormComponent(dbColumn.getFormComponent());
                                                     column.setTableVisible(dbColumn.getTableVisible());
@@ -101,7 +103,6 @@ public class GenColumnsQueryService {
                                                     column.setTableFilterComponent(dbColumn.getTableFilterComponent());
                                                     column.setTableFilterType(dbColumn.getTableFilterType());
                                                     column.setFormVisible(dbColumn.getFormVisible());
-                                                    column.setFormComponent(dbColumn.getFormComponent());
                                                     column.setFormRequired(dbColumn.getFormRequired());
                                                     column.setPropDictId(dbColumn.getPropDictId());
                                                 } else {
