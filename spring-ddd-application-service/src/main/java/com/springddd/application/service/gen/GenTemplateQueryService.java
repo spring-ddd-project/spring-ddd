@@ -32,4 +32,14 @@ public class GenTemplateQueryService {
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenTemplateEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
+
+    public Mono<PageResponse<GenTemplateView>> recycle(GenTemplatePageQuery query) {
+        Criteria criteria = Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(true);
+        Query qry = Query.query(criteria)
+                .limit(query.getPageSize())
+                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+        Mono<List<GenTemplateView>> list = r2dbcEntityTemplate.select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenTemplateEntity.class);
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    }
 }
