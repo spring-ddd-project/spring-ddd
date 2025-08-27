@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
-import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.StringTemplateResolver;
 
 @SpringBootApplication
 public class SpringDDDLauncherApplication {
@@ -26,11 +26,9 @@ public class SpringDDDLauncherApplication {
 
     @Bean(name = "engine")
     public TemplateEngine templateEngine() {
-        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-        resolver.setPrefix("templates/");
-        resolver.setSuffix(".java");
+        StringTemplateResolver resolver = new StringTemplateResolver();
         resolver.setTemplateMode(TemplateMode.TEXT);
-        resolver.setCharacterEncoding("UTF-8");
+        resolver.setCacheable(false);
 
         TemplateEngine engine = new TemplateEngine();
         engine.setTemplateResolver(resolver);
