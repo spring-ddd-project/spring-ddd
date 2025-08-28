@@ -27,6 +27,8 @@ public class GenTableInfoQueryService {
 
     private final GenAggregateQueryService aggregateQueryService;
 
+    private final GenTemplateQueryService templateQueryService;
+
     private final TemplateEngine engine;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
@@ -125,26 +127,13 @@ public class GenTableInfoQueryService {
         context.put("columnsViews", columnsViews);
         context.put("aggregateViews", aggregateViews);
 
-        String entity = renderTemplate("entity", context);
-        String domain = renderTemplate("domain", context);
-        String rootId = renderTemplate("rootId", context);
-        String extendInfo = renderTemplate("extendInfo", context);
-        String domainMask = renderTemplate("domainMask", context);
-        String repository = renderTemplate("repository", context);
-        String domainRepository = renderTemplate("domainRepository", context);
-        String domainRepositoryImpl = renderTemplate("domainRepositoryImpl", context);
-        String domainService = renderTemplate("domainService", context);
-        String domainServiceImpl = renderTemplate("domainServiceImpl", context);
-        String command = renderTemplate("command", context);
-        String query = renderTemplate("query", context);
-        String pageQuery = renderTemplate("pageQuery", context);
-        String view = renderTemplate("view", context);
-        String viewMapStruct = renderTemplate("viewMapStruct", context);
-        String commandService = renderTemplate("commandService", context);
-        String queryService = renderTemplate("queryService", context);
-        String controller = renderTemplate("controller", context);
-
-        return Mono.empty();
+        return templateQueryService.queryByTemplateName("entity")
+                .map(template -> {
+                    String content = renderTemplate(template.getTemplateContent(), context);
+                    System.out.println("content = \n" + content);
+                    return content;
+                })
+                .then();
     }
 
     public String renderTemplate(String templateName, Map<String, Object> dataModel) {
