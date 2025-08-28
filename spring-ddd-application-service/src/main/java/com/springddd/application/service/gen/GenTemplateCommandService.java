@@ -18,6 +18,8 @@ public class GenTemplateCommandService {
 
     private final DeleteGenTemplateDomainService deleteGenTemplateDomainService;
 
+    private final RestoreGenTemplateDomainService restoreGenTemplateDomainService;
+
     private final WipeGenTemplateDomainService wipeGenTemplateDomainService;
 
     public Mono<Long> create(GenTemplateCommand command) {
@@ -38,6 +40,10 @@ public class GenTemplateCommandService {
 
     public Mono<Void> delete(List<Long> ids) {
         return deleteGenTemplateDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreGenTemplateDomainService.restoreByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
