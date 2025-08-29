@@ -136,10 +136,10 @@ public class GenTableInfoQueryService {
                 .then();
     }
 
-    public String renderTemplate(String templateName, Map<String, Object> dataModel) {
+    public String renderTemplate(String template, Map<String, Object> dataModel) {
         Context context = new Context();
         context.setVariables(dataModel);
-        return engine.process(templateName, context);
+        return engine.process(template, context);
     }
 
 }
