@@ -2,7 +2,6 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.util.PageResponse;
-import freemarker.template.Configuration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
@@ -25,10 +24,6 @@ public class GenTableInfoQueryService {
     private final GenColumnsQueryService columnsQueryService;
 
     private final GenAggregateQueryService aggregateQueryService;
-
-    private final GenTemplateQueryService templateQueryService;
-
-    private final Configuration configuration;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
