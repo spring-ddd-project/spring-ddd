@@ -1,5 +1,6 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.domain.gen.WipeGenDataDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,13 @@ public class GenTableInfoCommandService {
 
     private final WipeGenDataDomainService wipeGenDataDomainService;
 
+    private final GenerateDomainService generateDomainService;
+
     public Mono<Void> wipe() {
         return wipeGenDataDomainService.wipe();
+    }
+
+    public Mono<Void> generate(String tableName) {
+        return generateDomainService.generate(tableName);
     }
 }
