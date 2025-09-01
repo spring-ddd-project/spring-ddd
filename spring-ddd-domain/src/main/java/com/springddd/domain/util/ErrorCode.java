@@ -62,7 +62,9 @@ public enum ErrorCode {
     GEN_INFO_DATABASE_NAME_NULL(1522, "error.gen.info.database.name.null"),
     GEN_AGGREGATE_DOMAIN_MASK_NULL(1523, "error.gen.aggregate.domain.mask.null"),
     GEN_AGGREGATE_OBJECT_NAME_NULL(1524, "error.gen.aggregate.object.name.null"),
-    GEN_AGGREGATE_OBJECT_TYPE_NULL(1525, "error.gen.aggregate.object.type.null")
+    GEN_AGGREGATE_OBJECT_TYPE_NULL(1525, "error.gen.aggregate.object.type.null"),
+    GEN_TEMPLATE_NAME_NULL(1526, "error.gen.template.name.null"),
+    GEN_TEMPLATE_CONTENT_NULL(1527, "error.gen.template.content.null"),
 
     ;
 
