@@ -18,6 +18,8 @@ public class GenTemplateCommandService {
 
     private final DeleteGenTemplateDomainService deleteGenTemplateDomainService;
 
+    private final WipeGenTemplateDomainService wipeGenTemplateDomainService;
+
     public Mono<Long> create(GenTemplateCommand command) {
         TemplateInfo info = new TemplateInfo(command.getTemplateName(), command.getTemplateContent());
         GenTemplateDomain domain = genTemplateDomainFactory.newInstance(info);
@@ -36,5 +38,9 @@ public class GenTemplateCommandService {
 
     public Mono<Void> delete(List<Long> ids) {
         return deleteGenTemplateDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return wipeGenTemplateDomainService.wipeByIds(ids);
     }
 }
