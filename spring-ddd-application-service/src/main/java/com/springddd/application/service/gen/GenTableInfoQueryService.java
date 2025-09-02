@@ -2,14 +2,16 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.util.PageResponse;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
-import org.thymeleaf.TemplateEngine;
-import org.thymeleaf.context.Context;
 import reactor.core.publisher.Mono;
 
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +31,7 @@ public class GenTableInfoQueryService {
 
     private final GenTemplateQueryService templateQueryService;
 
-    private final TemplateEngine engine;
+    private final Configuration configuration;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -128,18 +130,22 @@ public class GenTableInfoQueryService {
         context.put("aggregateViews", aggregateViews);
 
         return templateQueryService.queryByTemplateName("entity")
-                .map(template -> {
-                    String content = renderTemplate(template.getTemplateContent(), context);
-                    System.out.println("content = \n" + content);
-                    return content;
-                })
-                .then();
+                .flatMap(template -> renderTemplate(template.getTemplateContent(), context))
+                .flatMap(text -> {
+                    System.out.println("text = " + text);
+                    return Mono.empty();
+                });
     }
 
-    public String renderTemplate(String template, Map<String, Object> dataModel) {
-        Context context = new Context();
-        context.setVariables(dataModel);
-        return engine.process(template, context);
+    public Mono<String> renderTemplate(String templateContent, Map<String, Object> dataModel) {
+        try {
+            Template template = new Template("dynamicTemplate", new StringReader(templateContent), configuration);
+            StringWriter out = new StringWriter();
+            template.process(dataModel, out);
+            return Mono.just(out.toString());
+        } catch (Exception e) {
+            return Mono.error(e);
+        }
     }
 
 }
