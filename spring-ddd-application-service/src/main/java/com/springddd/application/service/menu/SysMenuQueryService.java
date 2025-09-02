@@ -9,6 +9,7 @@ import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.domain.util.ReactiveTreeUtils;
+import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
@@ -108,12 +109,12 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
+        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), menus, CacheKeys.MENU_WITH_PERMISSIONS.ttl()).then();
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithoutPermission() {
         return reactiveRedisCacheHelper
-                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithoutPermissions", List.class)
+                .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
                 .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
     }
 
@@ -155,7 +156,7 @@ public class SysMenuQueryService {
                                 ));
                     } else {
                         return reactiveRedisCacheHelper
-                                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menuWithPermissions", List.class)
+                                .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
                                 .map(list -> (List<SysMenuView>) list)
                                 .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
                     }
@@ -204,7 +205,7 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithoutPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
+        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), menus, CacheKeys.MENU_WITHOUT_PERMISSIONS.ttl()).then();
     }
 
     public Mono<List<SysMenuView>> queryAllMenu() {
