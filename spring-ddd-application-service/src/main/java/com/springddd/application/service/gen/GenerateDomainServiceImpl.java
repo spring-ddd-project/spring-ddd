@@ -5,6 +5,7 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.StringReader;
@@ -24,17 +25,17 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
-                .flatMap(context -> templateQueryService.queryByTemplateName("r2dbc")
-                        .flatMap(template -> renderTemplate(template.getTemplateContent(), context))
-                        .flatMap(text -> {
-                            System.out.println("text = " + text);
-                            return Mono.empty();
-                        }));
+                .flatMap(context -> templateQueryService.queryAllTemplate()
+                        .flatMapMany(Flux::fromIterable)
+                        .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context))
+                        .doOnNext(text -> System.out.println("template context: " + text))
+                        .then()
+                );
     }
 
-    public Mono<String> renderTemplate(String templateContent, Map<String, Object> dataModel) {
+    public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
         try {
-            Template template = new Template("dynamicTemplate", new StringReader(templateContent), configuration);
+            Template template = new Template(templateName, new StringReader(templateContent), configuration);
             StringWriter out = new StringWriter();
             template.process(dataModel, out);
             return Mono.just(out.toString());
