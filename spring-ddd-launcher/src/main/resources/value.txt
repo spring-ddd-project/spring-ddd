@@ -38,10 +38,10 @@ const formOptions: VbenFormProps = {
     {
       component: 'Input',
       componentProps: {
-        placeholder: "<#noparse>${$t('system.common.placeholder.input')}</#noparse> <#noparse>${$t('codegen.template.name')}</#noparse>",
+        placeholder: "<#noparse>${$t('system.common.placeholder.input')}</#noparse> ${'$t(\'' + i18n.column + '\')'}",
       },
       fieldName: 'templateName',
-      label: <#noparse>$t('codegen.template.name')</#noparse>,
+      label: ${"${$t('" + i18n.column + "')}"},
     },
   ],
   showCollapseButton: true,
