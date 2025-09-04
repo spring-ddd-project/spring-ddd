@@ -29,12 +29,12 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setId(Optional.ofNullable(domain.getId()).map(GenColumnsId::value).orElse(null));
             entity.setInfoId(domain.getInfoId().value());
 
-            entity.setPropColumnKey(domain.getBasicInfo().key().value());
-            entity.setPropColumnName(domain.getBasicInfo().name().value());
-            entity.setPropColumnType(domain.getBasicInfo().type().value());
-            entity.setPropColumnComment(domain.getBasicInfo().comment().value());
-            entity.setPropJavaEntity(domain.getBasicInfo().entity().value());
-            entity.setPropJavaType(domain.getBasicInfo().javaType().value());
+            entity.setPropColumnKey(domain.getBasicInfo().propColumnKey());
+            entity.setPropColumnName(domain.getBasicInfo().propColumnName());
+            entity.setPropColumnType(domain.getBasicInfo().propColumnType());
+            entity.setPropColumnComment(domain.getBasicInfo().propColumnComment());
+            entity.setPropJavaEntity(domain.getBasicInfo().propJavaEntity());
+            entity.setPropJavaType(domain.getBasicInfo().propJavaType());
 
             entity.setPropDictId(domain.getExtendInfo().propDictId());
             entity.setTableVisible(domain.getExtendInfo().tableVisible());
@@ -42,6 +42,7 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setTableOrder(domain.getExtendInfo().tableOrder());
             entity.setTableFilterComponent(domain.getExtendInfo().tableFilterComponent());
             entity.setTableFilterType(domain.getExtendInfo().tableFilterType());
+            entity.setTypescriptType(domain.getExtendInfo().typescriptType());
             entity.setFormComponent(domain.getExtendInfo().formComponent());
             entity.setFormVisible(domain.getExtendInfo().formVisible());
             entity.setFormRequired(domain.getExtendInfo().formRequired());
