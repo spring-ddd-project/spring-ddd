@@ -42,11 +42,12 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setTableFilterComponent(domain.getTable().tableFilterComponent());
             entity.setTableFilterType(domain.getTable().tableFilterType());
 
+            entity.setFormComponent(domain.getForm().formComponent());
+            entity.setFormVisible(domain.getForm().formVisible());
+            entity.setFormRequired(domain.getForm().formRequired());
+
             entity.setPropDictId(domain.getExtendInfo().propDictId());
             entity.setTypescriptType(domain.getExtendInfo().typescriptType());
-            entity.setFormComponent(domain.getExtendInfo().formComponent());
-            entity.setFormVisible(domain.getExtendInfo().formVisible());
-            entity.setFormRequired(domain.getExtendInfo().formRequired());
 
             entity.setDeleteStatus(domain.getDeleteStatus());
             entity.setCreateBy(domain.getCreateBy());

@@ -29,7 +29,10 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             Table table = new Table(e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType());
             genColumnsDomain.setTable(table);
 
-            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTypescriptType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
+            Form form = new Form(e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
+            genColumnsDomain.setForm(form);
+
+            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTypescriptType());
             genColumnsDomain.setExtendInfo(extendInfo);
 
             genColumnsDomain.setDeleteStatus(e.getDeleteStatus());
@@ -62,11 +65,12 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setTableFilterComponent(aggregateRoot.getTable().tableFilterComponent());
         entity.setTableFilterType(aggregateRoot.getTable().tableFilterType());
 
+        entity.setFormComponent(aggregateRoot.getForm().formComponent());
+        entity.setFormVisible(aggregateRoot.getForm().formVisible());
+        entity.setFormRequired(aggregateRoot.getForm().formRequired());
+
         entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
         entity.setTypescriptType(aggregateRoot.getExtendInfo().typescriptType());
-        entity.setFormComponent(aggregateRoot.getExtendInfo().formComponent());
-        entity.setFormVisible(aggregateRoot.getExtendInfo().formVisible());
-        entity.setFormRequired(aggregateRoot.getExtendInfo().formRequired());
 
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         entity.setCreateBy(aggregateRoot.getCreateBy());
