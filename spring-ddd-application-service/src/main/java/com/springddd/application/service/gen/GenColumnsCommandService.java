@@ -22,7 +22,7 @@ public class GenColumnsCommandService {
     private final GenColumnsBatchSaveDomainService genColumnsBatchSaveDomainService;
 
     public Mono<Long> create(GenColumnsCommand command) {
-        GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
+        Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
         Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
         GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
         GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
@@ -32,7 +32,7 @@ public class GenColumnsCommandService {
 
     public Mono<Void> update(GenColumnsCommand command) {
         return genColumnsDomainRepository.load(new ColumnsId(command.getId())).flatMap(domain -> {
-            GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
+            Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
             domain.update(prop, extendInfo);
@@ -54,7 +54,7 @@ public class GenColumnsCommandService {
     public Mono<Void> batchSave(List<GenColumnsCommand> commands) {
         return Flux.fromIterable(commands)
                 .map(command -> {
-                    GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
+                    Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                     Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
                     GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
                     GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
@@ -70,7 +70,7 @@ public class GenColumnsCommandService {
         return Flux.fromIterable(commands)
                 .flatMap(command -> genColumnsDomainRepository.load(new ColumnsId(command.getId()))
                         .map(domain -> {
-                            GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
+                            Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
                             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
                             domain.update(prop, extendInfo);
