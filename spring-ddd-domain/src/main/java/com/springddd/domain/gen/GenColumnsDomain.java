@@ -10,7 +10,7 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     private ColumnsId id;
 
-    private GenProjectInfoId infoId;
+    private InfoId infoId;
 
     private GenColumnsProp prop;
 

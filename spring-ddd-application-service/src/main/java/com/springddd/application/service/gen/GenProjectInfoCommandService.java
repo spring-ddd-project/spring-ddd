@@ -27,7 +27,7 @@ public class GenProjectInfoCommandService {
     }
 
     public Mono<Void> update(GenProjectInfoCommand command) {
-        return genProjectInfoDomainRepository.load(new GenProjectInfoId(command.getId())).flatMap(domain -> {
+        return genProjectInfoDomainRepository.load(new InfoId(command.getId())).flatMap(domain -> {
             GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(command.getTableName()), new PackageName(command.getPackageName()), new ClassName(command.getClassName()));
             GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
             domain.update(basicInfo, extendInfo);
@@ -36,7 +36,7 @@ public class GenProjectInfoCommandService {
     }
 
     public Mono<Void> delete(GenProjectInfoCommand command) {
-        return genProjectInfoDomainRepository.load(new GenProjectInfoId(command.getId())).flatMap(domain -> {
+        return genProjectInfoDomainRepository.load(new InfoId(command.getId())).flatMap(domain -> {
             domain.delete();
             return genProjectInfoDomainRepository.save(domain);
         }).then();
