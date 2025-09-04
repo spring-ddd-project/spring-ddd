@@ -22,8 +22,10 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void update(Prop prop, GenColumnsExtendInfo extendInfo) {
+    public void update(Prop prop, Table table, Form form, GenColumnsExtendInfo extendInfo) {
         this.prop = prop;
+        this.table = table;
+        this.form = form;
         this.extendInfo = extendInfo;
     }
 
