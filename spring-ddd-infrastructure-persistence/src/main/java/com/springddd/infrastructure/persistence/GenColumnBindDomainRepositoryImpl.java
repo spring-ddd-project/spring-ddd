@@ -21,7 +21,7 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
             GenColumnBindDomain genColumnBindDomain = new GenColumnBindDomain();
             genColumnBindDomain.setBindId(new ColumnBindId(e.getId()));
 
-            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnType(e.getColumnType()), new EntityType(e.getEntityType()), new ComponentType(e.getComponentType()));
+            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(e.getColumnType(), e.getEntityType(), e.getComponentType(), e.getTypescriptType());
             genColumnBindDomain.setBasicInfo(basicInfo);
 
             genColumnBindDomain.setDeleteStatus(e.getDeleteStatus());
@@ -41,9 +41,10 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
         entity.setId(Optional.ofNullable(aggregateRoot.getBindId()).map(ColumnBindId::value).orElse(null));
 
         GenColumnBindBasicInfo basicInfo = aggregateRoot.getBasicInfo();
-        entity.setColumnType(basicInfo.columnType().value());
-        entity.setEntityType(basicInfo.entityType().value());
-        entity.setComponentType(basicInfo.componentType().value());
+        entity.setColumnType(basicInfo.columnType());
+        entity.setEntityType(basicInfo.entityType());
+        entity.setComponentType(basicInfo.componentType());
+        entity.setTypescriptType(basicInfo.typescriptType());
 
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         entity.setCreateBy(aggregateRoot.getCreateBy());
