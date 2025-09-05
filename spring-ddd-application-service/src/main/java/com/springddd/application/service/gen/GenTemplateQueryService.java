@@ -11,6 +11,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -25,6 +26,9 @@ public class GenTemplateQueryService {
 
     public Mono<PageResponse<GenTemplateView>> index(GenTemplatePageQuery query) {
         Criteria criteria = Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(false);
+        if (!ObjectUtils.isEmpty(query.getTemplateName())) {
+            criteria = criteria.and(GenTemplateQuery.Fields.templateName).like("%" + query.getTemplateName() + "%");
+        }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
