@@ -8,18 +8,27 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GenColumnsDomain extends AbstractDomainMask {
 
-    private GenColumnsId id;
+    private ColumnsId id;
 
-    private GenProjectInfoId infoId;
+    private InfoId infoId;
 
-    private GenColumnsProp prop;
+    private Prop prop;
+
+    private Table table;
+
+    private Form form;
+
+    private I18n i18n;
 
     private GenColumnsExtendInfo extendInfo;
 
     public void create() {}
 
-    public void update(GenColumnsProp prop, GenColumnsExtendInfo extendInfo) {
+    public void update(Prop prop, Table table, Form form, I18n i18n, GenColumnsExtendInfo extendInfo) {
         this.prop = prop;
+        this.table = table;
+        this.form = form;
+        this.i18n = i18n;
         this.extendInfo = extendInfo;
     }
 
