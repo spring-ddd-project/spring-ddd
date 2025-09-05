@@ -24,37 +24,39 @@ const recycleFormRef = ref();
 
 interface RowType {
 <#assign excludeFields = ["createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
-
 <#list columnsViews as property>
     <#if !(excludeFields?seq_contains(property.propJavaEntity))>
   ${property.propJavaEntity}: ${property.typescriptTypeStr};
     </#if>
 </#list>
 }
-
+<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
+<#if filteredProperties?has_content>
 const formOptions: VbenFormProps = {
-  collapsed: false,
-  schema: [
-    {
-      component: 'Input',
-      componentProps: {
-        placeholder: "<#noparse>${$t('system.common.placeholder.input')}</#noparse> ${'$t(\'' + i18n.column + '\')'}",
-      },
-      fieldName: 'templateName',
-      label: ${"${$t('" + i18n.column + "')}"},
+    collapsed: false,
+    schema: [
+        <#list filteredProperties as property>
+        {
+            component: "${property.tableFilterComponent}",
+            componentProps: {
+                placeholder: `<#noparse>${$t('system.common.placeholder.input')}</#noparse> ${'$t(\'' + requestName + '.' + property.propJavaEntity + '\')'}`,
+            },
+            fieldName: '${property.propJavaEntity}',
+            label: "$t('${requestName}.${property.propJavaEntity}')",
+        }<#if property_has_next>,</#if>
+        </#list>
+    ],
+    showCollapseButton: true,
+    submitButtonOptions: {
+        content: "$t('system.common.button.search')",
     },
-  ],
-  showCollapseButton: true,
-  submitButtonOptions: {
-    content: <#noparse>$t('system.common.button.search')</#noparse>,
-  },
-  resetButtonOptions: {
-    content: <#noparse>$t('system.common.button.reset')</#noparse>,
-  },
-  submitOnChange: false,
-  submitOnEnter: true,
+    resetButtonOptions: {
+        content: "$t('system.common.button.reset')",
+    },
+    submitOnChange: false,
+    submitOnEnter: true,
 };
-
+</#if>
 const gridOptions: VxeTableGridOptions<RowType> = {
   checkboxConfig: {
     highlight: true,
@@ -68,8 +70,12 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   columns: [
     { title: 'No.', type: 'seq', width: 50 },
     { align: 'left', title: '#', type: 'checkbox', width: 50 },
-    { field: 'templateName', title: <#noparse>$t('codegen.template.name')</#noparse> },
-    { field: 'templateContent', title: <#noparse>$t('codegen.template.content')</#noparse> },
+<#assign excludeFields = ["id", "createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
+<#list columnsViews as property>
+    <#if !(excludeFields?seq_contains(property.propJavaEntity))>
+    { field: '${property.propJavaEntity}', title: $t('${requestName}.${property.propJavaEntity}') },
+    </#if>
+</#list>
     {
       field: 'action',
       fixed: 'right',
@@ -82,6 +88,8 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   keepSource: true,
   proxyConfig: {
     ajax: {
+<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
+<#if filteredProperties?has_content>
       query: async ({ page }, formOptions) => {
         return await get${className}Page({
           pageNum: page.currentPage,
@@ -89,6 +97,14 @@ const gridOptions: VxeTableGridOptions<RowType> = {
           ...formOptions,
         });
       },
+<#else>
+      query: async ({ page }) => {
+        return await get${className}Page({
+          pageNum: page.currentPage,
+          pageSize: page.pageSize,
+        });
+      },
+</#if>
     },
   },
   editConfig: {
@@ -107,7 +123,10 @@ const gridOptions: VxeTableGridOptions<RowType> = {
 
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions,
+<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
+<#if filteredProperties?has_content>
   formOptions,
+</#if>
 });
 
 const openRecycleForm = () => {
@@ -157,7 +176,7 @@ const deleteByIds = (row?: RowType) => {
           text
           type="primary"
           @click="openForm"
-          v-if="hasAccessByCodes(['gen:template:create'])"
+          v-if="hasAccessByCodes(['${requestName}:create'])"
         >
           {{ <#noparse>$t('system.common.button.add')</#noparse> }}
         </ElButton>
@@ -167,7 +186,7 @@ const deleteByIds = (row?: RowType) => {
           text
           type="danger"
           @click="deleteByIds()"
-          v-if="hasAccessByCodes(['gen:template:delete'])"
+          v-if="hasAccessByCodes(['${requestName}:delete'])"
         >
           {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
         </ElButton>
@@ -177,7 +196,7 @@ const deleteByIds = (row?: RowType) => {
           text
           type="info"
           @click="openRecycleForm"
-          v-if="hasAccessByCodes(['gen:template:recycle'])"
+          v-if="hasAccessByCodes(['${requestName}:recycle'])"
         >
           {{ <#noparse>$t('system.common.button.recycle')</#noparse> }}
         </ElButton>
@@ -187,7 +206,7 @@ const deleteByIds = (row?: RowType) => {
           type="primary"
           link
           @click="editRow(row)"
-          v-if="hasAccessByCodes(['gen:template:update'])"
+          v-if="hasAccessByCodes(['${requestName}:update'])"
         >
           {{ <#noparse>$t('system.common.button.edit')</#noparse> }}
         </ElButton>
@@ -195,7 +214,7 @@ const deleteByIds = (row?: RowType) => {
           type="danger"
           link
           @click="deleteByIds(row)"
-          v-if="hasAccessByCodes(['gen:template:delete'])"
+          v-if="hasAccessByCodes(['${requestName}:delete'])"
         >
           {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
         </ElButton>
