@@ -109,7 +109,11 @@ public class GenColumnsQueryService {
                                                     column.setFormVisible(dbColumn.getFormVisible());
                                                     column.setFormRequired(dbColumn.getFormRequired());
                                                     column.setPropDictId(dbColumn.getPropDictId());
+                                                    column.setEn(dbColumn.getEn());
+                                                    column.setLocale(dbColumn.getLocale());
                                                 } else {
+                                                    column.setEn(TitleCaseConverter.toTitleCase(column.getPropColumnName()));
+                                                    column.setLocale(column.getPropColumnComment());
                                                     column.setPropJavaType(bind.getEntityType());
                                                     column.setTypescriptType(bind.getTypescriptType());
                                                     column.setFormComponent(bind.getComponentType());
