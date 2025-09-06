@@ -23,6 +23,10 @@ public class GenProjectInfoEntity {
 
     private String requestName;
 
+    private String moduleName;
+
+    private String projectName;
+
     private Boolean deleteStatus;
 
     @CreatedBy
