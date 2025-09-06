@@ -119,6 +119,8 @@ public class GenTableInfoQueryService {
         context.put("tableName", projectInfoView.getTableName());
         context.put("className", projectInfoView.getClassName());
         context.put("requestName", projectInfoView.getRequestName());
+        context.put("moduleName", projectInfoView.getModuleName());
+        context.put("projectName", projectInfoView.getProjectName());
         context.put("columnsViews", columnsViews);
         context.put("aggregateViews", aggregateViews);
 
