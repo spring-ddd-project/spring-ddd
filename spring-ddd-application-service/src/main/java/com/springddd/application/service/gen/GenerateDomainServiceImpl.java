@@ -176,6 +176,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "controller" -> projectName + "-application-web/"
                     + className + "Controller.java";
 
+            // sql
+            case "sql" -> className + "SQL.sql";
+
             // vue
             case "index.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
