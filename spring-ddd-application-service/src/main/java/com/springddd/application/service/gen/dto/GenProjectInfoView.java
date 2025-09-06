@@ -15,5 +15,9 @@ public class GenProjectInfoView implements Serializable {
 
     private String className;
 
+    private String moduleName;
+
+    private String projectName;
+
     private String requestName;
 }
