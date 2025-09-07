@@ -23,9 +23,13 @@ const ${requestName}FormRef = ref();
 const recycleFormRef = ref();
 
 interface RowType {
-  id: string;
-  templateName: string;
-  templateContent: string;
+<#assign excludeFields = ["createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
+
+<#list columnsViews as property>
+    <#if !(excludeFields?seq_contains(property.propJavaEntity))>
+  ${property.propJavaEntity}: ${property.propJavaType?uncap_first};
+    </#if>
+</#list>
 }
 
 const formOptions: VbenFormProps = {
