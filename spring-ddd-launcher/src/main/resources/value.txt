@@ -38,18 +38,18 @@ const formOptions: VbenFormProps = {
     {
       component: 'Input',
       componentProps: {
-        placeholder: `${$t('system.common.placeholder.input')} ${$t('codegen.template.name')}`,
+        placeholder: "<#noparse>${$t('system.common.placeholder.input')}</#noparse> <#noparse>${$t('codegen.template.name')}</#noparse>",
       },
       fieldName: 'templateName',
-      label: $t('codegen.template.name'),
+      label: <#noparse>$t('codegen.template.name')</#noparse>,
     },
   ],
   showCollapseButton: true,
   submitButtonOptions: {
-    content: $t('system.common.button.search'),
+    content: <#noparse>$t('system.common.button.search')</#noparse>,
   },
   resetButtonOptions: {
-    content: $t('system.common.button.reset'),
+    content: <#noparse>$t('system.common.button.reset')</#noparse>,
   },
   submitOnChange: false,
   submitOnEnter: true,
@@ -68,13 +68,13 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   columns: [
     { title: 'No.', type: 'seq', width: 50 },
     { align: 'left', title: '#', type: 'checkbox', width: 50 },
-    { field: 'templateName', title: $t('codegen.template.name') },
-    { field: 'templateContent', title: $t('codegen.template.content') },
+    { field: 'templateName', title: <#noparse>$t('codegen.template.name')</#noparse> },
+    { field: 'templateContent', title: <#noparse>$t('codegen.template.content')</#noparse> },
     {
       field: 'action',
       fixed: 'right',
       slots: { default: 'action' },
-      title: $t('system.common.operation'),
+      title: <#noparse>$t('system.common.operation')</#noparse>,
       width: 150,
     },
   ],
@@ -128,20 +128,20 @@ const deleteByIds = (row?: RowType) => {
     : gridApi.grid.getCheckboxRecords().map((item) => item.id);
 
   if (ids.length === 0) {
-    ElMessage.warning($t('system.common.delete.warning'));
+    ElMessage.warning(<#noparse>$t('system.common.delete.warning')</#noparse>);
     return;
   }
 
   confirm({
-    content: $t('system.common.delete.confirm'),
+    content: <#noparse>$t('system.common.delete.confirm')</#noparse>,
     icon: 'error',
   }).then(async () => {
     try {
       await delete${requestName}(ids);
       await gridApi.reload();
-      ElMessage.success($t('system.common.delete.success'));
+      ElMessage.success(<#noparse>$t('system.common.delete.success')</#noparse>);
     } catch {
-      ElMessage.error($t('system.common.delete.error'));
+      ElMessage.error(<#noparse>$t('system.common.delete.error')</#noparse>);
     }
   });
 };
@@ -159,7 +159,7 @@ const deleteByIds = (row?: RowType) => {
           @click="openForm"
           v-if="hasAccessByCodes(['gen:template:create'])"
         >
-          {{ $t('system.common.button.add') }}
+          {{ <#noparse>$t('system.common.button.add')</#noparse> }}
         </ElButton>
         <ElButton
           class="mr-2"
@@ -169,7 +169,7 @@ const deleteByIds = (row?: RowType) => {
           @click="deleteByIds()"
           v-if="hasAccessByCodes(['gen:template:delete'])"
         >
-          {{ $t('system.common.button.delete') }}
+          {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
         </ElButton>
         <ElButton
           class="mr-2"
@@ -179,7 +179,7 @@ const deleteByIds = (row?: RowType) => {
           @click="openRecycleForm"
           v-if="hasAccessByCodes(['gen:template:recycle'])"
         >
-          {{ $t('system.common.button.recycle') }}
+          {{ <#noparse>$t('system.common.button.recycle')</#noparse> }}
         </ElButton>
       </template>
       <template #action="{ row }">
@@ -189,7 +189,7 @@ const deleteByIds = (row?: RowType) => {
           @click="editRow(row)"
           v-if="hasAccessByCodes(['gen:template:update'])"
         >
-          {{ $t('system.common.button.edit') }}
+          {{ <#noparse>$t('system.common.button.edit')</#noparse> }}
         </ElButton>
         <ElButton
           type="danger"
@@ -197,7 +197,7 @@ const deleteByIds = (row?: RowType) => {
           @click="deleteByIds(row)"
           v-if="hasAccessByCodes(['gen:template:delete'])"
         >
-          {{ $t('system.common.button.delete') }}
+          {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
         </ElButton>
       </template>
     </Grid>
