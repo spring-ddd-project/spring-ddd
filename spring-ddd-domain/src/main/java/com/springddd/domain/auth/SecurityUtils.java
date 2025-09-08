@@ -1,7 +1,5 @@
 package com.springddd.domain.auth;
 
-import com.springddd.domain.role.RoleCode;
-
 import java.util.List;
 
 public class SecurityUtils {
@@ -10,7 +8,7 @@ public class SecurityUtils {
 
     private static String username;
 
-    private static List<RoleCode> roles;
+    private static List<String> roles;
 
     private static List<String> permissions;
 
@@ -32,7 +30,7 @@ public class SecurityUtils {
         SecurityUtils.username = username;
     }
 
-    public static void setRoles(List<RoleCode> roles) {
+    public static void setRoles(List<String> roles) {
         SecurityUtils.roles = roles;
     }
 
@@ -52,7 +50,7 @@ public class SecurityUtils {
         return SecurityUtils.username;
     }
 
-    public static List<RoleCode> getRoles() {
+    public static List<String> getRoles() {
         return SecurityUtils.roles;
     }
 
