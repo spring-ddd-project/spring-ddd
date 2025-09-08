@@ -1,7 +1,6 @@
 package com.springddd.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -34,7 +33,7 @@ public class AuthUser implements Serializable, UserDetails {
 
     private String lockStatus;
 
-    private List<RoleCode> roles;
+    private List<String> roles;
 
     private List<String> permissions;
 
