@@ -15,7 +15,9 @@ public class GenColumnBindQuery implements Serializable {
 
     private String entityType;
 
-    private Integer componentType;
+    private Byte componentType;
+
+    private Byte typescriptType;
 
     private Boolean deleteStatus;
 }
