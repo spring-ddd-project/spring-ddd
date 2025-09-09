@@ -30,7 +30,7 @@ public class GenTableController {
         return ApiResponse.ok(genTableInfoQueryService.preview());
     }
 
-    @PostMapping("/download")
+    @GetMapping("/download")
     public Mono<ResponseEntity<Resource>> download() {
         return genTableInfoCommandService.download();
     }
