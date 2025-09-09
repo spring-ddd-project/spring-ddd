@@ -36,7 +36,7 @@ public class ProjectTreeBuilder {
 
         ProjectTreeView root = new ProjectTreeView();
         root.setId(UUID.randomUUID().toString());
-        root.setLabel("");
+        root.setLabel("TEMP");
         root.setChildren(new ArrayList<>());
 
         ProjectTreeView currentNode = root;
