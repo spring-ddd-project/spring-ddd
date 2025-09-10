@@ -35,11 +35,21 @@ public class GenColumnsView implements Serializable {
 
     private Boolean tableFilter;
 
-    private Integer tableFilterComponent;
+    private Byte tableFilterComponent;
 
-    private Integer tableFilterType;
+    private Byte tableFilterType;
+
+    private Byte typescriptType;
 
     private Byte formComponent;
+
+    private String tableFilterComponentStr;
+
+    private String tableFilterTypeStr;
+
+    private String typescriptTypeStr;
+
+    private String formComponentStr;
 
     private Boolean formVisible;
 
