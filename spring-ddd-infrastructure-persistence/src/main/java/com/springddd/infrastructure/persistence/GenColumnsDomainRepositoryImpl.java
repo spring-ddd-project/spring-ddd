@@ -23,10 +23,10 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             genColumnsDomain.setId(new GenColumnsId(e.getId()));
             genColumnsDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
 
-            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(new PropColumnKey(e.getPropColumnKey()), new PropColumnName(e.getPropColumnName()), new PropColumnType(e.getPropColumnType()), new PropColumnComment(e.getPropColumnComment()), new PropJavaType(e.getPropJavaType()), new PropJavaEntity(e.getPropJavaEntity()));
+            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
             genColumnsDomain.setBasicInfo(basicInfo);
 
-            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
+            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType(), e.getTypescriptType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
             genColumnsDomain.setExtendInfo(extendInfo);
 
             genColumnsDomain.setDeleteStatus(e.getDeleteStatus());
@@ -46,12 +46,12 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenColumnsId::value).orElse(null));
         entity.setInfoId(aggregateRoot.getInfoId().value());
 
-        entity.setPropColumnKey(aggregateRoot.getBasicInfo().key().value());
-        entity.setPropColumnName(aggregateRoot.getBasicInfo().name().value());
-        entity.setPropColumnType(aggregateRoot.getBasicInfo().type().value());
-        entity.setPropColumnComment(aggregateRoot.getBasicInfo().comment().value());
-        entity.setPropJavaType(aggregateRoot.getBasicInfo().type().value());
-        entity.setPropJavaEntity(aggregateRoot.getBasicInfo().entity().value());
+        entity.setPropColumnKey(aggregateRoot.getBasicInfo().propColumnKey());
+        entity.setPropColumnName(aggregateRoot.getBasicInfo().propColumnName());
+        entity.setPropColumnType(aggregateRoot.getBasicInfo().propColumnType());
+        entity.setPropColumnComment(aggregateRoot.getBasicInfo().propColumnComment());
+        entity.setPropJavaType(aggregateRoot.getBasicInfo().propJavaType());
+        entity.setPropJavaEntity(aggregateRoot.getBasicInfo().propJavaEntity());
 
         entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
         entity.setTableVisible(aggregateRoot.getExtendInfo().tableVisible());
@@ -59,6 +59,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setTableOrder(aggregateRoot.getExtendInfo().tableOrder());
         entity.setTableFilterComponent(aggregateRoot.getExtendInfo().tableFilterComponent());
         entity.setTableFilterType(aggregateRoot.getExtendInfo().tableFilterType());
+        entity.setTypescriptType(aggregateRoot.getExtendInfo().typescriptType());
         entity.setFormComponent(aggregateRoot.getExtendInfo().formComponent());
         entity.setFormVisible(aggregateRoot.getExtendInfo().formVisible());
         entity.setFormRequired(aggregateRoot.getExtendInfo().formRequired());

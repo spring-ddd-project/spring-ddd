@@ -37,9 +37,11 @@ public class GenColumnsEntity {
 
     private Boolean tableFilter;
 
-    private Integer tableFilterComponent;
+    private Byte tableFilterComponent;
 
-    private Integer tableFilterType;
+    private Byte tableFilterType;
+
+    private Byte typescriptType;
 
     private Byte formComponent;
 
