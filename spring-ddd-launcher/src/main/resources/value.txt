@@ -27,7 +27,7 @@ interface RowType {
 
 <#list columnsViews as property>
     <#if !(excludeFields?seq_contains(property.propJavaEntity))>
-  ${property.propJavaEntity}: ${property.propJavaType?uncap_first};
+  ${property.propJavaEntity}: ${property.typescriptTypeStr};
     </#if>
 </#list>
 }
