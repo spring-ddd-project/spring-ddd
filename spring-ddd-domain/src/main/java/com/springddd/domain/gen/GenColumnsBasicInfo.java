@@ -6,9 +6,6 @@ import org.springframework.util.ObjectUtils;
 public record GenColumnsBasicInfo(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment, String propJavaType, String propJavaEntity) {
 
     public GenColumnsBasicInfo {
-        if (ObjectUtils.isEmpty(propColumnKey)) {
-            throw new ColumnKeyNullException();
-        }
         if (ObjectUtils.isEmpty(propColumnName)) {
             throw new ColumnNameNullException();
         }
