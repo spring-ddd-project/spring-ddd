@@ -1,6 +1,7 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.application.service.auth.jwt.JwtSecret;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
@@ -13,6 +14,7 @@ import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -22,10 +24,10 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysMenuQueryService {
@@ -38,7 +40,7 @@ public class SysMenuQueryService {
 
     private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
-    private final JwtSecret jwtSecret;
+    private final ObjectMapper objectMapper;
 
     private final SysRoleQueryService sysRoleQueryService;
 
@@ -63,8 +65,8 @@ public class SysMenuQueryService {
         return sysMenuRepository.findById(menuId).filter(menu -> !menu.getDeleteStatus()).map(sysMenuViewMapStruct::toView);
     }
 
-    public Mono<SysMenuView> queryByMenuComponent(String component) {
-        Criteria criteria = Criteria.where(SysMenuQuery.Fields.component).is(component);
+    public Mono<SysMenuView> queryByApi(String api) {
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.api).is(api);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
@@ -114,7 +116,16 @@ public class SysMenuQueryService {
     public Mono<List<SysMenuView>> getMenuTreeWithoutPermission() {
         return reactiveRedisCacheHelper
                 .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
-                .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+                .flatMap(list -> {
+                    try {
+                        List<SysMenuView> sysMenuViews = objectMapper.convertValue(list, new TypeReference<>() {});
+                        return Mono.just(sysMenuViews);
+                    } catch (IllegalArgumentException e) {
+                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithoutPermission#:{}", e.toString());
+                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                    }
+                })
+                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
@@ -156,7 +167,15 @@ public class SysMenuQueryService {
                     } else {
                         return reactiveRedisCacheHelper
                                 .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
-                                .map(list -> (List<SysMenuView>) list)
+                                .flatMap(list -> {
+                                    try {
+                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {});
+                                        return Mono.just(menuViews);
+                                    } catch (IllegalArgumentException e) {
+                                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
+                                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                                    }
+                                })
                                 .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
                     }
                 });
@@ -195,6 +214,7 @@ public class SysMenuQueryService {
         copy.setPath(menu.getPath());
         copy.setName(menu.getName());
         copy.setComponent(menu.getComponent());
+        copy.setApi(menu.getApi());
         copy.setPermission(menu.getPermission());
         copy.setMenuType(menu.getMenuType());
         copy.setVisible(menu.getVisible());
