@@ -140,7 +140,7 @@ public class GenColumnsQueryService {
                                     .then();
 
                             Mono<Void> formComponentMono = sysDictQueryService
-                                    .queryItemLabelByDictCode("component_type", Integer.valueOf(column.getFormComponent()))
+                                    .queryItemLabelByDictCode("components", Integer.valueOf(column.getFormComponent()))
                                     .doOnNext(column::setFormComponentStr)
                                     .then();
 
