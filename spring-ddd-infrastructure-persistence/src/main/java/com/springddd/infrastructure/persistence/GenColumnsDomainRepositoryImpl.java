@@ -23,8 +23,8 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             genColumnsDomain.setId(new GenColumnsId(e.getId()));
             genColumnsDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
 
-            GenColumnsBasicInfo basicInfo = new GenColumnsBasicInfo(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
-            genColumnsDomain.setBasicInfo(basicInfo);
+            GenColumnsProp basicInfo = new GenColumnsProp(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
+            genColumnsDomain.setProp(basicInfo);
 
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType(), e.getTypescriptType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
             genColumnsDomain.setExtendInfo(extendInfo);
@@ -46,12 +46,12 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenColumnsId::value).orElse(null));
         entity.setInfoId(aggregateRoot.getInfoId().value());
 
-        entity.setPropColumnKey(aggregateRoot.getBasicInfo().propColumnKey());
-        entity.setPropColumnName(aggregateRoot.getBasicInfo().propColumnName());
-        entity.setPropColumnType(aggregateRoot.getBasicInfo().propColumnType());
-        entity.setPropColumnComment(aggregateRoot.getBasicInfo().propColumnComment());
-        entity.setPropJavaType(aggregateRoot.getBasicInfo().propJavaType());
-        entity.setPropJavaEntity(aggregateRoot.getBasicInfo().propJavaEntity());
+        entity.setPropColumnKey(aggregateRoot.getProp().propColumnKey());
+        entity.setPropColumnName(aggregateRoot.getProp().propColumnName());
+        entity.setPropColumnType(aggregateRoot.getProp().propColumnType());
+        entity.setPropColumnComment(aggregateRoot.getProp().propColumnComment());
+        entity.setPropJavaType(aggregateRoot.getProp().propJavaType());
+        entity.setPropJavaEntity(aggregateRoot.getProp().propJavaEntity());
 
         entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
         entity.setTableVisible(aggregateRoot.getExtendInfo().tableVisible());

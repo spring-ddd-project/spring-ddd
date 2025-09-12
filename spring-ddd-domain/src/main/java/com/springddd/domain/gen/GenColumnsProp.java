@@ -3,9 +3,9 @@ package com.springddd.domain.gen;
 import com.springddd.domain.gen.exception.*;
 import org.springframework.util.ObjectUtils;
 
-public record GenColumnsBasicInfo(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment, String propJavaType, String propJavaEntity) {
+public record GenColumnsProp(String propColumnKey, String propColumnName, String propColumnType, String propColumnComment, String propJavaType, String propJavaEntity) {
 
-    public GenColumnsBasicInfo {
+    public GenColumnsProp {
         if (ObjectUtils.isEmpty(propColumnName)) {
             throw new ColumnNameNullException();
         }
