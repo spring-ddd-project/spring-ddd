@@ -26,6 +26,8 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     public void update(MenuId parentId,
                        Catalog catalog,
+                       Menu menu,
+                       Button button,
                        MenuBasicInfo menuBasicInfo,
                        MenuExtendInfo menuExtendInfo, Long deptId) {
         this.parentId = parentId;
