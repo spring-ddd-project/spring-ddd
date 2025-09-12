@@ -18,12 +18,11 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
 
         for (SysMenuDomainStrategy strategy : strategies) {
             if (strategy.check(menuExtendInfo.menuType())) {
-                domain = strategy.handle(menuBasicInfo, menuExtendInfo);
+                domain = strategy.handle(catalog, menu, button, menuExtendInfo);
             }
         }
 
         domain.setParentId(parentId);
-        domain.setCatalog(catalog);
 
         domain.setDeptId(deptId);
         domain.setDeleteStatus(false);
