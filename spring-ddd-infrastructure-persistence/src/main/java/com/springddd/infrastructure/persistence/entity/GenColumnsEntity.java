@@ -49,6 +49,10 @@ public class GenColumnsEntity {
 
     private Boolean formRequired;
 
+    private String en;
+
+    private String locale;
+
     private Boolean deleteStatus;
 
     @CreatedBy
