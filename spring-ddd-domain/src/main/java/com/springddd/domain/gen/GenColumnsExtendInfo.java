@@ -4,28 +4,11 @@ import com.springddd.domain.gen.exception.*;
 import org.springframework.util.ObjectUtils;
 
 public record GenColumnsExtendInfo(Long propDictId,
-                                   Boolean tableVisible,
-                                   Boolean tableOrder,
-                                   Boolean tableFilter,
-                                   Byte tableFilterComponent,
-                                   Byte tableFilterType,
                                    Byte typescriptType,
                                    Byte formComponent,
                                    Boolean formVisible,
                                    Boolean formRequired) {
     public GenColumnsExtendInfo {
-        if (ObjectUtils.isEmpty(tableVisible)) {
-            throw new VisibleNullException();
-        }
-        if (ObjectUtils.isEmpty(tableOrder)) {
-            throw new OrderNullException();
-        }
-        if (ObjectUtils.isEmpty(tableFilter)) {
-            throw new FilterNullException();
-        }
-        if (tableFilter && ObjectUtils.isEmpty(tableFilterComponent)) {
-            throw new FilterComponentNullException();
-        }
         if (ObjectUtils.isEmpty(formComponent)) {
             throw new FormComponentNullException();
         }
