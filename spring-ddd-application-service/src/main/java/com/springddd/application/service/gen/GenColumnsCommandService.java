@@ -25,7 +25,7 @@ public class GenColumnsCommandService {
         GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
         Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
         GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
-        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), prop, extendInfo);
+        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
         domain.create();
         return genColumnsDomainRepository.save(domain);
     }
@@ -57,7 +57,7 @@ public class GenColumnsCommandService {
                     GenColumnsProp prop = new GenColumnsProp(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                     Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
                     GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType(), command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
-                    GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), prop, extendInfo);
+                    GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
                     domain.create();
                     return domain;
                 })

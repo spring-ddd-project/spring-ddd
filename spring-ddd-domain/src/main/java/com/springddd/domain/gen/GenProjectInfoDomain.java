@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class GenProjectInfoDomain extends AbstractDomainMask {
 
-    private GenProjectInfoId id;
+    private InfoId id;
 
     private GenProjectInfoBasicInfo basicInfo;
 
