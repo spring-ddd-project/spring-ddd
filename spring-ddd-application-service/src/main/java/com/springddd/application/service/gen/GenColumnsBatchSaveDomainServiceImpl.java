@@ -2,7 +2,7 @@ package com.springddd.application.service.gen;
 
 import com.springddd.domain.gen.GenColumnsBatchSaveDomainService;
 import com.springddd.domain.gen.GenColumnsDomain;
-import com.springddd.domain.gen.GenColumnsId;
+import com.springddd.domain.gen.ColumnsId;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
         for (GenColumnsDomain domain : domains) {
             GenColumnsEntity entity = new GenColumnsEntity();
 
-            entity.setId(Optional.ofNullable(domain.getId()).map(GenColumnsId::value).orElse(null));
+            entity.setId(Optional.ofNullable(domain.getId()).map(ColumnsId::value).orElse(null));
             entity.setInfoId(domain.getInfoId().value());
 
             entity.setPropColumnKey(domain.getProp().propColumnKey());
@@ -36,12 +36,13 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setPropJavaEntity(domain.getProp().propJavaEntity());
             entity.setPropJavaType(domain.getProp().propJavaType());
 
+            entity.setTableVisible(domain.getTable().tableVisible());
+            entity.setTableFilter(domain.getTable().tableFilter());
+            entity.setTableOrder(domain.getTable().tableOrder());
+            entity.setTableFilterComponent(domain.getTable().tableFilterComponent());
+            entity.setTableFilterType(domain.getTable().tableFilterType());
+
             entity.setPropDictId(domain.getExtendInfo().propDictId());
-            entity.setTableVisible(domain.getExtendInfo().tableVisible());
-            entity.setTableFilter(domain.getExtendInfo().tableFilter());
-            entity.setTableOrder(domain.getExtendInfo().tableOrder());
-            entity.setTableFilterComponent(domain.getExtendInfo().tableFilterComponent());
-            entity.setTableFilterType(domain.getExtendInfo().tableFilterType());
             entity.setTypescriptType(domain.getExtendInfo().typescriptType());
             entity.setFormComponent(domain.getExtendInfo().formComponent());
             entity.setFormVisible(domain.getExtendInfo().formVisible());
