@@ -6,10 +6,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class GenColumnsDomainFactoryImpl implements GenColumnsDomainFactory {
     @Override
-    public GenColumnsDomain newInstance(GenProjectInfoId infoId, GenColumnsProp prop, GenColumnsExtendInfo extendInfo) {
+    public GenColumnsDomain newInstance(InfoId infoId, Prop prop, Table table, Form form, I18n i18n, GenColumnsExtendInfo extendInfo) {
         GenColumnsDomain domain = new GenColumnsDomain();
         domain.setInfoId(infoId);
         domain.setProp(prop);
+        domain.setTable(table);
+        domain.setForm(form);
+        domain.setI18n(i18n);
         domain.setExtendInfo(extendInfo);
         domain.setDeleteStatus(false);
         return domain;
