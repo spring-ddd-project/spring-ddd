@@ -16,6 +16,8 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     private Table table;
 
+    private Form form;
+
     private GenColumnsExtendInfo extendInfo;
 
     public void create() {}
