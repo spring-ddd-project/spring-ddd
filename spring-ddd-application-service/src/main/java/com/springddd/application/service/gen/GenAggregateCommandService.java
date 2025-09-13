@@ -22,7 +22,7 @@ public class GenAggregateCommandService {
         GenAggregateValueObject valueObject = new GenAggregateValueObject(command.getObjectName(), command.getObjectValue(), command.getObjectType());
         GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getHasCreated());
 
-        GenAggregateDomain domain = aggregateDomainFactory.newInstance(new GenProjectInfoId(command.getInfoId()), valueObject, extendInfo);
+        GenAggregateDomain domain = aggregateDomainFactory.newInstance(new InfoId(command.getInfoId()), valueObject, extendInfo);
         domain.create();
         return genAggregateDomainRepository.save(domain);
     }
@@ -32,7 +32,7 @@ public class GenAggregateCommandService {
                 .flatMap(domain -> {
                     GenAggregateValueObject valueObject = new GenAggregateValueObject(command.getObjectName(), command.getObjectValue(), command.getObjectType());
                     GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(command.getHasCreated());
-                    domain.update(new GenProjectInfoId(command.getInfoId()), valueObject, extendInfo);
+                    domain.update(new InfoId(command.getInfoId()), valueObject, extendInfo);
                     return genAggregateDomainRepository.save(domain);
                 }).then();
     }

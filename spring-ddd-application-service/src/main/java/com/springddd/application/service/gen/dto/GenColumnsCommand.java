@@ -42,4 +42,8 @@ public class GenColumnsCommand implements Serializable {
     private Boolean formVisible;
 
     private Boolean formRequired;
+
+    private String en;
+
+    private String locale;
 }

@@ -16,17 +16,26 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
     private final GenColumnsRepository genColumnsRepository;
 
     @Override
-    public Mono<GenColumnsDomain> load(GenColumnsId aggregateRootId) {
+    public Mono<GenColumnsDomain> load(ColumnsId aggregateRootId) {
         return genColumnsRepository.findById(aggregateRootId.value()).map(e -> {
             GenColumnsDomain genColumnsDomain = new GenColumnsDomain();
 
-            genColumnsDomain.setId(new GenColumnsId(e.getId()));
-            genColumnsDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
+            genColumnsDomain.setId(new ColumnsId(e.getId()));
+            genColumnsDomain.setInfoId(new InfoId(e.getInfoId()));
 
-            GenColumnsProp basicInfo = new GenColumnsProp(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
-            genColumnsDomain.setProp(basicInfo);
+            Prop prop = new Prop(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
+            genColumnsDomain.setProp(prop);
 
-            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType(), e.getTypescriptType(), e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
+            Table table = new Table(e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType());
+            genColumnsDomain.setTable(table);
+
+            Form form = new Form(e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
+            genColumnsDomain.setForm(form);
+
+            I18n i18n = new I18n(e.getEn(), e.getLocale());
+            genColumnsDomain.setI18n(i18n);
+
+            GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTypescriptType());
             genColumnsDomain.setExtendInfo(extendInfo);
 
             genColumnsDomain.setDeleteStatus(e.getDeleteStatus());
@@ -43,7 +52,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
     public Mono<Long> save(GenColumnsDomain aggregateRoot) {
         GenColumnsEntity entity = new GenColumnsEntity();
 
-        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenColumnsId::value).orElse(null));
+        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(ColumnsId::value).orElse(null));
         entity.setInfoId(aggregateRoot.getInfoId().value());
 
         entity.setPropColumnKey(aggregateRoot.getProp().propColumnKey());
@@ -53,16 +62,21 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setPropJavaType(aggregateRoot.getProp().propJavaType());
         entity.setPropJavaEntity(aggregateRoot.getProp().propJavaEntity());
 
+        entity.setTableVisible(aggregateRoot.getTable().tableVisible());
+        entity.setTableFilter(aggregateRoot.getTable().tableFilter());
+        entity.setTableOrder(aggregateRoot.getTable().tableOrder());
+        entity.setTableFilterComponent(aggregateRoot.getTable().tableFilterComponent());
+        entity.setTableFilterType(aggregateRoot.getTable().tableFilterType());
+
+        entity.setFormComponent(aggregateRoot.getForm().formComponent());
+        entity.setFormVisible(aggregateRoot.getForm().formVisible());
+        entity.setFormRequired(aggregateRoot.getForm().formRequired());
+
+        entity.setEn(aggregateRoot.getI18n().en());
+        entity.setLocale(aggregateRoot.getI18n().locale());
+
         entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
-        entity.setTableVisible(aggregateRoot.getExtendInfo().tableVisible());
-        entity.setTableFilter(aggregateRoot.getExtendInfo().tableFilter());
-        entity.setTableOrder(aggregateRoot.getExtendInfo().tableOrder());
-        entity.setTableFilterComponent(aggregateRoot.getExtendInfo().tableFilterComponent());
-        entity.setTableFilterType(aggregateRoot.getExtendInfo().tableFilterType());
         entity.setTypescriptType(aggregateRoot.getExtendInfo().typescriptType());
-        entity.setFormComponent(aggregateRoot.getExtendInfo().formComponent());
-        entity.setFormVisible(aggregateRoot.getExtendInfo().formVisible());
-        entity.setFormRequired(aggregateRoot.getExtendInfo().formRequired());
 
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         entity.setCreateBy(aggregateRoot.getCreateBy());
