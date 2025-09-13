@@ -23,7 +23,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             genColumnsDomain.setId(new ColumnsId(e.getId()));
             genColumnsDomain.setInfoId(new InfoId(e.getInfoId()));
 
-            GenColumnsProp prop = new GenColumnsProp(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
+            Prop prop = new Prop(e.getPropColumnKey(), e.getPropColumnName(), e.getPropColumnType(), e.getPropColumnComment(), e.getPropJavaEntity(), e.getPropJavaType());
             genColumnsDomain.setProp(prop);
 
             Table table = new Table(e.getTableVisible(), e.getTableOrder(), e.getTableFilter(), e.getTableFilterComponent(), e.getTableFilterType());

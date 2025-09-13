@@ -12,7 +12,7 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     private InfoId infoId;
 
-    private GenColumnsProp prop;
+    private Prop prop;
 
     private Table table;
 
@@ -20,7 +20,7 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void update(GenColumnsProp prop, GenColumnsExtendInfo extendInfo) {
+    public void update(Prop prop, GenColumnsExtendInfo extendInfo) {
         this.prop = prop;
         this.extendInfo = extendInfo;
     }
