@@ -12,6 +12,7 @@ public class GenColumnsDomainFactoryImpl implements GenColumnsDomainFactory {
         domain.setProp(prop);
         domain.setTable(table);
         domain.setForm(form);
+        domain.setI18n(i18n);
         domain.setExtendInfo(extendInfo);
         domain.setDeleteStatus(false);
         return domain;
