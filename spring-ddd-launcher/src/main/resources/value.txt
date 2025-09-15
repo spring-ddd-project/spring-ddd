@@ -127,7 +127,12 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     // import: true,
     refresh: true,
     zoom: true,
+<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
+<#if filteredProperties?has_content>
+    search: true,
+<#else>
     search: false,
+</#if>
   },
 };
 
@@ -151,7 +156,7 @@ const editRow = (row: RowType) => {
   ${requestName}FormRef.value?.open(row);
 };
 
-const deleteByIds = (row?: RowType) => {
+const deleteMethod = (row?: RowType) => {
   const ids: string[] = row
     ? [row.id]
     : gridApi.grid.getCheckboxRecords().map((item) => item.id);
@@ -166,7 +171,7 @@ const deleteByIds = (row?: RowType) => {
     icon: 'error',
   }).then(async () => {
     try {
-      await delete${requestName}(ids);
+      await delete${className}(ids);
       await gridApi.reload();
       ElMessage.success(<#noparse>$t('system.common.delete.success')</#noparse>);
     } catch {
@@ -205,7 +210,7 @@ const deleteByIds = (row?: RowType) => {
           bg
           text
           type="danger"
-          @click="deleteByIds()"
+          @click="deleteMethod()"
           v-if="hasAccessByCodes(['${requestName}:delete'])"
         >
           {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
@@ -233,7 +238,7 @@ const deleteByIds = (row?: RowType) => {
         <ElButton
           type="danger"
           link
-          @click="deleteByIds(row)"
+          @click="deleteMethod(row)"
           v-if="hasAccessByCodes(['${requestName}:delete'])"
         >
           {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
