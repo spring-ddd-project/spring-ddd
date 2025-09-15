@@ -82,47 +82,38 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "aggregateRoot" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "Id.java";
             case "objectValue" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + ".java";
             case "extendInfo" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "ExtendInfo.java";
             case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "Domain.java";
             case "factory" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "DomainFactory.java";
             case "domainRepository" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + className + "DomainRepository.java";
             case "deleteDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Delete" + className + "DomainService.java";
             case "wipeDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Wipe" + className + "DomainService.java";
             case "restoreDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + requestName + "/"
                     + "Restore" + className + "DomainService.java";
 
             // application-service
