@@ -131,7 +131,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + requestName + "/dto/"
                     + className + "Command.java";
             case "query" -> projectName + "-application-service/"
-                    + packagePath + "/service/"
+                    + packagePath + "/application/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "Query.java";
