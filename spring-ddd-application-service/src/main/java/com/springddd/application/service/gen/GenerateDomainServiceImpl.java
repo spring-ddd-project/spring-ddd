@@ -92,7 +92,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "extendInfo" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + aggregateViews.stream().filter(q -> q.getObjectType() == 3 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + "ExtendInfo.java";
+                    + aggregateViews.stream().filter(q -> q.getObjectType() == 3 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
             case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
