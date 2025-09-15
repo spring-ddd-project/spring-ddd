@@ -20,8 +20,6 @@ public class SysMenuView implements Serializable {
 
     private String component;
 
-    private String api;
-
     private String redirect;
 
     private String permission;
