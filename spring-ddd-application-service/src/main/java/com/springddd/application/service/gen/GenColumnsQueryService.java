@@ -148,7 +148,12 @@ public class GenColumnsQueryService {
                                     .doOnNext(column::setFormComponentStr)
                                     .then();
 
-                            return Mono.when(typescriptTypeMono, formComponentMono).thenReturn(column);
+                            Mono<Void> dictNameMono = sysDictQueryService
+                                    .queryDictNameById(column.getPropDictId())
+                                    .doOnNext(column::setPropDictStr)
+                                    .then();
+
+                            return Mono.when(typescriptTypeMono, formComponentMono, dictNameMono).thenReturn(column);
                         })
                         .collectList()
                 );

@@ -14,15 +14,13 @@ import { ElButton, ElMessage } from 'element-plus';
 import Dict from '#/adapter/component/Dict.vue';
 </#if>
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { delete${className}, get${className}Page } from '#/api/${requestName}';
+import { get${className}RecyclePage, restore${className}, wipe${className} } from '#/api/${requestName}';
 
-import ${className}Form from './form.vue';
-import RecycleForm from './recycle.vue';
+const props = defineProps<{
+  gridApi: any;
+}>();
 
 const { hasAccessByCodes } = useAccess();
-
-const ${requestName}FormRef = ref();
-const recycleFormRef = ref();
 
 interface RowType {
 <#assign excludeFields = ["createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
@@ -32,33 +30,7 @@ interface RowType {
     </#if>
 </#list>
 }
-<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
-<#if filteredProperties?has_content>
-const formOptions: VbenFormProps = {
-    collapsed: false,
-    schema: [
-        <#list filteredProperties as property>
-        {
-            component: "${property.tableFilterComponent}",
-            componentProps: {
-                placeholder: `<#noparse>${$t('system.common.placeholder.input')}</#noparse> ${'$t(\'' + requestName + '.' + property.propJavaEntity + '\')'}`,
-            },
-            fieldName: '${property.propJavaEntity}',
-            label: "$t('${requestName}.${property.propJavaEntity}')",
-        }<#if property_has_next>,</#if>
-        </#list>
-    ],
-    showCollapseButton: true,
-    submitButtonOptions: {
-        content: "$t('system.common.button.search')",
-    },
-    resetButtonOptions: {
-        content: "$t('system.common.button.reset')",
-    },
-    submitOnChange: false,
-    submitOnEnter: true,
-};
-</#if>
+
 const gridOptions: VxeTableGridOptions<RowType> = {
   checkboxConfig: {
     highlight: true,
@@ -98,23 +70,12 @@ const gridOptions: VxeTableGridOptions<RowType> = {
   keepSource: true,
   proxyConfig: {
     ajax: {
-<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
-<#if filteredProperties?has_content>
-      query: async ({ page }, formOptions) => {
-        return await get${className}Page({
-          pageNum: page.currentPage,
-          pageSize: page.pageSize,
-          ...formOptions,
-        });
-      },
-<#else>
       query: async ({ page }) => {
         return await get${className}Page({
           pageNum: page.currentPage,
           pageSize: page.pageSize,
         });
       },
-</#if>
     },
   },
   editConfig: {
@@ -127,55 +88,61 @@ const gridOptions: VxeTableGridOptions<RowType> = {
     // import: true,
     refresh: true,
     zoom: true,
-<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
-<#if filteredProperties?has_content>
-    search: true,
-<#else>
     search: false,
-</#if>
   },
 };
 
-const [Grid, gridApi] = useVbenVxeGrid({
+const [Grid, localGridApi] = useVbenVxeGrid({
   gridOptions,
-<#assign filteredProperties = columnsViews?filter(p -> p.tableFilter)>
-<#if filteredProperties?has_content>
-  formOptions,
-</#if>
 });
 
-const openRecycleForm = () => {
-  recycleFormRef.value?.open();
-};
-
-const openForm = () => {
-  ${requestName}FormRef.value?.open();
-};
-
-const editRow = (row: RowType) => {
-  ${requestName}FormRef.value?.open(row);
-};
-
-const deleteMethod = (row?: RowType) => {
+const wipeMethod = (row?: RowType) => {
   const ids: string[] = row
     ? [row.id]
-    : gridApi.grid.getCheckboxRecords().map((item) => item.id);
+    : localGridApi.grid.getCheckboxRecords().map((item) => item.id);
 
   if (ids.length === 0) {
-    ElMessage.warning(<#noparse>$t('system.common.delete.warning')</#noparse>);
+    ElMessage.warning($t('system.common.delete.warning'));
     return;
   }
 
   confirm({
-    content: <#noparse>$t('system.common.delete.confirm')</#noparse>,
+    content: $t('system.common.delete.confirm'),
+    icon: 'error',
+  }).then(async () => {
+    await wipe${className}(ids)
+      .then(async () => {
+        await localGridApi.reload();
+        ElMessage.success($t('system.common.delete.success'));
+        await props.gridApi.reload();
+      })
+      .catch(() => {
+        ElMessage.error($t('system.common.delete.error'));
+      });
+  });
+};
+
+const restoreMethod = (row?: RowType) => {
+  const ids: string[] = row
+    ? [row.id]
+    : localGridApi.grid.getCheckboxRecords().map((item) => item.id);
+
+  if (ids.length === 0) {
+    ElMessage.warning($t('system.common.restore.warning'));
+    return;
+  }
+
+  confirm({
+    content: $t('system.common.restore.confirm'),
     icon: 'error',
   }).then(async () => {
     try {
-      await delete${className}(ids);
-      await gridApi.reload();
-      ElMessage.success(<#noparse>$t('system.common.delete.success')</#noparse>);
+      await restore${className}(ids);
+      await localGridApi.reload();
+      await props.gridApi.reload();
+      ElMessage.success($t('system.common.restore.success'));
     } catch {
-      ElMessage.error(<#noparse>$t('system.common.delete.error')</#noparse>);
+      ElMessage.error($t('system.common.restore.error'));
     }
   });
 };
@@ -200,52 +167,40 @@ const deleteMethod = (row?: RowType) => {
           bg
           text
           type="primary"
-          @click="openForm"
-          v-if="hasAccessByCodes(['${requestName}:create'])"
+          @click="restoreMethod()"
+          v-if="hasAccessByCodes(['${requestName}:restore'])"
         >
-          {{ <#noparse>$t('system.common.button.add')</#noparse> }}
+          {{ <#noparse>$t('system.common.button.restore')</#noparse> }}
         </ElButton>
         <ElButton
           class="mr-2"
           bg
           text
           type="danger"
-          @click="deleteMethod()"
-          v-if="hasAccessByCodes(['${requestName}:delete'])"
+          @click="wipeMethod()"
+          v-if="hasAccessByCodes(['${requestName}:wipe'])"
         >
           {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
-        </ElButton>
-        <ElButton
-          class="mr-2"
-          bg
-          text
-          type="info"
-          @click="openRecycleForm"
-          v-if="hasAccessByCodes(['${requestName}:recycle'])"
-        >
-          {{ <#noparse>$t('system.common.button.recycle')</#noparse> }}
         </ElButton>
       </template>
       <template #action="{ row }">
         <ElButton
-          type="primary"
+          type="success"
           link
-          @click="editRow(row)"
-          v-if="hasAccessByCodes(['${requestName}:update'])"
+          @click="restoreMethod(row)"
+          v-if="hasAccessByCodes(['${requestName}:restore'])"
         >
-          {{ <#noparse>$t('system.common.button.edit')</#noparse> }}
+          {{ <#noparse>$t('system.common.button.restore')</#noparse> }}
         </ElButton>
         <ElButton
           type="danger"
           link
-          @click="deleteMethod(row)"
-          v-if="hasAccessByCodes(['${requestName}:delete'])"
+          @click="wipeMethod(row)"
+          v-if="hasAccessByCodes(['${requestName}:wipe'])"
         >
-          {{ <#noparse>$t('system.common.button.delete')</#noparse> }}
+          {{ <#noparse>$t('system.common.button.wipe')</#noparse> }}
         </ElButton>
       </template>
     </Grid>
-    <${className}Form ref="${requestName}FormRef" :grid-api="gridApi" />
-    <RecycleForm ref="recycleFormRef" :grid-api="gridApi" />
   </Page>
 </template>
