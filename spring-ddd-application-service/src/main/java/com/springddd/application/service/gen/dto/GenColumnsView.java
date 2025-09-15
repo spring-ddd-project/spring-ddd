@@ -29,6 +29,8 @@ public class GenColumnsView implements Serializable {
 
     private Long propDictId;
 
+    private String propDictStr;
+
     private Boolean tableVisible;
 
     private Boolean tableOrder;
