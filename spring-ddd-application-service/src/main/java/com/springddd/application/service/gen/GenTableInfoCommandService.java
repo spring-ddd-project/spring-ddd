@@ -18,7 +18,7 @@ public class GenTableInfoCommandService {
         return wipeGenDataDomainService.wipe();
     }
 
-    public Mono<Void> generate(String tableName) {
-        return generateDomainService.generate(tableName);
+    public Mono<byte[]> generate(String tableName, String projectName) {
+        return generateDomainService.generate(tableName, projectName);
     }
 }
