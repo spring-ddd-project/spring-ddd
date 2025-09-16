@@ -1,0 +1,24 @@
+package ${packageName}.application.service.${moduleName};
+
+import ${packageName}.domain.${moduleName}.*;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ${className}DomainFactoryImpl implements ${className}DomainFactory {
+<#assign updateParamList = []>
+<#list aggregateViews as aggregateView>
+  <#if aggregateView.objectType != 4 && aggregateView.objectType != 1>
+            <#assign updateParamList += [aggregateView.objectName + " " + aggregateView.objectName?uncap_first]>
+  </#if>
+</#list>
+    @Override
+    public ${className}Domain newInstance(${updateParamList?join(", ")}) {
+        ${className}Domain domain = new ${className}Domain();
+<#list aggregateViews as aggregateView>
+  <#if aggregateView.objectType != 4 && aggregateView.objectType != 1>
+        domain.set${aggregateView.objectName}(${aggregateView.objectName?uncap_first});
+  </#if>
+</#list>
+        return domain;
+    }
+}
