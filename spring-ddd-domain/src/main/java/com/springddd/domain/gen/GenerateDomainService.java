@@ -4,5 +4,5 @@ import reactor.core.publisher.Mono;
 
 public interface GenerateDomainService {
 
-    Mono<byte[]> generate(String tableName, String projectName);
+    Mono<Void> generate(String tableName, String projectName);
 }
