@@ -17,6 +17,10 @@ public class GenProjectInfoQuery implements Serializable {
 
     private String className;
 
+    private String moduleName;
+
+    private String projectName;
+
     private String requestName;
 
     private Boolean deleteStatus;
