@@ -68,6 +68,8 @@ public enum ErrorCode {
     GEN_BIND_TYPESCRIPT_TYPE_NULL(1528, "error.gen.bind.typescript.type.null"),
     GEN_I18N_EN_NULL(1529, "error.gen.i18n.en.null"),
     GEN_I18N_LOCALE_NULL(1530, "error.gen.i18n.locale.null"),
+    GEN_INFO_MODULE_NAME_NULL(1531, "error.gen.info.module.name.null"),
+    GEN_INFO_PROJECT_NAME_NULL(1532, "error.gen.info.project.name.null"),
 
     ;
 
