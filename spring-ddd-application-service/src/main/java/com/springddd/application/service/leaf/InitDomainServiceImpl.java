@@ -14,12 +14,10 @@ public class InitDomainServiceImpl implements InitDomainService {
 
     private final UpdateCacheDomainService updateCacheDomainService;
 
-    private volatile boolean initOK = false;
-
     @Override
-    public boolean init() {
+    public Mono<Boolean> init() {
         log.info("Init ...");
-        Mono<Void> updateCache = updateCacheDomainService.updateCache().doOnNext(v -> initOK = true);
-        return initOK;
+        return updateCacheDomainService.updateCache()
+                .then(Mono.just(true));
     }
 }
