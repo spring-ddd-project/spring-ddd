@@ -16,14 +16,14 @@ public class UpdateCacheSchedule {
 
     @PostConstruct
     public void start() {
-        Flux.interval(Duration.ZERO, Duration.ofSeconds(60))
-                .flatMap(tick -> updateCacheDomainService.updateCache())
-                .doOnError(err -> System.err.println("Cache error: " + err))
-                .subscribe(
-                        result -> System.out.println("Cache update success"),
-                        err -> {
-                        }
-                );
+//        Flux.interval(Duration.ZERO, Duration.ofSeconds(60))
+//                .flatMap(tick -> updateCacheDomainService.updateCache())
+//                .doOnError(err -> System.err.println("Cache error: " + err))
+//                .subscribe(
+//                        result -> System.out.println("Cache update success"),
+//                        err -> {
+//                        }
+//                );
     }
 
 }
