@@ -39,30 +39,31 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final List<CodeFormatter> codeFormatters;
 
-    private final List<ProjectTreeView> treeList = new ArrayList<>();
-
-    private String projectName = "spring-ddd";
-
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
-                .doOnNext(c -> treeList.clear())
-                .flatMap(context -> templateQueryService.queryAllTemplate()
-                        .flatMapMany(Flux::fromIterable)
-                        .flatMap(template -> renderTemplate(template.getTemplateName(),
-                                template.getTemplateContent(), context)
-                                .flatMap(renderedCode -> {
-                                    String filePath = generateFilePath(
-                                            template.getTemplateName(),
-                                            context);
-                                    return formatCode(filePath, renderedCode)
-                                            .flatMap(formatted -> saveGeneratedFile(
-                                                    filePath,
-                                                    formatted));
-                                }))
-                        .then());
+                .flatMap(context -> {
+                    String projectName = (String) context.get("projectName");
+                    return templateQueryService.queryAllTemplate()
+                            .flatMapMany(Flux::fromIterable)
+                            .flatMap(template -> renderTemplate(template.getTemplateName(),
+                                    template.getTemplateContent(), context)
+                                    .flatMap(renderedCode -> {
+                                        String filePath = generateFilePath(template.getTemplateName(), context, projectName);
+                                        return formatCode(filePath, renderedCode)
+                                                .map(formatted -> new GeneratedFile(filePath, formatted));
+                                    }))
+                            .collectList()
+                            .flatMap(generatedFiles -> {
+                                List<ProjectTreeView> treeList = new ArrayList<>();
+                                generatedFiles.forEach(file -> saveGeneratedFile(file.filePath, file.content, treeList, projectName));
+                                return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
+                                        CacheKeys.GEN_FILES.ttl()).then();
+                            });
+                });
     }
 
+    private record GeneratedFile(String filePath, String content) {}
     private Mono<String> formatCode(String filePath, String content) {
         Mono<String> result = Mono.just(content);
         for (CodeFormatter formatter : codeFormatters) {
@@ -75,8 +76,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      * build location
      * projectName-application-infrastructure.persistence/packageName/infrastructure/persistence/entity/ClassNameEntity.java
      */
-    private String generateFilePath(String templateName, Map<String, Object> context) {
-        projectName = (String) context.get("projectName");
+    private String generateFilePath(String templateName, Map<String, Object> context, String projectName) {
         String moduleName = (String) context.get("moduleName");
         String packageName = (String) context.get("packageName");
         String className = (String) context.get("className");
@@ -226,29 +226,29 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         };
     }
 
-    private Mono<Void> saveGeneratedFile(String filePath, String content) {
+    private void saveGeneratedFile(String filePath, String content, List<ProjectTreeView> treeList, String projectName) {
         // Find or create the root node for both cases
-        ProjectTreeView applicationRoot = findOrCreateRootNode(projectName);
-        ProjectTreeView appsRoot = findOrCreateRootNode(projectName + "-ui");
-        ProjectTreeView otherRoot = findOrCreateRootNode("README");
+        ProjectTreeView applicationRoot = findOrCreateRootNode(projectName, treeList);
+        ProjectTreeView appsRoot = findOrCreateRootNode(projectName + "-ui", treeList);
+        ProjectTreeView otherRoot = findOrCreateRootNode("README", treeList);
 
         // Depending on the file path, process under the correct root
         if (filePath.contains("-infrastructure-persistence/") ||
                 filePath.contains("-domain/") ||
                 filePath.contains("-application-service/") ||
                 filePath.contains("-interface-web/")) {
-            return processPath(filePath, content, applicationRoot);
+            processPath(filePath, content, applicationRoot, treeList);
         } else if (filePath.contains("apps/web-ele/src/views/") ||
                 filePath.contains("apps/web-ele/src/api/") ||
                 filePath.contains("apps/web-ele/src/locales/langs/en-US/") ||
                 filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
-            return processPath(filePath, content, appsRoot);
+            processPath(filePath, content, appsRoot, treeList);
         } else {
-            return processOtherPaths(filePath, content, otherRoot);
+            processOtherPaths(filePath, content, otherRoot, treeList);
         }
     }
 
-    private ProjectTreeView findOrCreateRootNode(String rootLabel) {
+    private ProjectTreeView findOrCreateRootNode(String rootLabel, List<ProjectTreeView> treeList) {
         for (ProjectTreeView tree : treeList) {
             if (tree.getLabel().equals(rootLabel)) {
                 return tree;
@@ -262,19 +262,16 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         return newRoot;
     }
 
-    private Mono<Void> processPath(String filePath, String content, ProjectTreeView root) {
+    private void processPath(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {
         ProjectTreeView updatedRoot = treeBuilder.buildTree(root, filePath, content);
 
         if (!updatedRoot.equals(root)) {
             // checking whether the treeList needs to be updated.
-            root = updatedRoot;
+            // In the new implementation this is less critical since we maintain treeList locally
         }
-
-        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
-                CacheKeys.GEN_FILES.ttl()).then();
     }
 
-    private Mono<Void> processOtherPaths(String filePath, String content, ProjectTreeView root) {
+    private void processOtherPaths(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {
         ProjectTreeView tree = treeBuilder.buildTree(root, filePath, content);
 
         // Check if the tree already exists in the list
@@ -288,9 +285,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         } else {
             treeList.add(tree);
         }
-
-        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
-                CacheKeys.GEN_FILES.ttl()).then();
     }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
