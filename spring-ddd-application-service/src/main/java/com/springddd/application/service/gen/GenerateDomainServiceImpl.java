@@ -23,20 +23,16 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     private final Configuration configuration;
 
     @Override
-    public Mono<Void> generate(String tableName, String projectName) {
+    public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
-                .flatMap(context -> {
-                    context.put("projectName", projectName);
-
-                    return templateQueryService.queryAllTemplate()
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
-                                    .flatMap(renderedCode -> {
-                                        String filePath = generateFilePath(template.getTemplateName(), context);
-                                        return saveGeneratedFile(filePath, renderedCode);
-                                    }))
-                            .then();
-                });
+                .flatMap(context -> templateQueryService.queryAllTemplate()
+                        .flatMapMany(Flux::fromIterable)
+                        .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
+                                .flatMap(renderedCode -> {
+                                    String filePath = generateFilePath(template.getTemplateName(), context);
+                                    return saveGeneratedFile(filePath, renderedCode);
+                                }))
+                        .then());
     }
 
     /**
@@ -45,6 +41,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      */
     private String generateFilePath(String templateName, Map<String, Object> context) {
         String projectName = (String) context.get("projectName");
+        String moduleName = (String) context.get("moduleName");
         String packageName = (String) context.get("packageName");
         String className = (String) context.get("className");
         String requestName = (String) context.get("requestName");
@@ -66,80 +63,99 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             // application-domain
             case "aggregateRoot" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "Id.java";
             case "objectValue" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + ".java";
             case "extendInfo" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "ExtendInfo.java";
             case "domain" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "Domain.java";
             case "factory" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainFactory.java";
             case "domainRepository" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainRepository.java";
             case "deleteDomain" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Delete" + className + "DomainService.java";
             case "wipeDomain" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Wipe" + className + "DomainService.java";
             case "restoreDomain" -> projectName + "-application-domain/"
                     + packagePath + "/domain/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Restore" + className + "DomainService.java";
 
             // application-service
             case "command" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "Command.java";
             case "query" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "Query.java";
             case "view" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "View.java";
             case "mapstruct" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "ViewMapstruct.java";
             case "pageQuery" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "PageQuery.java";
             case "deleteDomainImpl" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Delete" + className + "DomainServiceImpl.java";
             case "wipeDomainImpl" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Wipe" + className + "DomainServiceImpl.java";
             case "restoreDomainImpl" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + "Restore" + className + "DomainServiceImpl.java";
             case "commandService" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "CommandService.java";
             case "queryService" -> projectName + "-application-service/"
                     + packagePath + "/service/"
+                    + moduleName + "/"
                     + requestName + "/"
                     + className + "QueryService.java";
 
@@ -149,8 +165,18 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
             // vue
             case "index.vue" -> "apps/web-ele/src/views"
-                     + requestName + "/" //TODO
-            ;
+                    + moduleName + "/"
+                    + requestName + "/"
+                    + "index.vue";
+            case "recycle.vue" -> "apps/web-ele/src/views"
+                    + moduleName + "/"
+                    + requestName + "/"
+                    + "recycle.vue";
+            case "form.vue" -> "apps/web-ele/src/views"
+                    + moduleName + "/"
+                    + requestName + "/"
+                    + "form.vue";
+
 
 
             default -> projectName + "-application-domain/"
