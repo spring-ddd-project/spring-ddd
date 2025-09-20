@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -78,11 +79,28 @@ class SysUserControllerTest {
         webTestClient.post()
                 .uri("/sys/user/create")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"username\":\"testuser\"}")
+                .bodyValue("{\"username\":\"testuser\",\"password\":\"pass123\",\"deptId\":1}")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+                .jsonPath("$.code").isEqualTo(0)
+                .jsonPath("$.data").isEqualTo(1);
+    }
+
+    @Test
+    void testCreateWithFullData() {
+        when(sysUserCommandService.createUser(any(SysUserCommand.class)))
+                .thenReturn(Mono.just(100L));
+
+        webTestClient.post()
+                .uri("/sys/user/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"username\":\"admin\",\"password\":\"admin123\",\"phone\":\"13800138000\",\"email\":\"admin@test.com\",\"deptId\":1,\"lockStatus\":false,\"avatar\":\"avatar.png\",\"sex\":true}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo(0)
+                .jsonPath("$.data").isEqualTo(100);
     }
 
     @Test
@@ -93,7 +111,22 @@ class SysUserControllerTest {
         webTestClient.put()
                 .uri("/sys/user/update")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"id\":1}")
+                .bodyValue("{\"id\":1,\"username\":\"updated\"}")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo(0);
+    }
+
+    @Test
+    void testUpdateWithFullData() {
+        when(sysUserCommandService.updateUser(any(SysUserCommand.class)))
+                .thenReturn(Mono.empty());
+
+        webTestClient.put()
+                .uri("/sys/user/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue("{\"id\":1,\"username\":\"admin\",\"phone\":\"13900139000\",\"email\":\"updated@test.com\",\"deptId\":2,\"lockStatus\":true}")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -113,6 +146,18 @@ class SysUserControllerTest {
     }
 
     @Test
+    void testDeleteSingleId() {
+        when(sysUserCommandService.delete(any())).thenReturn(Mono.empty());
+
+        webTestClient.post()
+                .uri("/sys/user/delete?ids=1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo(0);
+    }
+
+    @Test
     void testWipe() {
         when(sysUserCommandService.wipe(any())).thenReturn(Mono.empty());
 
@@ -125,11 +170,35 @@ class SysUserControllerTest {
     }
 
     @Test
+    void testWipeSingleId() {
+        when(sysUserCommandService.wipe(any())).thenReturn(Mono.empty());
+
+        webTestClient.delete()
+                .uri("/sys/user/wipe?ids=1")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo(0);
+    }
+
+    @Test
     void testRestore() {
         when(sysUserCommandService.restore(any())).thenReturn(Mono.empty());
 
         webTestClient.post()
                 .uri("/sys/user/restore?ids=1,2")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$.code").isEqualTo(0);
+    }
+
+    @Test
+    void testRestoreSingleId() {
+        when(sysUserCommandService.restore(any())).thenReturn(Mono.empty());
+
+        webTestClient.post()
+                .uri("/sys/user/restore?ids=1")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()

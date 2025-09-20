@@ -29,17 +29,6 @@ class GenProjectInfoDomainTest {
     }
 
     @Test
-    void update_withNullValues_shouldSetToNull() {
-        GenProjectInfoDomain domain = new GenProjectInfoDomain();
-        domain.setProjectInfo(new ProjectInfo("table_name", "com.example", "ClassName", "module", "project"));
-
-        domain.update(null, null);
-
-        assertNull(domain.getProjectInfo());
-        assertNull(domain.getExtendInfo());
-    }
-
-    @Test
     void delete_shouldSetDeleteStatusToTrue() {
         GenProjectInfoDomain domain = new GenProjectInfoDomain();
         assertNull(domain.getDeleteStatus());

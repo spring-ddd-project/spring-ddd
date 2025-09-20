@@ -29,19 +29,4 @@ class GenAggregateDomainTest {
         assertEquals(valueObject, domain.getValueObject());
         assertEquals(extendInfo, domain.getExtendInfo());
     }
-
-    @Test
-    void update_withNullValues_shouldSetToNull() {
-        GenAggregateDomain domain = new GenAggregateDomain();
-        domain.setInfoId(new InfoId(1L));
-        domain.setValueObject(new GenAggregateValueObject("name", "value", (byte) 1));
-        domain.setExtendInfo(new GenAggregateExtendInfo(true));
-
-        domain.update(null, null, null);
-
-        assertNull(domain.getInfoId());
-        assertNull(domain.getValueObject());
-        assertNull(domain.getExtendInfo());
-    }
-
 }

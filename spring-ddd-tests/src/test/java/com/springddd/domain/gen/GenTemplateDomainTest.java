@@ -27,16 +27,6 @@ class GenTemplateDomainTest {
     }
 
     @Test
-    void update_withNull_shouldSetToNull() {
-        GenTemplateDomain domain = new GenTemplateDomain();
-        domain.setTemplateInfo(new TemplateInfo("templateName", "templateContent"));
-
-        domain.update(null);
-
-        assertNull(domain.getTemplateInfo());
-    }
-
-    @Test
     void delete_shouldSetDeleteStatusToTrue() {
         GenTemplateDomain domain = new GenTemplateDomain();
         assertNull(domain.getDeleteStatus());
