@@ -212,7 +212,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "api.ts" -> "apps/web-ele/src/api/"
                     + moduleName + "/"
                     + requestName + "/"
-                    + className + "index.ts";
+                    + "index.ts";
             case "i18n.en.json" -> "apps/web-ele/src/locales/langs/en-US/"
                     + requestName + ".json";
             case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
