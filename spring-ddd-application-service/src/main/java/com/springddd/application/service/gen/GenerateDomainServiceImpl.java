@@ -1,5 +1,7 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
+import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.gen.GenerateDomainService;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -10,6 +12,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -22,6 +26,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final Configuration configuration;
 
+    private static List<String> generatedPaths = new ArrayList<>();
+
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
@@ -30,6 +36,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                         .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
                                 .flatMap(renderedCode -> {
                                     String filePath = generateFilePath(template.getTemplateName(), context);
+                                    generatedPaths.add(filePath);
                                     return saveGeneratedFile(filePath, renderedCode);
                                 }))
                         .then());
@@ -185,12 +192,15 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
                     + requestName + ".json";
 
-            default -> projectName + ".txt";
+            default -> className + ".txt";
         };
     }
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
-        System.out.println("Saving file: " + filePath);
+//        System.out.println("file: " + filePath + ":\n" + content);
+//        System.out.println(" ================================= ");
+        ProjectTreeView projectTree = ProjectTreeBuilder.buildTreeFromPaths(generatedPaths);
+        ProjectTreeBuilder.printTree(projectTree, "");
         return Mono.empty();
     }
 
