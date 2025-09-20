@@ -27,7 +27,7 @@ public class SysRoleCommandService {
 
         RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
-        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDeptId());
+        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
         domain.create();
 
         return sysRoleDomainRepository.save(domain);
@@ -40,7 +40,7 @@ public class SysRoleCommandService {
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
-            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDeptId());
+            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
             return sysRoleDomainRepository.save(domain);
         }).then();
     }
