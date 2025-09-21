@@ -16,5 +16,5 @@ public class CacheKeys {
     public static final CacheDefinition MENU_WITHOUT_PERMISSIONS = CacheDefinition.of("user:%s:menuWithoutPermissions", Duration.ofDays(7));
 
     // GEN
-    public static final CacheDefinition GEN_TEMPLATE = CacheDefinition.of("user:%s:template", Duration.ofMinutes(1));
+    public static final CacheDefinition GEN_FILES = CacheDefinition.of("user:%s:files", Duration.ofMinutes(3));
 }
