@@ -47,4 +47,17 @@ class DictItemBasicInfoTest {
         DictItemBasicInfo info = new DictItemBasicInfo("label", -1);
         assertEquals(-1, info.itemValue());
     }
+
+    @Test
+    void constructor_withBlankItemLabel_shouldBeValid() {
+        // ObjectUtils.isEmpty only checks null or empty string, not whitespace
+        DictItemBasicInfo info = new DictItemBasicInfo("   ", 1);
+        assertEquals("   ", info.itemLabel());
+    }
+
+    @Test
+    void constructor_withWhitespaceOnlyItemLabel_shouldBeValid() {
+        DictItemBasicInfo info = new DictItemBasicInfo("\t\n", 1);
+        assertEquals("\t\n", info.itemLabel());
+    }
 }
