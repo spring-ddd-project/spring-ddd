@@ -10,5 +10,7 @@ public class ProjectTreeView implements Serializable {
 
     private String label;
 
+    private String value;
+
     private List<ProjectTreeView> children;
 }
