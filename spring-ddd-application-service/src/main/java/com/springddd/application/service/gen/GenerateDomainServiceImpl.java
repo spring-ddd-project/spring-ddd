@@ -207,7 +207,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
         try {
             String s = objectMapper.writeValueAsString(tree);
-            System.out.println("Generated Tree: " + s);
             return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), s, CacheKeys.GEN_FILES.ttl()).then();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
