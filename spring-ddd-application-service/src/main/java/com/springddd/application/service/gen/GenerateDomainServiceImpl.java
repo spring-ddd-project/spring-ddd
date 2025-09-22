@@ -1,7 +1,5 @@
 package com.springddd.application.service.gen;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
@@ -17,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -31,9 +31,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ProjectTreeBuilder treeBuilder = new ProjectTreeBuilder();
 
-    private final ObjectMapper objectMapper;
-
     private final ReactiveRedisCacheHelper cacheHelper;
+
+    private final List<ProjectTreeView> treeList = new ArrayList<>();
 
     @Override
     public Mono<Void> generate(String tableName) {
@@ -204,14 +204,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
         ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
-
-        try {
-            String s = objectMapper.writeValueAsString(tree);
-            System.out.println("Generated Tree: " + s);
-            return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), s, CacheKeys.GEN_FILES.ttl()).then();
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+        treeList.add(tree);
+        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
