@@ -1,36 +1,67 @@
 package com.springddd.application.service.gen.dto;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
+/**
+ *
+ * <pre>
+ * filePath: "xx-application-infrastructure/persistence/com/ddd/pi/infrastructure/persistence/entity/MyEntity.java"
+ * content : "...Java Code..."
+ *
+ * ├─ xx-application-infrastructure
+ * │   └─ persistence
+ * │       └─ com
+ * │           └─ ddd
+ * │               └─ pi
+ * │                   └─ infrastructure
+ * │                       └─ persistence
+ * │                           └─ entity
+ * │                               └─ MyEntity.java  (value="...Java Code...")
+ * </pre>
+ *
+ */
 public class ProjectTreeBuilder {
 
+    /**
+     * Build the whole tree from a file path and its content.
+     *
+     * @param filePath relative path such as "xx-application-infrastructure/persistence/com/.../MyEntity.java"
+     * @param content  file content, can be empty for directory nodes
+     * @return root of the generated tree (might contain multiple top‑level children)
+     */
     public ProjectTreeView buildTree(String filePath, String content) {
         String[] parts = filePath.split("/");
+        ProjectTreeView root = new ProjectTreeView();
+        root.setLabel("");
+        root.setChildren(new ArrayList<>());
 
-        return buildTreeRecursive(parts, 0, content);
+        for (String part : parts) {
+            insertNode(root, part, content);
+        }
+
+        return root;
     }
 
-    private ProjectTreeView buildTreeRecursive(String[] parts, int index, String content) {
-        if (index >= parts.length) {
-            return null;
+    private void insertNode(ProjectTreeView parent, String part, String content) {
+        Optional<ProjectTreeView> opt = parent.getChildren()
+                .stream()
+                .filter(c -> c.getLabel().equals(part))
+                .findFirst();
+
+        ProjectTreeView child;
+        if (opt.isPresent()) {
+            child = opt.get();
+        } else {
+            child = new ProjectTreeView();
+            child.setLabel(part);
+            child.setChildren(new ArrayList<>());
+            parent.getChildren().add(child);
         }
 
-        String currentPart = parts[index];
-
-        ProjectTreeView currentNode = new ProjectTreeView();
-        currentNode.setLabel(currentPart);
-        currentNode.setChildren(new ArrayList<>());
-
-        if (index == parts.length - 1 && isFile(currentPart)) {
-            currentNode.setValue(content);
+        if (isFile(part)) {
+            child.setValue(content);
         }
-
-        ProjectTreeView childNode = buildTreeRecursive(parts, index + 1, content);
-        if (childNode != null) {
-            currentNode.getChildren().add(childNode);
-        }
-
-        return currentNode;
     }
 
     private boolean isFile(String part) {
