@@ -1,6 +1,7 @@
 package com.springddd.application.service.menu;
 
 import com.springddd.domain.menu.*;
+import com.springddd.domain.menu.exception.MenuPermissionNullException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -87,13 +88,9 @@ class SysMenuDomainButtonStrategyTest {
     }
 
     @Test
-    void handle_shouldHandleButtonWithNullFields() {
-        Button nullButton = new Button(null, null);
-        SysMenuDomain result = strategy.handle(name, catalog, menu, nullButton, menuExtendInfo);
-
-        assertNotNull(result);
-        assertNotNull(result.getButton());
-        assertNull(result.getButton().permission());
-        assertNull(result.getButton().api());
+    void handle_shouldThrowExceptionWhenButtonPermissionIsNull() {
+        assertThrows(MenuPermissionNullException.class, () -> {
+            new Button(null, "/api/test");
+        });
     }
 }

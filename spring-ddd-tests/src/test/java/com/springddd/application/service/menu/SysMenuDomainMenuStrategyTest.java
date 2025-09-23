@@ -1,6 +1,7 @@
 package com.springddd.application.service.menu;
 
 import com.springddd.domain.menu.*;
+import com.springddd.domain.menu.exception.MenuPathNullException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -93,13 +94,9 @@ class SysMenuDomainMenuStrategyTest {
     }
 
     @Test
-    void handle_shouldHandleMenuWithAllNullFields() {
-        Menu nullMenu = new Menu(null, null, null, null, null);
-        SysMenuDomain result = strategy.handle(name, catalog, nullMenu, button, menuExtendInfo);
-
-        assertNotNull(result);
-        assertNotNull(result.getMenu());
-        assertNull(result.getMenu().menuPath());
-        assertNull(result.getMenu().component());
+    void handle_shouldThrowExceptionWhenMenuPathIsNull() {
+        assertThrows(MenuPathNullException.class, () -> {
+            new Menu(null, "TestComponent", true, false, false);
+        });
     }
 }
