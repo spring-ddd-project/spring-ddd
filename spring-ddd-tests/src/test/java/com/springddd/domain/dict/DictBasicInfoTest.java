@@ -40,4 +40,30 @@ class DictBasicInfoTest {
     void constructor_withBothNull_shouldThrowDictCodeNullExceptionFirst() {
         assertThrows(DictCodeNullException.class, () -> new DictBasicInfo(null, null));
     }
+
+    @Test
+    void constructor_withBlankDictName_shouldBeValid() {
+        // ObjectUtils.isEmpty only checks null or empty string, not whitespace
+        DictBasicInfo info = new DictBasicInfo("   ", "TEST_CODE");
+        assertEquals("   ", info.dictName());
+    }
+
+    @Test
+    void constructor_withBlankDictCode_shouldBeValid() {
+        // ObjectUtils.isEmpty only checks null or empty string, not whitespace
+        DictBasicInfo info = new DictBasicInfo("TestDict", "   ");
+        assertEquals("   ", info.dictCode());
+    }
+
+    @Test
+    void constructor_withWhitespaceOnlyDictName_shouldBeValid() {
+        DictBasicInfo info = new DictBasicInfo("\t\n", "TEST_CODE");
+        assertEquals("\t\n", info.dictName());
+    }
+
+    @Test
+    void constructor_withWhitespaceOnlyDictCode_shouldBeValid() {
+        DictBasicInfo info = new DictBasicInfo("TestDict", "\t\n");
+        assertEquals("\t\n", info.dictCode());
+    }
 }
