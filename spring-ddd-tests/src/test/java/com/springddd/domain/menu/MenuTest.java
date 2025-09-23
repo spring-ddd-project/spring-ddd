@@ -1,5 +1,7 @@
 package com.springddd.domain.menu;
 
+import com.springddd.domain.menu.exception.MenuComponentNullException;
+import com.springddd.domain.menu.exception.MenuPathNullException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,12 +25,16 @@ class MenuTest {
     }
 
     @Test
-    void shouldHandleAllNullFields() {
-        Menu menu = new Menu(null, null, null, null, null);
-        assertNull(menu.menuPath());
-        assertNull(menu.component());
-        assertNull(menu.affixTab());
-        assertNull(menu.noBasicLayout());
-        assertNull(menu.embedded());
+    void shouldThrowExceptionWhenMenuPathIsNull() {
+        assertThrows(MenuPathNullException.class, () -> {
+            new Menu(null, "UserView", true, false, false);
+        });
+    }
+
+    @Test
+    void shouldThrowExceptionWhenComponentIsNull() {
+        assertThrows(MenuComponentNullException.class, () -> {
+            new Menu("/user", null, true, false, false);
+        });
     }
 }
