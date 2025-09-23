@@ -27,7 +27,7 @@ class AuthUserTest {
     private static final String TEST_AVATAR = "avatar.png";
     private static final String TEST_EMAIL = "test@example.com";
     private static final String TEST_SEX = "M";
-    private static final String TEST_LOCK_STATUS = "0";
+    private static final Boolean TEST_LOCK_STATUS = false;
     private static final List<String> TEST_ROLES = List.of("ADMIN", "USER");
     private static final List<String> TEST_PERMISSIONS = List.of("system:user:view", "system:user:edit");
     private static final List<Long> TEST_MENU_IDS = List.of(1L, 2L, 3L);
