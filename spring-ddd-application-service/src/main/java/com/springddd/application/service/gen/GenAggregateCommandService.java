@@ -40,4 +40,24 @@ public class GenAggregateCommandService {
     public Mono<Void> wipe(List<Long> ids) {
         return wipeGenAggregateDomainService.wipe(ids);
     }
+
+    public Mono<Void> delete(List<Long> ids) {
+        return reactor.core.publisher.Flux.fromIterable(ids)
+                .flatMap(id -> genAggregateDomainRepository.load(new AggregateId(id))
+                        .flatMap(domain -> {
+                            domain.delete();
+                            return genAggregateDomainRepository.save(domain);
+                        }), com.springddd.domain.auth.SecurityUtils.concurrency())
+                .then();
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return reactor.core.publisher.Flux.fromIterable(ids)
+                .flatMap(id -> genAggregateDomainRepository.load(new AggregateId(id))
+                        .flatMap(domain -> {
+                            domain.restore();
+                            return genAggregateDomainRepository.save(domain);
+                        }), com.springddd.domain.auth.SecurityUtils.concurrency())
+                .then();
+    }
 }
