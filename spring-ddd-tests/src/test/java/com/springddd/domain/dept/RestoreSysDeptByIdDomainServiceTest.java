@@ -1,0 +1,60 @@
+package com.springddd.domain.dept;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+
+import java.util.Arrays;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class RestoreSysDeptByIdDomainServiceTest {
+
+    @Mock
+    private SysDeptDomainRepository repository;
+
+    @InjectMocks
+    private RestoreSysDeptByIdDomainService domainService;
+
+    @Test
+    void restoreByIds_shouldRestoreEntities() {
+        SysDeptDomain domain = new SysDeptDomain();
+        domain.setId(new DeptId(1L));
+        domain.delete();
+
+        when(repository.load(any(DeptId.class))).thenReturn(Mono.just(domain));
+        when(repository.save(any(SysDeptDomain.class))).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(domainService.restoreByIds(Arrays.asList(1L, 2L)))
+                .verifyComplete();
+
+        verify(repository, times(2)).load(any(DeptId.class));
+        verify(repository, times(2)).save(any(SysDeptDomain.class));
+    }
+
+    @Test
+    void restoreByIds_shouldHandleEmptyList() {
+        StepVerifier.create(domainService.restoreByIds(Arrays.asList()))
+                .verifyComplete();
+
+        verify(repository, never()).load(any(DeptId.class));
+        verify(repository, never()).save(any(SysDeptDomain.class));
+    }
+
+    @Test
+    void restoreByIds_shouldHandleNonExistingId() {
+        when(repository.load(any(DeptId.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(domainService.restoreByIds(Arrays.asList(999L)))
+                .verifyComplete();
+
+        verify(repository, times(1)).load(any(DeptId.class));
+        verify(repository, never()).save(any(SysDeptDomain.class));
+    }
+}

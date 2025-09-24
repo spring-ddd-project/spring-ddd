@@ -3,6 +3,7 @@ package com.springddd.application.service.gen;
 import com.springddd.domain.gen.GenColumnsBatchSaveDomainService;
 import com.springddd.domain.gen.GenColumnsDomain;
 import com.springddd.domain.gen.ColumnsId;
+import com.springddd.domain.gen.InfoId;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
 import lombok.RequiredArgsConstructor;
