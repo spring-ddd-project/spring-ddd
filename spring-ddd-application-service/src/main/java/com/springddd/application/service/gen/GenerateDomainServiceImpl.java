@@ -201,6 +201,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
                     + requestName + ".json";
 
+            case "index.ts" -> "apps/web-ele/TODO.txt";
+
             default -> className + ".txt";
         };
     }
