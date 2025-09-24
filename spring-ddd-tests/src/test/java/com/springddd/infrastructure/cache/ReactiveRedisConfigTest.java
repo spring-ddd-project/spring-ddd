@@ -27,7 +27,6 @@ class ReactiveRedisConfigTest {
 
         ReactiveRedisTemplate<String, Object> template = config.reactiveRedisTemplate(mockFactory);
 
-        // Verify the template is created successfully
         assertNotNull(template);
     }
 
@@ -36,7 +35,6 @@ class ReactiveRedisConfigTest {
         ReactiveRedisConnectionFactory mockFactory = mock(ReactiveRedisConnectionFactory.class);
         ReactiveRedisConfig config = new ReactiveRedisConfig();
 
-        // This should not throw any exception
         ReactiveRedisTemplate<String, Object> template = config.reactiveRedisTemplate(mockFactory);
 
         assertNotNull(template);
