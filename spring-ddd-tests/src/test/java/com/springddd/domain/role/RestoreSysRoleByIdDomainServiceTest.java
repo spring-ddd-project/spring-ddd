@@ -1,5 +1,6 @@
 package com.springddd.domain.role;
 
+import com.springddd.application.service.role.RestoreSysRoleByIdDomainServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ class RestoreSysRoleByIdDomainServiceTest {
     private SysRoleDomainRepository repository;
 
     @InjectMocks
-    private RestoreSysRoleByIdDomainService domainService;
+    private RestoreSysRoleByIdDomainServiceImpl domainService;
 
     @Test
     void restoreByIds_shouldRestoreEntities() {

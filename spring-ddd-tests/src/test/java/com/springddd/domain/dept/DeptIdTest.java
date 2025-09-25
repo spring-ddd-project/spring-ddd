@@ -47,6 +47,6 @@ class DeptIdTest {
     @Test
     void toString_shouldReturnValueAsString() {
         DeptId deptId = new DeptId(123L);
-        assertEquals("123", deptId.toString());
+        assertEquals("DeptId[value=123]", deptId.toString());
     }
 }
