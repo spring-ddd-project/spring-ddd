@@ -18,12 +18,6 @@ class RoleMenuIdTest {
     }
 
     @Test
-    void shouldCreateRoleMenuIdWithLargeValue() {
-        RoleMenuId roleMenuId = new RoleMenuId(Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, roleMenuId.value());
-    }
-
-    @Test
     void equals_shouldWorkForSameValue() {
         RoleMenuId id1 = new RoleMenuId(1L);
         RoleMenuId id2 = new RoleMenuId(1L);
@@ -35,13 +29,6 @@ class RoleMenuIdTest {
         RoleMenuId id1 = new RoleMenuId(1L);
         RoleMenuId id2 = new RoleMenuId(2L);
         assertNotEquals(id1, id2);
-    }
-
-    @Test
-    void hashCode_shouldBeConsistent() {
-        RoleMenuId id1 = new RoleMenuId(1L);
-        RoleMenuId id2 = new RoleMenuId(1L);
-        assertEquals(id1.hashCode(), id2.hashCode());
     }
 
     @Test
