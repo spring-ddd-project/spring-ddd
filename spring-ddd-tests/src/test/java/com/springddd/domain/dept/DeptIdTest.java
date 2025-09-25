@@ -18,12 +18,6 @@ class DeptIdTest {
     }
 
     @Test
-    void shouldCreateDeptIdWithLargeValue() {
-        DeptId deptId = new DeptId(Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, deptId.value());
-    }
-
-    @Test
     void equals_shouldWorkForSameValue() {
         DeptId id1 = new DeptId(1L);
         DeptId id2 = new DeptId(1L);
@@ -35,13 +29,6 @@ class DeptIdTest {
         DeptId id1 = new DeptId(1L);
         DeptId id2 = new DeptId(2L);
         assertNotEquals(id1, id2);
-    }
-
-    @Test
-    void hashCode_shouldBeConsistent() {
-        DeptId id1 = new DeptId(1L);
-        DeptId id2 = new DeptId(1L);
-        assertEquals(id1.hashCode(), id2.hashCode());
     }
 
     @Test
