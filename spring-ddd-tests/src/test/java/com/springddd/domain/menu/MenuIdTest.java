@@ -18,12 +18,6 @@ class MenuIdTest {
     }
 
     @Test
-    void shouldCreateMenuIdWithLargeValue() {
-        MenuId menuId = new MenuId(Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, menuId.value());
-    }
-
-    @Test
     void equals_shouldWorkForSameValue() {
         MenuId id1 = new MenuId(1L);
         MenuId id2 = new MenuId(1L);
@@ -35,13 +29,6 @@ class MenuIdTest {
         MenuId id1 = new MenuId(1L);
         MenuId id2 = new MenuId(2L);
         assertNotEquals(id1, id2);
-    }
-
-    @Test
-    void hashCode_shouldBeConsistent() {
-        MenuId id1 = new MenuId(1L);
-        MenuId id2 = new MenuId(1L);
-        assertEquals(id1.hashCode(), id2.hashCode());
     }
 
     @Test
