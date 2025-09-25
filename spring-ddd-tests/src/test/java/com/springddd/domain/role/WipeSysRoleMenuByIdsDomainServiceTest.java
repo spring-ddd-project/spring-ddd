@@ -21,7 +21,7 @@ class WipeSysRoleMenuByIdsDomainServiceTest {
     private SysRoleMenuRepository sysRoleMenuRepository;
 
     @InjectMocks
-    private WipeSysRoleMenuByIdsDomainServiceImpl domainService;
+    private WipeSysRoleMenuByIdsDomainService domainService;
 
     @Test
     void deleteByIds_shouldDeleteEntitiesPermanently() {

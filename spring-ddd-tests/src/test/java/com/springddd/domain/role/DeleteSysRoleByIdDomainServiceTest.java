@@ -20,7 +20,7 @@ class DeleteSysRoleByIdDomainServiceTest {
     private SysRoleDomainRepository repository;
 
     @InjectMocks
-    private DeleteSysRoleByIdDomainServiceImpl domainService;
+    private DeleteSysRoleByIdDomainService domainService;
 
     @Test
     void deleteByIds_shouldDeleteEntities() {

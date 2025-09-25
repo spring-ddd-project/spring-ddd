@@ -1,7 +1,7 @@
 package com.springddd.domain.role;
 
 import com.springddd.application.service.role.SysRoleMenuQueryService;
-import com.springddd.application.service.role.WipeSysRoleMenuByIdsDomainService;
+import com.springddd.domain.role.WipeSysRoleMenuByIdsDomainService;
 import com.springddd.application.service.role.dto.SysRoleMenuView;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ class LinkRoleAndMenusDomainServiceTest {
     private SysRoleMenuDomainFactory sysRoleMenuDomainFactory;
 
     @InjectMocks
-    private LinkRoleAndMenusDomainServiceImpl domainService;
+    private LinkRoleAndMenusDomainService domainService;
 
     @Test
     void link_shouldLinkRoleAndMenus() {

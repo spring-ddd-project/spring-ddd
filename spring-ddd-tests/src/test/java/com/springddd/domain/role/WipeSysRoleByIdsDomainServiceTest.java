@@ -41,7 +41,7 @@ class WipeSysRoleByIdsDomainServiceTest {
     private SysRoleMenuCommandService sysRoleMenuCommandService;
 
     @InjectMocks
-    private WipeSysRoleByIdsDomainServiceImpl domainService;
+    private WipeSysRoleByIdsDomainService domainService;
 
     @Test
     void deleteByIds_shouldDeleteEntitiesWithDependencies() {
