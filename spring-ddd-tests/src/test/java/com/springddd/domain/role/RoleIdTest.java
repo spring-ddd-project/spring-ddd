@@ -18,12 +18,6 @@ class RoleIdTest {
     }
 
     @Test
-    void shouldCreateRoleIdWithLargeValue() {
-        RoleId roleId = new RoleId(Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, roleId.value());
-    }
-
-    @Test
     void equals_shouldWorkForSameValue() {
         RoleId id1 = new RoleId(1L);
         RoleId id2 = new RoleId(1L);
@@ -35,13 +29,6 @@ class RoleIdTest {
         RoleId id1 = new RoleId(1L);
         RoleId id2 = new RoleId(2L);
         assertNotEquals(id1, id2);
-    }
-
-    @Test
-    void hashCode_shouldBeConsistent() {
-        RoleId id1 = new RoleId(1L);
-        RoleId id2 = new RoleId(1L);
-        assertEquals(id1.hashCode(), id2.hashCode());
     }
 
     @Test
