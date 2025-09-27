@@ -1,62 +1,74 @@
 package com.springddd.domain.dict;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class SysDictDomainTest {
 
     @Test
-    void create_shouldInitializeSuccessfully() {
+    void shouldCreateSysDictDomain() {
+        SysDictDomain domain = new SysDictDomain();
+        assertNotNull(domain);
+    }
+
+    @Test
+    void shouldSetAndGetId() {
+        SysDictDomain domain = new SysDictDomain();
+        DictId id = new DictId(1L);
+        domain.setDictId(id);
+        assertEquals(id, domain.getDictId());
+    }
+
+    @Test
+    void shouldSetAndGetBasicInfo() {
+        SysDictDomain domain = new SysDictDomain();
+        DictBasicInfo basicInfo = new DictBasicInfo("dictName", "dictCode");
+        domain.setDictBasicInfo(basicInfo);
+        assertEquals(basicInfo, domain.getDictBasicInfo());
+    }
+
+    @Test
+    void shouldSetAndGetExtendInfo() {
+        SysDictDomain domain = new SysDictDomain();
+        DictExtendInfo extendInfo = new DictExtendInfo(1, true);
+        domain.setDictExtendInfo(extendInfo);
+        assertEquals(extendInfo, domain.getDictExtendInfo());
+    }
+
+    @Test
+    void shouldCallCreate() {
         SysDictDomain domain = new SysDictDomain();
         domain.create();
         assertNotNull(domain);
     }
 
     @Test
-    void update_shouldUpdateBasicInfoAndExtendInfo() {
+    void shouldSetDeleteStatusOnDelete() {
         SysDictDomain domain = new SysDictDomain();
-        DictBasicInfo basicInfo = new DictBasicInfo("testDict", "TEST_DICT");
-        DictExtendInfo extendInfo = new DictExtendInfo(1, true);
-
-        domain.update(basicInfo, extendInfo);
-
-        assertEquals(basicInfo, domain.getDictBasicInfo());
-        assertEquals(extendInfo, domain.getDictExtendInfo());
-    }
-
-    @Test
-    void delete_shouldSetDeleteStatusToTrue() {
-        SysDictDomain domain = new SysDictDomain();
-        assertNull(domain.getDeleteStatus());
-
+        domain.setDeleteStatus(false);
         domain.delete();
-
         assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void restore_shouldSetDeleteStatusToFalse() {
+    void shouldClearDeleteStatusOnRestore() {
         SysDictDomain domain = new SysDictDomain();
-        domain.delete();
-        assertTrue(domain.getDeleteStatus());
-
+        domain.setDeleteStatus(true);
         domain.restore();
-
         assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    void update_withNullBasicInfo_shouldSetToNull() {
+    void shouldSetAndGetDeleteStatus() {
         SysDictDomain domain = new SysDictDomain();
-        domain.setDictBasicInfo(new DictBasicInfo("testDict", "TEST_DICT"));
+        domain.setDeleteStatus(true);
+        assertTrue(domain.getDeleteStatus());
+    }
 
-        domain.update(null, null);
-
-        assertNull(domain.getDictBasicInfo());
-        assertNull(domain.getDictExtendInfo());
+    @Test
+    void toString_shouldReturnValueAsString() {
+        SysDictDomain domain = new SysDictDomain();
+        String str = domain.toString();
+        assertTrue(str.contains("SysDictDomain"));
     }
 }

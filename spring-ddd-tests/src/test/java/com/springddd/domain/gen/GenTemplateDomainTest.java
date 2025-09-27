@@ -1,35 +1,61 @@
 package com.springddd.domain.gen;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class GenTemplateDomainTest {
 
     @Test
-    void create_shouldInitializeSuccessfully() {
+    void shouldCreateGenTemplateDomainWithAllFields() {
         GenTemplateDomain domain = new GenTemplateDomain();
+        TemplateId templateId = new TemplateId(1L);
+        TemplateInfo templateInfo = new TemplateInfo("templateName", "templateContent");
+
+        domain.setId(templateId);
+        domain.setTemplateInfo(templateInfo);
+        domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
+        domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
+        assertEquals(templateId, domain.getId());
+        assertEquals(templateInfo, domain.getTemplateInfo());
+        assertEquals("admin", domain.getCreateBy());
+        assertNotNull(domain.getCreateTime());
+        assertEquals("admin", domain.getUpdateBy());
+        assertNotNull(domain.getUpdateTime());
+        assertFalse(domain.getDeleteStatus());
+        assertEquals(0, domain.getVersion());
+    }
+
+    @Test
+    void shouldCallCreateMethod() {
+        GenTemplateDomain domain = new GenTemplateDomain();
+
         domain.create();
+
         assertNotNull(domain);
     }
 
     @Test
-    void update_shouldUpdateTemplateInfo() {
+    void shouldUpdateGenTemplateDomain() {
         GenTemplateDomain domain = new GenTemplateDomain();
-        TemplateInfo templateInfo = new TemplateInfo("templateName", "templateContent");
+        TemplateInfo newTemplateInfo = new TemplateInfo("newTemplateName", "newTemplateContent");
 
-        domain.update(templateInfo);
+        domain.update(newTemplateInfo);
 
-        assertEquals(templateInfo, domain.getTemplateInfo());
+        assertEquals(newTemplateInfo, domain.getTemplateInfo());
     }
 
     @Test
-    void delete_shouldSetDeleteStatusToTrue() {
+    void shouldDeleteGenTemplateDomain() {
         GenTemplateDomain domain = new GenTemplateDomain();
-        assertNull(domain.getDeleteStatus());
+        domain.setDeleteStatus(false);
 
         domain.delete();
 
@@ -37,13 +63,36 @@ class GenTemplateDomainTest {
     }
 
     @Test
-    void restore_shouldSetDeleteStatusToFalse() {
+    void shouldRestoreGenTemplateDomain() {
         GenTemplateDomain domain = new GenTemplateDomain();
-        domain.delete();
-        assertTrue(domain.getDeleteStatus());
+        domain.setDeleteStatus(true);
 
         domain.restore();
 
         assertFalse(domain.getDeleteStatus());
+    }
+
+    @Test
+    void shouldSetAndGetFields() {
+        GenTemplateDomain domain = new GenTemplateDomain();
+        TemplateId templateId = new TemplateId(10L);
+        TemplateInfo templateInfo = new TemplateInfo("name", "content");
+
+        domain.setId(templateId);
+        domain.setTemplateInfo(templateInfo);
+
+        assertEquals(templateId, domain.getId());
+        assertEquals(templateInfo, domain.getTemplateInfo());
+    }
+
+    @Test
+    void shouldHandleNullValues() {
+        GenTemplateDomain domain = new GenTemplateDomain();
+
+        domain.setId(null);
+        domain.setTemplateInfo(null);
+
+        assertNull(domain.getId());
+        assertNull(domain.getTemplateInfo());
     }
 }

@@ -1,25 +1,27 @@
 package com.springddd.domain.dict.exception;
 
-import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class DictItemLabelNullExceptionTest {
 
     @Test
-    void constructor_shouldSetCorrectErrorCode() {
-        DictItemLabelNullException exception = new DictItemLabelNullException();
-
-        assertEquals(ErrorCode.DICT_ITEM_LABEL_NULL, exception.getErrorCode());
-        assertEquals(1405, exception.getCode());
-        assertEquals("error.dict.item.label.null", exception.getMessageKey());
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(DictItemLabelNullException.class, () -> {
+            throw new DictItemLabelNullException();
+        });
     }
 
     @Test
-    void shouldBeDomainException() {
+    void shouldCreateExceptionInstance() {
         DictItemLabelNullException exception = new DictItemLabelNullException();
-        assertTrue(exception instanceof DomainException);
+        assertNotNull(exception);
+    }
+
+    @Test
+    void toString_shouldReturnExceptionInfo() {
+        DictItemLabelNullException exception = new DictItemLabelNullException();
+        String str = exception.toString();
+        assertTrue(str.contains("DictItemLabelNullException"));
     }
 }

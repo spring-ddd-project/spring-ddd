@@ -1,29 +1,32 @@
 package com.springddd.domain.role.exception;
 
-import com.springddd.domain.util.ErrorCode;
+import com.springddd.domain.DomainException;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoleNameNullExceptionTest {
 
     @Test
-    void constructor_ShouldSetCorrectErrorCode() {
-        // When
+    void shouldCreateExceptionWithDefaultMessage() {
         RoleNameNullException exception = new RoleNameNullException();
-
-        // Then
-        assertEquals(ErrorCode.ROLE_NAME_NULL, exception.getErrorCode());
-        assertEquals(1101, exception.getCode());
-        assertEquals("error.role.name.null", exception.getMessageKey());
+        assertNotNull(exception);
+        assertEquals("error.role.name.null", exception.getMessage());
     }
 
     @Test
-    void getMessage_ShouldReturnCorrectMessage() {
-        // When
-        RoleNameNullException exception = new RoleNameNullException();
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(RoleNameNullException.class));
+    }
 
-        // Then
-        assertEquals("error.role.name.null", exception.getMessage());
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(RoleNameNullException.class));
+    }
+
+    @Test
+    void shouldHaveCorrectErrorCode() {
+        RoleNameNullException exception = new RoleNameNullException();
+        assertEquals(1101, exception.getCode());
+        assertEquals("error.role.name.null", exception.getMessageKey());
     }
 }

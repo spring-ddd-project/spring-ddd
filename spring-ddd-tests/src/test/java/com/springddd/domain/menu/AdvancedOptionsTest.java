@@ -7,66 +7,45 @@ class AdvancedOptionsTest {
 
     @Test
     void shouldCreateAdvancedOptionsWithAllFields() {
-        Integer order = 1;
-        String icon = "setting";
-        Integer menuType = 1;
-        Boolean visible = true;
-        Boolean menuStatus = true;
-
-        AdvancedOptions options = new AdvancedOptions(order, icon, menuType, visible, menuStatus);
-
-        assertEquals(order, options.order());
-        assertEquals(icon, options.icon());
-        assertEquals(menuType, options.menuType());
-        assertEquals(visible, options.visible());
-        assertEquals(menuStatus, options.menuStatus());
+        AdvancedOptions options = new AdvancedOptions(1, "icon", 1, true, true);
+        assertEquals(1, options.order());
+        assertEquals("icon", options.icon());
+        assertEquals(1, options.menuType());
+        assertTrue(options.visible());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    void shouldCreateAdvancedOptionsViaCatalogConstructor() {
-        Integer order = 2;
-        Integer menuType = 0;
-        String icon = "system";
-        Boolean menuStatus = true;
-        Boolean visible = false;
-
-        AdvancedOptions options = new AdvancedOptions(order, menuType, icon, menuStatus, visible);
-
-        assertEquals(order, options.order());
-        assertEquals(icon, options.icon());
-        assertEquals(menuType, options.menuType());
-        assertEquals(visible, options.visible());
-        assertEquals(menuStatus, options.menuStatus());
+    void shouldCreateAdvancedOptionsForCatalog() {
+        AdvancedOptions options = new AdvancedOptions(1, 1, "icon", true, true);
+        assertEquals(1, options.order());
+        assertEquals("icon", options.icon());
+        assertEquals(1, options.menuType());
+        assertTrue(options.visible());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    void shouldCreateAdvancedOptionsViaButtonConstructor() {
-        Integer order = 3;
-        Integer menuType = 2;
-        Boolean menuStatus = false;
-
-        AdvancedOptions options = new AdvancedOptions(order, menuType, menuStatus);
-
-        assertEquals(order, options.order());
+    void shouldCreateAdvancedOptionsForButton() {
+        AdvancedOptions options = new AdvancedOptions(1, 1, true);
+        assertEquals(1, options.order());
         assertNull(options.icon());
-        assertEquals(menuType, options.menuType());
+        assertEquals(1, options.menuType());
         assertNull(options.visible());
-        assertEquals(menuStatus, options.menuStatus());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    void shouldHandleNullFieldsInPrimaryConstructor() {
-        AdvancedOptions options = new AdvancedOptions(null, (String) null, null, null, null);
-        assertNull(options.order());
-        assertNull(options.icon());
-        assertNull(options.menuType());
-        assertNull(options.visible());
-        assertNull(options.menuStatus());
+    void equals_shouldWorkForSameValues() {
+        AdvancedOptions opt1 = new AdvancedOptions(1, "icon", 1, true, true);
+        AdvancedOptions opt2 = new AdvancedOptions(1, "icon", 1, true, true);
+        assertEquals(opt1, opt2);
     }
 
     @Test
-    void shouldHandleZeroOrder() {
-        AdvancedOptions options = new AdvancedOptions(0, "home", 1, true, true);
-        assertEquals(0, options.order());
+    void toString_shouldReturnValueAsString() {
+        AdvancedOptions options = new AdvancedOptions(1, "icon", 1, true, true);
+        String str = options.toString();
+        assertTrue(str.contains("AdvancedOptions"));
     }
 }

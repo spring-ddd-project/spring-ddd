@@ -1,33 +1,31 @@
 package com.springddd.domain.menu.exception;
 
 import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MenuComponentNullExceptionTest {
 
     @Test
-    void shouldCreateExceptionWithCorrectErrorCode() {
+    void shouldCreateExceptionWithDefaultMessage() {
         MenuComponentNullException exception = new MenuComponentNullException();
-        assertEquals(ErrorCode.MENU_COMPONENT_NULL, exception.getErrorCode());
+        assertNotNull(exception);
+        assertEquals("error.menu.component.null", exception.getMessageKey());
     }
 
     @Test
-    void shouldHaveCorrectCode() {
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(MenuComponentNullException.class));
+    }
+
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(MenuComponentNullException.class));
+    }
+
+    @Test
+    void shouldHaveCorrectErrorCode() {
         MenuComponentNullException exception = new MenuComponentNullException();
         assertEquals(1206, exception.getCode());
-    }
-
-    @Test
-    void shouldBeInstanceOfDomainException() {
-        MenuComponentNullException exception = new MenuComponentNullException();
-        assertInstanceOf(DomainException.class, exception);
-    }
-
-    @Test
-    void shouldHaveCorrectMessageKey() {
-        MenuComponentNullException exception = new MenuComponentNullException();
-        assertEquals("error.menu.component.null", exception.getMessageKey());
     }
 }

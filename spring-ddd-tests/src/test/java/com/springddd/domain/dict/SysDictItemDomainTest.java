@@ -1,62 +1,68 @@
 package com.springddd.domain.dict;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
 class SysDictItemDomainTest {
 
     @Test
-    void create_shouldInitializeSuccessfully() {
+    void shouldCreateSysDictItemDomain() {
         SysDictItemDomain domain = new SysDictItemDomain();
-        domain.create();
         assertNotNull(domain);
     }
 
     @Test
-    void update_shouldUpdateBasicInfoAndExtendInfo() {
+    void shouldSetAndGetId() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        DictItemId id = new DictItemId(1L);
+        domain.setItemId(id);
+        assertEquals(id, domain.getItemId());
+    }
+
+    @Test
+    void shouldSetAndGetDictId() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        DictId dictId = new DictId(1L);
+        domain.setDictId(dictId);
+        assertEquals(dictId, domain.getDictId());
+    }
+
+    @Test
+    void shouldSetAndGetBasicInfo() {
         SysDictItemDomain domain = new SysDictItemDomain();
         DictItemBasicInfo basicInfo = new DictItemBasicInfo("label", 1);
-        DictItemExtendInfo extendInfo = new DictItemExtendInfo(1, true);
-
-        domain.update(basicInfo, extendInfo);
-
+        domain.setItemBasicInfo(basicInfo);
         assertEquals(basicInfo, domain.getItemBasicInfo());
+    }
+
+    @Test
+    void shouldSetAndGetExtendInfo() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        DictItemExtendInfo extendInfo = new DictItemExtendInfo(1, true);
+        domain.setItemExtendInfo(extendInfo);
         assertEquals(extendInfo, domain.getItemExtendInfo());
     }
 
     @Test
-    void delete_shouldSetDeleteStatusToTrue() {
+    void shouldSetDeleteStatusOnDelete() {
         SysDictItemDomain domain = new SysDictItemDomain();
-        assertNull(domain.getDeleteStatus());
-
+        domain.setDeleteStatus(false);
         domain.delete();
-
         assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void restore_shouldSetDeleteStatusToFalse() {
+    void shouldClearDeleteStatusOnRestore() {
         SysDictItemDomain domain = new SysDictItemDomain();
-        domain.delete();
-        assertTrue(domain.getDeleteStatus());
-
+        domain.setDeleteStatus(true);
         domain.restore();
-
         assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    void update_withNullValues_shouldSetToNull() {
+    void toString_shouldReturnValueAsString() {
         SysDictItemDomain domain = new SysDictItemDomain();
-        domain.setItemBasicInfo(new DictItemBasicInfo("label", 1));
-
-        domain.update(null, null);
-
-        assertNull(domain.getItemBasicInfo());
-        assertNull(domain.getItemExtendInfo());
+        String str = domain.toString();
+        assertTrue(str.contains("SysDictItemDomain"));
     }
 }

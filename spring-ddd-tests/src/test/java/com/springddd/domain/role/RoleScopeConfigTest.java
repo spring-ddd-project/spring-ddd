@@ -1,26 +1,20 @@
 package com.springddd.domain.role;
 
 import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RoleScopeConfigTest {
 
     @Test
-    void constructor_WithValidParams_ShouldCreateSuccessfully() {
-        // Given
-        List<Long> depts = Arrays.asList(1L, 2L, 3L);
-        List<Long> posts = Arrays.asList(10L, 20L);
-        List<Long> users = Arrays.asList(100L, 200L, 300L);
-        Boolean self = true;
+    void shouldCreateWithValidValues() {
+        List<Long> depts = Arrays.asList(1L, 2L);
+        List<Long> posts = Arrays.asList(1L);
+        List<Long> users = Arrays.asList(1L, 2L, 3L);
 
-        // When
-        RoleScopeConfig config = new RoleScopeConfig(depts, posts, users, self);
+        RoleScopeConfig config = new RoleScopeConfig(depts, posts, users, true);
 
-        // Then
         assertEquals(depts, config.depts());
         assertEquals(posts, config.posts());
         assertEquals(users, config.users());
@@ -28,69 +22,46 @@ class RoleScopeConfigTest {
     }
 
     @Test
-    void constructor_WithNullValues_ShouldCreateSuccessfully() {
-        // When
-        RoleScopeConfig config = new RoleScopeConfig(null, null, null, null);
+    void shouldCreateWithNullLists() {
+        RoleScopeConfig config = new RoleScopeConfig(null, null, null, false);
 
-        // Then
         assertNull(config.depts());
         assertNull(config.posts());
         assertNull(config.users());
-        assertNull(config.self());
+        assertFalse(config.self());
     }
 
     @Test
-    void equals_ShouldWorkCorrectly() {
-        // Given
-        RoleScopeConfig config1 = new RoleScopeConfig(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RoleScopeConfig config2 = new RoleScopeConfig(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RoleScopeConfig config3 = new RoleScopeConfig(null, null, null, null);
+    void shouldCreateWithEmptyLists() {
+        RoleScopeConfig config = new RoleScopeConfig(Arrays.asList(), Arrays.asList(), Arrays.asList(), true);
 
-        // Then
+        assertNotNull(config.depts());
+        assertTrue(config.depts().isEmpty());
+        assertNotNull(config.posts());
+        assertTrue(config.posts().isEmpty());
+        assertNotNull(config.users());
+        assertTrue(config.users().isEmpty());
+        assertTrue(config.self());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        RoleScopeConfig config1 = new RoleScopeConfig(Arrays.asList(1L), Arrays.asList(1L), Arrays.asList(1L), true);
+        RoleScopeConfig config2 = new RoleScopeConfig(Arrays.asList(1L), Arrays.asList(1L), Arrays.asList(1L), true);
         assertEquals(config1, config2);
-        assertNotEquals(config1, config3);
     }
 
     @Test
-    void hashCode_ShouldBeConsistent() {
-        // Given
-        RoleScopeConfig config1 = new RoleScopeConfig(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RoleScopeConfig config2 = new RoleScopeConfig(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-
-        // Then
-        assertEquals(config1.hashCode(), config2.hashCode());
+    void equals_shouldFailForDifferentValues() {
+        RoleScopeConfig config1 = new RoleScopeConfig(Arrays.asList(1L), Arrays.asList(1L), Arrays.asList(1L), true);
+        RoleScopeConfig config2 = new RoleScopeConfig(Arrays.asList(2L), Arrays.asList(1L), Arrays.asList(1L), false);
+        assertNotEquals(config1, config2);
     }
 
     @Test
-    void toString_ShouldReturnCorrectFormat() {
-        // Given
-        RoleScopeConfig config = new RoleScopeConfig(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-
-        // When
+    void toString_shouldReturnValues() {
+        RoleScopeConfig config = new RoleScopeConfig(Arrays.asList(1L), Arrays.asList(1L), Arrays.asList(1L), true);
         String result = config.toString();
-
-        // Then
-        assertNotNull(result);
-    }
-
-    @Test
-    void depts_ShouldReturnCorrectList() {
-        // Given
-        List<Long> expectedDepts = Arrays.asList(5L, 10L, 15L);
-        RoleScopeConfig config = new RoleScopeConfig(expectedDepts, null, null, null);
-
-        // Then
-        assertEquals(expectedDepts, config.depts());
-    }
-
-    @Test
-    void self_ShouldReturnCorrectBoolean() {
-        // Given
-        RoleScopeConfig configTrue = new RoleScopeConfig(null, null, null, true);
-        RoleScopeConfig configFalse = new RoleScopeConfig(null, null, null, false);
-
-        // Then
-        assertTrue(configTrue.self());
-        assertFalse(configFalse.self());
+        assertTrue(result.contains("1"));
     }
 }

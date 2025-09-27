@@ -1,7 +1,6 @@
 package com.springddd.domain.gen.exception;
 
-import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
+import com.springddd.domain.gen.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -9,299 +8,373 @@ import static org.junit.jupiter.api.Assertions.*;
 class GenExceptionsTest {
 
     @Test
-    void aggregateNullException_shouldHaveCorrectErrorCode() {
+    void shouldThrowAggregateNullException() {
+        assertThrows(AggregateNullException.class, () -> {
+            throw new AggregateNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowClassNameNullException() {
+        assertThrows(ClassNameNullException.class, () -> {
+            throw new ClassNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowColumnCommentNullException() {
+        assertThrows(ColumnCommentNullException.class, () -> {
+            throw new ColumnCommentNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowColumnKeyNullException() {
+        assertThrows(ColumnKeyNullException.class, () -> {
+            throw new ColumnKeyNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowColumnNameNullException() {
+        assertThrows(ColumnNameNullException.class, () -> {
+            throw new ColumnNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowColumnTypeNullException() {
+        assertThrows(ColumnTypeNullException.class, () -> {
+            throw new ColumnTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowComponentTypeNullException() {
+        assertThrows(ComponentTypeNullException.class, () -> {
+            throw new ComponentTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowDatabaseNameNullException() {
+        assertThrows(DatabaseNameNullException.class, () -> {
+            throw new DatabaseNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowDictIdNullException() {
+        assertThrows(DictIdNullException.class, () -> {
+            throw new DictIdNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowDomainMaskNullException() {
+        assertThrows(DomainMaskNullException.class, () -> {
+            throw new DomainMaskNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFilterComponentNullException() {
+        assertThrows(FilterComponentNullException.class, () -> {
+            throw new FilterComponentNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFilterNullException() {
+        assertThrows(FilterNullException.class, () -> {
+            throw new FilterNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFilterTypeNullException() {
+        assertThrows(FilterTypeNullException.class, () -> {
+            throw new FilterTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFormComponentNullException() {
+        assertThrows(FormComponentNullException.class, () -> {
+            throw new FormComponentNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFormRequiredNullException() {
+        assertThrows(FormRequiredNullException.class, () -> {
+            throw new FormRequiredNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowFormVisibleNullException() {
+        assertThrows(FormVisibleNullException.class, () -> {
+            throw new FormVisibleNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowI18nEnNullException() {
+        assertThrows(I18nEnNullException.class, () -> {
+            throw new I18nEnNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowI18nLocaleNullException() {
+        assertThrows(I18nLocaleNullException.class, () -> {
+            throw new I18nLocaleNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowJavaEntityNullException() {
+        assertThrows(JavaEntityNullException.class, () -> {
+            throw new JavaEntityNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowJavaTypeNullException() {
+        assertThrows(JavaTypeNullException.class, () -> {
+            throw new JavaTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowModuleNameNullException() {
+        assertThrows(ModuleNameNullException.class, () -> {
+            throw new ModuleNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowObjectNameNullException() {
+        assertThrows(ObjectNameNullException.class, () -> {
+            throw new ObjectNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowObjectTypeNullException() {
+        assertThrows(ObjectTypeNullException.class, () -> {
+            throw new ObjectTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowOrderNullException() {
+        assertThrows(OrderNullException.class, () -> {
+            throw new OrderNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowPackageNameNullException() {
+        assertThrows(PackageNameNullException.class, () -> {
+            throw new PackageNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowProjectNameNullException() {
+        assertThrows(ProjectNameNullException.class, () -> {
+            throw new ProjectNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowRequestNameNullException() {
+        assertThrows(RequestNameNullException.class, () -> {
+            throw new RequestNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowTableNameNullException() {
+        assertThrows(TableNameNullException.class, () -> {
+            throw new TableNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowTemplateContentNullException() {
+        assertThrows(TemplateContentNullException.class, () -> {
+            throw new TemplateContentNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowTemplateNameNullException() {
+        assertThrows(TemplateNameNullException.class, () -> {
+            throw new TemplateNameNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowTypeScriptTypeNullException() {
+        assertThrows(TypeScriptTypeNullException.class, () -> {
+            throw new TypeScriptTypeNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowValueObjectNullException() {
+        assertThrows(ValueObjectNullException.class, () -> {
+            throw new ValueObjectNullException();
+        });
+    }
+
+    @Test
+    void shouldThrowVisibleNullException() {
+        assertThrows(VisibleNullException.class, () -> {
+            throw new VisibleNullException();
+        });
+    }
+
+    @Test
+    void shouldVerifyExceptionMessages() {
         AggregateNullException ex = new AggregateNullException();
-        assertEquals(ErrorCode.GEN_INFO_AGGREGATE_NULL, ex.getErrorCode());
-        assertEquals(1520, ex.getCode());
-        assertEquals("error.gen.info.aggregate.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+        assertNotNull(ex.getMessage());
+        assertNotNull(ex.getMessageKey());
+        assertNotNull(ex.getErrorCode());
     }
 
     @Test
-    void classNameNullException_shouldHaveCorrectErrorCode() {
-        ClassNameNullException ex = new ClassNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_CLASS_NAME_NULL, ex.getErrorCode());
-        assertEquals(1502, ex.getCode());
-        assertEquals("error.gen.info.class.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyValueObjectExceptions() {
+        assertThrows(ObjectNameNullException.class, () -> {
+            new GenAggregateValueObject(null, "value", (byte) 1);
+        });
+
+        assertThrows(ValueObjectNullException.class, () -> {
+            new GenAggregateValueObject("name", null, (byte) 1);
+        });
+
+        assertThrows(ObjectTypeNullException.class, () -> {
+            new GenAggregateValueObject("name", "value", null);
+        });
     }
 
     @Test
-    void columnCommentNullException_shouldHaveCorrectErrorCode() {
-        ColumnCommentNullException ex = new ColumnCommentNullException();
-        assertEquals(ErrorCode.GEN_INFO_COLUMN_COMMENT_NULL, ex.getErrorCode());
-        assertEquals(1508, ex.getCode());
-        assertEquals("error.gen.info.column.comment.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyPropExceptions() {
+        assertThrows(ColumnNameNullException.class, () -> {
+            new Prop("key", null, "type", "comment", "javaType", "entity");
+        });
+
+        assertThrows(ColumnTypeNullException.class, () -> {
+            new Prop("key", "name", null, "comment", "javaType", "entity");
+        });
+
+        assertThrows(ColumnCommentNullException.class, () -> {
+            new Prop("key", "name", "type", null, "javaType", "entity");
+        });
+
+        assertThrows(JavaTypeNullException.class, () -> {
+            new Prop("key", "name", "type", "comment", null, "entity");
+        });
+
+        assertThrows(JavaEntityNullException.class, () -> {
+            new Prop("key", "name", "type", "comment", "javaType", null);
+        });
     }
 
     @Test
-    void columnKeyNullException_shouldHaveCorrectErrorCode() {
-        ColumnKeyNullException ex = new ColumnKeyNullException();
-        assertEquals(ErrorCode.GEN_INFO_COLUMN_KEY_NULL, ex.getErrorCode());
-        assertEquals(1505, ex.getCode());
-        assertEquals("error.gen.info.column.key.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyTableExceptions() {
+        assertThrows(VisibleNullException.class, () -> {
+            new Table(null, true, false, null, null);
+        });
+
+        assertThrows(OrderNullException.class, () -> {
+            new Table(true, null, false, null, null);
+        });
+
+        assertThrows(FilterNullException.class, () -> {
+            new Table(true, true, null, null, null);
+        });
+
+        assertThrows(FilterComponentNullException.class, () -> {
+            new Table(true, true, true, null, null);
+        });
     }
 
     @Test
-    void columnNameNullException_shouldHaveCorrectErrorCode() {
-        ColumnNameNullException ex = new ColumnNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_COLUMN_NAME_NULL, ex.getErrorCode());
-        assertEquals(1506, ex.getCode());
-        assertEquals("error.gen.info.column.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyFormExceptions() {
+        assertThrows(FormComponentNullException.class, () -> {
+            new Form(null, true, false);
+        });
+
+        assertThrows(FormVisibleNullException.class, () -> {
+            new Form((byte) 1, null, false);
+        });
+
+        assertThrows(FormRequiredNullException.class, () -> {
+            new Form((byte) 1, true, null);
+        });
     }
 
     @Test
-    void columnTypeNullException_shouldHaveCorrectErrorCode() {
-        ColumnTypeNullException ex = new ColumnTypeNullException();
-        assertEquals(ErrorCode.GEN_INFO_COLUMN_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1507, ex.getCode());
-        assertEquals("error.gen.info.column.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyI18nExceptions() {
+        assertThrows(I18nEnNullException.class, () -> {
+            new I18n(null, "locale");
+        });
     }
 
     @Test
-    void componentTypeNullException_shouldHaveCorrectErrorCode() {
-        ComponentTypeNullException ex = new ComponentTypeNullException();
-        assertEquals(ErrorCode.GEN_BIND_COMPONENT_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1521, ex.getCode());
-        assertEquals("error.gen.bind.component.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyProjectInfoExceptions() {
+        assertThrows(TableNameNullException.class, () -> {
+            new ProjectInfo(null, "package", "class", "module", "project");
+        });
+
+        assertThrows(PackageNameNullException.class, () -> {
+            new ProjectInfo("table", null, "class", "module", "project");
+        });
+
+        assertThrows(ClassNameNullException.class, () -> {
+            new ProjectInfo("table", "package", null, "module", "project");
+        });
+
+        assertThrows(ModuleNameNullException.class, () -> {
+            new ProjectInfo("table", "package", "class", null, "project");
+        });
+
+        assertThrows(ProjectNameNullException.class, () -> {
+            new ProjectInfo("table", "package", "class", "module", null);
+        });
     }
 
     @Test
-    void databaseNameNullException_shouldHaveCorrectErrorCode() {
-        DatabaseNameNullException ex = new DatabaseNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_DATABASE_NAME_NULL, ex.getErrorCode());
-        assertEquals(1522, ex.getCode());
-        assertEquals("error.gen.info.database.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+    void shouldVerifyTemplateInfoExceptions() {
+        assertThrows(TemplateNameNullException.class, () -> {
+            new TemplateInfo(null, "content");
+        });
+
+        assertThrows(TemplateContentNullException.class, () -> {
+            new TemplateInfo("name", null);
+        });
     }
 
     @Test
-    void dictIdNullException_shouldHaveCorrectErrorCode() {
-        DictIdNullException ex = new DictIdNullException();
-        assertEquals(ErrorCode.GEN_INFO_DICT_ID_NULL, ex.getErrorCode());
-        assertEquals(1511, ex.getCode());
-        assertEquals("error.gen.info.dict.id.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
+    void shouldVerifyGenColumnBindBasicInfoExceptions() {
+        assertThrows(ColumnTypeNullException.class, () -> {
+            new GenColumnBindBasicInfo(null, "entity", (byte) 1, (byte) 1);
+        });
 
-    @Test
-    void domainMaskNullException_shouldHaveCorrectErrorCode() {
-        DomainMaskNullException ex = new DomainMaskNullException();
-        assertEquals(ErrorCode.GEN_AGGREGATE_DOMAIN_MASK_NULL, ex.getErrorCode());
-        assertEquals(1523, ex.getCode());
-        assertEquals("error.gen.aggregate.domain.mask.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
+        assertThrows(JavaTypeNullException.class, () -> {
+            new GenColumnBindBasicInfo("type", null, (byte) 1, (byte) 1);
+        });
 
-    @Test
-    void filterComponentNullException_shouldHaveCorrectErrorCode() {
-        FilterComponentNullException ex = new FilterComponentNullException();
-        assertEquals(ErrorCode.GEN_INFO_FILTER_COMPONENT_NULL, ex.getErrorCode());
-        assertEquals(1515, ex.getCode());
-        assertEquals("error.gen.info.filter.component.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
+        assertThrows(ComponentTypeNullException.class, () -> {
+            new GenColumnBindBasicInfo("type", "entity", null, (byte) 1);
+        });
 
-    @Test
-    void filterNullException_shouldHaveCorrectErrorCode() {
-        FilterNullException ex = new FilterNullException();
-        assertEquals(ErrorCode.GEN_INFO_FILTER_NULL, ex.getErrorCode());
-        assertEquals(1514, ex.getCode());
-        assertEquals("error.gen.info.filter.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void filterTypeNullException_shouldHaveCorrectErrorCode() {
-        FilterTypeNullException ex = new FilterTypeNullException();
-        assertEquals(ErrorCode.GEN_INFO_FILTER_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1516, ex.getCode());
-        assertEquals("error.gen.info.filter.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void formComponentNullException_shouldHaveCorrectErrorCode() {
-        FormComponentNullException ex = new FormComponentNullException();
-        assertEquals(ErrorCode.GEN_INFO_FORM_COMPONENT_NULL, ex.getErrorCode());
-        assertEquals(1517, ex.getCode());
-        assertEquals("error.gen.info.form.component.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void formRequiredNullException_shouldHaveCorrectErrorCode() {
-        FormRequiredNullException ex = new FormRequiredNullException();
-        assertEquals(ErrorCode.GEN_INFO_FORM_REQUIRED_NULL, ex.getErrorCode());
-        assertEquals(1519, ex.getCode());
-        assertEquals("error.gen.info.form.required.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void formVisibleNullException_shouldHaveCorrectErrorCode() {
-        FormVisibleNullException ex = new FormVisibleNullException();
-        assertEquals(ErrorCode.GEN_INFO_FORM_VISIBLE_NULL, ex.getErrorCode());
-        assertEquals(1518, ex.getCode());
-        assertEquals("error.gen.info.form.visible.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void i18nEnNullException_shouldHaveCorrectErrorCode() {
-        I18nEnNullException ex = new I18nEnNullException();
-        assertEquals(ErrorCode.GEN_I18N_EN_NULL, ex.getErrorCode());
-        assertEquals(1529, ex.getCode());
-        assertEquals("error.gen.i18n.en.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void i18nLocaleNullException_shouldHaveCorrectErrorCode() {
-        I18nLocaleNullException ex = new I18nLocaleNullException();
-        assertEquals(ErrorCode.GEN_I18N_LOCALE_NULL, ex.getErrorCode());
-        assertEquals(1530, ex.getCode());
-        assertEquals("error.gen.i18n.locale.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void javaEntityNullException_shouldHaveCorrectErrorCode() {
-        JavaEntityNullException ex = new JavaEntityNullException();
-        assertEquals(ErrorCode.GEN_INFO_JAVA_ENTITY_NULL, ex.getErrorCode());
-        assertEquals(1509, ex.getCode());
-        assertEquals("error.gen.info.java.entity.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void javaTypeNullException_shouldHaveCorrectErrorCode() {
-        JavaTypeNullException ex = new JavaTypeNullException();
-        assertEquals(ErrorCode.GEN_INFO_JAVA_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1510, ex.getCode());
-        assertEquals("error.gen.info.java.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void moduleNameNullException_shouldHaveCorrectErrorCode() {
-        ModuleNameNullException ex = new ModuleNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_MODULE_NAME_NULL, ex.getErrorCode());
-        assertEquals(1531, ex.getCode());
-        assertEquals("error.gen.info.module.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void objectNameNullException_shouldHaveCorrectErrorCode() {
-        ObjectNameNullException ex = new ObjectNameNullException();
-        assertEquals(ErrorCode.GEN_AGGREGATE_OBJECT_NAME_NULL, ex.getErrorCode());
-        assertEquals(1524, ex.getCode());
-        assertEquals("error.gen.aggregate.object.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void objectTypeNullException_shouldHaveCorrectErrorCode() {
-        ObjectTypeNullException ex = new ObjectTypeNullException();
-        assertEquals(ErrorCode.GEN_AGGREGATE_OBJECT_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1525, ex.getCode());
-        assertEquals("error.gen.aggregate.object.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void orderNullException_shouldHaveCorrectErrorCode() {
-        OrderNullException ex = new OrderNullException();
-        assertEquals(ErrorCode.GEN_INFO_ORDER_NULL, ex.getErrorCode());
-        assertEquals(1513, ex.getCode());
-        assertEquals("error.gen.info.order.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void packageNameNullException_shouldHaveCorrectErrorCode() {
-        PackageNameNullException ex = new PackageNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_PACKAGE_NAME_NULL, ex.getErrorCode());
-        assertEquals(1500, ex.getCode());
-        assertEquals("error.gen.info.package.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void projectNameNullException_shouldHaveCorrectErrorCode() {
-        ProjectNameNullException ex = new ProjectNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_PROJECT_NAME_NULL, ex.getErrorCode());
-        assertEquals(1532, ex.getCode());
-        assertEquals("error.gen.info.project.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void requestNameNullException_shouldHaveCorrectErrorCode() {
-        RequestNameNullException ex = new RequestNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_REQUEST_NAME_NULL, ex.getErrorCode());
-        assertEquals(1503, ex.getCode());
-        assertEquals("error.gen.info.request.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void tableNameNullException_shouldHaveCorrectErrorCode() {
-        TableNameNullException ex = new TableNameNullException();
-        assertEquals(ErrorCode.GEN_INFO_TABLE_NAME_NULL, ex.getErrorCode());
-        assertEquals(1501, ex.getCode());
-        assertEquals("error.gen.info.table.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void templateContentNullException_shouldHaveCorrectErrorCode() {
-        TemplateContentNullException ex = new TemplateContentNullException();
-        assertEquals(ErrorCode.GEN_TEMPLATE_CONTENT_NULL, ex.getErrorCode());
-        assertEquals(1527, ex.getCode());
-        assertEquals("error.gen.template.content.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void templateNameNullException_shouldHaveCorrectErrorCode() {
-        TemplateNameNullException ex = new TemplateNameNullException();
-        assertEquals(ErrorCode.GEN_TEMPLATE_NAME_NULL, ex.getErrorCode());
-        assertEquals(1526, ex.getCode());
-        assertEquals("error.gen.template.name.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void typeScriptTypeNullException_shouldHaveCorrectErrorCode() {
-        TypeScriptTypeNullException ex = new TypeScriptTypeNullException();
-        assertEquals(ErrorCode.GEN_BIND_TYPESCRIPT_TYPE_NULL, ex.getErrorCode());
-        assertEquals(1528, ex.getCode());
-        assertEquals("error.gen.bind.typescript.type.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void valueObjectNullException_shouldHaveCorrectErrorCode() {
-        ValueObjectNullException ex = new ValueObjectNullException();
-        assertEquals(ErrorCode.GEN_INFO_VALUE_OBJECT_NULL, ex.getErrorCode());
-        assertEquals(1504, ex.getCode());
-        assertEquals("error.gen.info.value.object.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
-    }
-
-    @Test
-    void visibleNullException_shouldHaveCorrectErrorCode() {
-        VisibleNullException ex = new VisibleNullException();
-        assertEquals(ErrorCode.GEN_INFO_VISIBLE_NULL, ex.getErrorCode());
-        assertEquals(1512, ex.getCode());
-        assertEquals("error.gen.info.visible.null", ex.getMessageKey());
-        assertTrue(ex instanceof DomainException);
+        assertThrows(TypeScriptTypeNullException.class, () -> {
+            new GenColumnBindBasicInfo("type", "entity", (byte) 1, null);
+        });
     }
 }

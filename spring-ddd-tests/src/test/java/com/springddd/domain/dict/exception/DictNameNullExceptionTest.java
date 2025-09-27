@@ -1,25 +1,25 @@
 package com.springddd.domain.dict.exception;
 
 import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class DictNameNullExceptionTest {
 
     @Test
-    void constructor_shouldSetCorrectErrorCode() {
+    void shouldCreateExceptionWithDefaultMessage() {
         DictNameNullException exception = new DictNameNullException();
-
-        assertEquals(ErrorCode.DICT_NAME_NULL, exception.getErrorCode());
-        assertEquals(1400, exception.getCode());
-        assertEquals("error.dict.name.null", exception.getMessageKey());
+        assertNotNull(exception);
+        assertEquals("error.dict.name.null", exception.getMessage());
     }
 
     @Test
-    void shouldBeDomainException() {
-        DictNameNullException exception = new DictNameNullException();
-        assertTrue(exception instanceof DomainException);
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(DictNameNullException.class));
+    }
+
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(DictNameNullException.class));
     }
 }

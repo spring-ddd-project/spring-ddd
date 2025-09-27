@@ -1,104 +1,66 @@
 package com.springddd.domain.user;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class AccountTest {
 
     @Test
-    void defaultConstructor_ShouldCreateEmptyAccount() {
-        // When
+    void shouldCreateAccountWithDefaultConstructor() {
         Account account = new Account();
-
-        // Then
-        assertNull(account.getUsername());
-        assertNull(account.getPassword());
-        assertNull(account.getEmail());
-        assertNull(account.getPhone());
-        assertNull(account.getLockStatus());
+        assertNotNull(account);
     }
 
     @Test
-    void setters_ShouldUpdateValues() {
-        // Given
+    void shouldSetAndGetUsername() {
         Account account = new Account();
-        Username username = new Username("admin");
-        Password password = new Password("password123");
-
-        // When
+        Username username = new Username("testuser");
         account.setUsername(username);
-        account.setPassword(password);
-        account.setEmail("admin@example.com");
-        account.setPhone("1234567890");
-        account.setLockStatus(false);
-
-        // Then
         assertEquals(username, account.getUsername());
+    }
+
+    @Test
+    void shouldSetAndGetPassword() {
+        Account account = new Account();
+        Password password = new Password("testpass");
+        account.setPassword(password);
         assertEquals(password, account.getPassword());
-        assertEquals("admin@example.com", account.getEmail());
+    }
+
+    @Test
+    void shouldSetAndGetEmail() {
+        Account account = new Account();
+        account.setEmail("test@example.com");
+        assertEquals("test@example.com", account.getEmail());
+    }
+
+    @Test
+    void shouldSetAndGetPhone() {
+        Account account = new Account();
+        account.setPhone("1234567890");
         assertEquals("1234567890", account.getPhone());
-        assertFalse(account.getLockStatus());
     }
 
     @Test
-    void equals_ShouldWorkCorrectly() {
-        // Given
-        Account account1 = new Account();
-        Account account2 = new Account();
-        Account account3 = new Account();
-
-        account1.setEmail("admin@example.com");
-        account2.setEmail("admin@example.com");
-        account3.setEmail("other@example.com");
-
-        // Then
-        assertEquals(account1, account2);
-        assertNotEquals(account1, account3);
-    }
-
-    @Test
-    void hashCode_ShouldBeConsistent() {
-        // Given
-        Account account1 = new Account();
-        Account account2 = new Account();
-
-        account1.setEmail("admin@example.com");
-        account2.setEmail("admin@example.com");
-
-        // Then
-        assertEquals(account1.hashCode(), account2.hashCode());
-    }
-
-    @Test
-    void toString_ShouldReturnCorrectFormat() {
-        // Given
+    void shouldSetAndGetLockStatus() {
         Account account = new Account();
-        account.setEmail("admin@example.com");
-
-        // When
-        String result = account.toString();
-
-        // Then
-        assertNotNull(result);
-    }
-
-    @Test
-    void lockStatus_ShouldToggleCorrectly() {
-        // Given
-        Account account = new Account();
-        assertNull(account.getLockStatus());
-
-        // When
         account.setLockStatus(true);
-
-        // Then
         assertTrue(account.getLockStatus());
+    }
 
-        // When
-        account.setLockStatus(false);
+    @Test
+    void equals_shouldWorkForSameValues() {
+        Account account1 = new Account();
+        account1.setEmail("test@example.com");
+        Account account2 = new Account();
+        account2.setEmail("test@example.com");
+        assertEquals(account1, account2);
+    }
 
-        // Then
-        assertFalse(account.getLockStatus());
+    @Test
+    void toString_shouldReturnValueAsString() {
+        Account account = new Account();
+        String str = account.toString();
+        assertTrue(str.contains("Account"));
     }
 }

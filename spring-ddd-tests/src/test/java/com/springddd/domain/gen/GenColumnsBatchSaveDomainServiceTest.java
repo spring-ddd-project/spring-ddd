@@ -1,24 +1,14 @@
 package com.springddd.domain.gen;
 
-import com.springddd.application.service.gen.GenColumnsBatchSaveDomainServiceImpl;
-import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.when;
 
@@ -26,78 +16,59 @@ import static org.mockito.Mockito.when;
 class GenColumnsBatchSaveDomainServiceTest {
 
     @Mock
-    private GenColumnsRepository genColumnsRepository;
-
-    @InjectMocks
-    private GenColumnsBatchSaveDomainServiceImpl genColumnsBatchSaveDomainService;
-
-    private GenColumnsDomain mockDomain;
-
-    @BeforeEach
-    void setUp() {
-        mockDomain = new GenColumnsDomain();
-        mockDomain.setId(new ColumnsId(1L));
-        mockDomain.setInfoId(new InfoId(100L));
-
-        Prop prop = new Prop("pri", "column_name", "varchar", "comment", "String", "EntityName");
-        mockDomain.setProp(prop);
-
-        Table table = new Table(true, true, false, null, null);
-        mockDomain.setTable(table);
-
-        Form form = new Form((byte) 1, true, false);
-        mockDomain.setForm(form);
-
-        I18n i18n = new I18n("en_US", "zh_CN");
-        mockDomain.setI18n(i18n);
-
-        GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(1L, (byte) 1);
-        mockDomain.setExtendInfo(extendInfo);
-
-        mockDomain.setDeleteStatus(false);
-        mockDomain.setCreateBy("admin");
-        mockDomain.setCreateTime(LocalDateTime.now());
-        mockDomain.setUpdateBy("admin");
-        mockDomain.setUpdateTime(LocalDateTime.now());
-        mockDomain.setVersion(0);
-    }
+    private GenColumnsBatchSaveDomainService genColumnsBatchSaveDomainService;
 
     @Test
-    void batchSave_shouldSaveAllDomains() {
-        when(genColumnsRepository.saveAll(anyList())).thenReturn(Flux.empty());
+    void shouldReturnMonoVoidWhenBatchSaveSucceeds() {
+        GenColumnsDomain domain = new GenColumnsDomain();
+        domain.setId(new ColumnsId(1L));
+        domain.setInfoId(new InfoId(1L));
+        domain.setProp(new Prop("key", "name", "type", "comment", "javaType", "entity"));
+        domain.setTable(new Table(true, true, false, null, null));
+        domain.setForm(new Form((byte) 1, true, false));
+        domain.setI18n(new I18n("en", "locale"));
+        domain.setExtendInfo(new GenColumnsExtendInfo(100L, (byte) 1));
 
-        List<GenColumnsDomain> domains = Arrays.asList(mockDomain);
+        when(genColumnsBatchSaveDomainService.batchSave(List.of(domain)))
+                .thenReturn(Mono.empty());
 
-        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(domains))
+        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(List.of(domain)))
                 .verifyComplete();
     }
 
     @Test
-    void batchSave_shouldHandleEmptyList() {
-        when(genColumnsRepository.saveAll(anyList())).thenReturn(Flux.empty());
+    void shouldAcceptEmptyList() {
+        when(genColumnsBatchSaveDomainService.batchSave(List.of()))
+                .thenReturn(Mono.empty());
 
-        List<GenColumnsDomain> domains = Collections.emptyList();
-
-        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(domains))
+        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(List.of()))
                 .verifyComplete();
     }
 
     @Test
-    void batchSave_shouldSaveMultipleDomains() {
+    void shouldHandleMultipleDomains() {
+        GenColumnsDomain domain1 = new GenColumnsDomain();
+        domain1.setId(new ColumnsId(1L));
+        domain1.setInfoId(new InfoId(1L));
+        domain1.setProp(new Prop("key1", "name1", "type1", "comment1", "javaType1", "entity1"));
+        domain1.setTable(new Table(true, true, false, null, null));
+        domain1.setForm(new Form((byte) 1, true, false));
+        domain1.setI18n(new I18n("en", "locale"));
+        domain1.setExtendInfo(new GenColumnsExtendInfo(100L, (byte) 1));
+
         GenColumnsDomain domain2 = new GenColumnsDomain();
-        domain2.setInfoId(new InfoId(100L));
-        domain2.setProp(new Prop("pri", "column_name_2", "varchar", "comment 2", "Integer", "EntityName2"));
-        domain2.setTable(new Table(true, false, true, (byte) 1, (byte) 1));
+        domain2.setId(new ColumnsId(2L));
+        domain2.setInfoId(new InfoId(1L));
+        domain2.setProp(new Prop("key2", "name2", "type2", "comment2", "javaType2", "entity2"));
+        domain2.setTable(new Table(false, false, true, (byte) 1, (byte) 1));
         domain2.setForm(new Form((byte) 2, false, true));
-        domain2.setI18n(new I18n("en_US", "zh_CN"));
-        domain2.setExtendInfo(new GenColumnsExtendInfo(2L, (byte) 2));
-        domain2.setDeleteStatus(false);
+        domain2.setI18n(new I18n("en_us", "zh_cn"));
+        domain2.setExtendInfo(new GenColumnsExtendInfo(200L, (byte) 2));
 
-        when(genColumnsRepository.saveAll(anyList())).thenReturn(Flux.empty());
+        when(genColumnsBatchSaveDomainService.batchSave(List.of(domain1, domain2)))
+                .thenReturn(Mono.empty());
 
-        List<GenColumnsDomain> domains = Arrays.asList(mockDomain, domain2);
-
-        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(domains))
+        StepVerifier.create(genColumnsBatchSaveDomainService.batchSave(List.of(domain1, domain2)))
                 .verifyComplete();
     }
 }

@@ -7,72 +7,48 @@ class MenuExtendInfoTest {
 
     @Test
     void shouldCreateMenuExtendInfoWithAllFields() {
-        Integer order = 1;
-        String title = "Dashboard";
-        String icon = "dashboard";
-        Integer menuType = 1;
-        Boolean visible = true;
-        Boolean menuStatus = true;
-
-        MenuExtendInfo info = new MenuExtendInfo(order, title, icon, menuType, visible, menuStatus);
-
-        assertEquals(order, info.order());
-        assertEquals(title, info.title());
-        assertEquals(icon, info.icon());
-        assertEquals(menuType, info.menuType());
-        assertEquals(visible, info.visible());
-        assertEquals(menuStatus, info.menuStatus());
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        assertEquals(1, info.order());
+        assertEquals("title", info.title());
+        assertEquals("icon", info.icon());
+        assertEquals(1, info.menuType());
+        assertTrue(info.visible());
+        assertTrue(info.menuStatus());
     }
 
     @Test
-    void shouldCreateMenuExtendInfoViaCatalogConstructor() {
-        Integer order = 2;
-        String title = "System";
-        Integer menuType = 0;
-        String icon = "setting";
-        Boolean menuStatus = true;
-        Boolean visible = false;
-
-        MenuExtendInfo info = new MenuExtendInfo(order, title, menuType, icon, menuStatus, visible);
-
-        assertEquals(order, info.order());
-        assertEquals(title, info.title());
-        assertEquals(icon, info.icon());
-        assertEquals(menuType, info.menuType());
-        assertEquals(visible, info.visible());
-        assertEquals(menuStatus, info.menuStatus());
+    void shouldCreateMenuExtendInfoForCatalog() {
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", 1, "icon", true, true);
+        assertEquals(1, info.order());
+        assertEquals("title", info.title());
+        assertEquals("icon", info.icon());
+        assertEquals(1, info.menuType());
+        assertTrue(info.visible());
+        assertTrue(info.menuStatus());
     }
 
     @Test
-    void shouldCreateMenuExtendInfoViaButtonConstructor() {
-        Integer order = 3;
-        Integer menuType = 2;
-        Boolean menuStatus = true;
-
-        MenuExtendInfo info = new MenuExtendInfo(order, menuType, menuStatus);
-
-        assertEquals(order, info.order());
+    void shouldCreateMenuExtendInfoForButton() {
+        MenuExtendInfo info = new MenuExtendInfo(1, 1, true);
+        assertEquals(1, info.order());
         assertNull(info.title());
         assertNull(info.icon());
-        assertEquals(menuType, info.menuType());
+        assertEquals(1, info.menuType());
         assertNull(info.visible());
-        assertEquals(menuStatus, info.menuStatus());
+        assertTrue(info.menuStatus());
     }
 
     @Test
-    void shouldHandleNullFieldsInPrimaryConstructor() {
-        MenuExtendInfo info = new MenuExtendInfo(null, null, null, (Integer) null, null, null);
-        assertNull(info.order());
-        assertNull(info.title());
-        assertNull(info.icon());
-        assertNull(info.menuType());
-        assertNull(info.visible());
-        assertNull(info.menuStatus());
+    void equals_shouldWorkForSameValues() {
+        MenuExtendInfo info1 = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        MenuExtendInfo info2 = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        assertEquals(info1, info2);
     }
 
     @Test
-    void shouldHandleZeroOrder() {
-        MenuExtendInfo info = new MenuExtendInfo(0, "Home", "home", 1, true, true);
-        assertEquals(0, info.order());
+    void toString_shouldReturnValueAsString() {
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        String str = info.toString();
+        assertTrue(str.contains("MenuExtendInfo"));
     }
 }

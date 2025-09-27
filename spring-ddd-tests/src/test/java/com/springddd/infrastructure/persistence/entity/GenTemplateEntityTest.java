@@ -1,93 +1,120 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@DisplayName("GenTemplateEntity Tests")
 class GenTemplateEntityTest {
 
     @Test
-    @DisplayName("should create instance with default constructor")
-    void create_WithDefaultConstructor_Success() {
+    void shouldCreateGenTemplateEntityWithDefaultConstructor() {
         GenTemplateEntity entity = new GenTemplateEntity();
-        assertThat(entity).isNotNull();
+        assertNotNull(entity);
     }
 
     @Test
-    @DisplayName("should set and get all fields correctly")
-    void setterGetter_AllFields_Success() {
-        GenTemplateEntity entity = new GenTemplateEntity();
-
-        Long id = 1L;
-        String templateName = "Entity Template";
-        String templateContent = "public class ${className} {}";
-        Boolean deleteStatus = false;
-        String createBy = "admin";
-        LocalDateTime createTime = LocalDateTime.now();
-        String updateBy = "admin";
-        LocalDateTime updateTime = LocalDateTime.now();
-        Integer version = 0;
-
-        entity.setId(id);
-        entity.setTemplateName(templateName);
-        entity.setTemplateContent(templateContent);
-        entity.setDeleteStatus(deleteStatus);
-        entity.setCreateBy(createBy);
-        entity.setCreateTime(createTime);
-        entity.setUpdateBy(updateBy);
-        entity.setUpdateTime(updateTime);
-        entity.setVersion(version);
-
-        assertThat(entity.getId()).isEqualTo(id);
-        assertThat(entity.getTemplateName()).isEqualTo(templateName);
-        assertThat(entity.getTemplateContent()).isEqualTo(templateContent);
-        assertThat(entity.getDeleteStatus()).isEqualTo(deleteStatus);
-        assertThat(entity.getCreateBy()).isEqualTo(createBy);
-        assertThat(entity.getCreateTime()).isEqualTo(createTime);
-        assertThat(entity.getUpdateBy()).isEqualTo(updateBy);
-        assertThat(entity.getUpdateTime()).isEqualTo(updateTime);
-        assertThat(entity.getVersion()).isEqualTo(version);
-    }
-
-    @Test
-    @DisplayName("should handle null values for optional fields")
-    void setterGetter_NullValues_Success() {
-        GenTemplateEntity entity = new GenTemplateEntity();
-
-        entity.setId(null);
-        entity.setTemplateName(null);
-        entity.setTemplateContent(null);
-        entity.setDeleteStatus(null);
-        entity.setCreateBy(null);
-        entity.setCreateTime(null);
-        entity.setUpdateBy(null);
-        entity.setUpdateTime(null);
-        entity.setVersion(null);
-
-        assertThat(entity.getId()).isNull();
-        assertThat(entity.getTemplateName()).isNull();
-        assertThat(entity.getTemplateContent()).isNull();
-        assertThat(entity.getDeleteStatus()).isNull();
-        assertThat(entity.getCreateBy()).isNull();
-        assertThat(entity.getCreateTime()).isNull();
-        assertThat(entity.getUpdateBy()).isNull();
-        assertThat(entity.getUpdateTime()).isNull();
-        assertThat(entity.getVersion()).isNull();
-    }
-
-    @Test
-    @DisplayName("toString should contain all field values")
-    void toString_ShouldContainFieldValues() {
+    void shouldSetAndGetId() {
         GenTemplateEntity entity = new GenTemplateEntity();
         entity.setId(1L);
-        entity.setTemplateName("TestTemplate");
+        assertEquals(1L, entity.getId());
+    }
 
+    @Test
+    void shouldSetAndGetTemplateName() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setTemplateName("templateA");
+        assertEquals("templateA", entity.getTemplateName());
+    }
+
+    @Test
+    void shouldSetAndGetTemplateContent() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setTemplateContent("content here");
+        assertEquals("content here", entity.getTemplateContent());
+    }
+
+    @Test
+    void shouldSetAndGetDeleteStatus() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setDeleteStatus(false);
+        assertFalse(entity.getDeleteStatus());
+    }
+
+    @Test
+    void shouldSetAndGetCreateBy() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setCreateBy("admin");
+        assertEquals("admin", entity.getCreateBy());
+    }
+
+    @Test
+    void shouldSetAndGetCreateTime() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setCreateTime(now);
+        assertEquals(now, entity.getCreateTime());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateBy() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setUpdateBy("admin");
+        assertEquals("admin", entity.getUpdateBy());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateTime() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setUpdateTime(now);
+        assertEquals(now, entity.getUpdateTime());
+    }
+
+    @Test
+    void shouldSetAndGetVersion() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setVersion(0);
+        assertEquals(0, entity.getVersion());
+    }
+
+    @Test
+    void equals_shouldWorkForSameInstance() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setId(1L);
+        assertEquals(entity, entity);
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        GenTemplateEntity entity1 = new GenTemplateEntity();
+        entity1.setId(1L);
+        entity1.setTemplateName("templateA");
+
+        GenTemplateEntity entity2 = new GenTemplateEntity();
+        entity2.setId(1L);
+        entity2.setTemplateName("templateA");
+
+        assertEquals(entity1, entity2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setId(1L);
+        entity.setTemplateName("templateA");
+        int hash1 = entity.hashCode();
+        int hash2 = entity.hashCode();
+        assertEquals(hash1, hash2);
+    }
+
+    @Test
+    void toString_shouldContainFields() {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setId(1L);
+        entity.setTemplateName("templateA");
         String str = entity.toString();
-        assertThat(str).contains("1");
-        assertThat(str).contains("TestTemplate");
+        assertTrue(str.contains("GenTemplateEntity"));
+        assertTrue(str.contains("1"));
+        assertTrue(str.contains("templateA"));
     }
 }

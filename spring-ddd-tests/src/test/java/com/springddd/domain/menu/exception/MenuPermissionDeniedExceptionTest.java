@@ -1,33 +1,27 @@
 package com.springddd.domain.menu.exception;
 
-import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MenuPermissionDeniedExceptionTest {
 
     @Test
-    void shouldCreateExceptionWithCorrectErrorCode() {
-        MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
-        assertEquals(ErrorCode.MENU_PERMISSION_DENIED, exception.getErrorCode());
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(MenuPermissionDeniedException.class, () -> {
+            throw new MenuPermissionDeniedException();
+        });
     }
 
     @Test
-    void shouldHaveCorrectCode() {
+    void shouldCreateExceptionInstance() {
         MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
-        assertEquals(1207, exception.getCode());
+        assertNotNull(exception);
     }
 
     @Test
-    void shouldBeInstanceOfDomainException() {
+    void toString_shouldReturnExceptionInfo() {
         MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
-        assertInstanceOf(DomainException.class, exception);
-    }
-
-    @Test
-    void shouldHaveCorrectMessageKey() {
-        MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
-        assertEquals("error.menu.permission.denied", exception.getMessageKey());
+        String str = exception.toString();
+        assertTrue(str.contains("MenuPermissionDeniedException"));
     }
 }

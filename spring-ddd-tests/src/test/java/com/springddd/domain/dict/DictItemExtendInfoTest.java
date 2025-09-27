@@ -3,45 +3,48 @@ package com.springddd.domain.dict;
 import com.springddd.domain.dict.exception.DictItemItemStatusNullException;
 import com.springddd.domain.dict.exception.DictItemSortOrderNullException;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class DictItemExtendInfoTest {
 
     @Test
-    void constructor_withValidParams_shouldCreateSuccessfully() {
+    void shouldCreateWithValidValues() {
         DictItemExtendInfo info = new DictItemExtendInfo(1, true);
-
         assertEquals(1, info.sortOrder());
         assertTrue(info.itemStatus());
     }
 
     @Test
-    void constructor_withNullSortOrder_shouldThrowDictItemSortOrderNullException() {
-        assertThrows(DictItemSortOrderNullException.class, () -> new DictItemExtendInfo(null, true));
+    void shouldThrowWhenSortOrderIsNull() {
+        assertThrows(DictItemSortOrderNullException.class, () ->
+            new DictItemExtendInfo(null, true));
     }
 
     @Test
-    void constructor_withNullItemStatus_shouldThrowDictItemItemStatusNullException() {
-        assertThrows(DictItemItemStatusNullException.class, () -> new DictItemExtendInfo(1, null));
+    void shouldThrowWhenItemStatusIsNull() {
+        assertThrows(DictItemItemStatusNullException.class, () ->
+            new DictItemExtendInfo(1, null));
     }
 
     @Test
-    void constructor_withBothNull_shouldThrowDictItemSortOrderNullExceptionFirst() {
-        assertThrows(DictItemSortOrderNullException.class, () -> new DictItemExtendInfo(null, null));
+    void equals_shouldWorkForSameValues() {
+        DictItemExtendInfo info1 = new DictItemExtendInfo(1, true);
+        DictItemExtendInfo info2 = new DictItemExtendInfo(1, true);
+        assertEquals(info1, info2);
     }
 
     @Test
-    void constructor_withZeroSortOrder_shouldBeValid() {
-        DictItemExtendInfo info = new DictItemExtendInfo(0, false);
-        assertEquals(0, info.sortOrder());
-        assertFalse(info.itemStatus());
+    void equals_shouldFailForDifferentValues() {
+        DictItemExtendInfo info1 = new DictItemExtendInfo(1, true);
+        DictItemExtendInfo info2 = new DictItemExtendInfo(2, false);
+        assertNotEquals(info1, info2);
     }
 
     @Test
-    void constructor_withNegativeSortOrder_shouldBeValid() {
-        DictItemExtendInfo info = new DictItemExtendInfo(-1, true);
-        assertEquals(-1, info.sortOrder());
-        assertTrue(info.itemStatus());
+    void toString_shouldReturnValues() {
+        DictItemExtendInfo info = new DictItemExtendInfo(5, false);
+        String result = info.toString();
+        assertTrue(result.contains("5"));
+        assertTrue(result.contains("false"));
     }
 }

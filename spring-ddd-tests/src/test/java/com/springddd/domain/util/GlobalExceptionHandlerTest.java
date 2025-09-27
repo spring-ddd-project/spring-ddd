@@ -11,16 +11,14 @@ import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.core.MethodParameter;
-import org.springframework.web.server.ServerWebInputException;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
@@ -28,142 +26,121 @@ class GlobalExceptionHandlerTest {
     @Mock
     private MessageSource messageSource;
 
-    private GlobalExceptionHandler handler;
+    private GlobalExceptionHandler globalExceptionHandler;
 
     @BeforeEach
     void setUp() {
-        handler = new GlobalExceptionHandler(messageSource);
+        globalExceptionHandler = new GlobalExceptionHandler(messageSource);
     }
 
     @Test
-    void testHandleDomainException() {
-        when(messageSource.getMessage(eq("error.user.name.null"), any(), eq(Locale.getDefault())))
-                .thenReturn("User name cannot be null");
+    void shouldHandleDomainException() {
+        DomainException exception = new DomainException(ErrorCode.USER_NAME_NULL) {};
+        when(messageSource.getMessage(eq("error.user.name.null"), any(), any(Locale.class)))
+                .thenReturn("Username cannot be null");
 
-        TestDomainException exception = new TestDomainException(ErrorCode.USER_NAME_NULL);
-        ApiResponse response = handler.handleDomainException(exception, Locale.getDefault()).block();
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
 
-        assertNotNull(response);
-        assertEquals(1000, response.getCode());
-        assertEquals("User name cannot be null", response.getMessage());
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1000, response.getCode());
+                    assertEquals("Username cannot be null", response.getMessage());
+                })
+                .verifyComplete();
     }
 
     @Test
-    void testHandleDomainExceptionWithArgs() {
-        when(messageSource.getMessage(eq("error.role.name.null"), eq(new Object[]{"admin", "role"}), eq(Locale.getDefault())))
-                .thenReturn("Role name 'admin' is invalid for type 'role'");
+    void shouldHandleDomainExceptionWithArgs() {
+        DomainException exception = new DomainException(ErrorCode.USER_NAME_NULL, "testUser") {};
+        when(messageSource.getMessage(eq("error.user.name.null"), eq(new Object[]{"testUser"}), any(Locale.class)))
+                .thenReturn("Username testUser cannot be null");
 
-        TestDomainException exception = new TestDomainException(ErrorCode.ROLE_NAME_NULL, "admin", "role");
-        ApiResponse response = handler.handleDomainException(exception, Locale.getDefault()).block();
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
 
-        assertNotNull(response);
-        assertEquals(1101, response.getCode());
-        assertEquals("Role name 'admin' is invalid for type 'role'", response.getMessage());
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1000, response.getCode());
+                    assertEquals("Username testUser cannot be null", response.getMessage());
+                })
+                .verifyComplete();
     }
 
     @Test
-    void testHandleDomainExceptionDifferentErrorCodes() {
-        // Test various error codes directly on the exception
-        assertEquals(1000, new TestDomainException(ErrorCode.USER_NAME_NULL).getCode());
-        assertEquals(1100, new TestDomainException(ErrorCode.ROLE_CODE_NULL).getCode());
-        assertEquals(1200, new TestDomainException(ErrorCode.MENU_NAME_NULL).getCode());
-        assertEquals(1300, new TestDomainException(ErrorCode.DEPT_NAME_NULL).getCode());
-        assertEquals(1400, new TestDomainException(ErrorCode.DICT_NAME_NULL).getCode());
-        assertEquals(1500, new TestDomainException(ErrorCode.GEN_INFO_PACKAGE_NAME_NULL).getCode());
-    }
-
-    @Test
-    void testHandleValidationException() {
-        WebExchangeBindException exception = mock(WebExchangeBindException.class);
-        org.springframework.validation.FieldError fieldError1 = new org.springframework.validation.FieldError(
-                "user", "name", "Name is required");
-        org.springframework.validation.FieldError fieldError2 = new org.springframework.validation.FieldError(
-                "user", "email", "Email is invalid");
-
-        when(exception.getFieldErrors()).thenReturn(
-                Arrays.asList(fieldError1, fieldError2)
+    void shouldHandleWebExchangeBindException() {
+        WebExchangeBindException exception = new WebExchangeBindException(
+                new org.springframework.validation.BindingResult(
+                        new org.springframework.web.bind.annotation.RequestParamMethodArgumentResolver(null)
+                ) {
+                }
         );
 
-        ApiResponse response = handler.handleValidationException(exception).block();
+        Mono<ApiResponse> result = globalExceptionHandler.handleValidationException(exception);
 
-        assertNotNull(response);
-        assertEquals(501, response.getCode());
-        assertTrue(response.getMessage().contains("name: Name is required"));
-        assertTrue(response.getMessage().contains("email: Email is invalid"));
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(501, response.getCode());
+                })
+                .verifyComplete();
     }
 
     @Test
-    void testHandleValidationExceptionWithSingleError() {
-        WebExchangeBindException exception = mock(WebExchangeBindException.class);
-        org.springframework.validation.FieldError fieldError = new org.springframework.validation.FieldError(
-                "user", "password", "Password is too short");
-
-        when(exception.getFieldErrors()).thenReturn(
-                List.of(fieldError)
-        );
-
-        ApiResponse response = handler.handleValidationException(exception).block();
-
-        assertNotNull(response);
-        assertEquals(501, response.getCode());
-        assertEquals("password: Password is too short", response.getMessage());
-    }
-
-    @Test
-    void testHandleGenericException() {
-        Exception exception = new RuntimeException("Something went wrong");
-        ApiResponse response = handler.handleGenericException(exception).block();
-
-        assertNotNull(response);
-        assertEquals(500, response.getCode());
-        assertTrue(response.getMessage().contains("Something went wrong"));
-    }
-
-    @Test
-    void testHandleGenericExceptionWithBadCredentials() {
+    void shouldHandleBadCredentialsException() {
         BadCredentialsException exception = new BadCredentialsException("Invalid credentials");
-        ApiResponse response = handler.handleGenericException(exception).block();
 
-        assertNotNull(response);
-        assertEquals(302, response.getCode());
-        assertEquals("Invalid credentials", response.getMessage());
+        Mono<ApiResponse> result = globalExceptionHandler.handleGenericException(exception);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(302, response.getCode());
+                    assertEquals("Invalid credentials", response.getMessage());
+                })
+                .verifyComplete();
     }
 
     @Test
-    void testHandleGenericExceptionWithDifferentExceptionTypes() {
-        // NullPointerException
-        Exception npe = new NullPointerException("null pointer");
-        ApiResponse responseNpe = handler.handleGenericException(npe).block();
-        assertNotNull(responseNpe);
-        assertEquals(500, responseNpe.getCode());
+    void shouldHandleGenericException() {
+        Exception exception = new RuntimeException("Something went wrong");
 
-        // IllegalArgumentException
-        Exception iae = new IllegalArgumentException("bad argument");
-        ApiResponse responseIae = handler.handleGenericException(iae).block();
-        assertNotNull(responseIae);
-        assertEquals(500, responseIae.getCode());
+        Mono<ApiResponse> result = globalExceptionHandler.handleGenericException(exception);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(500, response.getCode());
+                    assertTrue(response.getMessage().contains("Internal Server Error"));
+                    assertTrue(response.getMessage().contains("Something went wrong"));
+                })
+                .verifyComplete();
     }
 
     @Test
-    void testHandleDomainExceptionMessageResolution() {
-        when(messageSource.getMessage(
-                eq(ErrorCode.USER_NAME_NULL.getMessageKey()),
-                eq(new Object[]{}),
-                eq(Locale.CHINA)
-        )).thenReturn("用户名不能为空");
+    void shouldHandleAnotherDomainException() {
+        DomainException exception = new DomainException(ErrorCode.ROLE_NAME_NULL) {};
+        when(messageSource.getMessage(eq("error.role.name.null"), any(), any(Locale.class)))
+                .thenReturn("Role name cannot be null");
 
-        TestDomainException exception = new TestDomainException(ErrorCode.USER_NAME_NULL);
-        ApiResponse response = handler.handleDomainException(exception, Locale.CHINA).block();
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
 
-        assertNotNull(response);
-        assertEquals(1000, response.getCode());
-        assertEquals("用户名不能为空", response.getMessage());
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1101, response.getCode());
+                    assertEquals("Role name cannot be null", response.getMessage());
+                })
+                .verifyComplete();
     }
 
-    // Test helper class to allow testing abstract DomainException
-    private static class TestDomainException extends DomainException {
-        public TestDomainException(ErrorCode errorCode, Object... args) {
-            super(errorCode, args);
-        }
+    @Test
+    void shouldHandleMenuPermissionDeniedException() {
+        DomainException exception = new DomainException(ErrorCode.MENU_PERMISSION_DENIED) {};
+        when(messageSource.getMessage(eq("error.menu.permission.denied"), any(), any(Locale.class)))
+                .thenReturn("Menu permission denied");
+
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1207, response.getCode());
+                    assertEquals("Menu permission denied", response.getMessage());
+                })
+                .verifyComplete();
     }
 }

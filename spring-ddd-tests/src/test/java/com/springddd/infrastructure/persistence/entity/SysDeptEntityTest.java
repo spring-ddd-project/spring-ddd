@@ -1,103 +1,134 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@DisplayName("SysDeptEntity Tests")
 class SysDeptEntityTest {
 
     @Test
-    @DisplayName("should create instance with default constructor")
-    void create_WithDefaultConstructor_Success() {
+    void shouldCreateSysDeptEntityWithDefaultConstructor() {
         SysDeptEntity entity = new SysDeptEntity();
-        assertThat(entity).isNotNull();
+        assertNotNull(entity);
     }
 
     @Test
-    @DisplayName("should set and get all fields correctly")
-    void setterGetter_AllFields_Success() {
-        SysDeptEntity entity = new SysDeptEntity();
-
-        Long id = 1L;
-        Long parentId = 0L;
-        String deptName = "Department";
-        Integer sortOrder = 1;
-        Boolean deptStatus = true;
-        Boolean deleteStatus = false;
-        String createBy = "admin";
-        LocalDateTime createTime = LocalDateTime.now();
-        String updateBy = "admin";
-        LocalDateTime updateTime = LocalDateTime.now();
-        Integer version = 0;
-
-        entity.setId(id);
-        entity.setParentId(parentId);
-        entity.setDeptName(deptName);
-        entity.setSortOrder(sortOrder);
-        entity.setDeptStatus(deptStatus);
-        entity.setDeleteStatus(deleteStatus);
-        entity.setCreateBy(createBy);
-        entity.setCreateTime(createTime);
-        entity.setUpdateBy(updateBy);
-        entity.setUpdateTime(updateTime);
-        entity.setVersion(version);
-
-        assertThat(entity.getId()).isEqualTo(id);
-        assertThat(entity.getParentId()).isEqualTo(parentId);
-        assertThat(entity.getDeptName()).isEqualTo(deptName);
-        assertThat(entity.getSortOrder()).isEqualTo(sortOrder);
-        assertThat(entity.getDeptStatus()).isEqualTo(deptStatus);
-        assertThat(entity.getDeleteStatus()).isEqualTo(deleteStatus);
-        assertThat(entity.getCreateBy()).isEqualTo(createBy);
-        assertThat(entity.getCreateTime()).isEqualTo(createTime);
-        assertThat(entity.getUpdateBy()).isEqualTo(updateBy);
-        assertThat(entity.getUpdateTime()).isEqualTo(updateTime);
-        assertThat(entity.getVersion()).isEqualTo(version);
-    }
-
-    @Test
-    @DisplayName("should handle null values for optional fields")
-    void setterGetter_NullValues_Success() {
-        SysDeptEntity entity = new SysDeptEntity();
-
-        entity.setId(null);
-        entity.setParentId(null);
-        entity.setDeptName(null);
-        entity.setSortOrder(null);
-        entity.setDeptStatus(null);
-        entity.setDeleteStatus(null);
-        entity.setCreateBy(null);
-        entity.setCreateTime(null);
-        entity.setUpdateBy(null);
-        entity.setUpdateTime(null);
-        entity.setVersion(null);
-
-        assertThat(entity.getId()).isNull();
-        assertThat(entity.getParentId()).isNull();
-        assertThat(entity.getDeptName()).isNull();
-        assertThat(entity.getSortOrder()).isNull();
-        assertThat(entity.getDeptStatus()).isNull();
-        assertThat(entity.getDeleteStatus()).isNull();
-        assertThat(entity.getCreateBy()).isNull();
-        assertThat(entity.getCreateTime()).isNull();
-        assertThat(entity.getUpdateBy()).isNull();
-        assertThat(entity.getUpdateTime()).isNull();
-        assertThat(entity.getVersion()).isNull();
-    }
-
-    @Test
-    @DisplayName("toString should contain all field values")
-    void toString_ShouldContainFieldValues() {
+    void shouldSetAndGetId() {
         SysDeptEntity entity = new SysDeptEntity();
         entity.setId(1L);
-        entity.setDeptName("TestDept");
+        assertEquals(1L, entity.getId());
+    }
 
+    @Test
+    void shouldSetAndGetParentId() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setParentId(0L);
+        assertEquals(0L, entity.getParentId());
+    }
+
+    @Test
+    void shouldSetAndGetDeptName() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setDeptName("部门A");
+        assertEquals("部门A", entity.getDeptName());
+    }
+
+    @Test
+    void shouldSetAndGetSortOrder() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setSortOrder(1);
+        assertEquals(1, entity.getSortOrder());
+    }
+
+    @Test
+    void shouldSetAndGetDeptStatus() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setDeptStatus(true);
+        assertTrue(entity.getDeptStatus());
+    }
+
+    @Test
+    void shouldSetAndGetDeleteStatus() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setDeleteStatus(false);
+        assertFalse(entity.getDeleteStatus());
+    }
+
+    @Test
+    void shouldSetAndGetCreateBy() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setCreateBy("admin");
+        assertEquals("admin", entity.getCreateBy());
+    }
+
+    @Test
+    void shouldSetAndGetCreateTime() {
+        SysDeptEntity entity = new SysDeptEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setCreateTime(now);
+        assertEquals(now, entity.getCreateTime());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateBy() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setUpdateBy("admin");
+        assertEquals("admin", entity.getUpdateBy());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateTime() {
+        SysDeptEntity entity = new SysDeptEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setUpdateTime(now);
+        assertEquals(now, entity.getUpdateTime());
+    }
+
+    @Test
+    void shouldSetAndGetVersion() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setVersion(0);
+        assertEquals(0, entity.getVersion());
+    }
+
+    @Test
+    void equals_shouldWorkForSameInstance() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setId(1L);
+        assertEquals(entity, entity);
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        SysDeptEntity entity1 = new SysDeptEntity();
+        entity1.setId(1L);
+        entity1.setDeptName("部门A");
+
+        SysDeptEntity entity2 = new SysDeptEntity();
+        entity2.setId(1L);
+        entity2.setDeptName("部门A");
+
+        assertEquals(entity1, entity2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setId(1L);
+        entity.setDeptName("部门A");
+        int hash1 = entity.hashCode();
+        int hash2 = entity.hashCode();
+        assertEquals(hash1, hash2);
+    }
+
+    @Test
+    void toString_shouldContainFields() {
+        SysDeptEntity entity = new SysDeptEntity();
+        entity.setId(1L);
+        entity.setDeptName("部门A");
         String str = entity.toString();
-        assertThat(str).contains("1");
-        assertThat(str).contains("TestDept");
+        assertTrue(str.contains("SysDeptEntity"));
+        assertTrue(str.contains("1"));
+        assertTrue(str.contains("部门A"));
     }
 }

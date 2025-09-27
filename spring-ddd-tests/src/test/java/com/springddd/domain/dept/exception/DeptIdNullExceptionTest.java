@@ -1,33 +1,25 @@
 package com.springddd.domain.dept.exception;
 
 import com.springddd.domain.DomainException;
-import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class DeptIdNullExceptionTest {
 
     @Test
-    void shouldCreateExceptionWithCorrectErrorCode() {
+    void shouldCreateExceptionWithDefaultMessage() {
         DeptIdNullException exception = new DeptIdNullException();
-        assertEquals(ErrorCode.DEPT_ID_NULL, exception.getErrorCode());
+        assertNotNull(exception);
+        assertEquals("error.dept.id.null", exception.getMessage());
     }
 
     @Test
-    void shouldHaveCorrectCode() {
-        DeptIdNullException exception = new DeptIdNullException();
-        assertEquals(1301, exception.getCode());
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(DeptIdNullException.class));
     }
 
     @Test
-    void shouldBeInstanceOfDomainException() {
-        DeptIdNullException exception = new DeptIdNullException();
-        assertInstanceOf(DomainException.class, exception);
-    }
-
-    @Test
-    void shouldHaveCorrectMessageKey() {
-        DeptIdNullException exception = new DeptIdNullException();
-        assertEquals("error.dept.id.null", exception.getMessageKey());
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(DeptIdNullException.class));
     }
 }

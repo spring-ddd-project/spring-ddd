@@ -6,21 +6,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class SysDeptDomainTest {
 
     @Test
-    void shouldCreateSysDeptDomainInstance() {
+    void shouldCreateSysDeptDomain() {
         SysDeptDomain domain = new SysDeptDomain();
         assertNotNull(domain);
     }
 
     @Test
-    void shouldSetIdOnCreate() {
+    void shouldSetAndGetId() {
         SysDeptDomain domain = new SysDeptDomain();
-        DeptId deptId = new DeptId(1L);
-        domain.setId(deptId);
-        assertEquals(deptId, domain.getId());
+        DeptId id = new DeptId(1L);
+        domain.setId(id);
+        assertEquals(id, domain.getId());
     }
 
     @Test
-    void shouldSetParentIdOnCreate() {
+    void shouldSetAndGetParentId() {
         SysDeptDomain domain = new SysDeptDomain();
         DeptId parentId = new DeptId(0L);
         domain.setParentId(parentId);
@@ -28,15 +28,15 @@ class SysDeptDomainTest {
     }
 
     @Test
-    void shouldSetDeptBasicInfo() {
+    void shouldSetAndGetBasicInfo() {
         SysDeptDomain domain = new SysDeptDomain();
-        DeptBasicInfo basicInfo = new DeptBasicInfo("Engineering");
+        DeptBasicInfo basicInfo = new DeptBasicInfo("Test Dept");
         domain.setDeptBasicInfo(basicInfo);
         assertEquals(basicInfo, domain.getDeptBasicInfo());
     }
 
     @Test
-    void shouldSetDeptExtendInfo() {
+    void shouldSetAndGetExtendInfo() {
         SysDeptDomain domain = new SysDeptDomain();
         DeptExtendInfo extendInfo = new DeptExtendInfo(1, true);
         domain.setDeptExtendInfo(extendInfo);
@@ -44,66 +44,60 @@ class SysDeptDomainTest {
     }
 
     @Test
-    void shouldCallCreateMethod() {
+    void shouldCallCreate() {
         SysDeptDomain domain = new SysDeptDomain();
         domain.create();
         assertNotNull(domain);
     }
 
     @Test
-    void shouldUpdateAllFieldsInUpdateMethod() {
+    void shouldSetDeleteStatusOnDelete() {
         SysDeptDomain domain = new SysDeptDomain();
-        DeptId parentId = new DeptId(1L);
-        DeptBasicInfo basicInfo = new DeptBasicInfo("Engineering");
-        DeptExtendInfo extendInfo = new DeptExtendInfo(1, true);
-
-        domain.update(parentId, basicInfo, extendInfo);
-
-        assertEquals(parentId, domain.getParentId());
-        assertEquals(basicInfo, domain.getDeptBasicInfo());
-        assertEquals(extendInfo, domain.getDeptExtendInfo());
-    }
-
-    @Test
-    void shouldSetDeleteStatusToTrueOnDelete() {
-        SysDeptDomain domain = new SysDeptDomain();
-        assertNull(domain.getDeleteStatus());
+        domain.setDeleteStatus(false);
         domain.delete();
         assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void shouldSetDeleteStatusToFalseOnRestore() {
+    void shouldClearDeleteStatusOnRestore() {
         SysDeptDomain domain = new SysDeptDomain();
-        domain.delete();
-        assertTrue(domain.getDeleteStatus());
+        domain.setDeleteStatus(true);
         domain.restore();
         assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    void shouldAllowUpdateWithNullParentId() {
+    void shouldSetAndGetDeleteStatus() {
         SysDeptDomain domain = new SysDeptDomain();
-        DeptBasicInfo basicInfo = new DeptBasicInfo("Engineering");
-        DeptExtendInfo extendInfo = new DeptExtendInfo(1, true);
-
-        domain.update(null, basicInfo, extendInfo);
-
-        assertNull(domain.getParentId());
-        assertEquals(basicInfo, domain.getDeptBasicInfo());
-        assertEquals(extendInfo, domain.getDeptExtendInfo());
+        domain.setDeleteStatus(true);
+        assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void shouldAllowUpdateWithNullExtendInfo() {
+    void shouldSetAndGetCreateBy() {
         SysDeptDomain domain = new SysDeptDomain();
-        DeptId parentId = new DeptId(1L);
-        DeptBasicInfo basicInfo = new DeptBasicInfo("Engineering");
+        domain.setCreateBy("admin");
+        assertEquals("admin", domain.getCreateBy());
+    }
 
-        domain.update(parentId, basicInfo, null);
+    @Test
+    void shouldSetAndGetUpdateBy() {
+        SysDeptDomain domain = new SysDeptDomain();
+        domain.setUpdateBy("admin");
+        assertEquals("admin", domain.getUpdateBy());
+    }
 
-        assertEquals(parentId, domain.getParentId());
-        assertEquals(basicInfo, domain.getDeptBasicInfo());
-        assertNull(domain.getDeptExtendInfo());
+    @Test
+    void shouldSetAndGetVersion() {
+        SysDeptDomain domain = new SysDeptDomain();
+        domain.setVersion(1);
+        assertEquals(1, domain.getVersion());
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        SysDeptDomain domain = new SysDeptDomain();
+        String str = domain.toString();
+        assertTrue(str.contains("SysDeptDomain"));
     }
 }

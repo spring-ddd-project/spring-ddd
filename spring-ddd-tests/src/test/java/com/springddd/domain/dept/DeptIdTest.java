@@ -6,22 +6,34 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeptIdTest {
 
     @Test
-    void shouldCreateDeptIdWithValue() {
-        Long expectedValue = 1L;
-        DeptId deptId = new DeptId(expectedValue);
-        assertEquals(expectedValue, deptId.value());
+    void shouldCreateDeptIdWithValidValue() {
+        DeptId deptId = new DeptId(1L);
+        assertEquals(1L, deptId.value());
     }
 
     @Test
-    void shouldReturnValueFromLongWrapper() {
-        Long value = 123L;
-        DeptId deptId = new DeptId(value);
-        assertEquals(123L, deptId.value());
+    void shouldCreateDeptIdWithZero() {
+        DeptId deptId = new DeptId(0L);
+        assertEquals(0L, deptId.value());
     }
 
     @Test
-    void shouldHandleNullValue() {
-        DeptId deptId = new DeptId(null);
-        assertNull(deptId.value());
+    void equals_shouldWorkForSameValue() {
+        DeptId id1 = new DeptId(1L);
+        DeptId id2 = new DeptId(1L);
+        assertEquals(id1, id2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        DeptId id1 = new DeptId(1L);
+        DeptId id2 = new DeptId(2L);
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        DeptId deptId = new DeptId(123L);
+        assertEquals("DeptId[value=123]", deptId.toString());
     }
 }

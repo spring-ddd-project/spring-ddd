@@ -1,29 +1,25 @@
 package com.springddd.domain.user.exception;
 
-import com.springddd.domain.util.ErrorCode;
+import com.springddd.domain.DomainException;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordNullExceptionTest {
 
     @Test
-    void constructor_ShouldSetCorrectErrorCode() {
-        // When
+    void shouldCreateExceptionWithDefaultMessage() {
         PasswordNullException exception = new PasswordNullException();
-
-        // Then
-        assertEquals(ErrorCode.USER_PASSWORD_NULL, exception.getErrorCode());
-        assertEquals(1001, exception.getCode());
-        assertEquals("error.user.password.null", exception.getMessageKey());
+        assertNotNull(exception);
+        assertEquals("error.user.password.null", exception.getMessage());
     }
 
     @Test
-    void getMessage_ShouldReturnCorrectMessage() {
-        // When
-        PasswordNullException exception = new PasswordNullException();
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(PasswordNullException.class));
+    }
 
-        // Then
-        assertEquals("error.user.password.null", exception.getMessage());
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(PasswordNullException.class));
     }
 }

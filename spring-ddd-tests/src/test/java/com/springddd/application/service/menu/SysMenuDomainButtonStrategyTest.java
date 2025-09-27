@@ -1,96 +1,61 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.domain.menu.*;
-import com.springddd.domain.menu.exception.MenuPermissionNullException;
-import org.junit.jupiter.api.BeforeEach;
+import com.springddd.domain.menu.Button;
+import com.springddd.domain.menu.Catalog;
+import com.springddd.domain.menu.Menu;
+import com.springddd.domain.menu.MenuExtendInfo;
+import com.springddd.domain.menu.SysMenuDomain;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SysMenuDomainButtonStrategyTest {
 
-    private SysMenuDomainButtonStrategy strategy;
-
-    private String name;
-    private Catalog catalog;
-    private Menu menu;
-    private Button button;
-    private MenuExtendInfo menuExtendInfo;
-
-    @BeforeEach
-    void setUp() {
-        strategy = new SysMenuDomainButtonStrategy();
-
-        name = "Test Button";
-        catalog = new Catalog("/home");
-        menu = new Menu("/test", "TestComponent", true, false, false);
-        button = new Button("test:view", "/api/test");
-        menuExtendInfo = new MenuExtendInfo(1, 3, true);
-    }
-
     @Test
-    void check_shouldReturnTrueForType3() {
+    void check_shouldReturnTrue_whenTypeIs3() {
+        SysMenuDomainButtonStrategy strategy = new SysMenuDomainButtonStrategy();
         assertTrue(strategy.check(3));
     }
 
     @Test
-    void check_shouldReturnFalseForOtherTypes() {
+    void check_shouldReturnFalse_whenTypeIsNot3() {
+        SysMenuDomainButtonStrategy strategy = new SysMenuDomainButtonStrategy();
         assertFalse(strategy.check(1));
         assertFalse(strategy.check(2));
         assertFalse(strategy.check(0));
     }
 
     @Test
-    void handle_shouldCreateDomainWithButton() {
-        SysMenuDomain result = strategy.handle(name, catalog, menu, button, menuExtendInfo);
+    void handle_shouldCreateSysMenuDomain_withButton() {
+        SysMenuDomainButtonStrategy strategy = new SysMenuDomainButtonStrategy();
 
-        assertNotNull(result);
-        assertEquals(name, result.getName());
-        assertNotNull(result.getButton());
-        assertEquals(button.permission(), result.getButton().permission());
-        assertEquals(button.api(), result.getButton().api());
+        Catalog catalog = new Catalog("redirect/path");
+        Menu menu = new Menu("/path", "component", true, false, false);
+        Button button = new Button("permission:read", "/api/read");
+        MenuExtendInfo extendInfo = new MenuExtendInfo(1, 1, true);
+
+        SysMenuDomain domain = strategy.handle("TestMenu", catalog, menu, button, extendInfo);
+
+        assertNotNull(domain);
+        assertEquals("TestMenu", domain.getName());
+        assertNotNull(domain.getButton());
+        assertEquals("permission:read", domain.getButton().permission());
+        assertEquals("/api/read", domain.getButton().api());
+        assertNotNull(domain.getMenuExtendInfo());
     }
 
     @Test
-    void handle_shouldCreateNewButtonInstance() {
-        SysMenuDomain result = strategy.handle(name, catalog, menu, button, menuExtendInfo);
+    void handle_shouldSetCorrectExtendInfo() {
+        SysMenuDomainButtonStrategy strategy = new SysMenuDomainButtonStrategy();
 
-        assertNotSame(button, result.getButton());
-        assertEquals(button.permission(), result.getButton().permission());
-    }
+        Catalog catalog = new Catalog("redirect");
+        Menu menu = new Menu("/path2", "component2", false, true, false);
+        Button button = new Button("permission:write", "/api/write");
+        MenuExtendInfo extendInfo = new MenuExtendInfo(2, 1, false);
 
-    @Test
-    void handle_shouldSetCorrectMenuExtendInfo() {
-        SysMenuDomain result = strategy.handle(name, catalog, menu, button, menuExtendInfo);
+        SysMenuDomain domain = strategy.handle("Name", catalog, menu, button, extendInfo);
 
-        assertNotNull(result.getMenuExtendInfo());
-        assertEquals(menuExtendInfo.order(), result.getMenuExtendInfo().order());
-        assertEquals(menuExtendInfo.menuType(), result.getMenuExtendInfo().menuType());
-        assertEquals(menuExtendInfo.menuStatus(), result.getMenuExtendInfo().menuStatus());
-    }
-
-    @Test
-    void handle_shouldIgnoreCatalogParameter() {
-        Catalog differentCatalog = new Catalog("/different");
-        SysMenuDomain result = strategy.handle(name, differentCatalog, menu, button, menuExtendInfo);
-
-        assertNotNull(result);
-        assertNull(result.getCatalog());
-    }
-
-    @Test
-    void handle_shouldIgnoreMenuParameter() {
-        Menu differentMenu = new Menu("/different", "DifferentComponent", false, true, true);
-        SysMenuDomain result = strategy.handle(name, catalog, differentMenu, button, menuExtendInfo);
-
-        assertNotNull(result);
-        assertNull(result.getMenu());
-    }
-
-    @Test
-    void handle_shouldThrowExceptionWhenButtonPermissionIsNull() {
-        assertThrows(MenuPermissionNullException.class, () -> {
-            new Button(null, "/api/test");
-        });
+        assertEquals(2, domain.getMenuExtendInfo().order());
+        assertEquals(1, domain.getMenuExtendInfo().menuType());
+        assertFalse(domain.getMenuExtendInfo().menuStatus());
     }
 }

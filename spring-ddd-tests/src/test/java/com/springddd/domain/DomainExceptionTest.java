@@ -1,69 +1,45 @@
 package com.springddd.domain;
 
+import com.springddd.domain.dept.exception.DeptIdNullException;
 import com.springddd.domain.util.ErrorCode;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class DomainExceptionTest {
 
     @Test
-    void testDomainExceptionWithErrorCodeOnly() {
-        DomainException exception = new TestDomainException(ErrorCode.USER_NAME_NULL);
-
-        assertEquals(ErrorCode.USER_NAME_NULL, exception.getErrorCode());
-        assertEquals(1000, exception.getCode());
-        assertEquals("error.user.name.null", exception.getMessageKey());
-        assertEquals("error.user.name.null", exception.getMessage());
-        assertArrayEquals(new Object[]{}, exception.getArgs());
+    void shouldGetErrorCodeFromException() {
+        DeptIdNullException exception = new DeptIdNullException();
+        assertEquals(ErrorCode.DEPT_ID_NULL, exception.getErrorCode());
     }
 
     @Test
-    void testDomainExceptionWithErrorCodeAndArgs() {
-        DomainException exception = new TestDomainException(ErrorCode.ROLE_NAME_NULL, "admin", "role");
-
-        assertEquals(ErrorCode.ROLE_NAME_NULL, exception.getErrorCode());
-        assertEquals(1101, exception.getCode());
-        assertEquals("error.role.name.null", exception.getMessageKey());
-        assertEquals("error.role.name.null", exception.getMessage());
-        assertArrayEquals(new Object[]{"admin", "role"}, exception.getArgs());
+    void shouldGetCodeFromException() {
+        DeptIdNullException exception = new DeptIdNullException();
+        assertEquals(1301, exception.getCode());
     }
 
     @Test
-    void testGetCode() {
-        DomainException exception1 = new TestDomainException(ErrorCode.USER_NAME_NULL);
-        assertEquals(1000, exception1.getCode());
-
-        DomainException exception2 = new TestDomainException(ErrorCode.MENU_NAME_NULL);
-        assertEquals(1200, exception2.getCode());
-
-        DomainException exception3 = new TestDomainException(ErrorCode.GEN_INFO_PACKAGE_NAME_NULL);
-        assertEquals(1500, exception3.getCode());
+    void shouldGetMessageKeyFromException() {
+        DeptIdNullException exception = new DeptIdNullException();
+        assertEquals("error.dept.id.null", exception.getMessageKey());
     }
 
     @Test
-    void testGetMessageKey() {
-        DomainException exception = new TestDomainException(ErrorCode.DICT_CODE_NULL);
-        assertEquals("error.dict.code.null", exception.getMessageKey());
+    void shouldGetMessageFromException() {
+        DeptIdNullException exception = new DeptIdNullException();
+        assertEquals("error.dept.id.null", exception.getMessage());
     }
 
     @Test
-    void testInheritance() {
-        DomainException exception = new TestDomainException(ErrorCode.USER_PASSWORD_NULL);
+    void shouldExtendRuntimeException() {
+        DeptIdNullException exception = new DeptIdNullException();
         assertTrue(exception instanceof RuntimeException);
     }
 
     @Test
-    void testExceptionMessageFormat() {
-        // The message is the errorCode's messageKey
-        DomainException exception = new TestDomainException(ErrorCode.GEN_INFO_TABLE_NAME_NULL);
-        assertEquals("error.gen.info.table.name.null", exception.getMessage());
-    }
-
-    // Test helper class to allow testing abstract DomainException
-    private static class TestDomainException extends DomainException {
-        public TestDomainException(ErrorCode errorCode, Object... args) {
-            super(errorCode, args);
-        }
+    void shouldStoreArgs() {
+        DeptIdNullException exception = new DeptIdNullException();
+        assertNotNull(exception.getArgs());
     }
 }
