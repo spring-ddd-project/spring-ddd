@@ -24,7 +24,7 @@ public class SysDeptDomainRepositoryImpl implements SysDeptDomainRepository {
             sysDeptDomain.setId(new DeptId(entity.getId()));
             sysDeptDomain.setParentId(new DeptId(entity.getParentId()));
 
-            DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(entity.getDeptName()));
+            DeptBasicInfo basicInfo = new DeptBasicInfo(entity.getDeptName());
             sysDeptDomain.setDeptBasicInfo(basicInfo);
 
             DeptExtendInfo extendInfo = new DeptExtendInfo(entity.getSortOrder(), entity.getDeptStatus());
@@ -50,7 +50,7 @@ public class SysDeptDomainRepositoryImpl implements SysDeptDomainRepository {
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(DeptId::value).orElse(null));
 
         DeptBasicInfo basicInfo = aggregateRoot.getDeptBasicInfo();
-        entity.setDeptName(basicInfo.deptName().value());
+        entity.setDeptName(basicInfo.deptName());
 
         DeptExtendInfo extendInfo = aggregateRoot.getDeptExtendInfo();
         entity.setSortOrder(extendInfo.sortOrder());
