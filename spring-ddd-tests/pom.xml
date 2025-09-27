@@ -136,7 +136,6 @@
                         <exclude>**/domain/dict/WipeSysDictByIdsDomainServiceTest.java</exclude>
                         <exclude>**/domain/dict/RestoreSysDictItemByIdDomainServiceTest.java</exclude>
                         <exclude>**/domain/dict/SysDictItemDomainRepositoryTest.java</exclude>
-                        <exclude>**/domain/dict/exception/DictItemLabelNullExceptionTest.java</exclude>
                         <exclude>**/domain/util/GlobalExceptionHandlerTest.java</exclude>
                     </testExcludes>
                 </configuration>
