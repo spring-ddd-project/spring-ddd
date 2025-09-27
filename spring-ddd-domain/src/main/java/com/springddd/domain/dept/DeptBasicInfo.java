@@ -1,4 +1,13 @@
 package com.springddd.domain.dept;
 
-public record DeptBasicInfo(DeptName deptName) {
+import com.springddd.domain.dept.exception.DeptNameNullException;
+import org.springframework.util.ObjectUtils;
+
+public record DeptBasicInfo(String deptName) {
+
+    public DeptBasicInfo {
+        if (ObjectUtils.isEmpty(deptName)) {
+            throw new DeptNameNullException();
+        }
+    }
 }
