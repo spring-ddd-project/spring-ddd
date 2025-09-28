@@ -12,8 +12,9 @@ public class SysMenuDomainCatalogStrategy implements SysMenuDomainStrategy {
     }
 
     @Override
-    public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
+    public SysMenuDomain handle(String name, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
+        domain.setName(name);
 
         Catalog ca = new Catalog(catalog.menuRedirect());
         domain.setCatalog(ca);

@@ -26,8 +26,8 @@ public class SysMenuCommandService {
 
     public Mono<Long> create(SysMenuCommand command) {
         Catalog catalog = new Catalog(command.getRedirect());
-        Menu menu = new Menu(command.getName(), command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
-        Button button = new Button(command.getPermission());
+        Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
+        Button button = new Button(command.getPermission(), command.getApi());
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
                 command.getTitle(),
@@ -37,7 +37,7 @@ public class SysMenuCommandService {
                 command.getMenuStatus());
 
         SysMenuDomain sysMenuDomain = sysMenuDomainFactory.create(
-                new MenuId(command.getParentId()), catalog, menu, button, menuExtendInfo, command.getDeptId());
+                new MenuId(command.getParentId()), command.getName(), catalog, menu, button, menuExtendInfo, command.getDeptId());
         sysMenuDomain.create();
 
         return sysMenuDomainRepository.save(sysMenuDomain);
@@ -46,8 +46,8 @@ public class SysMenuCommandService {
     public Mono<Void> update(SysMenuCommand command) {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
             Catalog catalog = new Catalog(command.getRedirect());
-            Menu menu = new Menu(command.getName(), command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
-            Button button = new Button(command.getPermission());
+            Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
+            Button button = new Button(command.getPermission(), command.getApi());
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                     command.getOrder(),
                     command.getTitle(),
@@ -56,17 +56,10 @@ public class SysMenuCommandService {
                     command.getVisible(),
                     command.getMenuStatus());
 
-            for (SysMenuDomainStrategy strategy : strategies) {
-                if (strategy.check(command.getMenuType())) {
-                    SysMenuDomain domainNew = strategy.handle(catalog, menu, button, menuExtendInfo);
-                    domain.setCatalog(domainNew.getCatalog());
-                    domain.setMenu(domainNew.getMenu());
-                    domain.setButton(domainNew.getButton());
-                    domain.setMenuExtendInfo(domainNew.getMenuExtendInfo());
-                }
-            }
+            SysMenuDomain dummy = sysMenuDomainFactory.create(
+                    new MenuId(command.getParentId()), command.getName(), catalog, menu, button, menuExtendInfo, command.getDeptId());
 
-            domain.update(new MenuId(command.getParentId()), catalog, menu, button, menuExtendInfo, command.getDeptId());
+            domain.update(new MenuId(command.getParentId()), dummy.getName(), dummy.getCatalog(), dummy.getMenu(), dummy.getButton(), dummy.getMenuExtendInfo(), command.getDeptId());
 
             return sysMenuDomainRepository.save(domain);
         }).then();

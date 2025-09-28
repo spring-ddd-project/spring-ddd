@@ -14,6 +14,7 @@ public enum ErrorCode {
     ROLE_NAME_NULL(1101, "error.role.name.null"),
     ROLE_DATA_SCOPE_NULL(1102, "error.role.dataScope.null"),
     ROLE_ID_NULL(1103, "error.role.id.null"),
+    ROLE_STATUS_NULL(1104, "error.role.status.null"),
 
     MENU_NAME_NULL(1200, "error.menu.name.null"),
     MENU_PERMISSION_NULL(1201, "error.menu.permission.null"),
@@ -26,6 +27,8 @@ public enum ErrorCode {
 
     DEPT_NAME_NULL(1300, "error.dept.name.null"),
     DEPT_ID_NULL(1301, "error.dept.id.null"),
+    DEPT_SORT_ORDER_NULL(1302, "error.dept.sortOrder.null"),
+    DEPT_STATUS_NULL(1303, "error.dept.status.null"),
 
     DICT_NAME_NULL(1400, "error.dict.name.null"),
     DICT_CODE_NULL(1401, "error.dict.code.null"),

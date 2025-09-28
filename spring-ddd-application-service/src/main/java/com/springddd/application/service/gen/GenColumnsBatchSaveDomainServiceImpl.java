@@ -3,6 +3,7 @@ package com.springddd.application.service.gen;
 import com.springddd.domain.gen.GenColumnsBatchSaveDomainService;
 import com.springddd.domain.gen.GenColumnsDomain;
 import com.springddd.domain.gen.ColumnsId;
+import com.springddd.domain.gen.InfoId;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             GenColumnsEntity entity = new GenColumnsEntity();
 
             entity.setId(Optional.ofNullable(domain.getId()).map(ColumnsId::value).orElse(null));
-            entity.setInfoId(domain.getInfoId().value());
+            entity.setInfoId(Optional.ofNullable(domain.getInfoId()).map(InfoId::value).orElse(null));
 
             entity.setPropColumnKey(domain.getProp().propColumnKey());
             entity.setPropColumnName(domain.getProp().propColumnName());

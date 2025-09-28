@@ -1,13 +1,17 @@
 package com.springddd.domain.menu;
 
-import com.springddd.domain.menu.exception.MenuNameNullException;
+import com.springddd.domain.menu.exception.MenuComponentNullException;
+import com.springddd.domain.menu.exception.MenuPathNullException;
 import org.springframework.util.ObjectUtils;
 
-public record Menu(String menuName, String menuPath, String component, Boolean affixTab, Boolean noBasicLayout, Boolean embedded) {
+public record Menu(String menuPath, String component, Boolean affixTab, Boolean noBasicLayout, Boolean embedded) {
 
     public Menu {
-        if (ObjectUtils.isEmpty(menuName)) {
-            throw new MenuNameNullException();
+        if (ObjectUtils.isEmpty(menuPath)) {
+            throw new MenuPathNullException();
+        }
+        if (ObjectUtils.isEmpty(component)) {
+            throw new MenuComponentNullException();
         }
     }
 }
