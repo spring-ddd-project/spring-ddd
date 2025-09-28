@@ -23,7 +23,7 @@ public class SysDictItemCommandService {
     private final RestoreSysDictItemByIdDomainService restoreSysDictItemByIdDomainService;
 
     public Mono<Long> create(SysDictItemCommand command) {
-        DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(command.getItemLabel()), new ItemValue(command.getItemValue()));
+        DictItemBasicInfo basicInfo = new DictItemBasicInfo(command.getItemLabel(), command.getItemValue());
         DictItemExtendInfo extendInfo = new DictItemExtendInfo(command.getSortOrder(), command.getItemStatus());
 
         SysDictItemDomain domain = sysDictItemDomainFactory.newInstance(new DictId(command.getDictId()), basicInfo, extendInfo);
@@ -34,7 +34,7 @@ public class SysDictItemCommandService {
 
     public Mono<Void> update(SysDictItemCommand command) {
         return sysDictItemDomainRepository.load(new DictItemId(command.getId())).flatMap(domain -> {
-            DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(command.getItemLabel()), new ItemValue(command.getItemValue()));
+            DictItemBasicInfo basicInfo = new DictItemBasicInfo(command.getItemLabel(), command.getItemValue());
             DictItemExtendInfo extendInfo = new DictItemExtendInfo(command.getSortOrder(), command.getItemStatus());
 
             domain.update(basicInfo, extendInfo);

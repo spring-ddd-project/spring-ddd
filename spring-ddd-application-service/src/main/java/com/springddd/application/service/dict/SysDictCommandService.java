@@ -23,7 +23,7 @@ public class SysDictCommandService {
     private final RestoreSysDictByIdDomainService restoreSysDictByIdDomainService;
 
     public Mono<Long> create(SysDictCommand command) {
-        DictBasicInfo basicInfo = new DictBasicInfo(new DictName(command.getDictName()), new DictCode(command.getDictCode()));
+        DictBasicInfo basicInfo = new DictBasicInfo(command.getDictName(), command.getDictCode());
         DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
         SysDictDomain sysDictDomain = sysDictDomainFactory.newInstance(basicInfo, extendInfo);
         sysDictDomain.create();
@@ -32,7 +32,7 @@ public class SysDictCommandService {
 
     public Mono<Void> update(SysDictCommand command) {
         return sysDictDomainRepository.load(new DictId(command.getId())).flatMap(domain -> {
-            DictBasicInfo basicInfo = new DictBasicInfo(new DictName(command.getDictName()), new DictCode(command.getDictCode()));
+            DictBasicInfo basicInfo = new DictBasicInfo(command.getDictName(), command.getDictCode());
             DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
 
             domain.update(basicInfo, extendInfo);
