@@ -24,7 +24,7 @@ public class SysDictItemDomainRepositoryImpl implements SysDictItemDomainReposit
             domain.setItemId(new DictItemId(e.getId()));
             domain.setDictId(new DictId(e.getDictId()));
 
-            DictItemBasicInfo basicInfo = new DictItemBasicInfo(new ItemLabel(e.getItemLabel()), new ItemValue(e.getItemValue()));
+            DictItemBasicInfo basicInfo = new DictItemBasicInfo(e.getItemLabel(), e.getItemValue());
             domain.setItemBasicInfo(basicInfo);
 
             DictItemExtendInfo extendInfo = new DictItemExtendInfo(e.getSortOrder(), e.getItemStatus());
@@ -48,8 +48,8 @@ public class SysDictItemDomainRepositoryImpl implements SysDictItemDomainReposit
         entity.setId(Optional.ofNullable(aggregateRoot.getItemId()).map(DictItemId::value).orElse(null));
         entity.setDictId(aggregateRoot.getDictId().value());
 
-        entity.setItemLabel(aggregateRoot.getItemBasicInfo().itemLabel().value());
-        entity.setItemValue(aggregateRoot.getItemBasicInfo().itemValue().value());
+        entity.setItemLabel(aggregateRoot.getItemBasicInfo().itemLabel());
+        entity.setItemValue(aggregateRoot.getItemBasicInfo().itemValue());
         entity.setSortOrder(aggregateRoot.getItemExtendInfo().sortOrder());
         entity.setItemStatus(aggregateRoot.getItemExtendInfo().itemStatus());
 
