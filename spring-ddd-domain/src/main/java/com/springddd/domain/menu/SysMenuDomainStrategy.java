@@ -4,5 +4,5 @@ public interface SysMenuDomainStrategy {
 
     boolean check(Integer type);
 
-    SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo);
+    SysMenuDomain handle(String name, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo);
 }

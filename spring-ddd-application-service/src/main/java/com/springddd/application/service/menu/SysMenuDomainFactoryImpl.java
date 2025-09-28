@@ -13,12 +13,12 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
     private final List<SysMenuDomainStrategy> strategies;
 
     @Override
-    public SysMenuDomain create(MenuId parentId, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo, Long deptId) {
+    public SysMenuDomain create(MenuId parentId, String name, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo, Long deptId) {
         SysMenuDomain domain = new SysMenuDomain();
 
         for (SysMenuDomainStrategy strategy : strategies) {
             if (strategy.check(menuExtendInfo.menuType())) {
-                domain = strategy.handle(catalog, menu, button, menuExtendInfo);
+                domain = strategy.handle(name, catalog, menu, button, menuExtendInfo);
             }
         }
 

@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -49,6 +50,7 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(GenColumnsDomain aggregateRoot) {
         GenColumnsEntity entity = new GenColumnsEntity();
 

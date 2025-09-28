@@ -333,7 +333,7 @@ public class ReactiveTreeUtils {
 
         Set<ID> excludedIds = new HashSet<>();
         for (T node : flatList) {
-            if (!isDeletedPredicate.test(node)) {
+            if (isDeletedPredicate.test(node)) {
                 collectChildrenForExclusion(node, idGetter, parentMap, excludedIds);
             }
         }
