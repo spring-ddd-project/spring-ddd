@@ -23,7 +23,7 @@ public class SysDictDomainRepositoryImpl implements SysDictDomainRepository {
 
             sysDictDomain.setDictId(new DictId(e.getId()));
 
-            DictBasicInfo dictBasicInfo = new DictBasicInfo(new DictName(e.getDictName()), new DictCode(e.getDictCode()));
+            DictBasicInfo dictBasicInfo = new DictBasicInfo(e.getDictName(), e.getDictCode());
             sysDictDomain.setDictBasicInfo(dictBasicInfo);
 
             DictExtendInfo dictExtendInfo = new DictExtendInfo(e.getSortOrder(), e.getDictStatus());
@@ -46,8 +46,8 @@ public class SysDictDomainRepositoryImpl implements SysDictDomainRepository {
 
         entity.setId(Optional.ofNullable(aggregateRoot.getDictId()).map(DictId::value).orElse(null));
 
-        entity.setDictName(aggregateRoot.getDictBasicInfo().dictName().value());
-        entity.setDictCode(aggregateRoot.getDictBasicInfo().dictCode().value());
+        entity.setDictName(aggregateRoot.getDictBasicInfo().dictName());
+        entity.setDictCode(aggregateRoot.getDictBasicInfo().dictCode());
 
         entity.setSortOrder(aggregateRoot.getDictExtendInfo().sortOrder());
         entity.setDictStatus(aggregateRoot.getDictExtendInfo().dictStatus());
