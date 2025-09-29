@@ -8,7 +8,6 @@ import com.springddd.application.service.user.SysUserQueryService;
 import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
-import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -71,11 +70,10 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                 .map(menus -> {
                                                     user.setMenuIds(menus.stream().map(SysMenuView::getId).toList());
 
-                                                    List<MenuPermission> permissions = menus.stream()
+                                                    List<String> permissions = menus.stream()
                                                             .map(SysMenuView::getPermission)
                                                             .filter(permission -> !ObjectUtils.isEmpty(permission))
                                                             .distinct()
-                                                            .map(MenuPermission::new)
                                                             .collect(Collectors.toList());
 
                                                     user.setPermissions(permissions);
