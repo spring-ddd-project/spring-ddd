@@ -7,7 +7,6 @@ import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -90,7 +89,6 @@ public class AuthUserService {
         return Mono.just(
                 SecurityUtils.getPermissions()
                         .stream()
-                        .map(MenuPermission::value)
                         .toList()
         );
     }
