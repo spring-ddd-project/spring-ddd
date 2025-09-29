@@ -6,8 +6,8 @@ import com.springddd.application.service.gen.dto.GenTemplateView;
 import com.springddd.application.service.gen.dto.GenTemplateViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenTemplateEntity;
+import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenTemplateQueryService {
 
-    private final R2dbcEntityTemplate r2dbcEntityTemplate;
+    private final QueryFactory queryFactory;
 
     private final GenTemplateViewMapStruct genTemplateViewMapStruct;
 
@@ -32,8 +32,8 @@ public class GenTemplateQueryService {
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenTemplateView>> list = r2dbcEntityTemplate.select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenTemplateEntity.class);
+        Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), GenTemplateEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
@@ -42,12 +42,12 @@ public class GenTemplateQueryService {
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenTemplateView>> list = r2dbcEntityTemplate.select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenTemplateEntity.class);
+        Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), GenTemplateEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
     public Mono<List<GenTemplateView>> queryAllTemplate() {
-        return r2dbcEntityTemplate.select(GenTemplateEntity.class).matching(Query.query(Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(false))).all().collectList().map(genTemplateViewMapStruct::toViews);
+        return queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(Query.query(Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(false))).all().collectList().map(genTemplateViewMapStruct::toViews);
     }
 }
