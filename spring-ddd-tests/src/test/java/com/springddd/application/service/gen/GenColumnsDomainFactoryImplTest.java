@@ -63,4 +63,24 @@ class GenColumnsDomainFactoryImplTest {
 
         assertFalse(domain.getDeleteStatus());
     }
+
+    @Test
+    void shouldCreateGenColumnsDomainWithAllTableFlags() {
+        InfoId infoId = new InfoId(4L);
+        Prop prop = new Prop("testKey", "testName", "varchar", "testComment", "String", "TestEntity");
+        Table table = new Table(false, true, true, (byte) 2, (byte) 3);
+        Form form = new Form((byte) 0, false, false);
+        I18n i18n = new I18n("zh", "chinese");
+        GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(200L, (byte) 2);
+
+        GenColumnsDomain domain = factory.newInstance(infoId, prop, table, form, i18n, extendInfo);
+
+        assertNotNull(domain);
+        assertEquals(infoId, domain.getInfoId());
+        assertEquals(prop, domain.getProp());
+        assertEquals(table, domain.getTable());
+        assertEquals(form, domain.getForm());
+        assertEquals(i18n, domain.getI18n());
+        assertEquals(extendInfo, domain.getExtendInfo());
+    }
 }
