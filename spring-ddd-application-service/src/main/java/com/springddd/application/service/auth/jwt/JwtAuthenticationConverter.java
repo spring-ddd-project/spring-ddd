@@ -4,7 +4,7 @@ import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.infrastructure.cache.util.CacheProcessor;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
     private final PathPatternParser pathPatternParser = new PathPatternParser();
 
-    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
+    private final CacheProcessor cacheProcessor;
 
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
@@ -60,7 +60,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         Jws<Claims> claims = jwtTemplate.parseToken(token);
         Long userId = claims.getPayload().get("userId", Long.class);
 
-        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(userId), String.class)
+        return cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(userId), String.class)
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
@@ -70,7 +70,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
                     // Token matches cache, continue with parsing
                     try {
-                        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(userId), AuthUser.class)
+                        return cacheProcessor.getCache(CacheKeys.USER_DETAIL.buildKey(userId), AuthUser.class)
                                 .switchIfEmpty(Mono.error(new AccessDeniedException("User detail not found in cache")))
                                 .flatMap(u -> {
                                     SecurityUtils.setAuthUserContext(u);

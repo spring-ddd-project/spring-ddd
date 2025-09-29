@@ -7,7 +7,7 @@ import com.springddd.application.service.gen.strategy.FilePathContext;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.infrastructure.cache.util.CacheProcessor;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ProjectTreeBuilder treeBuilder = new ProjectTreeBuilder();
 
-    private final ReactiveRedisCacheHelper cacheHelper;
+    private final CacheProcessor cacheProcessor;
 
     private final FilePathContext filePathContext;
 
@@ -57,7 +57,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                             .flatMap(generatedFiles -> {
                                 List<ProjectTreeView> treeList = new ArrayList<>();
                                 generatedFiles.forEach(file -> saveGeneratedFile(file.filePath, file.content, treeList, projectName));
-                                return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
+                                return cacheProcessor.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
                                         CacheKeys.GEN_FILES.ttl()).then();
                             });
                 });
