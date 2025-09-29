@@ -1,4 +1,13 @@
 package com.springddd.domain.menu;
 
-public record MenuBasicInfo(MenuName menuName, MenuPath menuPath, MenuComponent menuComponent, MenuRedirect menuRedirect, MenuPermission menuPermission) {
+import com.springddd.domain.menu.exception.MenuNameNullException;
+import org.springframework.util.ObjectUtils;
+
+public record MenuBasicInfo(String menuName, String menuPath, String menuComponent, String menuRedirect, String menuPermission) {
+
+    public MenuBasicInfo {
+        if (ObjectUtils.isEmpty(menuName)) {
+            throw new MenuNameNullException();
+        }
+    }
 }

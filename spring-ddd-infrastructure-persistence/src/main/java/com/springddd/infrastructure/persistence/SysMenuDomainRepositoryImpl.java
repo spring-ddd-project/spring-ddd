@@ -23,7 +23,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             sysMenuDomain.setMenuId(new MenuId(e.getId()));
             sysMenuDomain.setParentId(new MenuId(e.getParentId()));
 
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(new MenuName(e.getName()), new MenuPath(e.getPath()), new MenuComponent(e.getComponent()), new MenuRedirect(e.getRedirect()), new MenuPermission(e.getPermission()));
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(e.getName(), e.getPath(), e.getComponent(), e.getRedirect(), e.getPermission());
             sysMenuDomain.setMenuBasicInfo(menuBasicInfo);
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(e.getSortOrder(), e.getTitle(), e.getAffixTab(), e.getNoBasicLayout(), e.getIcon(), e.getMenuType(), e.getVisible(), e.getEmbedded(), e.getMenuStatus());
@@ -49,11 +49,11 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(MenuId::value).orElse(null));
 
         MenuBasicInfo menuBasicInfo = aggregateRoot.getMenuBasicInfo();
-        entity.setName(menuBasicInfo.menuName().value());
-        entity.setPermission(Optional.ofNullable(menuBasicInfo.menuPermission()).map(MenuPermission::value).orElse(null));
-        entity.setRedirect(Optional.ofNullable(menuBasicInfo.menuRedirect()).map(MenuRedirect::value).orElse(null));
-        entity.setPath(Optional.ofNullable(menuBasicInfo.menuPath()).map(MenuPath::value).orElse(null));
-        entity.setComponent(Optional.ofNullable(menuBasicInfo.menuComponent()).map(MenuComponent::value).orElse(null));
+        entity.setName(menuBasicInfo.menuName());
+        entity.setPermission(menuBasicInfo.menuPermission());
+        entity.setRedirect(menuBasicInfo.menuRedirect());
+        entity.setPath(menuBasicInfo.menuPath());
+        entity.setComponent(menuBasicInfo.menuComponent());
 
         MenuExtendInfo menuExtendInfo = aggregateRoot.getMenuExtendInfo();
         entity.setSortOrder(menuExtendInfo.order());
