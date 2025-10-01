@@ -7,7 +7,6 @@ import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.role.RoleCode;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
@@ -81,7 +80,7 @@ public class AuthUserService {
     public Mono<UserInfoView> getUserInfo() {
         UserInfoView view = new UserInfoView();
         view.setRealName(SecurityUtils.getUsername());
-        view.setRoles(SecurityUtils.getRoles().stream().map(RoleCode::value).toList());
+        view.setRoles(SecurityUtils.getRoles().stream().toList());
         return Mono.just(view);
     }
 

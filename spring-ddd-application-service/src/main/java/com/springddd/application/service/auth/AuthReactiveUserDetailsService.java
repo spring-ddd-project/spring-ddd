@@ -4,11 +4,11 @@ import com.springddd.application.service.menu.SysMenuQueryService;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.role.SysRoleMenuQueryService;
 import com.springddd.application.service.role.SysRoleQueryService;
+import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.application.service.user.SysUserQueryService;
 import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
-import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -53,8 +53,8 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                     .flatMap(sysRoleQueryService::getById)
                                     .collectList()
                                     .flatMap(roleViews -> {
-                                        List<RoleCode> roles = roleViews.stream()
-                                                .map(role -> new RoleCode(role.getRoleCode()))
+                                        List<String> roles = roleViews.stream()
+                                                .map(SysRoleView::getRoleCode)
                                                 .toList();
                                         user.setRoles(roles);
 

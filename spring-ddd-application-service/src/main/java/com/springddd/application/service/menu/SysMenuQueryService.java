@@ -6,7 +6,6 @@ import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.application.service.role.SysRoleQueryService;
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.role.RoleCode;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.domain.util.ReactiveTreeUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
@@ -119,14 +118,14 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
-        List<RoleCode> codes = SecurityUtils.getRoles();
+        List<String> codes = SecurityUtils.getRoles();
 
         if (CollectionUtils.isEmpty(codes)) {
             return Mono.empty();
         }
 
         return Flux.fromIterable(codes)
-                .flatMap(code -> sysRoleQueryService.getByCode(code.value()))
+                .flatMap(sysRoleQueryService::getByCode)
                 .filter(Objects::nonNull)
                 .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
                 .hasElements()
