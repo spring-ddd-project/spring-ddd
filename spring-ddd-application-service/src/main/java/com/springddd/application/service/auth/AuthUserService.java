@@ -10,8 +10,6 @@ import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.CacheProcessor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -25,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthUserService {
 
-    private final ReactiveAuthenticationManager authenticationManager;
+    private final com.springddd.application.service.auth.handler.AuthHandler authHandler;
 
     private final JwtTemplate jwtTemplate;
 
@@ -34,13 +32,8 @@ public class AuthUserService {
     private final JwtSecret jwtSecret;
 
     public Mono<LoginUserView> getToken(LoginUserQuery query) {
-        UsernamePasswordAuthenticationToken unauthenticated =
-                UsernamePasswordAuthenticationToken.unauthenticated(query.getUsername(), query.getPassword());
-
-        return authenticationManager.authenticate(unauthenticated)
-                .flatMap(auth -> {
-                    AuthUser user = (AuthUser) auth.getPrincipal();
-
+        return authHandler.handle(query)
+                .flatMap(user -> {
                     SecurityUtils.setAuthUserContext(user);
 
                     Map<String, Object> map = new HashMap<>();
