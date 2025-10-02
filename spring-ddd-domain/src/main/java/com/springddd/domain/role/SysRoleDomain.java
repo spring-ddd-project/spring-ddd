@@ -8,7 +8,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysRoleDomain extends AbstractDomainMask {
+public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
 
     private RoleId roleId;
 
@@ -17,6 +17,37 @@ public class SysRoleDomain extends AbstractDomainMask {
     private RoleExtendInfo roleExtendInfo;
 
     private DataPermission dataPermission;
+
+    @Override
+    public SysRoleDomain clone() {
+        try {
+            SysRoleDomain clone = (SysRoleDomain) super.clone();
+            if (this.roleId != null) clone.setRoleId(new RoleId(this.roleId.value()));
+            if (this.roleBasicInfo != null) {
+                RoleBasicInfo basic = new RoleBasicInfo();
+                basic.setRoleName(this.roleBasicInfo.getRoleName());
+                basic.setRoleCode(this.roleBasicInfo.getRoleCode());
+                basic.setRoleSort(this.roleBasicInfo.getRoleSort());
+                basic.setRoleStatus(this.roleBasicInfo.getRoleStatus());
+                clone.setRoleBasicInfo(basic);
+            }
+            if (this.roleExtendInfo != null) {
+                RoleExtendInfo ext = new RoleExtendInfo();
+                ext.setRoleRemark(this.roleExtendInfo.getRoleRemark());
+                ext.setOwnerStatus(this.roleExtendInfo.getOwnerStatus());
+                clone.setRoleExtendInfo(ext);
+            }
+            if (this.dataPermission != null) {
+                DataPermission dp = new DataPermission();
+                dp.setDataScope(this.dataPermission.getDataScope());
+                dp.setDeptIds(this.dataPermission.getDeptIds());
+                clone.setDataPermission(dp);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     private final java.util.List<com.springddd.domain.role.observer.RoleObserver> observers = new java.util.ArrayList<>();
 
