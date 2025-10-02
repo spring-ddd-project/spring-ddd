@@ -33,13 +33,36 @@ public class ProjectTreeBuilder {
      */
     public ProjectTreeView buildTree(String filePath, String content) {
         String[] parts = filePath.split("/");
+
         ProjectTreeView root = new ProjectTreeView();
         root.setId(UUID.randomUUID().toString());
         root.setLabel("");
         root.setChildren(new ArrayList<>());
 
-        for (String part : parts) {
-            insertNode(root, part, content);
+        ProjectTreeView currentNode = root;
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            Optional<ProjectTreeView> opt = currentNode.getChildren()
+                    .stream()
+                    .filter(c -> c.getLabel().equals(part))
+                    .findFirst();
+
+            ProjectTreeView child;
+            if (opt.isPresent()) {
+                child = opt.get();
+            } else {
+                child = new ProjectTreeView();
+                child.setId(UUID.randomUUID().toString());
+                child.setLabel(part);
+                child.setChildren(new ArrayList<>());
+                currentNode.getChildren().add(child);
+            }
+
+            if (i == parts.length - 1 && isFile(part)) {
+                child.setValue(content);
+            }
+
+            currentNode = child;
         }
 
         return root;
