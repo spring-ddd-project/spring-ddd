@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -38,6 +39,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
+                .doOnNext(c -> treeList.clear())
                 .flatMap(context -> templateQueryService.queryAllTemplate()
                         .flatMapMany(Flux::fromIterable)
                         .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
@@ -69,8 +71,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "r2dbc" -> projectName + "-application-infrastructure/persistence/"
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
-            case "repository" -> projectName + "-application-infrastructure/persistence/"
-                    + packagePath + "/persistence/"
+            case "domainRepositoryImpl" -> projectName + "-application-infrastructure/persistence/"
+                    + packagePath + "/"
                     + className + "DomainRepositoryImpl.java";
 
             // application-domain
@@ -208,6 +210,58 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
+        ProjectTreeView applicationRoot = findOrCreateRootNode("Application Root");
+        ProjectTreeView appsRoot = findOrCreateRootNode("Apps Root");
+
+        if (filePath.contains("-application-infrastructure/persistence/") ||
+                filePath.contains("-application-domain/") ||
+                filePath.contains("-application-service/") ||
+                filePath.contains("-application-web/")) {
+            return processPath(filePath, content, applicationRoot);
+        } else if (filePath.contains("apps/web-ele/src/views/") ||
+                filePath.contains("apps/web-ele/src/api/") ||
+                filePath.contains("apps/web-ele/src/locales/langs/en-US/") ||
+                filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
+            return processPath(filePath, content, appsRoot);
+        } else {
+            return processOtherPaths(filePath, content);
+        }
+    }
+
+    private ProjectTreeView findOrCreateRootNode(String rootLabel) {
+        for (ProjectTreeView tree : treeList) {
+            if (tree.getLabel().equals(rootLabel)) {
+                return tree;
+            }
+        }
+
+        ProjectTreeView newRoot = new ProjectTreeView();
+        newRoot.setId(UUID.randomUUID().toString());
+        newRoot.setLabel(rootLabel);
+        newRoot.setChildren(new ArrayList<>());
+        treeList.add(newRoot);
+        return newRoot;
+    }
+
+    private Mono<Void> processPath(String filePath, String content, ProjectTreeView root) {
+        boolean pathExists = false;
+
+        for (ProjectTreeView tree : root.getChildren()) {
+            if (filePath.startsWith(tree.getLabel())) {
+                pathExists = treeBuilder.insertOrUpdateNode(tree, filePath, content);
+                break;
+            }
+        }
+
+        if (!pathExists) {
+            ProjectTreeView newTree = treeBuilder.buildTree(filePath, content);
+            root.getChildren().add(newTree);
+        }
+
+        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+    }
+
+    private Mono<Void> processOtherPaths(String filePath, String content) {
         ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
         treeList.add(tree);
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
