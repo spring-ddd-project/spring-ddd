@@ -38,6 +38,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
+                .doOnNext(c -> treeList.clear())
                 .flatMap(context -> templateQueryService.queryAllTemplate()
                         .flatMapMany(Flux::fromIterable)
                         .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
@@ -70,7 +71,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
             case "repository" -> projectName + "-application-infrastructure/persistence/"
-                    + packagePath + "/persistence/"
                     + className + "DomainRepositoryImpl.java";
 
             // application-domain
@@ -208,10 +208,79 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
-        ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
-        treeList.add(tree);
+        if (filePath.contains("-application-infrastructure/persistence/")) {
+            return processApplicationInfrastructurePersistence(filePath, content);
+        } else if (filePath.contains("-application-domain/")) {
+            return processApplicationDomain(filePath, content);
+        } else if (filePath.contains("-application-service/")) {
+            return processApplicationService(filePath, content);
+        } else if (filePath.contains("-application-web/")) {
+            return processApplicationWeb(filePath, content);
+        } else if (filePath.contains("apps/web-ele/src/views/")) {
+            return processWebEleViews(filePath, content);
+        } else if (filePath.contains("apps/web-ele/src/api/")) {
+            return processWebEleApi(filePath, content);
+        } else if (filePath.contains("apps/web-ele/src/locales/langs/en-US/")) {
+            return processWebEleLocalesEn(filePath, content);
+        } else if (filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
+            return processWebEleLocalesZh(filePath, content);
+        } else {
+            ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
+            treeList.add(tree);
+            return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+        }
+    }
+
+    private Mono<Void> processApplicationInfrastructurePersistence(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processApplicationDomain(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processApplicationService(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processApplicationWeb(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processWebEleViews(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processWebEleApi(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processWebEleLocalesEn(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processWebEleLocalesZh(String filePath, String content) {
+        return processPath(filePath, content);
+    }
+
+    private Mono<Void> processPath(String filePath, String content) {
+        boolean pathExists = false;
+
+        for (ProjectTreeView tree : treeList) {
+            if (filePath.startsWith(tree.getLabel())) {
+                pathExists = treeBuilder.insertOrUpdateNode(tree, filePath, content);
+                break;
+            }
+        }
+
+        if (!pathExists) {
+            ProjectTreeView newTree = treeBuilder.buildTree(filePath, content);
+            treeList.add(newTree);
+        }
+
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
+
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
         try {
