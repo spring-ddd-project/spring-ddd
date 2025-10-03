@@ -18,6 +18,22 @@ public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
 
     private DataPermission dataPermission;
 
+    private com.springddd.domain.role.state.RoleState state;
+
+    public void setState(com.springddd.domain.role.state.RoleState state) {
+        this.state = state;
+    }
+
+    public void enable() {
+        if (state == null) state = roleBasicInfo.getRoleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        state.enable(this);
+    }
+
+    public void disable() {
+        if (state == null) state = roleBasicInfo.getRoleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        state.disable(this);
+    }
+
     @Override
     public SysRoleDomain clone() {
         try {
