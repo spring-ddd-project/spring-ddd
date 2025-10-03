@@ -70,7 +70,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "r2dbc" -> projectName + "-application-infrastructure/persistence/"
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
-            case "repository" -> projectName + "-application-infrastructure/persistence/"
+            case "domainRepositoryImpl" -> projectName + "-application-infrastructure/persistence/"
+                    + packagePath + "/"
                     + className + "DomainRepositoryImpl.java";
 
             // application-domain
