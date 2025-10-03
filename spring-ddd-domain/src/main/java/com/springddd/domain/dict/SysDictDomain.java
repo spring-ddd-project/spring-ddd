@@ -45,4 +45,13 @@ public class SysDictDomain extends AbstractDomainMask {
         if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dict.state.DeletedDictState() : new com.springddd.domain.dict.state.ActiveDictState();
         state.restore(this);
     }
+
+    public com.springddd.domain.dict.memento.SysDictMemento saveToMemento() {
+        return new com.springddd.domain.dict.memento.SysDictMemento(this.dictBasicInfo, this.dictExtendInfo);
+    }
+
+    public void restoreFromMemento(com.springddd.domain.dict.memento.SysDictMemento memento) {
+        this.dictBasicInfo = memento.getDictBasicInfo();
+        this.dictExtendInfo = memento.getDictExtendInfo();
+    }
 }
