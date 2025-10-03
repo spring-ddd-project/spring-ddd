@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -209,65 +210,43 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
-        if (filePath.contains("-application-infrastructure/persistence/")) {
-            return processApplicationInfrastructurePersistence(filePath, content);
-        } else if (filePath.contains("-application-domain/")) {
-            return processApplicationDomain(filePath, content);
-        } else if (filePath.contains("-application-service/")) {
-            return processApplicationService(filePath, content);
-        } else if (filePath.contains("-application-web/")) {
-            return processApplicationWeb(filePath, content);
-        } else if (filePath.contains("apps/web-ele/src/views/")) {
-            return processWebEleViews(filePath, content);
-        } else if (filePath.contains("apps/web-ele/src/api/")) {
-            return processWebEleApi(filePath, content);
-        } else if (filePath.contains("apps/web-ele/src/locales/langs/en-US/")) {
-            return processWebEleLocalesEn(filePath, content);
-        } else if (filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
-            return processWebEleLocalesZh(filePath, content);
+        ProjectTreeView applicationRoot = findOrCreateRootNode("Application Root");
+        ProjectTreeView appsRoot = findOrCreateRootNode("Apps Root");
+
+        if (filePath.contains("-application-infrastructure/persistence/") ||
+                filePath.contains("-application-domain/") ||
+                filePath.contains("-application-service/") ||
+                filePath.contains("-application-web/")) {
+            return processPath(filePath, content, applicationRoot);
+        } else if (filePath.contains("apps/web-ele/src/views/") ||
+                filePath.contains("apps/web-ele/src/api/") ||
+                filePath.contains("apps/web-ele/src/locales/langs/en-US/") ||
+                filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
+            return processPath(filePath, content, appsRoot);
         } else {
-            ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
-            treeList.add(tree);
-            return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+            return processOtherPaths(filePath, content);
         }
     }
 
-    private Mono<Void> processApplicationInfrastructurePersistence(String filePath, String content) {
-        return processPath(filePath, content);
+    private ProjectTreeView findOrCreateRootNode(String rootLabel) {
+        for (ProjectTreeView tree : treeList) {
+            if (tree.getLabel().equals(rootLabel)) {
+                return tree;
+            }
+        }
+
+        ProjectTreeView newRoot = new ProjectTreeView();
+        newRoot.setId(UUID.randomUUID().toString());
+        newRoot.setLabel(rootLabel);
+        newRoot.setChildren(new ArrayList<>());
+        treeList.add(newRoot);
+        return newRoot;
     }
 
-    private Mono<Void> processApplicationDomain(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processApplicationService(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processApplicationWeb(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processWebEleViews(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processWebEleApi(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processWebEleLocalesEn(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processWebEleLocalesZh(String filePath, String content) {
-        return processPath(filePath, content);
-    }
-
-    private Mono<Void> processPath(String filePath, String content) {
+    private Mono<Void> processPath(String filePath, String content, ProjectTreeView root) {
         boolean pathExists = false;
 
-        for (ProjectTreeView tree : treeList) {
+        for (ProjectTreeView tree : root.getChildren()) {
             if (filePath.startsWith(tree.getLabel())) {
                 pathExists = treeBuilder.insertOrUpdateNode(tree, filePath, content);
                 break;
@@ -276,12 +255,17 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
         if (!pathExists) {
             ProjectTreeView newTree = treeBuilder.buildTree(filePath, content);
-            treeList.add(newTree);
+            root.getChildren().add(newTree);
         }
 
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
 
+    private Mono<Void> processOtherPaths(String filePath, String content) {
+        ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
+        treeList.add(tree);
+        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+    }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
         try {
