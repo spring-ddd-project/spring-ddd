@@ -18,7 +18,6 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -210,9 +209,12 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
+        // Find or create the root node for both cases
         ProjectTreeView applicationRoot = findOrCreateRootNode("Application Root");
         ProjectTreeView appsRoot = findOrCreateRootNode("Apps Root");
+        ProjectTreeView otherRoot = findOrCreateRootNode("Other Root");
 
+        // Depending on the file path, process under the correct root
         if (filePath.contains("-application-infrastructure/persistence/") ||
                 filePath.contains("-application-domain/") ||
                 filePath.contains("-application-service/") ||
@@ -224,7 +226,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                 filePath.contains("apps/web-ele/src/locales/langs/zh-CN/")) {
             return processPath(filePath, content, appsRoot);
         } else {
-            return processOtherPaths(filePath, content);
+            return processOtherPaths(filePath, content, otherRoot);
         }
     }
 
@@ -236,7 +238,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         }
 
         ProjectTreeView newRoot = new ProjectTreeView();
-        newRoot.setId(UUID.randomUUID().toString());
         newRoot.setLabel(rootLabel);
         newRoot.setChildren(new ArrayList<>());
         treeList.add(newRoot);
@@ -246,23 +247,22 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     private Mono<Void> processPath(String filePath, String content, ProjectTreeView root) {
         boolean pathExists = false;
 
-        for (ProjectTreeView tree : root.getChildren()) {
-            if (filePath.startsWith(tree.getLabel())) {
-                pathExists = treeBuilder.insertOrUpdateNode(tree, filePath, content);
-                break;
-            }
+        // Reuse the root node and build the tree under it
+        ProjectTreeView updatedRoot = treeBuilder.buildTree(root, filePath, content);
+
+        // If we added a new node, update the root
+        if (!updatedRoot.equals(root)) {
+            // You can handle the situation where the root gets updated here,
+            // such as checking whether the treeList needs to be updated.
+            root = updatedRoot;
         }
 
-        if (!pathExists) {
-            ProjectTreeView newTree = treeBuilder.buildTree(filePath, content);
-            root.getChildren().add(newTree);
-        }
-
+        // After processing the path, set the cache with the updated treeList
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
 
-    private Mono<Void> processOtherPaths(String filePath, String content) {
-        ProjectTreeView tree = treeBuilder.buildTree(filePath, content);
+    private Mono<Void> processOtherPaths(String filePath, String content, ProjectTreeView root) {
+        ProjectTreeView tree = treeBuilder.buildTree(root, filePath, content);
         treeList.add(tree);
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
