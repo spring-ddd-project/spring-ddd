@@ -13,4 +13,9 @@ public class EnabledDictItemState implements DictItemState {
         domain.getItemBasicInfo().setItemStatus(false);
         domain.setState(new DisabledDictItemState());
     }
+
+    @Override
+    public void restore(SysDictItemDomain domain) {
+        domain.setDeleteStatus(false);
+    }
 }

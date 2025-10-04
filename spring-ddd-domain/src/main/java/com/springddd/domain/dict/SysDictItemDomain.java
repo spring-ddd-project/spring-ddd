@@ -69,6 +69,16 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void restore() {
-        super.setDeleteStatus(false);
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.restore(this);
+    }
+
+    public com.springddd.domain.dict.memento.SysDictItemMemento saveToMemento() {
+        return new com.springddd.domain.dict.memento.SysDictItemMemento(this.itemBasicInfo, this.itemExtendInfo);
+    }
+
+    public void restoreFromMemento(com.springddd.domain.dict.memento.SysDictItemMemento memento) {
+        this.itemBasicInfo = memento.getItemBasicInfo();
+        this.itemExtendInfo = memento.getItemExtendInfo();
     }
 }
