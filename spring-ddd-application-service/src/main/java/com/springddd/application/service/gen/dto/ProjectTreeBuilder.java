@@ -25,19 +25,22 @@ import java.util.UUID;
 public class ProjectTreeBuilder {
 
     /**
-     * Build the whole tree from a file path and its content.
+     * Build or update the tree from a file path and its content.
      *
+     * @param root     root of the tree to build upon, or null if creating a new one
      * @param filePath relative path such as "xx-application-infrastructure/persistence/com/.../MyEntity.java"
      * @param content  file content, can be empty for directory nodes
-     * @return root of the generated tree (might contain multiple top‑level children)
+     * @return the root of the tree
      */
-    public ProjectTreeView buildTree(String filePath, String content) {
+    public ProjectTreeView buildTree(ProjectTreeView root, String filePath, String content) {
         String[] parts = filePath.split("/");
 
-        ProjectTreeView root = new ProjectTreeView();
-        root.setId(UUID.randomUUID().toString());
-        root.setLabel("TEMP");
-        root.setChildren(new ArrayList<>());
+        // If root is null, create a new one
+        if (root == null) {
+            root = new ProjectTreeView();
+            root.setLabel(parts[0]); // First part of the path becomes the root label
+            root.setChildren(new ArrayList<>());
+        }
 
         ProjectTreeView currentNode = root;
         for (int i = 0; i < parts.length; i++) {
@@ -52,12 +55,12 @@ public class ProjectTreeBuilder {
                 child = opt.get();
             } else {
                 child = new ProjectTreeView();
-                child.setId(UUID.randomUUID().toString());
                 child.setLabel(part);
                 child.setChildren(new ArrayList<>());
                 currentNode.getChildren().add(child);
             }
 
+            // If it's the last part of the path and it's a file, add the content
             if (i == parts.length - 1 && isFile(part)) {
                 child.setValue(content);
             }
@@ -66,41 +69,6 @@ public class ProjectTreeBuilder {
         }
 
         return root;
-    }
-
-    /**
-     * Check if a node with a specific file path exists and insert the file if necessary.
-     */
-    public boolean insertOrUpdateNode(ProjectTreeView root, String filePath, String content) {
-        String[] parts = filePath.split("/");
-
-        ProjectTreeView currentNode = root;
-        for (int i = 0; i < parts.length; i++) {
-            String part = parts[i];
-            Optional<ProjectTreeView> opt = currentNode.getChildren()
-                    .stream()
-                    .filter(c -> c.getLabel().equals(part))
-                    .findFirst();
-
-            ProjectTreeView child;
-            if (opt.isPresent()) {
-                child = opt.get();
-            } else {
-                child = new ProjectTreeView();
-                child.setId(UUID.randomUUID().toString());
-                child.setLabel(part);
-                child.setChildren(new ArrayList<>());
-                currentNode.getChildren().add(child);
-            }
-
-            // If it's the last part of the path, we insert the file content
-            if (i == parts.length - 1 && isFile(part)) {
-                child.setValue(content);
-            }
-
-            currentNode = child;
-        }
-        return true;
     }
 
     private boolean isFile(String part) {

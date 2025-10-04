@@ -8,8 +8,6 @@ import java.util.List;
 @Data
 public class ProjectTreeView implements Serializable {
 
-    private String id;
-
     private String label;
 
     private String value;
