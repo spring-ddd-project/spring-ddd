@@ -18,6 +18,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -245,25 +246,31 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private Mono<Void> processPath(String filePath, String content, ProjectTreeView root) {
-        boolean pathExists = false;
-
-        // Reuse the root node and build the tree under it
         ProjectTreeView updatedRoot = treeBuilder.buildTree(root, filePath, content);
 
-        // If we added a new node, update the root
         if (!updatedRoot.equals(root)) {
-            // You can handle the situation where the root gets updated here,
-            // such as checking whether the treeList needs to be updated.
+            // checking whether the treeList needs to be updated.
             root = updatedRoot;
         }
 
-        // After processing the path, set the cache with the updated treeList
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
 
     private Mono<Void> processOtherPaths(String filePath, String content, ProjectTreeView root) {
         ProjectTreeView tree = treeBuilder.buildTree(root, filePath, content);
-        treeList.add(tree);
+
+        // Check if the tree already exists in the list
+        Optional<ProjectTreeView> existingTree = treeList.stream()
+                .filter(t -> t.getLabel().equals(root.getLabel()))
+                .findFirst();
+
+        if (existingTree.isPresent()) {
+            ProjectTreeView existing = existingTree.get();
+            existing.setChildren(tree.getChildren());
+        } else {
+            treeList.add(tree);
+        }
+
         return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
     }
 
