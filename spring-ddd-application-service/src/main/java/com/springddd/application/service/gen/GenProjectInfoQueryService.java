@@ -51,3 +51,4 @@ public class GenProjectInfoQueryService {
         return queryFactory.getR2dbcEntityTemplate().select(GenProjectInfoEntity.class).matching(qry).one().map(genProjectInfoViewMapStruct::toView);
     }
 }
+

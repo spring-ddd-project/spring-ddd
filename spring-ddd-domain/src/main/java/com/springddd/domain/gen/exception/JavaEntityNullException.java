@@ -9,3 +9,4 @@ public class JavaEntityNullException extends DomainException {
         super(ErrorCode.GEN_INFO_JAVA_ENTITY_NULL);
     }
 }
+

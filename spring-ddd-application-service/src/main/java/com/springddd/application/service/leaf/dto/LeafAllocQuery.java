@@ -19,3 +19,4 @@ public class LeafAllocQuery implements Serializable {
     private Long id;
 
 }
+
