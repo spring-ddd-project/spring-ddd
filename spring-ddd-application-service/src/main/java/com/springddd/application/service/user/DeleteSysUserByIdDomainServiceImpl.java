@@ -28,3 +28,4 @@ public class DeleteSysUserByIdDomainServiceImpl implements DeleteSysUserByIdDoma
                 .then();
     }
 }
+

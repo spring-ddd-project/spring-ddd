@@ -9,3 +9,4 @@ public class MenuPathNullException extends DomainException {
         super(ErrorCode.MENU_PATH_NULL);
     }
 }
+
