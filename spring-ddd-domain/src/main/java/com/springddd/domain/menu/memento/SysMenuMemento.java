@@ -14,3 +14,4 @@ public class SysMenuMemento {
         this.advancedOptions = advancedOptions;
     }
 }
+
