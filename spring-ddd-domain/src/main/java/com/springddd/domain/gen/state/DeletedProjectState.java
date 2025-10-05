@@ -8,3 +8,4 @@ public class DeletedProjectState implements ProjectState {
         // Already deleted
     }
 }
+
