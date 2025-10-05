@@ -17,3 +17,4 @@ public class VisibleMenuState implements MenuState {
         domain.setState(new HiddenMenuState());
     }
 }
+
