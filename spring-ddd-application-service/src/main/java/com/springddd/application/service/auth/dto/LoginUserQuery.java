@@ -14,3 +14,4 @@ public class LoginUserQuery implements Serializable {
     @NotNull(message = "password can not be null")
     private String password;
 }
+
