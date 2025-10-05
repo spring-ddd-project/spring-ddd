@@ -14,3 +14,4 @@ public class DataPermission {
     private List<ColumnRule> columnRules;
 }
 
+
