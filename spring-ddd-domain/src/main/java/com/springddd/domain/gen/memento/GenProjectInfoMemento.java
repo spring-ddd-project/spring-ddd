@@ -14,3 +14,4 @@ public class GenProjectInfoMemento {
         this.extendInfo = extendInfo;
     }
 }
+
