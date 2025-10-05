@@ -31,3 +31,4 @@ public class SysRoleMenuDomain extends AbstractDomainMask {
         super.setDeleteStatus(true);
     }
 }
+
