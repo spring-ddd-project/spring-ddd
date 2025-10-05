@@ -9,3 +9,4 @@ public class ObjectTypeNullException extends DomainException {
         super(ErrorCode.GEN_AGGREGATE_OBJECT_TYPE_NULL);
     }
 }
+
