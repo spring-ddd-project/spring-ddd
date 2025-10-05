@@ -91,3 +91,4 @@ public class SysMenuDomain extends AbstractDomainMask implements Cloneable {
         this.advancedOptions = memento.getAdvancedOptions();
     }
 }
+
