@@ -9,3 +9,4 @@ public class ActiveProjectState implements ProjectState {
         domain.setState(new DeletedProjectState());
     }
 }
+
