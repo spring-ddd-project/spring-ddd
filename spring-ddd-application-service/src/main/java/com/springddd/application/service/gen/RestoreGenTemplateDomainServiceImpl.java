@@ -28,3 +28,4 @@ public class RestoreGenTemplateDomainServiceImpl implements RestoreGenTemplateDo
                 .then();
     }
 }
+
