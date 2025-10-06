@@ -5,3 +5,4 @@ import com.springddd.domain.role.SysRoleDomain;
 public interface RoleObserver {
     void onUpdate(SysRoleDomain domain);
 }
+

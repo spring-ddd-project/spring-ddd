@@ -53,3 +53,4 @@ public class WipeSysRoleByIdsDomainServiceImpl implements WipeSysRoleByIdsDomain
                 .thenMany(sysRoleRepository.deleteAllById(ids)).then();
     }
 }
+
