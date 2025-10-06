@@ -12,3 +12,4 @@ public class PasswordNullException extends DomainException {
         super(USER_PASSWORD_NULL);
     }
 }
+

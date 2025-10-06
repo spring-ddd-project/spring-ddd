@@ -76,3 +76,4 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
         return Mono.just(entity);
     }
 }
+
