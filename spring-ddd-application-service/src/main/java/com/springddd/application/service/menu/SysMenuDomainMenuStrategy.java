@@ -25,3 +25,4 @@ public class SysMenuDomainMenuStrategy implements SysMenuDomainStrategy {
         return domain;
     }
 }
+
