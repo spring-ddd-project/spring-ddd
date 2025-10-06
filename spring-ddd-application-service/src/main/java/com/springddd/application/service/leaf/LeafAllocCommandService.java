@@ -68,3 +68,4 @@ public class LeafAllocCommandService {
         return updateLeafAllocMaxIdByCustomStepDomainService.updateMaxIdByCustomStep(domain);
     }
 }
+
