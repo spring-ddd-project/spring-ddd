@@ -48,3 +48,4 @@ public class GenColumnsCommand implements Serializable {
     private String locale;
 }
 
+
