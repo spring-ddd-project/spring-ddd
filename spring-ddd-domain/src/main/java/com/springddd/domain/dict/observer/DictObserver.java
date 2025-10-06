@@ -6,3 +6,4 @@ public interface DictObserver {
     void onUpdate(SysDictDomain domain);
 }
 
+
