@@ -67,3 +67,4 @@ public class SysDictItemQueryService extends com.springddd.application.service.A
         return queryFactory.getR2dbcEntityTemplate().select(SysDictItemEntity.class).matching(qry).all().collectList().map(sysDictItemViewMapStruct::toViews);
     }
 }
+
