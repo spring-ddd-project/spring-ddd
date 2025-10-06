@@ -23,3 +23,4 @@ public class SysRoleMenuCommandService {
         return wipeSysRoleMenuByIdsDomainService.deleteByIds(ids);
     }
 }
+
