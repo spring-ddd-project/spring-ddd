@@ -13,3 +13,4 @@ public interface GenProjectInfoViewMapStruct {
     List<GenProjectInfoView> toViews(List<GenProjectInfoEntity> entities);
 }
 
+
