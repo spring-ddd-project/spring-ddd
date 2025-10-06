@@ -24,3 +24,4 @@ public class SysMenuDomainCatalogStrategy implements SysMenuDomainStrategy {
         return domain;
     }
 }
+
