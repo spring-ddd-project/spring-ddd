@@ -150,6 +150,11 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "PageQuery.java";
+            case "factoryImpl" -> projectName + "-application-service/"
+                    + packagePath + "/service/"
+                    + moduleName + "/"
+                    + requestName + "/"
+                    + className + "DomainFactoryImpl.java";
             case "deleteDomainImpl" -> projectName + "-application-service/"
                     + packagePath + "/service/"
                     + moduleName + "/"
