@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -43,14 +44,10 @@ public class GenDownloadDomainServiceImpl implements GenDownloadDomainService {
                         List<ProjectTreeView> treeViewList = objectMapper.convertValue(list, new TypeReference<>() {
                         });
 
-                        String json = objectMapper.writeValueAsString(treeViewList);
-
                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
                         try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                            ZipEntry entry = new ZipEntry("ddd_files.json");
-                            zos.putNextEntry(entry);
-                            zos.write(json.getBytes(StandardCharsets.UTF_8));
-                            zos.closeEntry();
+                            createZipFromTree(treeViewList, zos, "");
+                            zos.finish();
                         }
 
                         byte[] zipBytes = baos.toByteArray();
@@ -65,9 +62,28 @@ public class GenDownloadDomainServiceImpl implements GenDownloadDomainService {
                         );
 
                     } catch (Exception e) {
-                        log.error("\n===> #GenDownloadDomainServiceImpl.download#:{}", e.toString());
+                        log.error("Error preparing ZIP file: {}", e.getMessage(), e);
                         return Mono.error(new RuntimeException("Error preparing ZIP file"));
                     }
                 });
+    }
+
+    private void createZipFromTree(List<ProjectTreeView> treeList, ZipOutputStream zos, String parentPath) throws IOException {
+        for (ProjectTreeView node : treeList) {
+            String currentPath = parentPath.isEmpty() ? node.getLabel() : parentPath + "/" + node.getLabel();
+
+            if (node.getChildren() != null && !node.getChildren().isEmpty()) {
+                zos.putNextEntry(new ZipEntry(currentPath + "/"));
+                zos.closeEntry();
+
+                createZipFromTree(node.getChildren(), zos, currentPath);
+            } else {
+                zos.putNextEntry(new ZipEntry(currentPath));
+                if (node.getValue() != null) {
+                    zos.write(node.getValue().getBytes(StandardCharsets.UTF_8));
+                }
+                zos.closeEntry();
+            }
+        }
     }
 }
