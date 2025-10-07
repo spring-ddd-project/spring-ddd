@@ -15,3 +15,4 @@ public class RowScope {
     private List<Long> userIds;
     private Boolean self;
 }
+
