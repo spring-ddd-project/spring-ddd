@@ -25,7 +25,7 @@ public class SysMenuCommandService {
     private final RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
 
     public Mono<Long> create(SysMenuCommand command) {
-        MenuBasicInfo menuBasicInfo = new MenuBasicInfo(command.getName(), command.getPath(), command.getComponent(), command.getRedirect(), command.getPermission());
+        MenuBasicInfo menuBasicInfo = new MenuBasicInfo(command.getName(), command.getPath(), command.getComponent(), command.getApi(), command.getRedirect(), command.getPermission());
 
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
@@ -47,7 +47,7 @@ public class SysMenuCommandService {
 
     public Mono<Void> update(SysMenuCommand command) {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(command.getName(), command.getPath(), command.getComponent(), command.getRedirect(), command.getPermission());
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(command.getName(), command.getPath(), command.getComponent(), command.getApi(), command.getRedirect(), command.getPermission());
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                     command.getOrder(),
