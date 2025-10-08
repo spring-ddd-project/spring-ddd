@@ -26,3 +26,4 @@ public class GenTemplateDomain extends AbstractDomainMask {
         super.setDeleteStatus(false);
     }
 }
+
