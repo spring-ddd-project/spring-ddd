@@ -5,3 +5,4 @@ public interface AggregateRootId<T> {
     T value();
 }
 
+
