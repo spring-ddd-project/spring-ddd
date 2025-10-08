@@ -27,3 +27,4 @@ public class RestoreSysMenuByIdDomainServiceImpl implements RestoreSysMenuByIdDo
                         }), SecurityUtils.concurrency()).then();
     }
 }
+
