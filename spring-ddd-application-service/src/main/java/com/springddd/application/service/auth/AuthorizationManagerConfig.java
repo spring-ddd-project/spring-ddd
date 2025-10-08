@@ -44,7 +44,7 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
             }
         }
 
-        return sysMenuQueryService.queryByMenuComponent(path)
+        return sysMenuQueryService.queryByApi(path)
                 .flatMap(menu -> {
                     if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
                         log.error("\n#AuthorizationManagerConfig#[Menu permission is empty]:{}", menu);
