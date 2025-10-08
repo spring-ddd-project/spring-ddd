@@ -23,6 +23,8 @@ public class SysMenuEntity {
 
     private String component;
 
+    private String api;
+
     private String redirect;
 
     private String permission;
