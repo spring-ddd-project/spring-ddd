@@ -9,3 +9,4 @@ public class ComponentTypeNullException extends DomainException {
         super(ErrorCode.GEN_BIND_COMPONENT_TYPE_NULL);
     }
 }
+
