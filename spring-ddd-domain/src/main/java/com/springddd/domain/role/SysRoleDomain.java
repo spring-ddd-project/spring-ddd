@@ -88,3 +88,4 @@ public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
         super.setDeleteStatus(false);
     }
 }
+
