@@ -18,3 +18,4 @@ public class GenTemplateQuery implements Serializable {
     private Boolean deleteStatus;
 }
 
+
