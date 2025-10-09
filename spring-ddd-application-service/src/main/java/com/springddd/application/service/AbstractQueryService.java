@@ -51,3 +51,4 @@ public abstract class AbstractQueryService<T, V, Q extends com.springddd.domain.
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 }
+
