@@ -7,3 +7,4 @@ public interface DictItemState {
     void disable(SysDictItemDomain domain);
     void restore(SysDictItemDomain domain);
 }
+
