@@ -26,3 +26,4 @@ public class GenProjectInfoQuery implements Serializable {
     private Boolean deleteStatus;
 }
 
+
