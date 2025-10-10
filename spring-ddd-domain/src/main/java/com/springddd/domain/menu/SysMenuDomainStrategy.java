@@ -7,3 +7,4 @@ public interface SysMenuDomainStrategy {
     SysMenuDomain handle(String name, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo);
 }
 
+
