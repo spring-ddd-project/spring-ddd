@@ -8,3 +8,4 @@ public interface WipeGenProjectInfoByIdsDomainService {
 
     Mono<Void> wipeByIds(List<Long> ids);
 }
+
