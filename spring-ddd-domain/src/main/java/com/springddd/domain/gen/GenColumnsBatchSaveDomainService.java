@@ -9,3 +9,4 @@ public interface GenColumnsBatchSaveDomainService {
     Mono<Void> batchSave(List<GenColumnsDomain> domains);
 }
 
+
