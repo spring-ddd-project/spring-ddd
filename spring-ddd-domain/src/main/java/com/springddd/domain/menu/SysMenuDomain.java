@@ -16,6 +16,8 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     private Menu menu;
 
+    private Button button;
+
     private MenuBasicInfo menuBasicInfo;
 
     private MenuExtendInfo menuExtendInfo;
