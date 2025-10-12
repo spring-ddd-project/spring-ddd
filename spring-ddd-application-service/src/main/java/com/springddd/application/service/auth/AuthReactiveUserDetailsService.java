@@ -70,12 +70,14 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                 .map(menus -> {
                                                     user.setMenuIds(menus.stream().map(SysMenuView::getId).toList());
 
+                                                    System.out.println("menus = " + menus);
                                                     List<String> permissions = menus.stream()
                                                             .map(SysMenuView::getPermission)
                                                             .filter(permission -> !ObjectUtils.isEmpty(permission))
                                                             .distinct()
                                                             .collect(Collectors.toList());
 
+                                                    System.out.println("permissions = " + permissions);
                                                     user.setPermissions(permissions);
                                                     return user;
                                                 });
