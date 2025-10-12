@@ -13,3 +13,4 @@ public interface GenColumnBindViewMapStruct {
     List<GenColumnBindView> toViews(List<GenColumnBindEntity> entities);
 }
 
+
