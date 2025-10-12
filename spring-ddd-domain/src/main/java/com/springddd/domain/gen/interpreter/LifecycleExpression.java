@@ -5,3 +5,4 @@ import com.springddd.domain.gen.GenAggregateDomain;
 public interface LifecycleExpression {
     boolean evaluate(GenAggregateDomain domain);
 }
+
