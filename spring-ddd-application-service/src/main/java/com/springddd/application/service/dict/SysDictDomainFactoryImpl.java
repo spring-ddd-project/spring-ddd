@@ -18,3 +18,4 @@ public class SysDictDomainFactoryImpl implements SysDictDomainFactory {
         return sysDictDomain;
     }
 }
+

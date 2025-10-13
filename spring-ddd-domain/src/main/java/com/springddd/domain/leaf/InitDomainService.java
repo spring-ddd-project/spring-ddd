@@ -5,3 +5,4 @@ public interface InitDomainService {
     boolean init();
 }
 
+
