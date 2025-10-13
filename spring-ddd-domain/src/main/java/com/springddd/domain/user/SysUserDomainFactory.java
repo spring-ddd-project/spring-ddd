@@ -6,3 +6,4 @@ public interface SysUserDomainFactory {
                               Long deptId);
 }
 
+
