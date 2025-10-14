@@ -23,7 +23,6 @@ public class SysMenuDomainMenuStrategy implements SysMenuDomainStrategy {
                 menuBasicInfo.menuPath(),
                 menuBasicInfo.menuComponent(),
                 null,
-                null,
                 menuBasicInfo.menuPermission());
         domain.setMenuBasicInfo(basicInfo);
 
