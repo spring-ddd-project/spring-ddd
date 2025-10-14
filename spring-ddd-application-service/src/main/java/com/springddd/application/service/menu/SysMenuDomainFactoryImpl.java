@@ -13,7 +13,7 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
     private final List<SysMenuDomainStrategy> strategies;
 
     @Override
-    public SysMenuDomain create(MenuId parentId, MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo, Long deptId) {
+    public SysMenuDomain create(MenuId parentId, Catalog catalog, MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo, Long deptId) {
         SysMenuDomain domain = new SysMenuDomain();
 
         for (SysMenuDomainStrategy strategy : strategies) {
@@ -23,6 +23,7 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
         }
 
         domain.setParentId(parentId);
+        domain.setCatalog(catalog);
 
         domain.setDeptId(deptId);
         domain.setDeleteStatus(false);
