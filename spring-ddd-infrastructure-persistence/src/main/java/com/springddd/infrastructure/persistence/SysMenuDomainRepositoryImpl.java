@@ -23,7 +23,10 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             sysMenuDomain.setMenuId(new MenuId(e.getId()));
             sysMenuDomain.setParentId(new MenuId(e.getParentId()));
 
-            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(e.getName(), e.getPath(), e.getComponent(), e.getApi(), e.getRedirect(), e.getPermission());
+            Catalog catalog = new Catalog(e.getRedirect());
+            sysMenuDomain.setCatalog(catalog);
+
+            MenuBasicInfo menuBasicInfo = new MenuBasicInfo(e.getName(), e.getPath(), e.getComponent(), e.getApi(), e.getPermission());
             sysMenuDomain.setMenuBasicInfo(menuBasicInfo);
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(e.getSortOrder(), e.getTitle(), e.getAffixTab(), e.getNoBasicLayout(), e.getIcon(), e.getMenuType(), e.getVisible(), e.getEmbedded(), e.getMenuStatus());
@@ -48,10 +51,12 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         entity.setId(Optional.ofNullable(aggregateRoot.getMenuId()).map(MenuId::value).orElse(null));
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(MenuId::value).orElse(null));
 
+        Catalog catalog = aggregateRoot.getCatalog();
+        entity.setRedirect(catalog.menuRedirect());
+
         MenuBasicInfo menuBasicInfo = aggregateRoot.getMenuBasicInfo();
         entity.setName(menuBasicInfo.menuName());
         entity.setPermission(menuBasicInfo.menuPermission());
-        entity.setRedirect(menuBasicInfo.menuRedirect());
         entity.setPath(menuBasicInfo.menuPath());
         entity.setComponent(menuBasicInfo.menuComponent());
         entity.setApi(menuBasicInfo.api());
