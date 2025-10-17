@@ -19,3 +19,4 @@ public class WipeLeafAllocDomainServiceImpl implements WipeLeafAllocDomainServic
         return repository.deleteAllById(ids);
     }
 }
+
