@@ -5,3 +5,4 @@ import java.util.List;
 public record RoleScopeConfig(List<Long> depts, List<Long> posts, List<Long> users, Boolean self) {
 }
 
+
