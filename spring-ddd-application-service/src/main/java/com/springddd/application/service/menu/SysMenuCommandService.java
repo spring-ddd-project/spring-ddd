@@ -31,12 +31,9 @@ public class SysMenuCommandService {
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
                 command.getTitle(),
-                command.getAffixTab(),
-                command.getNoBasicLayout(),
                 command.getIcon(),
                 command.getMenuType(),
                 command.getVisible(),
-                command.getEmbedded(),
                 command.getMenuStatus());
 
         SysMenuDomain sysMenuDomain = sysMenuDomainFactory.create(
@@ -54,12 +51,9 @@ public class SysMenuCommandService {
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                     command.getOrder(),
                     command.getTitle(),
-                    command.getAffixTab(),
-                    command.getNoBasicLayout(),
                     command.getIcon(),
                     command.getMenuType(),
                     command.getVisible(),
-                    command.getEmbedded(),
                     command.getMenuStatus());
 
             for (SysMenuDomainStrategy strategy : strategies) {
