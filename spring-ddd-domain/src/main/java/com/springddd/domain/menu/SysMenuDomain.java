@@ -18,7 +18,6 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     private Button button;
 
-
     private MenuExtendInfo menuExtendInfo;
 
     public void create() {}
@@ -30,6 +29,8 @@ public class SysMenuDomain extends AbstractDomainMask {
                        MenuExtendInfo menuExtendInfo, Long deptId) {
         this.parentId = parentId;
         this.catalog = catalog;
+        this.menu = menu;
+        this.button = button;
         this.menuExtendInfo = menuExtendInfo;
         super.setDeptId(deptId);
     }
