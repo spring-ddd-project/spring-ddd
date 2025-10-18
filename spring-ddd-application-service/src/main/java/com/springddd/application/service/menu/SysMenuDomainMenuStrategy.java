@@ -1,9 +1,6 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.domain.menu.MenuBasicInfo;
-import com.springddd.domain.menu.MenuExtendInfo;
-import com.springddd.domain.menu.SysMenuDomain;
-import com.springddd.domain.menu.SysMenuDomainStrategy;
+import com.springddd.domain.menu.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,18 +12,14 @@ public class SysMenuDomainMenuStrategy implements SysMenuDomainStrategy {
     }
 
     @Override
-    public SysMenuDomain handle(MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo) {
+    public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
 
-        MenuBasicInfo basicInfo = new MenuBasicInfo(
-                menuBasicInfo.menuName(),
-                menuBasicInfo.menuPath(),
-                menuBasicInfo.menuComponent(),
-                null,
-                menuBasicInfo.menuPermission());
-        domain.setMenuBasicInfo(basicInfo);
+        Menu m = new Menu(menu.menuName(), menu.menuPath(), menu.component(), menu.affixTab(), menu.noBasicLayout(), menu.embedded());
 
-        MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.affixTab(), menuExtendInfo.noBasicLayout(), menuExtendInfo.icon(), menuExtendInfo.menuType(), menuExtendInfo.visible(), menuExtendInfo.embedded(), menuExtendInfo.menuStatus());
+        domain.setMenu(m);
+
+        MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.icon(), menuExtendInfo.menuType(), menuExtendInfo.visible(), menuExtendInfo.menuStatus());
         domain.setMenuExtendInfo(extendInfo);
         return domain;
     }
