@@ -12,16 +12,11 @@ public class SysMenuDomainCatalogStrategy implements SysMenuDomainStrategy {
     }
 
     @Override
-    public SysMenuDomain handle(MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo) {
+    public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
 
-        MenuBasicInfo basicInfo = new MenuBasicInfo(
-                menuBasicInfo.menuName(),
-                menuBasicInfo.menuPath(),
-                null,
-                null,
-                null);
-        domain.setMenuBasicInfo(basicInfo);
+        Catalog ca = new Catalog(catalog.menuRedirect());
+        domain.setCatalog(ca);
 
         MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.menuType(), menuExtendInfo.icon(), menuExtendInfo.menuStatus(), menuExtendInfo.visible());
         domain.setMenuExtendInfo(extendInfo);
