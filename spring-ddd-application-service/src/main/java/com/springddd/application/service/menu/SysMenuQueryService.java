@@ -82,31 +82,37 @@ public class SysMenuQueryService {
                         ).map(sysMenuViewMapStruct::toView)
                 )
                 .collectList()
-                .flatMap(menus -> ReactiveTreeUtils.loadParentsAndBuildTree(
-                        menus,
-                        SysMenuView::getId,
-                        SysMenuView::getParentId,
-                        parentId -> r2dbcEntityTemplate.selectOne(
-                                Query.query(Criteria
-                                        .where(SysMenuQuery.Fields.id).is(parentId)
-                                        .and(SysMenuQuery.Fields.deleteStatus).is(false)),
-                                SysMenuEntity.class
-                        ).map(sysMenuViewMapStruct::toView),
-                        SysMenuView::setChildren,
-                        menu -> menu.getParentId() == null || menu.getParentId() == 0,
-                        Comparator.comparing(o -> o.getMeta().getOrder()),
-                        menu -> !menu.getDeleteStatus(),
-                        30,
-                        menu -> !menu.getDeleteStatus()
-                ))
+                .flatMap(this::getBuildTree)
                 .flatMap(menus -> {
                     Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
 
+                    System.out.println("1 = " + menus);
                     List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
+                    System.out.println("2 = " + withoutPermissionsTree);
                     Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
 
                     return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
                 });
+    }
+
+    private Mono<List<SysMenuView>> getBuildTree(List<SysMenuView> menus) {
+        return ReactiveTreeUtils.loadParentsAndBuildTree(
+                menus,
+                SysMenuView::getId,
+                SysMenuView::getParentId,
+                parentId -> r2dbcEntityTemplate.selectOne(
+                        Query.query(Criteria
+                                .where(SysMenuQuery.Fields.id).is(parentId)
+                                .and(SysMenuQuery.Fields.deleteStatus).is(false)),
+                        SysMenuEntity.class
+                ).map(sysMenuViewMapStruct::toView),
+                SysMenuView::setChildren,
+                menu -> menu.getParentId() == null || menu.getParentId() == 0,
+                Comparator.comparing(o -> o.getMeta().getOrder()),
+                menu -> !menu.getDeleteStatus(),
+                30,
+                menu -> !menu.getDeleteStatus()
+        );
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
@@ -118,7 +124,8 @@ public class SysMenuQueryService {
                 .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
                 .flatMap(list -> {
                     try {
-                        List<SysMenuView> sysMenuViews = objectMapper.convertValue(list, new TypeReference<>() {});
+                        List<SysMenuView> sysMenuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                        });
                         return Mono.just(sysMenuViews);
                     } catch (IllegalArgumentException e) {
                         log.error("\n===> #SysMenuQueryService.getMenuTreeWithoutPermission#:{}", e.toString());
@@ -147,29 +154,14 @@ public class SysMenuQueryService {
                                 .all()
                                 .collectList()
                                 .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(menus -> ReactiveTreeUtils.loadParentsAndBuildTree(
-                                        menus,
-                                        SysMenuView::getId,
-                                        SysMenuView::getParentId,
-                                        parentId -> r2dbcEntityTemplate.selectOne(
-                                                Query.query(
-                                                        Criteria.where(SysMenuQuery.Fields.id).is(parentId)
-                                                        .and(SysMenuQuery.Fields.deleteStatus).is(false)),
-                                                SysMenuEntity.class
-                                        ).map(sysMenuViewMapStruct::toView),
-                                        SysMenuView::setChildren,
-                                        menu -> menu.getParentId() == null || menu.getParentId() == 0,
-                                        Comparator.comparing(o -> o.getMeta().getOrder()),
-                                        menu -> !menu.getDeleteStatus(),
-                                        30,
-                                        m -> !m.getDeleteStatus()
-                                ));
+                                .flatMap(this::getBuildTree);
                     } else {
                         return reactiveRedisCacheHelper
                                 .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
                                 .flatMap(list -> {
                                     try {
-                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {});
+                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                                        });
                                         return Mono.just(menuViews);
                                     } catch (IllegalArgumentException e) {
                                         log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
