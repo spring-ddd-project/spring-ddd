@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,21 +83,19 @@ public class SysMenuQueryService {
                         ).map(sysMenuViewMapStruct::toView)
                 )
                 .collectList()
-                .flatMap(this::getBuildTree)
+                .flatMap(buildTree())
                 .flatMap(menus -> {
                     Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
 
-                    System.out.println("1 = " + menus);
                     List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
-                    System.out.println("2 = " + withoutPermissionsTree);
                     Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
 
                     return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
                 });
     }
 
-    private Mono<List<SysMenuView>> getBuildTree(List<SysMenuView> menus) {
-        return ReactiveTreeUtils.loadParentsAndBuildTree(
+    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> buildTree() {
+        return menus -> ReactiveTreeUtils.loadParentsAndBuildTree(
                 menus,
                 SysMenuView::getId,
                 SysMenuView::getParentId,
@@ -147,30 +146,34 @@ public class SysMenuQueryService {
                 .filter(Objects::nonNull)
                 .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
                 .hasElements()
-                .flatMap(hasOwner -> {
-                    if (hasOwner) {
-                        return r2dbcEntityTemplate.select(SysMenuEntity.class)
-                                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
-                                .all()
-                                .collectList()
-                                .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(this::getBuildTree);
-                    } else {
-                        return reactiveRedisCacheHelper
-                                .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
-                                .flatMap(list -> {
-                                    try {
-                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
-                                        });
-                                        return Mono.just(menuViews);
-                                    } catch (IllegalArgumentException e) {
-                                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
-                                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
-                                    }
-                                })
-                                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
-                    }
-                });
+                .flatMap(getTreeWithPermission());
+    }
+
+    private Function<Boolean, Mono<? extends List<SysMenuView>>> getTreeWithPermission() {
+        return hasOwner -> {
+            if (hasOwner) {
+                return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                        .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
+                        .all()
+                        .collectList()
+                        .map(sysMenuViewMapStruct::toViewList)
+                        .flatMap(buildTree());
+            } else {
+                return reactiveRedisCacheHelper
+                        .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
+                        .flatMap(list -> {
+                            try {
+                                List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                                });
+                                return Mono.just(menuViews);
+                            } catch (IllegalArgumentException e) {
+                                log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
+                                return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                            }
+                        })
+                        .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+            }
+        };
     }
 
     private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
