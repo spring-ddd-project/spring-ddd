@@ -146,30 +146,34 @@ public class SysMenuQueryService {
                 .filter(Objects::nonNull)
                 .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
                 .hasElements()
-                .flatMap(hasOwner -> {
-                    if (hasOwner) {
-                        return r2dbcEntityTemplate.select(SysMenuEntity.class)
-                                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
-                                .all()
-                                .collectList()
-                                .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(buildTree());
-                    } else {
-                        return reactiveRedisCacheHelper
-                                .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
-                                .flatMap(list -> {
-                                    try {
-                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
-                                        });
-                                        return Mono.just(menuViews);
-                                    } catch (IllegalArgumentException e) {
-                                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
-                                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
-                                    }
-                                })
-                                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
-                    }
-                });
+                .flatMap(getTreeWithPermission());
+    }
+
+    private Function<Boolean, Mono<? extends List<SysMenuView>>> getTreeWithPermission() {
+        return hasOwner -> {
+            if (hasOwner) {
+                return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                        .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
+                        .all()
+                        .collectList()
+                        .map(sysMenuViewMapStruct::toViewList)
+                        .flatMap(buildTree());
+            } else {
+                return reactiveRedisCacheHelper
+                        .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
+                        .flatMap(list -> {
+                            try {
+                                List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                                });
+                                return Mono.just(menuViews);
+                            } catch (IllegalArgumentException e) {
+                                log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
+                                return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                            }
+                        })
+                        .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+            }
+        };
     }
 
     private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
