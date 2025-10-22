@@ -25,6 +25,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -82,21 +83,19 @@ public class SysMenuQueryService {
                         ).map(sysMenuViewMapStruct::toView)
                 )
                 .collectList()
-                .flatMap(this::getBuildTree)
+                .flatMap(buildTree())
                 .flatMap(menus -> {
                     Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
 
-                    System.out.println("1 = " + menus);
                     List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
-                    System.out.println("2 = " + withoutPermissionsTree);
                     Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
 
                     return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
                 });
     }
 
-    private Mono<List<SysMenuView>> getBuildTree(List<SysMenuView> menus) {
-        return ReactiveTreeUtils.loadParentsAndBuildTree(
+    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> buildTree() {
+        return menus -> ReactiveTreeUtils.loadParentsAndBuildTree(
                 menus,
                 SysMenuView::getId,
                 SysMenuView::getParentId,
@@ -154,7 +153,7 @@ public class SysMenuQueryService {
                                 .all()
                                 .collectList()
                                 .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(this::getBuildTree);
+                                .flatMap(buildTree());
                     } else {
                         return reactiveRedisCacheHelper
                                 .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
