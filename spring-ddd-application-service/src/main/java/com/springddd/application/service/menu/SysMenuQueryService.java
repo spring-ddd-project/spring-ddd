@@ -84,14 +84,18 @@ public class SysMenuQueryService {
                 )
                 .collectList()
                 .flatMap(buildTree())
-                .flatMap(menus -> {
-                    Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
+                .flatMap(cacheTree());
+    }
 
-                    List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
-                    Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
+    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> cacheTree() {
+        return menus -> {
+            Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
 
-                    return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
-                });
+            List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
+            Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
+
+            return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
+        };
     }
 
     private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> buildTree() {
