@@ -22,7 +22,8 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     private MenuExtendInfo menuExtendInfo;
 
-    public void create() {}
+    public void create() {
+    }
 
     public void update(MenuId parentId,
                        Catalog catalog,
@@ -43,5 +44,14 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     public void restore() {
         super.setDeleteStatus(false);
+    }
+
+    public void copy(MenuId menuId,
+                     MenuId parentId,
+                     Catalog catalog,
+                     Menu menu,
+                     Button button,
+                     MenuExtendInfo menuExtendInfo) {
+
     }
 }
