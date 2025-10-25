@@ -36,3 +36,4 @@ public record ProjectInfo(String tableName, String packageName, String className
 
 
 
+
