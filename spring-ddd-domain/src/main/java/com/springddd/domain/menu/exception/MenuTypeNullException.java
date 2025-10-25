@@ -18,3 +18,4 @@ public class MenuTypeNullException extends DomainException {
 
 
 
+
