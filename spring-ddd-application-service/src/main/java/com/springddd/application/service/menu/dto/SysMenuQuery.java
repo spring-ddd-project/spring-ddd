@@ -19,8 +19,6 @@ public class SysMenuQuery implements Serializable {
 
     private String component;
 
-    private String api;
-
     private String redirect;
 
     private String permission;
