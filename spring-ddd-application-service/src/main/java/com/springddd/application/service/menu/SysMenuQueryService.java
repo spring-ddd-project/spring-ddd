@@ -66,8 +66,8 @@ public class SysMenuQueryService {
         return sysMenuRepository.findById(menuId).filter(menu -> !menu.getDeleteStatus()).map(sysMenuViewMapStruct::toView);
     }
 
-    public Mono<SysMenuView> queryByApi(String api) {
-        Criteria criteria = Criteria.where(SysMenuQuery.Fields.api).is(api);
+    public Mono<SysMenuView> queryByComponent(String component) {
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.component).is(component);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
@@ -213,7 +213,6 @@ public class SysMenuQueryService {
         copy.setPath(menu.getPath());
         copy.setName(menu.getName());
         copy.setComponent(menu.getComponent());
-        copy.setApi(menu.getApi());
         copy.setPermission(menu.getPermission());
         copy.setMenuType(menu.getMenuType());
         copy.setVisible(menu.getVisible());
