@@ -45,18 +45,4 @@ public class SysMenuDomain extends AbstractDomainMask {
     public void restore() {
         super.setDeleteStatus(false);
     }
-
-    public void copy(MenuId menuId,
-                     MenuId parentId,
-                     Catalog catalog,
-                     Menu menu,
-                     Button button,
-                     MenuExtendInfo menuExtendInfo) {
-        this.menuId = menuId;
-        this.parentId = parentId;
-        this.catalog = catalog;
-        this.menu = menu;
-        this.button = button;
-        this.menuExtendInfo = menuExtendInfo;
-    }
 }
