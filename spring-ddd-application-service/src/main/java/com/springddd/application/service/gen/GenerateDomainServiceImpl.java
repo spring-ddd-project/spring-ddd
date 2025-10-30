@@ -63,126 +63,127 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         String className = (String) context.get("className");
         String requestName = (String) context.get("requestName");
 
+        String srcPath = "src/main/java/";
         String packagePath = packageName.replace('.', '/');
 
         return switch (templateName) {
             // application-infrastructure-persistence
-            case "entity" -> projectName + "-application-infrastructure/persistence/"
+            case "entity" -> projectName + "-application-infrastructure/persistence/" + srcPath
                     + packagePath + "/entity/"
                     + className + "Entity.java";
-            case "r2dbc" -> projectName + "-application-infrastructure/persistence/"
+            case "r2dbc" -> projectName + "-application-infrastructure/persistence/" + srcPath
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
-            case "domainRepositoryImpl" -> projectName + "-application-infrastructure/persistence/"
+            case "domainRepositoryImpl" -> projectName + "-application-infrastructure/persistence/" + srcPath
                     + packagePath + "/"
                     + className + "DomainRepositoryImpl.java";
 
             // application-domain
-            case "aggregateRoot" -> projectName + "-application-domain/"
+            case "aggregateRoot" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "Id.java";
-            case "objectValue" -> projectName + "-application-domain/"
+            case "objectValue" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + ".java";
-            case "extendInfo" -> projectName + "-application-domain/"
+            case "extendInfo" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "ExtendInfo.java";
-            case "domain" -> projectName + "-application-domain/"
+            case "domain" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "Domain.java";
-            case "factory" -> projectName + "-application-domain/"
+            case "factory" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainFactory.java";
-            case "domainRepository" -> projectName + "-application-domain/"
+            case "domainRepository" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainRepository.java";
-            case "deleteDomain" -> projectName + "-application-domain/"
+            case "deleteDomain" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Delete" + className + "DomainService.java";
-            case "wipeDomain" -> projectName + "-application-domain/"
+            case "wipeDomain" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Wipe" + className + "DomainService.java";
-            case "restoreDomain" -> projectName + "-application-domain/"
+            case "restoreDomain" -> projectName + "-application-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Restore" + className + "DomainService.java";
 
             // application-service
-            case "command" -> projectName + "-application-service/"
+            case "command" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "Command.java";
-            case "query" -> projectName + "-application-service/"
+            case "query" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "Query.java";
-            case "view" -> projectName + "-application-service/"
+            case "view" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "View.java";
-            case "mapstruct" -> projectName + "-application-service/"
+            case "mapstruct" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "ViewMapstruct.java";
-            case "pageQuery" -> projectName + "-application-service/"
+            case "pageQuery" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "PageQuery.java";
-            case "factoryImpl" -> projectName + "-application-service/"
+            case "factoryImpl" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainFactoryImpl.java";
-            case "deleteDomainImpl" -> projectName + "-application-service/"
+            case "deleteDomainImpl" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Delete" + className + "DomainServiceImpl.java";
-            case "wipeDomainImpl" -> projectName + "-application-service/"
+            case "wipeDomainImpl" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Wipe" + className + "DomainServiceImpl.java";
-            case "restoreDomainImpl" -> projectName + "-application-service/"
+            case "restoreDomainImpl" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Restore" + className + "DomainServiceImpl.java";
-            case "commandService" -> projectName + "-application-service/"
+            case "commandService" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "CommandService.java";
-            case "queryService" -> projectName + "-application-service/"
+            case "queryService" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/service/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "QueryService.java";
 
             // application-web
-            case "controller" -> projectName + "-application-web/"
+            case "controller" -> projectName + "-application-web/" + srcPath
                     + className + "Controller.java";
 
             // vue
