@@ -67,59 +67,59 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         String packagePath = packageName.replace('.', '/');
 
         return switch (templateName) {
-            // application-infrastructure-persistence
-            case "entity" -> projectName + "-application-infrastructure/persistence/" + srcPath
+            // infrastructure-persistence
+            case "entity" -> projectName + "-infrastructure/persistence/" + srcPath
                     + packagePath + "/entity/"
                     + className + "Entity.java";
-            case "r2dbc" -> projectName + "-application-infrastructure/persistence/" + srcPath
+            case "r2dbc" -> projectName + "-infrastructure/persistence/" + srcPath
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
-            case "domainRepositoryImpl" -> projectName + "-application-infrastructure/persistence/" + srcPath
+            case "domainRepositoryImpl" -> projectName + "-infrastructure/persistence/" + srcPath
                     + packagePath + "/"
                     + className + "DomainRepositoryImpl.java";
 
-            // application-domain
-            case "aggregateRoot" -> projectName + "-application-domain/" + srcPath
+            // domain
+            case "aggregateRoot" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "Id.java";
-            case "objectValue" -> projectName + "-application-domain/" + srcPath
+            case "objectValue" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + ".java";
-            case "extendInfo" -> projectName + "-application-domain/" + srcPath
+            case "extendInfo" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "ExtendInfo.java";
-            case "domain" -> projectName + "-application-domain/" + srcPath
+            case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "Domain.java";
-            case "factory" -> projectName + "-application-domain/" + srcPath
+            case "factory" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainFactory.java";
-            case "domainRepository" -> projectName + "-application-domain/" + srcPath
+            case "domainRepository" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + className + "DomainRepository.java";
-            case "deleteDomain" -> projectName + "-application-domain/" + srcPath
+            case "deleteDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Delete" + className + "DomainService.java";
-            case "wipeDomain" -> projectName + "-application-domain/" + srcPath
+            case "wipeDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
                     + "Wipe" + className + "DomainService.java";
-            case "restoreDomain" -> projectName + "-application-domain/" + srcPath
+            case "restoreDomain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
                     + requestName + "/"
@@ -182,8 +182,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + requestName + "/"
                     + className + "QueryService.java";
 
-            // application-web
-            case "controller" -> projectName + "-application-web/" + srcPath
+            // interface-web
+            case "controller" -> projectName + "-interface-web/" + srcPath
                     + className + "Controller.java";
 
             // vue
