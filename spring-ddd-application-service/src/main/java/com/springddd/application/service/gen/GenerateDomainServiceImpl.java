@@ -68,13 +68,13 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
         return switch (templateName) {
             // infrastructure-persistence
-            case "entity" -> projectName + "-infrastructure/persistence/" + srcPath
+            case "entity" -> projectName + "-infrastructure-persistence/" + srcPath
                     + packagePath + "/entity/"
                     + className + "Entity.java";
-            case "r2dbc" -> projectName + "-infrastructure/persistence/" + srcPath
+            case "r2dbc" -> projectName + "-infrastructure-persistence/" + srcPath
                     + packagePath + "/r2dbc/"
                     + className + "Repository.java";
-            case "domainRepositoryImpl" -> projectName + "-infrastructure/persistence/" + srcPath
+            case "domainRepositoryImpl" -> projectName + "-infrastructure-persistence/" + srcPath
                     + packagePath + "/"
                     + className + "DomainRepositoryImpl.java";
 
@@ -223,7 +223,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         ProjectTreeView otherRoot = findOrCreateRootNode("README");
 
         // Depending on the file path, process under the correct root
-        if (filePath.contains("-infrastructure/persistence/") ||
+        if (filePath.contains("-infrastructure-persistence/") ||
                 filePath.contains("-domain/") ||
                 filePath.contains("-application-service/") ||
                 filePath.contains("-interface-web/")) {
