@@ -69,13 +69,13 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         return switch (templateName) {
             // infrastructure-persistence
             case "entity" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/entity/"
+                    + packagePath + "/infrastructure/persistence/entity/"
                     + className + "Entity.java";
             case "r2dbc" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/r2dbc/"
+                    + packagePath + "/infrastructure/persistence/r2dbc/"
                     + className + "Repository.java";
             case "domainRepositoryImpl" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/"
+                    + packagePath + "/infrastructure/persistence/"
                     + className + "DomainRepositoryImpl.java";
 
             // domain
