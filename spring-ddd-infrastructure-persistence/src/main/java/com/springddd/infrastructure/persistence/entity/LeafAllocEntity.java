@@ -2,9 +2,7 @@ package com.springddd.infrastructure.persistence.entity;
 
 import com.springddd.domain.util.IdGenerate;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.annotation.Version;
+import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
@@ -13,15 +11,13 @@ import java.time.LocalDateTime;
 @Table("leaf_alloc")
 public class LeafAllocEntity {
 
+    private String bizTag;
+
     @Id
     @IdGenerate
     private Long id;
 
-    private String bizTag;
-
     private Long maxId;
-
-    private Integer step;
 
     private String description;
 
@@ -30,4 +26,7 @@ public class LeafAllocEntity {
 
     @Version
     private Integer version;
+
+    private Integer step;
+
 }
