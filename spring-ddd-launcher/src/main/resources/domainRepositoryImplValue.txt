@@ -45,13 +45,16 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
                         </#list>
                     </#list>
             domain.set${aggregateView.objectName}(new ${aggregateView.objectName}(${constructorParams?join(", ")}));
-            <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
-            <#list fields as field>
-                <#if aggregateView.objectName == field>
-                    domain.set${field?cap_first}(e.get${field?cap_first}());
                 </#if>
             </#list>
-                </#if>
+
+            <#list columnsViews as columnsView>
+                <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
+                <#list fields as field>
+                    <#if columnsView.propJavaEntity == field>
+            domain.set${field?cap_first}(e.get${field?cap_first}());
+                    </#if>
+                </#list>
             </#list>
 
             return domain;
@@ -64,7 +67,11 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
 
         <#list aggregateViews as aggregateView>
             <#if aggregateView.objectType == 1>
+                <#list columnsViews as columnsView>
+                    <#if columnsView.propColumnKey == "PRI">
         entity.set${aggregateView.objectName}(Optional.ofNullable(domain.get${aggregateView.objectName}()).map(${aggregateView.objectName}::value).orElse(null));
+                    </#if>
+                </#list>
             </#if>
         </#list>
 
@@ -73,15 +80,22 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
                 <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
                 <#list fieldList as field>
                     <#assign fieldTrimmed = field?trim>
-        entity.set${fieldTrimmed?cap_first}(domain.get${aggregateView.objectName}().${fieldTrimmed}());
+                        <#list columnsViews as columnsView>
+                            <#if columnsView.propColumnKey != "PRI">
+        entity.set${columnsView.propJavaEntity?cap_first}(domain.get${aggregateView.objectName}().${fieldTrimmed}());
+                            </#if>
+                        </#list>
                 </#list>
-        <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
-        <#list fields as field>
-            <#if aggregateView.objectName == field>
-                domain.set${field?cap_first}(e.get${field?cap_first}());
             </#if>
         </#list>
-            </#if>
+
+        <#list columnsViews as columnsView>
+            <#assign fields = ["createBy", "createTime", "updateBy", "updateTime", "version"]>
+            <#list fields as field>
+                <#if columnsView.propJavaEntity == field>
+        entity.set${field?cap_first}(domain.get${field?cap_first}());
+                </#if>
+            </#list>
         </#list>
 
         return repository.save(entity).map(${className}Entity::getId);
