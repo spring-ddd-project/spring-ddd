@@ -1,0 +1,92 @@
+package ${packageName}.application.service.${moduleName}.${requestName};
+
+import ${packageName}.application.service.${moduleName}.dto.${className}Command;
+import ${packageName}.domain.${moduleName}.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class ${className}CommandService {
+
+    private final ${className}DomainRepository ${requestName}DomainRepository;
+
+    private final ${className}DomainFactory ${requestName}DomainFactory;
+
+    private final Delete${className}DomainService delete${className}DomainService;
+
+    private final Restore${className}DomainService restore${className}DomainService;
+
+    private final Wipe${className}DomainService wipe${className}DomainService;
+
+    public Mono<Long> create(${className}Command command) {
+    <#assign newInstanceParams = []>
+    <#list aggregateViews as aggregateView>
+        <#if aggregateView.objectType != 1 && aggregateView.objectType != 4>
+            <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
+            <#assign constructorParams = []>
+            <#list fieldList as field>
+                <#assign fieldTrimmed = field?trim>
+                <#list columnsViews as col>
+                    <#if col.propJavaEntity == fieldTrimmed>
+                        <#assign constructorParams += ["command.get" + fieldTrimmed?cap_first + "()"]>
+                    </#if>
+                </#list>
+            </#list>
+            <#assign varName = aggregateView.objectName?uncap_first>
+        ${aggregateView.objectName} ${varName} = new ${aggregateView.objectName}(${constructorParams?join(", ")});
+            <#assign newInstanceParams += [varName]>
+        </#if>
+    </#list>
+
+        ${className}Domain domain = ${requestName}DomainFactory.newInstance(${newInstanceParams?join(", ")});
+        domain.create();
+        return ${requestName}DomainRepository.save(domain);
+    }
+
+    public Mono<Void> update(${className}Command command) {
+        <#assign updateParams = []>
+        <#list aggregateViews as aggregateView>
+            <#if aggregateView.objectType != 1 && aggregateView.objectType != 4>
+                <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
+                <#assign constructorParams = []>
+                <#list fieldList as field>
+                    <#assign fieldTrimmed = field?trim>
+                    <#list columnsViews as col>
+                        <#if col.propJavaEntity == fieldTrimmed>
+                            <#assign constructorParams += ["command.get" + fieldTrimmed?cap_first + "()"]>
+                        </#if>
+                    </#list>
+                </#list>
+                <#assign varName = aggregateView.objectName?uncap_first>
+        ${aggregateView.objectName} ${varName} = new ${aggregateView.objectName}(${constructorParams?join(", ")});
+                <#assign updateParams += [varName]>
+            </#if>
+        </#list>
+
+        <#list aggregateViews as aggregateView>
+            <#if aggregateView.objectType == 1>
+        return ${requestName}DomainRepository.load(new ${aggregateView.objectName}(command.getId()))
+                .flatMap(domain -> {
+                    domain.update(${updateParams?join(", ")});
+                    return ${requestName}DomainRepository.save(domain);
+                }).then();
+            </#if>
+        </#list>
+    }
+
+    public Mono<Void> delete(List<Long> ids) {
+        return delete${className}DomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restore${className}DomainService.restoreByIds(ids);
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return wipe${className}DomainService.wipeByIds(ids);
+    }
+}
