@@ -11,22 +11,22 @@ import java.time.LocalDateTime;
 @Table("leaf_alloc")
 public class LeafAllocEntity {
 
-    private Long maxId;
-
     private String bizTag;
 
-    private Integer step;
+    private Long maxId;
+
+    @Id
+    @IdGenerate
+    private Long id;
 
     private String description;
 
     @LastModifiedDate
     private LocalDateTime updateTime;
 
-    @Id
-    @IdGenerate
-    private Long id;
-
     @Version
     private Integer version;
+
+    private Integer step;
 
 }
