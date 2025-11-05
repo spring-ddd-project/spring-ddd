@@ -69,7 +69,7 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
             <#if aggregateView.objectType == 1>
                 <#list columnsViews as columnsView>
                     <#if columnsView.propColumnKey == "PRI">
-        entity.set${aggregateView.objectName}(Optional.ofNullable(domain.get${aggregateView.objectName}()).map(${aggregateView.objectName}::value).orElse(null));
+        entity.set${columnsView.propJavaEntity?cap_first}(Optional.ofNullable(domain.get${aggregateView.objectName}()).map(${aggregateView.objectName}::value).orElse(null));
                     </#if>
                 </#list>
             </#if>
@@ -80,11 +80,11 @@ public class ${className}DomainRepositoryImpl implements ${className}DomainRepos
                 <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
                 <#list fieldList as field>
                     <#assign fieldTrimmed = field?trim>
-                        <#list columnsViews as columnsView>
-                            <#if columnsView.propColumnKey != "PRI">
+                    <#list columnsViews as columnsView>
+                        <#if columnsView.propColumnKey != "PRI" && columnsView.propJavaEntity == fieldTrimmed>
         entity.set${columnsView.propJavaEntity?cap_first}(domain.get${aggregateView.objectName}().${fieldTrimmed}());
-                            </#if>
-                        </#list>
+                        </#if>
+                    </#list>
                 </#list>
             </#if>
         </#list>
