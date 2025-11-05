@@ -134,7 +134,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "mapstruct" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
                     + moduleName + "/dto/"
-                    + className + "ViewMapstruct.java";
+                    + className + "ViewMapStruct.java";
             case "pageQuery" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
                     + moduleName + "/dto/"
