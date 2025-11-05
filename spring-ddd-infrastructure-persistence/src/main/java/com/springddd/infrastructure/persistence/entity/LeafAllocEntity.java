@@ -13,7 +13,7 @@ public class LeafAllocEntity {
 
     private String bizTag;
 
-    private Integer step;
+    private Long maxId;
 
     @Id
     @IdGenerate
@@ -27,6 +27,6 @@ public class LeafAllocEntity {
     @Version
     private Integer version;
 
-    private Long maxId;
+    private Integer step;
 
 }
