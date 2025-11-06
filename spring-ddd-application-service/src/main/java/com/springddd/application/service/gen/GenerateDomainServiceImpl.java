@@ -166,6 +166,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
             // interface-web
             case "controller" -> projectName + "-interface-web/" + srcPath
+                    + packagePath + "/web/"
                     + className + "Controller.java";
 
             // vue
