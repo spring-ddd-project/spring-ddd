@@ -26,3 +26,4 @@ public class GenColumnBindPageQuery extends GenColumnBindQuery implements Serial
 
 
 
+
