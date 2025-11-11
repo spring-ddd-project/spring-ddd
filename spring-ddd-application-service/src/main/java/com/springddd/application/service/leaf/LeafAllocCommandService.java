@@ -22,6 +22,8 @@ public class LeafAllocCommandService {
 
     private final WipeLeafAllocDomainService wipeLeafAllocDomainService;
 
+    private final UpdateLeafAllocMaxIdByTagDomainService updateLeafAllocMaxIdByTagDomainService;
+
     public Mono<Long> create(LeafAllocCommand command) {
         LeafProp leafProp = new LeafProp(command.getBizTag(), command.getStep(), command.getMaxId());
         ExtendInfo extendInfo = new ExtendInfo(command.getDescription());
@@ -52,5 +54,9 @@ public class LeafAllocCommandService {
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeLeafAllocDomainService.wipeByIds(ids);
+    }
+
+    public Mono<Void> updateMaxId(LeafAllocCommand command) {
+        return updateLeafAllocMaxIdByTagDomainService.updateMaxIdByTag(command.getBizTag());
     }
 }
