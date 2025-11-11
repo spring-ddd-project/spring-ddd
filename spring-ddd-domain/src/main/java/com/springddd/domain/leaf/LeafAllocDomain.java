@@ -28,4 +28,9 @@ public class LeafAllocDomain extends AbstractDomainMask {
     public void restore() {
         super.setDeleteStatus(false);
     }
+
+    public void updateMaxId(LeafProp leafProp) {
+        Long newMaxId = leafProp.maxId() + leafProp.step();
+        this.leafProp = new LeafProp(leafProp.bizTag(), leafProp.step(), newMaxId);
+    }
 }
