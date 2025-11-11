@@ -44,7 +44,7 @@ public class LeafAllocQueryService {
         return r2dbcEntityTemplate.select(LeafAllocEntity.class).all().collectList().map(mapStruct::toViews);
     }
 
-    public Mono<LeafAllocView> getLeafAlloc(String tag) {
+    public Mono<LeafAllocView> getLeafAllocByTag(String tag) {
         return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where(LeafAllocQuery.Fields.bizTag).is(tag)), LeafAllocEntity.class).map(mapStruct::toView);
     }
 }
