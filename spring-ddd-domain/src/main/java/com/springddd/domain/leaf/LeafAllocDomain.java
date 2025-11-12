@@ -33,4 +33,8 @@ public class LeafAllocDomain extends AbstractDomainMask {
         Long newMaxId = leafProp.maxId() + leafProp.step();
         this.leafProp = new LeafProp(leafProp.bizTag(), leafProp.step(), newMaxId);
     }
+
+    public void updateMaxIdByCustomStep(LeafProp leafProp) {
+        this.updateMaxId(leafProp);
+    }
 }
