@@ -1,4 +1,6 @@
 package com.springddd.application.service.leaf.dto;
+
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -8,62 +10,123 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * 双buffer
  */
-public record SegmentBufferCommand(
-        String key,
-        SegmentCommand[] segments,
-        int currentPos,
-        boolean nextReady,
-        boolean initOk,
-        AtomicBoolean threadRunning,
-        ReadWriteLock lock,
-        int step,
-        int minStep,
-        long updateTimestamp
-) {
 
-    // 自定义构造函数，初始化默认值
-    public SegmentBufferCommand(String key) {
-        this(key, new SegmentCommand[]{new SegmentCommand()}, 0, false, false, new AtomicBoolean(false), new ReentrantReadWriteLock(), 0, 0, 0L);
+public class SegmentBufferCommand implements Serializable {
+
+    private String key;
+    private final SegmentCommand[] segments; //双buffer
+    private volatile int currentPos; //当前的使用的segment的index
+    private volatile boolean nextReady; //下一个segment是否处于可切换状态
+    private volatile boolean initOk; //是否初始化完成
+    private final AtomicBoolean threadRunning; //线程是否在运行中
+    private final ReadWriteLock lock;
+
+    private volatile int step;
+    private volatile int minStep;
+    private volatile long updateTimestamp;
+
+    public SegmentBufferCommand() {
+        segments = new SegmentCommand[]{new SegmentCommand(this), new SegmentCommand(this)};
+        currentPos = 0;
+        nextReady = false;
+        initOk = false;
+        threadRunning = new AtomicBoolean(false);
+        lock = new ReentrantReadWriteLock();
     }
 
-    // 获取当前Segment
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public SegmentCommand[] getSegments() {
+        return segments;
+    }
+
     public SegmentCommand getCurrent() {
         return segments[currentPos];
     }
 
-    // 计算下一个Segment的索引
+    public int getCurrentPos() {
+        return currentPos;
+    }
+
     public int nextPos() {
         return (currentPos + 1) % 2;
     }
 
-    // 创建一个新的实例，并切换 Segment
-    public SegmentBufferCommand switchPos() {
-        int newPos = nextPos();
-        return new SegmentBufferCommand(key, segments, newPos, nextReady, initOk, threadRunning, lock, step, minStep, updateTimestamp);
+    public void switchPos() {
+        currentPos = nextPos();
     }
 
-    // 获取读锁
+    public boolean isInitOk() {
+        return initOk;
+    }
+
+    public void setInitOk(boolean initOk) {
+        this.initOk = initOk;
+    }
+
+    public boolean isNextReady() {
+        return nextReady;
+    }
+
+    public void setNextReady(boolean nextReady) {
+        this.nextReady = nextReady;
+    }
+
+    public AtomicBoolean getThreadRunning() {
+        return threadRunning;
+    }
+
     public Lock rLock() {
         return lock.readLock();
     }
 
-    // 获取写锁
     public Lock wLock() {
         return lock.writeLock();
     }
 
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+
+    public int getMinStep() {
+        return minStep;
+    }
+
+    public void setMinStep(int minStep) {
+        this.minStep = minStep;
+    }
+
+    public long getUpdateTimestamp() {
+        return updateTimestamp;
+    }
+
+    public void setUpdateTimestamp(long updateTimestamp) {
+        this.updateTimestamp = updateTimestamp;
+    }
+
     @Override
     public String toString() {
-        return "SegmentBuffer{" +
-                "key='" + key + '\'' +
-                ", segments=" + Arrays.toString(segments) +
-                ", currentPos=" + currentPos +
-                ", nextReady=" + nextReady +
-                ", initOk=" + initOk +
-                ", threadRunning=" + threadRunning +
-                ", step=" + step +
-                ", minStep=" + minStep +
-                ", updateTimestamp=" + updateTimestamp +
-                '}';
+        final StringBuilder sb = new StringBuilder("SegmentBuffer{");
+        sb.append("key='").append(key).append('\'');
+        sb.append(", segments=").append(Arrays.toString(segments));
+        sb.append(", currentPos=").append(currentPos);
+        sb.append(", nextReady=").append(nextReady);
+        sb.append(", initOk=").append(initOk);
+        sb.append(", threadRunning=").append(threadRunning);
+        sb.append(", step=").append(step);
+        sb.append(", minStep=").append(minStep);
+        sb.append(", updateTimestamp=").append(updateTimestamp);
+        sb.append('}');
+        return sb.toString();
     }
 }
