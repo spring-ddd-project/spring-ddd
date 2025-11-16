@@ -14,3 +14,4 @@ public class DeletedState implements AggregateState {
         domain.setState(new ActiveState());
     }
 }
+
