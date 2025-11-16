@@ -6,8 +6,8 @@ import com.springddd.application.service.user.dto.SysUserView;
 import com.springddd.application.service.user.dto.SysUserViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysUserEntity;
+import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -20,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysUserQueryService {
 
-    private final R2dbcEntityTemplate r2dbcEntityTemplate;
+    private final QueryFactory queryFactory;
 
     private final SysUserViewMapStruct sysUserViewMapStruct;
 
@@ -36,8 +36,8 @@ public class SysUserQueryService {
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
 
-        Mono<List<SysUserView>> list = r2dbcEntityTemplate.select(SysUserEntity.class).matching(qry).all().collectList().map(sysUserViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysUserEntity.class);
+        Mono<List<SysUserView>> list = queryFactory.getR2dbcEntityTemplate().select(SysUserEntity.class).matching(qry).all().collectList().map(sysUserViewMapStruct::toViewList);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysUserEntity.class);
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
 
@@ -48,14 +48,14 @@ public class SysUserQueryService {
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<SysUserView>> list = r2dbcEntityTemplate.select(SysUserEntity.class).matching(qry).all().collectList().map(sysUserViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysUserEntity.class);
+        Mono<List<SysUserView>> list = queryFactory.getR2dbcEntityTemplate().select(SysUserEntity.class).matching(qry).all().collectList().map(sysUserViewMapStruct::toViewList);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysUserEntity.class);
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
     public Mono<SysUserView> queryUserByUsername(String username) {
-        return r2dbcEntityTemplate.selectOne(Query.query(
+        return queryFactory.getR2dbcEntityTemplate().selectOne(Query.query(
                 Criteria.where(SysUserQuery.Fields.username)
                         .is(username).and(SysUserQuery.Fields.deleteStatus).is(false)), SysUserEntity.class)
                 .map(sysUserViewMapStruct::toView);
