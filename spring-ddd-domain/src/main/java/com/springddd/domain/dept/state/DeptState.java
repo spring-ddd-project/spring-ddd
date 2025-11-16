@@ -6,3 +6,4 @@ public interface DeptState {
     void delete(SysDeptDomain domain);
     void restore(SysDeptDomain domain);
 }
+
