@@ -2,6 +2,7 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenTemplateCommand;
 import com.springddd.domain.gen.*;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenTemplateCommandService {
 
-    private final GenTemplateDomainRepository genTemplateDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final GenTemplateDomainFactory genTemplateDomainFactory;
 
@@ -26,15 +27,15 @@ public class GenTemplateCommandService {
         TemplateInfo info = new TemplateInfo(command.getTemplateName(), command.getTemplateContent());
         GenTemplateDomain domain = genTemplateDomainFactory.newInstance(info);
         domain.create();
-        return genTemplateDomainRepository.save(domain);
+        return repositoryFactory.getGenTemplateDomainRepository().save(domain);
     }
 
     public Mono<Void> update(GenTemplateCommand command) {
-        return genTemplateDomainRepository.load(new TemplateId(command.getId()))
+        return repositoryFactory.getGenTemplateDomainRepository().load(new TemplateId(command.getId()))
                 .flatMap(domain -> {
                     TemplateInfo info = new TemplateInfo(command.getTemplateName(), command.getTemplateContent());
                     domain.update(info);
-                    return genTemplateDomainRepository.save(domain);
+                    return repositoryFactory.getGenTemplateDomainRepository().save(domain);
                 }).then();
     }
 

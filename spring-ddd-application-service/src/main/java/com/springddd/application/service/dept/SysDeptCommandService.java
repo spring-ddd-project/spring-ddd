@@ -2,6 +2,7 @@ package com.springddd.application.service.dept;
 
 import com.springddd.application.service.dept.dto.SysDeptCommand;
 import com.springddd.domain.dept.*;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysDeptCommandService {
 
-    private final SysDeptDomainRepository sysDeptDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final SysDeptDomainFactory sysDeptDomainFactory;
 
@@ -29,16 +30,16 @@ public class SysDeptCommandService {
         SysDeptDomain sysDeptDomain = sysDeptDomainFactory.newInstance(new DeptId(command.getParentId()), basicInfo, extendInfo);
         sysDeptDomain.create();
 
-        return sysDeptDomainRepository.save(sysDeptDomain);
+        return repositoryFactory.getSysDeptDomainRepository().save(sysDeptDomain);
     }
 
     public Mono<Void> update(SysDeptCommand command) {
-        return sysDeptDomainRepository.load(new DeptId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getSysDeptDomainRepository().load(new DeptId(command.getId())).flatMap(domain -> {
             DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
             DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
 
             domain.update(new DeptId(command.getParentId()), basicInfo, extendInfo);
-            return sysDeptDomainRepository.save(domain);
+            return repositoryFactory.getSysDeptDomainRepository().save(domain);
         }).then();
     }
 
