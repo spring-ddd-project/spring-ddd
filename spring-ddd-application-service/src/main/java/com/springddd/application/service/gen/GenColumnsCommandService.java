@@ -3,6 +3,7 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.GenColumnsCommand;
 import com.springddd.domain.gen.*;
 import com.springddd.domain.gen.exception.I18nLocaleNullException;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -15,7 +16,7 @@ import java.util.function.Function;
 @RequiredArgsConstructor
 public class GenColumnsCommandService {
 
-    private final GenColumnsDomainRepository genColumnsDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final GenColumnsDomainFactory genColumnsDomainFactory;
 
@@ -31,25 +32,25 @@ public class GenColumnsCommandService {
         GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
         GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, table, form, i18n, extendInfo);
         domain.create();
-        return genColumnsDomainRepository.save(domain);
+        return repositoryFactory.getGenColumnsDomainRepository().save(domain);
     }
 
     public Mono<Void> update(GenColumnsCommand command) {
-        return genColumnsDomainRepository.load(new ColumnsId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getGenColumnsDomainRepository().load(new ColumnsId(command.getId())).flatMap(domain -> {
             Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
             Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
             I18n i18n = new I18n(command.getEn(), command.getLocale());
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
             domain.update(prop, table, form, i18n, extendInfo);
-            return genColumnsDomainRepository.save(domain);
+            return repositoryFactory.getGenColumnsDomainRepository().save(domain);
         }).then();
     }
 
     public Mono<Void> delete(GenColumnsCommand command) {
-        return genColumnsDomainRepository.load(new ColumnsId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getGenColumnsDomainRepository().load(new ColumnsId(command.getId())).flatMap(domain -> {
             domain.delete();
-            return genColumnsDomainRepository.save(domain);
+            return repositoryFactory.getGenColumnsDomainRepository().save(domain);
         }).then();
     }
 
@@ -76,7 +77,7 @@ public class GenColumnsCommandService {
 
     public Mono<Void> batchUpdate(List<GenColumnsCommand> commands) {
         return Flux.fromIterable(commands)
-                .flatMap(command -> genColumnsDomainRepository.load(new ColumnsId(command.getId()))
+                .flatMap(command -> repositoryFactory.getGenColumnsDomainRepository().load(new ColumnsId(command.getId()))
                         .map(domain -> {
                             Prop prop = new Prop(command.getPropColumnKey(), command.getPropColumnName(), command.getPropColumnType(), command.getPropColumnComment(), command.getPropJavaType(), command.getPropJavaEntity());
                             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());

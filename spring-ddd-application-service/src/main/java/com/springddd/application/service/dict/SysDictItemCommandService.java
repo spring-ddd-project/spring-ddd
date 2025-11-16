@@ -2,6 +2,7 @@ package com.springddd.application.service.dict;
 
 import com.springddd.application.service.dict.dto.SysDictItemCommand;
 import com.springddd.domain.dict.*;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysDictItemCommandService {
 
-    private final SysDictItemDomainRepository sysDictItemDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final SysDictItemDomainFactory sysDictItemDomainFactory;
 
@@ -29,17 +30,17 @@ public class SysDictItemCommandService {
         SysDictItemDomain domain = sysDictItemDomainFactory.newInstance(new DictId(command.getDictId()), basicInfo, extendInfo);
         domain.create();
 
-        return sysDictItemDomainRepository.save(domain);
+        return repositoryFactory.getSysDictItemDomainRepository().save(domain);
     }
 
     public Mono<Void> update(SysDictItemCommand command) {
-        return sysDictItemDomainRepository.load(new DictItemId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getSysDictItemDomainRepository().load(new DictItemId(command.getId())).flatMap(domain -> {
             DictItemBasicInfo basicInfo = new DictItemBasicInfo(command.getItemLabel(), command.getItemValue());
             DictItemExtendInfo extendInfo = new DictItemExtendInfo(command.getSortOrder(), command.getItemStatus());
 
             domain.update(basicInfo, extendInfo);
 
-            return sysDictItemDomainRepository.save(domain);
+            return repositoryFactory.getSysDictItemDomainRepository().save(domain);
         }).then();
     }
 

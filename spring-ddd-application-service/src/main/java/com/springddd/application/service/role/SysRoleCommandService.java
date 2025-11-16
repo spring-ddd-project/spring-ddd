@@ -2,6 +2,7 @@ package com.springddd.application.service.role;
 
 import com.springddd.application.service.role.dto.SysRoleCommand;
 import com.springddd.domain.role.*;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -12,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysRoleCommandService {
 
-    private final SysRoleDomainRepository sysRoleDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final SysRoleDomainFactory sysRoleDomainFactory;
 
@@ -30,18 +31,18 @@ public class SysRoleCommandService {
         SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
         domain.create();
 
-        return sysRoleDomainRepository.save(domain);
+        return repositoryFactory.getSysRoleDomainRepository().save(domain);
     }
 
     public Mono<Void> updateRole(SysRoleCommand command) {
-        return sysRoleDomainRepository.load(new RoleId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getSysRoleDomainRepository().load(new RoleId(command.getId())).flatMap(domain -> {
 
             RoleBasicInfo roleBasicInfo = new RoleBasicInfo(command.getRoleName(), command.getRoleCode(), command.getDataScope(), command.getOwnerStatus());
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
             domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
-            return sysRoleDomainRepository.save(domain);
+            return repositoryFactory.getSysRoleDomainRepository().save(domain);
         }).then();
     }
 

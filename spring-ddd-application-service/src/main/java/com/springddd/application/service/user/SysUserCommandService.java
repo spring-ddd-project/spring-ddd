@@ -2,6 +2,7 @@ package com.springddd.application.service.user;
 
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.domain.user.*;
+import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -13,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysUserCommandService {
 
-    private final SysUserDomainRepository sysUserDomainRepository;
+    private final RepositoryFactory repositoryFactory;
 
     private final SysUserDomainFactory sysUserDomainFactory;
 
@@ -40,11 +41,11 @@ public class SysUserCommandService {
         SysUserDomain sysUserDomain = sysUserDomainFactory.newInstance(account, extendInfo, command.getDeptId());
         sysUserDomain.create();
 
-        return sysUserDomainRepository.save(sysUserDomain);
+        return repositoryFactory.getSysUserDomainRepository().save(sysUserDomain);
     }
 
     public Mono<Void> updateUser(SysUserCommand command) {
-        return sysUserDomainRepository.load(new UserId(command.getId())).flatMap(domain -> {
+        return repositoryFactory.getSysUserDomainRepository().load(new UserId(command.getId())).flatMap(domain -> {
             Account account = new Account();
             account.setUsername(new Username(command.getUsername()));
             account.setPassword(new Password(passwordEncoder.encode(domain.getAccount().getPassword().value())));
@@ -57,7 +58,7 @@ public class SysUserCommandService {
             extendInfo.setSex(command.getSex());
 
             domain.updateUser(account, extendInfo, command.getDeptId());
-            return sysUserDomainRepository.save(domain);
+            return repositoryFactory.getSysUserDomainRepository().save(domain);
         }).then();
     }
 
