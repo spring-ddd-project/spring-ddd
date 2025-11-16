@@ -7,6 +7,7 @@ import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -24,7 +25,7 @@ import java.util.Map;
 @Slf4j
 public class GenTableInfoQueryService {
 
-    private final DatabaseClient databaseClient;
+    private final QueryFactory queryFactory;
 
     private final GenProjectInfoQueryService projectInfoQueryService;
 
@@ -64,12 +65,12 @@ public class GenTableInfoQueryService {
 
         dataSql.append(" ORDER BY create_time DESC LIMIT :limit OFFSET :offset");
 
-        DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(dataSql.toString())
+        DatabaseClient.GenericExecuteSpec dataSpec = queryFactory.getDatabaseClient().sql(dataSql.toString())
                 .bind("db", query.getDatabaseName())
                 .bind("limit", limit)
                 .bind("offset", offset);
 
-        DatabaseClient.GenericExecuteSpec countSpec = databaseClient.sql(countSql.toString())
+        DatabaseClient.GenericExecuteSpec countSpec = queryFactory.getDatabaseClient().sql(countSql.toString())
                 .bind("db", query.getDatabaseName());
 
         if (!ObjectUtils.isEmpty(query.getTableName())) {

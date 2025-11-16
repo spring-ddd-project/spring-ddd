@@ -28,4 +28,10 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
         SysUserEntity entity = entityFactory.createSysUserEntity(aggregateRoot);
         return sysUserRepository.save(entity).map(SysUserEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysUserDomain aggregateRoot) {
+        return sysUserRepository.deleteById(aggregateRoot.getUserId().value());
+    }
 }

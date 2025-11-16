@@ -28,4 +28,10 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
         GenColumnBindEntity entity = entityFactory.createGenColumnBindEntity(aggregateRoot);
         return genColumnBindRepository.save(entity).map(GenColumnBindEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(GenColumnBindDomain aggregateRoot) {
+        return genColumnBindRepository.deleteById(aggregateRoot.getColumnBindId().value());
+    }
 }

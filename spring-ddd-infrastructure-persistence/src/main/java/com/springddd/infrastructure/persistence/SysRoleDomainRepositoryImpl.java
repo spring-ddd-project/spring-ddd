@@ -28,4 +28,10 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         SysRoleEntity entity = entityFactory.createSysRoleEntity(aggregateRoot);
         return sysRoleRepository.save(entity).map(SysRoleEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysRoleDomain aggregateRoot) {
+        return sysRoleRepository.deleteById(aggregateRoot.getRoleId().value());
+    }
 }
