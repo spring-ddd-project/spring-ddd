@@ -16,3 +16,4 @@ public class SecurityProperties {
 
     private List<String> tokenOnlyPaths = new ArrayList<>();
 }
+
