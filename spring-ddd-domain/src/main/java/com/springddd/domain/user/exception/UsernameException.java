@@ -11,3 +11,4 @@ public class UsernameException extends DomainException {
         super(ErrorCode.USER_NAME_NULL);
     }
 }
+
