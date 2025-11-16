@@ -21,3 +21,4 @@ public class SysUserRoleQuery implements Serializable {
 
     private String version;
 }
+
