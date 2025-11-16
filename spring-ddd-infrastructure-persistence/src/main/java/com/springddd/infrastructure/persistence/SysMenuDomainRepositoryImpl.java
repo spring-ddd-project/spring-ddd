@@ -28,4 +28,10 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         SysMenuEntity entity = entityFactory.createSysMenuEntity(aggregateRoot);
         return sysMenuRepository.save(entity).map(SysMenuEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysMenuDomain aggregateRoot) {
+        return sysMenuRepository.deleteById(aggregateRoot.getMenuId().value());
+    }
 }

@@ -48,4 +48,9 @@ public class LeafAllocDomainRepositoryImpl implements LeafAllocDomainRepository 
 
         return repository.save(entity).map(LeafAllocEntity::getId);
     }
+
+    @Override
+    public Mono<Void> delete(LeafAllocDomain aggregateRoot) {
+        return repository.deleteById(aggregateRoot.getLeafId().value());
+    }
 }

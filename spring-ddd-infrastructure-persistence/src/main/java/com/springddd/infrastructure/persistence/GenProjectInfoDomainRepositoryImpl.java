@@ -28,4 +28,10 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
         GenProjectInfoEntity entity = entityFactory.createGenProjectInfoEntity(aggregateRoot);
         return genProjectInfoRepository.save(entity).map(GenProjectInfoEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(GenProjectInfoDomain aggregateRoot) {
+        return genProjectInfoRepository.deleteById(aggregateRoot.getInfoId().value());
+    }
 }

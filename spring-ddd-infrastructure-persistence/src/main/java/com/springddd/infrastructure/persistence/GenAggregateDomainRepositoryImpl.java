@@ -30,4 +30,10 @@ public class GenAggregateDomainRepositoryImpl implements GenAggregateDomainRepos
         GenAggregateEntity entity = entityFactory.createGenAggregateEntity(aggregateRoot);
         return genAggregateRepository.save(entity).map(GenAggregateEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(GenAggregateDomain aggregateRoot) {
+        return genAggregateRepository.deleteById(aggregateRoot.getAggregateId().value());
+    }
 }

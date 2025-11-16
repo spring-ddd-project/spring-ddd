@@ -62,4 +62,10 @@ public class SysRoleMenuDomainRepositoryImpl implements SysRoleMenuDomainReposit
 
         return sysRoleMenuRepository.save(entity).map(SysRoleMenuEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysRoleMenuDomain aggregateRoot) {
+        return sysRoleMenuRepository.deleteById(aggregateRoot.getRoleMenuId().value());
+    }
 }

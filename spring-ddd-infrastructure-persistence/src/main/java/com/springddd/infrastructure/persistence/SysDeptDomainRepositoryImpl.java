@@ -28,4 +28,10 @@ public class SysDeptDomainRepositoryImpl implements SysDeptDomainRepository {
         SysDeptEntity entity = entityFactory.createSysDeptEntity(aggregateRoot);
         return sysDeptRepository.save(entity).map(SysDeptEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysDeptDomain aggregateRoot) {
+        return sysDeptRepository.deleteById(aggregateRoot.getDeptId().value());
+    }
 }

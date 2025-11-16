@@ -30,4 +30,10 @@ public class GenTemplateDomainRepositoryImpl implements GenTemplateDomainReposit
         GenTemplateEntity entity = entityFactory.createGenTemplateEntity(aggregateRoot);
         return genTemplateRepository.save(entity).map(GenTemplateEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(GenTemplateDomain aggregateRoot) {
+        return genTemplateRepository.deleteById(aggregateRoot.getTemplateId().value());
+    }
 }

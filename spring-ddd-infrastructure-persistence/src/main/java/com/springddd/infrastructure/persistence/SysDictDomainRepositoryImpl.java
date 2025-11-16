@@ -28,4 +28,10 @@ public class SysDictDomainRepositoryImpl implements SysDictDomainRepository {
         SysDictEntity entity = entityFactory.createSysDictEntity(aggregateRoot);
         return sysDictRepository.save(entity).map(SysDictEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysDictDomain aggregateRoot) {
+        return sysDictRepository.deleteById(aggregateRoot.getDictId().value());
+    }
 }

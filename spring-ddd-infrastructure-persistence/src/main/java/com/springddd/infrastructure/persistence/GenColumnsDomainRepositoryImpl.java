@@ -28,4 +28,10 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         GenColumnsEntity entity = entityFactory.createGenColumnsEntity(aggregateRoot);
         return genColumnsRepository.save(entity).map(GenColumnsEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(GenColumnsDomain aggregateRoot) {
+        return genColumnsRepository.deleteById(aggregateRoot.getColumnsId().value());
+    }
 }

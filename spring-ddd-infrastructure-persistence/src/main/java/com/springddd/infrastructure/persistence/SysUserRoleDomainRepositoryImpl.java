@@ -60,4 +60,10 @@ public class SysUserRoleDomainRepositoryImpl implements SysUserRoleDomainReposit
 
         return sysUserRoleRepository.save(entity).map(SysUserRoleEntity::getId);
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Void> delete(SysUserRoleDomain aggregateRoot) {
+        return sysUserRoleRepository.deleteById(aggregateRoot.getUserRoleId().value());
+    }
 }
