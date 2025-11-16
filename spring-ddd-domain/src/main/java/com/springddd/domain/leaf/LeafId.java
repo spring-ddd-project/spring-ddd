@@ -4,3 +4,4 @@ import com.springddd.domain.AggregateRootId;
 
 public record LeafId(Long value) implements AggregateRootId<Long> {
 }
+

@@ -14,3 +14,4 @@ public record AdvancedOptions(Integer order, String icon, Integer menuType, Bool
         this(order, null, menuType, null, MenuStatus);
     }
 }
+
