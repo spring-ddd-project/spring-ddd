@@ -9,3 +9,4 @@ public class DatabaseNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_DATABASE_NAME_NULL);
     }
 }
+
