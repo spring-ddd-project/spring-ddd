@@ -17,3 +17,4 @@ public class GenColumnBindView implements Serializable {
 
     private Byte typescriptType;
 }
+

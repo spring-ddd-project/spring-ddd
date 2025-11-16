@@ -34,3 +34,4 @@ public class SysUserRoleQueryService {
         return r2dbcEntityTemplate.select(SysUserRoleEntity.class).matching(qry).all().collectList().map(sysUserRoleViewMapStruct::toViewList);
     }
 }
+
