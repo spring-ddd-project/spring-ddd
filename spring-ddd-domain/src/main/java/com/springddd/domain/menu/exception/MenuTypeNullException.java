@@ -10,3 +10,4 @@ public class MenuTypeNullException extends DomainException {
         super(MENU_TYPE_NULL);
     }
 }
+

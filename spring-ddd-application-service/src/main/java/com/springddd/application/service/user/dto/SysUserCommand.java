@@ -28,3 +28,4 @@ public class SysUserCommand implements Serializable {
 
     private Integer version;
 }
+

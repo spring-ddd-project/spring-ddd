@@ -14,3 +14,4 @@ public class DeletedDeptState implements DeptState {
         domain.setState(new ActiveDeptState());
     }
 }
+

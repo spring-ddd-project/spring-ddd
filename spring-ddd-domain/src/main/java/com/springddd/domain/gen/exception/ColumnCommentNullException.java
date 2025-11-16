@@ -9,3 +9,4 @@ public class ColumnCommentNullException extends DomainException {
         super(ErrorCode.GEN_INFO_COLUMN_COMMENT_NULL);
     }
 }
+
