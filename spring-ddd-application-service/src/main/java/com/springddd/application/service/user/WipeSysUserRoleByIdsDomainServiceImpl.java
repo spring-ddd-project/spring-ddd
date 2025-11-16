@@ -21,3 +21,4 @@ public class WipeSysUserRoleByIdsDomainServiceImpl implements WipeSysUserRoleByI
         return sysUserRoleRepository.deleteAllById(ids);
     }
 }
+

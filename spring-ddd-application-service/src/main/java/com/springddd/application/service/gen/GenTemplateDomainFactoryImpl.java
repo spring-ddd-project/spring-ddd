@@ -15,3 +15,4 @@ public class GenTemplateDomainFactoryImpl implements GenTemplateDomainFactory {
         return domain;
     }
 }
+
