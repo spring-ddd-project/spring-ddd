@@ -23,3 +23,4 @@ public class SysUserRoleCommandService {
         return wipeSysUserRoleByIdsDomainService.deleteByIds(ids);
     }
 }
+
