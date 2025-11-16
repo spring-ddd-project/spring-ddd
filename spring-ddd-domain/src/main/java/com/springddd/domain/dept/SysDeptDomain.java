@@ -85,3 +85,4 @@ public class SysDeptDomain extends AbstractDomainMask implements Cloneable {
         this.deptExtendInfo = memento.getDeptExtendInfo();
     }
 }
+
