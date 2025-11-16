@@ -4,3 +4,4 @@ public interface GenTemplateDomainFactory {
 
     GenTemplateDomain newInstance(TemplateInfo templateInfo);
 }
+
