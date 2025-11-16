@@ -9,3 +9,4 @@ public class DomainMaskNullException extends DomainException {
         super(ErrorCode.GEN_AGGREGATE_DOMAIN_MASK_NULL);
     }
 }
+
