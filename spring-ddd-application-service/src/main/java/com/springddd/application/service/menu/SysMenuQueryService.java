@@ -12,11 +12,11 @@ import com.springddd.domain.util.ReactiveTreeUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
+import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class SysMenuQueryService {
 
     private final SysMenuRepository sysMenuRepository;
 
-    private final R2dbcEntityTemplate r2dbcEntityTemplate;
+    private final QueryFactory queryFactory;
 
     private final SysMenuViewMapStruct sysMenuViewMapStruct;
 
@@ -49,18 +49,18 @@ public class SysMenuQueryService {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria)
                 .sort(Sort.by("sort_order"));
-        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+        Mono<List<SysMenuView>> list = queryFactory.getR2dbcEntityTemplate().select(SysMenuEntity.class).matching(qry).all().collectList()
                 .map(sysMenuViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysMenuEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
     public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
         Query qry = Query.query(criteria);
-        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+        Mono<List<SysMenuView>> list = queryFactory.getR2dbcEntityTemplate().select(SysMenuEntity.class).matching(qry).all().collectList()
                 .map(sysMenuViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysMenuEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
@@ -72,12 +72,12 @@ public class SysMenuQueryService {
     public Mono<SysMenuView> queryByApi(String api) {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.api).is(api);
         Query qry = Query.query(criteria);
-        return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
+        return queryFactory.getR2dbcEntityTemplate().selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
 
     public Mono<List<SysMenuView>> queryByPermissions() {
         return Flux.fromIterable(SecurityUtils.getMenuIds())
-                .flatMap(mId -> r2dbcEntityTemplate.selectOne(
+                .flatMap(mId -> queryFactory.getR2dbcEntityTemplate().selectOne(
                         Query.query(Criteria
                                 .where(SysMenuQuery.Fields.id).is(mId)
                                 .and(SysMenuQuery.Fields.deleteStatus).is(false)),
@@ -103,7 +103,7 @@ public class SysMenuQueryService {
                 menus,
                 SysMenuView::getId,
                 SysMenuView::getParentId,
-                parentId -> r2dbcEntityTemplate.selectOne(
+                parentId -> queryFactory.getR2dbcEntityTemplate().selectOne(
                         Query.query(Criteria
                                 .where(SysMenuQuery.Fields.id).is(parentId)
                                 .and(SysMenuQuery.Fields.deleteStatus).is(false)),
