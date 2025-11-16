@@ -22,3 +22,4 @@ public class CodeGeneratorFacade {
         return genTableInfoQueryService.preview();
     }
 }
+

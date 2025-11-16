@@ -9,3 +9,4 @@ public class OrderNullException extends DomainException {
         super(ErrorCode.GEN_INFO_ORDER_NULL);
     }
 }
+
