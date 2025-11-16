@@ -2,59 +2,30 @@ package com.springddd.infrastructure.persistence;
 
 import com.springddd.domain.gen.*;
 import com.springddd.infrastructure.persistence.entity.GenColumnBindEntity;
+import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnBindRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
-
 @Repository
 @RequiredArgsConstructor
 public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRepository {
 
     private final GenColumnBindRepository genColumnBindRepository;
+    private final EntityFactory entityFactory;
 
     @Override
     public Mono<GenColumnBindDomain> load(ColumnBindId aggregateRootId) {
-        return genColumnBindRepository.findById(aggregateRootId.value()).map(e -> {
-            GenColumnBindDomain genColumnBindDomain = new GenColumnBindDomain();
-            genColumnBindDomain.setBindId(new ColumnBindId(e.getId()));
-
-            GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(e.getColumnType(), e.getEntityType(), e.getComponentType(), e.getTypescriptType());
-            genColumnBindDomain.setBasicInfo(basicInfo);
-
-            genColumnBindDomain.setDeleteStatus(e.getDeleteStatus());
-            genColumnBindDomain.setCreateBy(e.getCreateBy());
-            genColumnBindDomain.setCreateTime(e.getCreateTime());
-            genColumnBindDomain.setUpdateBy(e.getUpdateBy());
-            genColumnBindDomain.setUpdateTime(e.getUpdateTime());
-            genColumnBindDomain.setVersion(e.getVersion());
-
-            return genColumnBindDomain;
-        });
+        return genColumnBindRepository.findById(aggregateRootId.value())
+                .map(entityFactory::createGenColumnBindDomain);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(GenColumnBindDomain aggregateRoot) {
-        GenColumnBindEntity entity = new GenColumnBindEntity();
-        entity.setId(Optional.ofNullable(aggregateRoot.getBindId()).map(ColumnBindId::value).orElse(null));
-
-        GenColumnBindBasicInfo basicInfo = aggregateRoot.getBasicInfo();
-        entity.setColumnType(basicInfo.columnType());
-        entity.setEntityType(basicInfo.entityType());
-        entity.setComponentType(basicInfo.componentType());
-        entity.setTypescriptType(basicInfo.typescriptType());
-
-        entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
-        entity.setCreateBy(aggregateRoot.getCreateBy());
-        entity.setCreateTime(aggregateRoot.getCreateTime());
-        entity.setUpdateBy(aggregateRoot.getUpdateBy());
-        entity.setUpdateTime(aggregateRoot.getUpdateTime());
-        entity.setVersion(aggregateRoot.getVersion());
-
+        GenColumnBindEntity entity = entityFactory.createGenColumnBindEntity(aggregateRoot);
         return genColumnBindRepository.save(entity).map(GenColumnBindEntity::getId);
     }
 }
