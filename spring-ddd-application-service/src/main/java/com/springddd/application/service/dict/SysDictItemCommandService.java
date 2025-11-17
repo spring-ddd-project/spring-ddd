@@ -56,3 +56,4 @@ public class SysDictItemCommandService {
         return restoreSysDictItemByIdDomainService.restoreByIds(ids);
     }
 }
+

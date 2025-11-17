@@ -33,3 +33,4 @@ public class WipeSysDeptByIdsDomainServiceImpl implements WipeSysDeptByIdsDomain
                 .flatMap(sysDeptRepository::deleteById).then();
     }
 }
+
