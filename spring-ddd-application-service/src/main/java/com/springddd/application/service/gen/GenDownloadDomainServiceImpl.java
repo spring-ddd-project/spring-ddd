@@ -6,7 +6,7 @@ import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.gen.GenDownloadDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.infrastructure.cache.util.CacheProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -29,13 +29,13 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 public class GenDownloadDomainServiceImpl implements GenDownloadDomainService {
 
-    private final ReactiveRedisCacheHelper cacheHelper;
+    private final CacheProcessor cacheProcessor;
 
     private final ObjectMapper objectMapper;
 
     @Override
     public Mono<ResponseEntity<Resource>> download() {
-        return cacheHelper.getCache(
+        return cacheProcessor.getCache(
                         CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
                         List.class
                 )
