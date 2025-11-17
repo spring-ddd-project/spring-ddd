@@ -9,3 +9,4 @@ public class VisibleNullException extends DomainException {
         super(ErrorCode.GEN_INFO_VISIBLE_NULL);
     }
 }
+
