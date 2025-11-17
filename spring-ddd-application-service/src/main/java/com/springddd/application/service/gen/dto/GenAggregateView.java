@@ -20,3 +20,4 @@ public class GenAggregateView implements Serializable {
     private Boolean hasCreated;
 }
 
+
