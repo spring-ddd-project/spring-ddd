@@ -9,3 +9,4 @@ public class DictIdNullException extends DomainException {
         super(ErrorCode.GEN_INFO_DICT_ID_NULL);
     }
 }
+
