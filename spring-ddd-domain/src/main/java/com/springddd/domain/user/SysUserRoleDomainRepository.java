@@ -4,3 +4,4 @@ import com.springddd.domain.DomainRepository;
 
 public interface SysUserRoleDomainRepository extends DomainRepository<UserRoleId, SysUserRoleDomain> {
 }
+
