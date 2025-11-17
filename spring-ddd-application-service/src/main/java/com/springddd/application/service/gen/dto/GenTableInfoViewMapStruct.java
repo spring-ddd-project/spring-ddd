@@ -12,3 +12,4 @@ public interface GenTableInfoViewMapStruct {
 
     List<GenTableInfoView> toViews(List<GenTableInfoEntity> entities);
 }
+
