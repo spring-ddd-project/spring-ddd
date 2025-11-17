@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
-public class ReactiveRedisCacheHelper {
+public class ReactiveRedisCacheHelper implements CacheProcessor {
 
     private static final String NULL_MARK = "__NULL__";
 

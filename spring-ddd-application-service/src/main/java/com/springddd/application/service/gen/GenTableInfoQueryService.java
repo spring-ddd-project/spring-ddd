@@ -6,7 +6,7 @@ import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.infrastructure.cache.util.CacheProcessor;
 import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,7 +33,7 @@ public class GenTableInfoQueryService {
 
     private final GenAggregateQueryService aggregateQueryService;
 
-    private final ReactiveRedisCacheHelper cacheHelper;
+    private final CacheProcessor cacheProcessor;
 
     private final ObjectMapper objectMapper;
 
@@ -140,7 +140,7 @@ public class GenTableInfoQueryService {
     }
 
     public Mono<List<ProjectTreeView>> preview() {
-        return cacheHelper.getCache(
+        return cacheProcessor.getCache(
                         CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
                         List.class
                 )
