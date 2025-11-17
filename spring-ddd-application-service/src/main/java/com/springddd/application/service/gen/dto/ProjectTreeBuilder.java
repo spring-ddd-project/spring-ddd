@@ -23,6 +23,15 @@ import java.util.UUID;
  *
  */
 public class ProjectTreeBuilder {
+    private static class Holder {
+        private static final ProjectTreeBuilder INSTANCE = new ProjectTreeBuilder();
+    }
+
+    private ProjectTreeBuilder() {}
+
+    public static ProjectTreeBuilder getInstance() {
+        return Holder.INSTANCE;
+    }
 
     /**
      * Build or update the tree from a file path and its content.
