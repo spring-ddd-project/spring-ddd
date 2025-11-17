@@ -12,3 +12,4 @@ public interface SysDictItemViewMapStruct {
 
     List<SysDictItemView> toViews(List<SysDictItemEntity> entities);
 }
+
