@@ -21,3 +21,4 @@ public class SysRoleMenuQuery implements Serializable {
 
     private Integer version;
 }
+

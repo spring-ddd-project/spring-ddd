@@ -7,3 +7,4 @@ public interface SysRoleMenuDomainFactory {
     SysRoleMenuDomain newInstance(RoleId roleId, MenuId menuId, Long deptId);
 }
 
+
