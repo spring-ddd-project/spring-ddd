@@ -6,3 +6,4 @@ public interface MenuState {
     void show(SysMenuDomain domain);
     void hide(SysMenuDomain domain);
 }
+

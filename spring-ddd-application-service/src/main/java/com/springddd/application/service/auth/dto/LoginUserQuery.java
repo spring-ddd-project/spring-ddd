@@ -15,3 +15,4 @@ public class LoginUserQuery implements Serializable {
     private String password;
 }
 
+

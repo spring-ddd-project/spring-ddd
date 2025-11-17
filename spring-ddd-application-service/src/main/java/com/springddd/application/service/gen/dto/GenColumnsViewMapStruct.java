@@ -12,3 +12,4 @@ public interface GenColumnsViewMapStruct {
 
     List<GenColumnsView> toViews(List<GenColumnsEntity> entities);
 }
+

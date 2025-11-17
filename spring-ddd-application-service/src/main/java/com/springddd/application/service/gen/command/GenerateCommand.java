@@ -6,3 +6,4 @@ import reactor.core.publisher.Mono;
 public interface GenerateCommand {
     Mono<Void> execute(GenProjectInfoDTO dto);
 }
+
