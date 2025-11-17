@@ -8,13 +8,40 @@ import org.springframework.util.ObjectUtils;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysUserDomain extends AbstractDomainMask {
+public class SysUserDomain extends AbstractDomainMask implements Cloneable {
 
     private UserId userId;
 
     private Account account;
 
     private ExtendInfo extendInfo;
+
+    @Override
+    public SysUserDomain clone() {
+        try {
+            SysUserDomain clone = (SysUserDomain) super.clone();
+            if (this.userId != null) clone.setUserId(new UserId(this.userId.value()));
+            if (this.account != null) {
+                Account acc = new Account();
+                acc.setUsername(this.account.getUsername());
+                acc.setPassword(this.account.getPassword());
+                acc.setLockStatus(this.account.getLockStatus());
+                clone.setAccount(acc);
+            }
+            if (this.extendInfo != null) {
+                ExtendInfo ext = new ExtendInfo();
+                ext.setNickName(this.extendInfo.getNickName());
+                ext.setAvatar(this.extendInfo.getAvatar());
+                ext.setEmail(this.extendInfo.getEmail());
+                ext.setPhone(this.extendInfo.getPhone());
+                ext.setGender(this.extendInfo.getGender());
+                clone.setExtendInfo(ext);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     public void create() {}
 
