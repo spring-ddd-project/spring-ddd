@@ -3,6 +3,7 @@ package com.springddd.application.service.dict;
 import com.springddd.application.service.dict.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictItemEntity;
+import com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory;
 import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
@@ -22,8 +23,7 @@ public class SysDictItemQueryService {
     private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
     public Mono<PageResponse<SysDictItemView>> index(SysDictItemPageQuery query) {
-        Criteria criteria = Criteria
-                .where(SysDictItemQuery.Fields.deleteStatus).is(false);
+        Criteria criteria = CriteriaFlyweightFactory.getDeleteStatusCriteria(false);
         if (!ObjectUtils.isEmpty(query) && !ObjectUtils.isEmpty(query.getDictId())) {
             criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
         }
@@ -36,8 +36,7 @@ public class SysDictItemQueryService {
     }
 
     public Mono<PageResponse<SysDictItemView>> recycle(SysDictItemPageQuery query) {
-        Criteria criteria = Criteria
-                .where(SysDictItemQuery.Fields.deleteStatus).is(true);
+        Criteria criteria = CriteriaFlyweightFactory.getDeleteStatusCriteria(true);
         if (!ObjectUtils.isEmpty(query) && !ObjectUtils.isEmpty(query.getDictId())) {
             criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
         }
