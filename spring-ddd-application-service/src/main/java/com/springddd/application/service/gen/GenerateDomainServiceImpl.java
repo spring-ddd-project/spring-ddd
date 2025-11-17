@@ -33,7 +33,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final Configuration configuration;
 
-    private final ProjectTreeBuilder treeBuilder = new ProjectTreeBuilder();
+    private final ProjectTreeBuilder treeBuilder = ProjectTreeBuilder.getInstance();
 
     private final CacheProcessor cacheProcessor;
 
