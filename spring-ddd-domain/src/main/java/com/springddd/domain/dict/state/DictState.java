@@ -6,3 +6,4 @@ public interface DictState {
     void delete(SysDictDomain domain);
     void restore(SysDictDomain domain);
 }
+

@@ -37,3 +37,4 @@ public class SysRoleMenuQueryService {
         return r2dbcEntityTemplate.select(SysRoleMenuEntity.class).matching(qry).all().collectList().map(sysRoleMenuViewMapStruct::toViewList);
     }
 }
+
