@@ -17,3 +17,4 @@ public class SysDeptPageQuery extends SysDeptQuery implements Serializable {
     private Integer pageSize;
 }
 
+
