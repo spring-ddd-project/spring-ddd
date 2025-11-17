@@ -3,6 +3,7 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.GenAggregateView;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
+import com.springddd.application.service.gen.strategy.FilePathContext;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
@@ -36,6 +37,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ReactiveRedisCacheHelper cacheHelper;
 
+    private final FilePathContext filePathContext;
+
 
     @Override
     public Mono<Void> generate(String tableName) {
@@ -47,7 +50,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                             .flatMap(template -> renderTemplate(template.getTemplateName(),
                                     template.getTemplateContent(), context)
                                     .map(renderedCode -> {
-                                        String filePath = generateFilePath(template.getTemplateName(), context, projectName);
+                                        String filePath = filePathContext.getFilePath(template.getTemplateName(), context, projectName);
                                         return new GeneratedFile(filePath, renderedCode);
                                     }))
                             .collectList()
@@ -67,153 +70,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      * projectName-application-infrastructure.persistence/packageName/infrastructure/persistence/entity/ClassNameEntity.java
      */
     private String generateFilePath(String templateName, Map<String, Object> context, String projectName) {
-        String moduleName = (String) context.get("moduleName");
-        String packageName = (String) context.get("packageName");
-        String className = (String) context.get("className");
-        String requestName = (String) context.get("requestName");
-        List<GenAggregateView> aggregateViews = (List<GenAggregateView>) context.get("aggregateViews");
-
-        String srcPath = "src/main/java/";
-        String packagePath = packageName.replace('.', '/');
-
-        return switch (templateName) {
-            // infrastructure-persistence
-            case "entity" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/infrastructure/persistence/entity/"
-                    + className + "Entity.java";
-            case "r2dbc" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/infrastructure/persistence/r2dbc/"
-                    + className + "Repository.java";
-            case "domainRepositoryImpl" -> projectName + "-infrastructure-persistence/" + srcPath
-                    + packagePath + "/infrastructure/persistence/"
-                    + className + "DomainRepositoryImpl.java";
-
-            // domain
-            case "aggregateRoot" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 1 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
-            case "objectValue" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 2 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
-            case "extendInfo" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 3 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
-            case "domain" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + className + "Domain.java";
-            case "factory" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + className + "DomainFactory.java";
-            case "domainRepository" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + className + "DomainRepository.java";
-            case "deleteDomain" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + "Delete" + className + "DomainService.java";
-            case "wipeDomain" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + "Wipe" + className + "DomainService.java";
-            case "restoreDomain" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + "Restore" + className + "DomainService.java";
-
-            // application-service
-            case "command" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/dto/"
-                    + className + "Command.java";
-            case "query" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/dto/"
-                    + className + "Query.java";
-            case "view" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/dto/"
-                    + className + "View.java";
-            case "mapstruct" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/dto/"
-                    + className + "ViewMapStruct.java";
-            case "pageQuery" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/dto/"
-                    + className + "PageQuery.java";
-            case "factoryImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + className + "DomainFactoryImpl.java";
-            case "deleteDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + "Delete" + className + "DomainServiceImpl.java";
-            case "wipeDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + "Wipe" + className + "DomainServiceImpl.java";
-            case "restoreDomainImpl" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + "Restore" + className + "DomainServiceImpl.java";
-            case "commandService" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + className + "CommandService.java";
-            case "queryService" -> projectName + "-application-service/" + srcPath
-                    + packagePath + "/application/service/"
-                    + moduleName + "/"
-                    + className + "QueryService.java";
-
-            // interface-web
-            case "controller" -> projectName + "-interface-web/" + srcPath
-                    + packagePath + "/web/"
-                    + className + "Controller.java";
-
-            // vue
-            case "index.vue" -> "apps/web-ele/src/views/"
-                    + moduleName + "/"
-                    + requestName + "/"
-                    + "index.vue";
-            case "recycle.vue" -> "apps/web-ele/src/views/"
-                    + moduleName + "/"
-                    + requestName + "/"
-                    + "recycle.vue";
-            case "form.vue" -> "apps/web-ele/src/views/"
-                    + moduleName + "/"
-                    + requestName + "/"
-                    + "form.vue";
-            case "api.ts" -> "apps/web-ele/src/api/"
-                    + moduleName + "/"
-                    + requestName + "/"
-                    + "index.ts";
-            case "i18n.en.json" -> "apps/web-ele/src/locales/langs/en-US/"
-                    + requestName + ".json";
-            case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
-                    + requestName + ".json";
-
-            // readme
-            case "sql" -> "SQL.sql";
-            case "readme.txt" -> "readme.txt";
-
-            default -> className + ".txt";
-        };
+        return filePathContext.getFilePath(templateName, context, projectName);
     }
 
     private void saveGeneratedFile(String filePath, String content, List<ProjectTreeView> treeList, String projectName) {
