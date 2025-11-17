@@ -9,3 +9,4 @@ public class ClassNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_CLASS_NAME_NULL);
     }
 }
+
