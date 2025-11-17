@@ -9,3 +9,4 @@ public interface DeleteGenColumnBindDomainService {
     Mono<Void> deleteByIds(List<Long> ids);
 }
 
+
