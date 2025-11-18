@@ -14,3 +14,4 @@ public class DeletedDictState implements DictState {
         domain.setState(new ActiveDictState());
     }
 }
+

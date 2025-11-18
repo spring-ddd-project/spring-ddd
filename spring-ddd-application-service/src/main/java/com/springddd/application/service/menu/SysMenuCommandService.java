@@ -78,3 +78,4 @@ public class SysMenuCommandService {
         return restoreSysMenuByIdDomainService.restoreByIds(ids);
     }
 }
+
