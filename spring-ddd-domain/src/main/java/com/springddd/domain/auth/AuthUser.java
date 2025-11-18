@@ -81,3 +81,4 @@ public class AuthUser implements Serializable, UserDetails {
         return !Boolean.TRUE.equals(lockStatus);
     }
 }
+
