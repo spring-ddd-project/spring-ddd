@@ -7,3 +7,4 @@ public interface FilePathStrategy {
     String generatePath(String templateName, Map<String, Object> context, String projectName);
 }
 
+
