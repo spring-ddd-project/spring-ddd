@@ -16,3 +16,4 @@ public class SysUserPageQuery extends SysUserQuery implements Serializable {
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
