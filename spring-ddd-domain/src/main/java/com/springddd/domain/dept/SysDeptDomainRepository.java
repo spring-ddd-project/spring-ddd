@@ -7,3 +7,4 @@ public interface SysDeptDomainRepository extends DomainRepository<DeptId, SysDep
 
 
 
+
