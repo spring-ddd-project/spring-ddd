@@ -9,3 +9,4 @@ public class TypeScriptTypeNullException extends DomainException {
         super(ErrorCode.GEN_BIND_TYPESCRIPT_TYPE_NULL);
     }
 }
+
