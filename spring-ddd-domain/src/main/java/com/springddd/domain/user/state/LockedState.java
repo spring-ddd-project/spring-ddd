@@ -14,3 +14,4 @@ public class LockedState implements UserState {
         domain.setState(new NormalState());
     }
 }
+
