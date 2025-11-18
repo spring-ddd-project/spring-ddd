@@ -21,3 +21,4 @@ public class WipeSysRoleMenuByIdsDomainServiceImpl implements WipeSysRoleMenuByI
         return sysRoleMenuRepository.deleteAllById(ids);
     }
 }
+
