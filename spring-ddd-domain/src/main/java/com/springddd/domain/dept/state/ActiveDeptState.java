@@ -14,3 +14,4 @@ public class ActiveDeptState implements DeptState {
         // Already active
     }
 }
+
