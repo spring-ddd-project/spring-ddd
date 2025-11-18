@@ -6,3 +6,4 @@ public interface RoleObserver {
     void onUpdate(SysRoleDomain domain);
 }
 
+
