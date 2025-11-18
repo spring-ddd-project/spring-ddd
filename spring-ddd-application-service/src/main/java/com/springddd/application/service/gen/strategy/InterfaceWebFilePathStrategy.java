@@ -22,3 +22,4 @@ public class InterfaceWebFilePathStrategy implements FilePathStrategy {
                 + className + "Controller.java";
     }
 }
+
