@@ -16,3 +16,4 @@ public class SysDictItemDomainFactoryImpl implements SysDictItemDomainFactory {
         return domain;
     }
 }
+
