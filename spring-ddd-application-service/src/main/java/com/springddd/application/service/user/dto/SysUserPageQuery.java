@@ -17,3 +17,4 @@ public class SysUserPageQuery extends SysUserQuery implements Serializable {
     private Integer pageSize;
 }
 
+

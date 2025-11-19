@@ -25,3 +25,4 @@ public class SysUserDomainFactoryImpl implements SysUserDomainFactory {
         return sysUserDomain;
     }
 }
+
