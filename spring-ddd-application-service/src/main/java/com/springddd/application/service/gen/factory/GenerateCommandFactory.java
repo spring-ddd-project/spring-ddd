@@ -6,3 +6,4 @@ public interface GenerateCommandFactory {
     GenerateCommand createCommand();
 }
 
+
