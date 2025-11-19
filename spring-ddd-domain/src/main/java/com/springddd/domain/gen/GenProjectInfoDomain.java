@@ -25,4 +25,13 @@ public class GenProjectInfoDomain extends AbstractDomainMask {
     public void delete() {
         super.setDeleteStatus(true);
     }
+
+    public com.springddd.domain.gen.memento.GenProjectInfoMemento saveToMemento() {
+        return new com.springddd.domain.gen.memento.GenProjectInfoMemento(this.projectInfo, this.extendInfo);
+    }
+
+    public void restoreFromMemento(com.springddd.domain.gen.memento.GenProjectInfoMemento memento) {
+        this.projectInfo = memento.getProjectInfo();
+        this.extendInfo = memento.getExtendInfo();
+    }
 }
