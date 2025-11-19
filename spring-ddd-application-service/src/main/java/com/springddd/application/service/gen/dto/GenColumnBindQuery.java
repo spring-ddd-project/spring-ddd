@@ -21,3 +21,4 @@ public class GenColumnBindQuery implements Serializable {
 
     private Boolean deleteStatus;
 }
+
