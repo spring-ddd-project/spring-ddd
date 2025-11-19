@@ -27,3 +27,4 @@ public class RestoreSysDictByIdDomainServiceImpl implements RestoreSysDictByIdDo
                         }), SecurityUtils.concurrency()).then();
     }
 }
+
