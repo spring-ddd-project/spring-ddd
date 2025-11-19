@@ -9,3 +9,4 @@ public class FormVisibleNullException extends DomainException {
         super(ErrorCode.GEN_INFO_FORM_VISIBLE_NULL);
     }
 }
+
