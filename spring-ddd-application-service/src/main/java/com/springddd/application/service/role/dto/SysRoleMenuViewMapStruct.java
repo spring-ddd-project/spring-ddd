@@ -12,3 +12,4 @@ public interface SysRoleMenuViewMapStruct {
 
     List<SysRoleMenuView> toViewList(List<SysRoleMenuEntity> entityList);
 }
+
