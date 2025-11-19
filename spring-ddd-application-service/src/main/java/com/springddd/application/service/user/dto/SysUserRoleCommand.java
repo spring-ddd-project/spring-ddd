@@ -20,3 +20,4 @@ public class SysUserRoleCommand implements Serializable {
     private Integer version;
 }
 
+
