@@ -43,7 +43,15 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
         }
     }
 
-    public void create() {}
+    private com.springddd.domain.user.state.UserState userState;
+
+    public void setState(com.springddd.domain.user.state.UserState state) {
+        this.userState = state;
+    }
+
+    public void create() {
+        this.userState = new com.springddd.domain.user.state.NormalState();
+    }
 
     public void updateUser(Account newAccount, ExtendInfo newExtendInfo, Long deptId) {
         this.account = newAccount;
@@ -62,7 +70,18 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
         super.setDeleteStatus(false);
     }
 
+    public void lock() {
+        if (userState == null) userState = account.getLockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        userState.lock(this);
+    }
+
+    public void unlock() {
+        if (userState == null) userState = account.getLockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        userState.unlock(this);
+    }
+
     public void updateUserStatus(Boolean status) {
-        this.account.setLockStatus(status);
+        if (status) lock();
+        else unlock();
     }
 }
