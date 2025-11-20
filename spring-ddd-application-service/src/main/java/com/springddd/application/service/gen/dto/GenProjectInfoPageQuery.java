@@ -16,3 +16,4 @@ public class GenProjectInfoPageQuery extends GenProjectInfoQuery implements Seri
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
