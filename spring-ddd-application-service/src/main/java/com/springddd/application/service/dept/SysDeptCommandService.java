@@ -55,3 +55,4 @@ public class SysDeptCommandService {
         return restoreSysDeptByIdDomainService.restoreByIds(ids);
     }
 }
+
