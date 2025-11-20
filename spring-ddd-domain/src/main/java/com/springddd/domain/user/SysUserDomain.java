@@ -84,4 +84,14 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
         if (status) lock();
         else unlock();
     }
+
+    public com.springddd.domain.user.memento.SysUserMemento saveToMemento() {
+        return new com.springddd.domain.user.memento.SysUserMemento(this.account, this.extendInfo, this.getDeptId());
+    }
+
+    public void restoreFromMemento(com.springddd.domain.user.memento.SysUserMemento memento) {
+        this.account = memento.getAccount();
+        this.extendInfo = memento.getExtendInfo();
+        super.setDeptId(memento.getDeptId());
+    }
 }
