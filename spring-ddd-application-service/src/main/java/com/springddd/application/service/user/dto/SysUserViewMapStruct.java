@@ -12,3 +12,4 @@ public interface SysUserViewMapStruct {
 
     List<SysUserView> toViewList(List<SysUserEntity> entities);
 }
+
