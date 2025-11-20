@@ -32,3 +32,4 @@ public class RoleNameNullException extends DomainException {
 
 
 
+
