@@ -18,6 +18,12 @@ public class SysRoleDomain extends AbstractDomainMask {
 
     private DataPermission dataPermission;
 
+    private final java.util.List<com.springddd.domain.role.observer.RoleObserver> observers = new java.util.ArrayList<>();
+
+    public void addObserver(com.springddd.domain.role.observer.RoleObserver observer) {
+        observers.add(observer);
+    }
+
     public void create() {}
 
     public void updateRole(RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, DataPermission dataPermission, Long deptId) {
@@ -25,6 +31,7 @@ public class SysRoleDomain extends AbstractDomainMask {
         this.roleExtendInfo = roleExtendInfo;
         this.dataPermission = dataPermission;
         super.setDeptId(deptId);
+        observers.forEach(o -> o.onUpdate(this));
     }
 
     public void delete() {
