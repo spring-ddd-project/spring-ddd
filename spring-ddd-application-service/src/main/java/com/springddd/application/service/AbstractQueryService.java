@@ -22,8 +22,13 @@ public abstract class AbstractQueryService<T, V, Q extends com.springddd.domain.
         return performQuery(query, criteria);
     }
 
-    protected abstract Criteria buildIndexCriteria(Q query);
-    protected abstract Criteria buildRecycleCriteria(Q query);
+    protected Criteria buildIndexCriteria(Q query) {
+        return com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory.getDeleteStatusCriteria(false);
+    }
+
+    protected Criteria buildRecycleCriteria(Q query) {
+        return com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory.getDeleteStatusCriteria(true);
+    }
     protected abstract Class<T> getEntityClass();
     protected abstract List<V> mapToViews(List<T> entities);
 
