@@ -16,11 +16,19 @@ public class SysDictDomain extends AbstractDomainMask {
 
     private final java.util.List<com.springddd.domain.dict.observer.DictObserver> observers = new java.util.ArrayList<>();
 
+    private com.springddd.domain.dict.state.DictState state;
+
+    public void setState(com.springddd.domain.dict.state.DictState state) {
+        this.state = state;
+    }
+
     public void addObserver(com.springddd.domain.dict.observer.DictObserver observer) {
         observers.add(observer);
     }
 
-    public void create() {}
+    public void create() {
+        this.state = new com.springddd.domain.dict.state.ActiveDictState();
+    }
 
     public void update(DictBasicInfo basicInfo, DictExtendInfo extendInfo) {
         this.setDictBasicInfo(basicInfo);
@@ -29,10 +37,12 @@ public class SysDictDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        super.setDeleteStatus(true);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dict.state.DeletedDictState() : new com.springddd.domain.dict.state.ActiveDictState();
+        state.delete(this);
     }
 
     public void restore() {
-        super.setDeleteStatus(false);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dict.state.DeletedDictState() : new com.springddd.domain.dict.state.ActiveDictState();
+        state.restore(this);
     }
 }
