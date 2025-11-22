@@ -20,3 +20,4 @@ public class SysDeptCommand implements Serializable {
     private Boolean deleteStatus;
 }
 
+
