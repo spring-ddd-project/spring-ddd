@@ -21,3 +21,4 @@ public class GenTableInfoQuery implements Serializable {
 
 
 
+
