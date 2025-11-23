@@ -14,3 +14,4 @@ public class SysDictItemMemento {
         this.itemExtendInfo = itemExtendInfo;
     }
 }
+
