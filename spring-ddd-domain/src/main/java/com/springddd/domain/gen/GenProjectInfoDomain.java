@@ -14,6 +14,12 @@ public class GenProjectInfoDomain extends AbstractDomainMask {
 
     private GenProjectInfoExtendInfo extendInfo;
 
+    private com.springddd.domain.gen.state.ProjectState state;
+
+    public void setState(com.springddd.domain.gen.state.ProjectState state) {
+        this.state = state;
+    }
+
     public void create() {
     }
 
@@ -23,7 +29,8 @@ public class GenProjectInfoDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        super.setDeleteStatus(true);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.gen.state.DeletedProjectState() : new com.springddd.domain.gen.state.ActiveProjectState();
+        state.delete(this);
     }
 
     public com.springddd.domain.gen.memento.GenProjectInfoMemento saveToMemento() {
