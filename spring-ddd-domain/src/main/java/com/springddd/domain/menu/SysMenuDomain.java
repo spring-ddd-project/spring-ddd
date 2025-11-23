@@ -81,4 +81,13 @@ public class SysMenuDomain extends AbstractDomainMask implements Cloneable {
     public void restore() {
         super.setDeleteStatus(false);
     }
+
+    public com.springddd.domain.menu.memento.SysMenuMemento saveToMemento() {
+        return new com.springddd.domain.menu.memento.SysMenuMemento(this.parentId, this.advancedOptions);
+    }
+
+    public void restoreFromMemento(com.springddd.domain.menu.memento.SysMenuMemento memento) {
+        this.parentId = memento.getParentId();
+        this.advancedOptions = memento.getAdvancedOptions();
+    }
 }
