@@ -9,3 +9,4 @@ public interface DeleteLeafAllocDomainService {
     Mono<Void> deleteByIds(List<Long> ids);
 
 }
+
