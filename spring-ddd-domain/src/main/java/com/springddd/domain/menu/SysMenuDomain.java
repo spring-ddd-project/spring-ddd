@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysMenuDomain extends AbstractDomainMask {
+public class SysMenuDomain extends AbstractDomainMask implements Cloneable {
 
     private MenuId menuId;
 
@@ -23,6 +23,22 @@ public class SysMenuDomain extends AbstractDomainMask {
     private AdvancedOptions advancedOptions;
 
     private MenuExtendInfo menuExtendInfo;
+
+    @Override
+    public SysMenuDomain clone() {
+        try {
+            SysMenuDomain clone = (SysMenuDomain) super.clone();
+            if (this.menuId != null) clone.setMenuId(new MenuId(this.menuId.value()));
+            if (this.parentId != null) clone.setParentId(new MenuId(this.parentId.value()));
+            // Catalog, Menu, Button, AdvancedOptions are records or simple objects, shallow clone might be enough if immutable
+            // But let's be safe
+            if (this.menu != null) clone.setMenu(new Menu(this.menu.menuPath(), this.menu.component(), this.menu.affixTab(), this.menu.noBasicLayout(), this.menu.embedded()));
+            if (this.advancedOptions != null) clone.setAdvancedOptions(new AdvancedOptions(this.advancedOptions.order(), this.advancedOptions.icon(), this.advancedOptions.menuType(), this.advancedOptions.visible(), this.advancedOptions.menuStatus()));
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     private com.springddd.domain.menu.state.MenuState state;
 
