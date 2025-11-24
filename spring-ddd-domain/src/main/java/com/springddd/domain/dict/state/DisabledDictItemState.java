@@ -13,4 +13,9 @@ public class DisabledDictItemState implements DictItemState {
     public void disable(SysDictItemDomain domain) {
         // Already disabled
     }
+
+    @Override
+    public void restore(SysDictItemDomain domain) {
+        domain.setDeleteStatus(false);
+    }
 }
