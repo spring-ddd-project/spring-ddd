@@ -16,6 +16,22 @@ public class SysDictItemDomain extends AbstractDomainMask {
 
     private DictItemExtendInfo itemExtendInfo;
 
+    private com.springddd.domain.dict.state.DictItemState state;
+
+    public void setState(com.springddd.domain.dict.state.DictItemState state) {
+        this.state = state;
+    }
+
+    public void enable() {
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.enable(this);
+    }
+
+    public void disable() {
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.disable(this);
+    }
+
     public void create() {}
 
     public void update(DictItemBasicInfo basicInfo, DictItemExtendInfo extendInfo) {
