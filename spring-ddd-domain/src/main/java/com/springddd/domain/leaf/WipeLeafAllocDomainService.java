@@ -9,3 +9,4 @@ public interface WipeLeafAllocDomainService {
     Mono<Void> wipeByIds(List<Long> ids);
 
 }
+
