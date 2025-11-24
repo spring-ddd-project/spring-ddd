@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysDictItemDomain extends AbstractDomainMask {
+public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
 
     private DictItemId itemId;
 
@@ -15,6 +15,31 @@ public class SysDictItemDomain extends AbstractDomainMask {
     private DictItemBasicInfo itemBasicInfo;
 
     private DictItemExtendInfo itemExtendInfo;
+
+    @Override
+    public SysDictItemDomain clone() {
+        try {
+            SysDictItemDomain clone = (SysDictItemDomain) super.clone();
+            if (this.itemId != null) clone.setItemId(new DictItemId(this.itemId.value()));
+            if (this.dictId != null) clone.setDictId(new DictId(this.dictId.value()));
+            if (this.itemBasicInfo != null) {
+                DictItemBasicInfo basic = new DictItemBasicInfo();
+                basic.setItemLabel(this.itemBasicInfo.getItemLabel());
+                basic.setItemValue(this.itemBasicInfo.getItemValue());
+                basic.setItemSort(this.itemBasicInfo.getItemSort());
+                basic.setItemStatus(this.itemBasicInfo.getItemStatus());
+                clone.setItemBasicInfo(basic);
+            }
+            if (this.itemExtendInfo != null) {
+                DictItemExtendInfo ext = new DictItemExtendInfo();
+                ext.setItemRemark(this.itemExtendInfo.getItemRemark());
+                clone.setItemExtendInfo(ext);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     private com.springddd.domain.dict.state.DictItemState state;
 
