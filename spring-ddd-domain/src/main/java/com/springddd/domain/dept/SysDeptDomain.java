@@ -6,15 +6,41 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysDeptDomain extends AbstractDomainMask {
+public class SysDeptDomain extends AbstractDomainMask implements Cloneable {
 
-    private DeptId id;
+    private DeptId deptId;
 
     private DeptId parentId;
 
     private DeptBasicInfo deptBasicInfo;
 
     private DeptExtendInfo deptExtendInfo;
+
+    @Override
+    public SysDeptDomain clone() {
+        try {
+            SysDeptDomain clone = (SysDeptDomain) super.clone();
+            if (this.deptId != null) clone.setDeptId(new DeptId(this.deptId.value()));
+            if (this.parentId != null) clone.setParentId(new DeptId(this.parentId.value()));
+            if (this.deptBasicInfo != null) {
+                DeptBasicInfo basic = new DeptBasicInfo();
+                basic.setDeptName(this.deptBasicInfo.getDeptName());
+                basic.setDeptSort(this.deptBasicInfo.getDeptSort());
+                basic.setDeptStatus(this.deptBasicInfo.getDeptStatus());
+                clone.setDeptBasicInfo(basic);
+            }
+            if (this.deptExtendInfo != null) {
+                DeptExtendInfo ext = new DeptExtendInfo();
+                ext.setDeptLeader(this.deptExtendInfo.getDeptLeader());
+                ext.setDeptPhone(this.deptExtendInfo.getDeptPhone());
+                ext.setDeptEmail(this.deptExtendInfo.getDeptEmail());
+                clone.setDeptExtendInfo(ext);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 
     private final java.util.List<com.springddd.domain.dept.observer.DeptObserver> observers = new java.util.ArrayList<>();
 
