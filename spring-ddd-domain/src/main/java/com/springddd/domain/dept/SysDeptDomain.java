@@ -74,4 +74,14 @@ public class SysDeptDomain extends AbstractDomainMask implements Cloneable {
         if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dept.state.DeletedDeptState() : new com.springddd.domain.dept.state.ActiveDeptState();
         state.restore(this);
     }
+
+    public com.springddd.domain.dept.memento.SysDeptMemento saveToMemento() {
+        return new com.springddd.domain.dept.memento.SysDeptMemento(this.parentId, this.deptBasicInfo, this.deptExtendInfo);
+    }
+
+    public void restoreFromMemento(com.springddd.domain.dept.memento.SysDeptMemento memento) {
+        this.parentId = memento.getParentId();
+        this.deptBasicInfo = memento.getDeptBasicInfo();
+        this.deptExtendInfo = memento.getDeptExtendInfo();
+    }
 }
