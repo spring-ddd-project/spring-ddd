@@ -25,3 +25,4 @@ public record ColumnPermission(String entityCode, String entityName, List<String
 
 
 
+
