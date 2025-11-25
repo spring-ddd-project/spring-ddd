@@ -18,11 +18,19 @@ public class SysDeptDomain extends AbstractDomainMask {
 
     private final java.util.List<com.springddd.domain.dept.observer.DeptObserver> observers = new java.util.ArrayList<>();
 
+    private com.springddd.domain.dept.state.DeptState state;
+
+    public void setState(com.springddd.domain.dept.state.DeptState state) {
+        this.state = state;
+    }
+
     public void addObserver(com.springddd.domain.dept.observer.DeptObserver observer) {
         observers.add(observer);
     }
 
-    public void create() {}
+    public void create() {
+        this.state = new com.springddd.domain.dept.state.ActiveDeptState();
+    }
 
     public void update(DeptId parentId, DeptBasicInfo basicInfo, DeptExtendInfo extendInfo) {
         this.parentId = parentId;
@@ -32,10 +40,12 @@ public class SysDeptDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        super.setDeleteStatus(true);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dept.state.DeletedDeptState() : new com.springddd.domain.dept.state.ActiveDeptState();
+        state.delete(this);
     }
 
     public void restore() {
-        super.setDeleteStatus(false);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.dept.state.DeletedDeptState() : new com.springddd.domain.dept.state.ActiveDeptState();
+        state.restore(this);
     }
 }
