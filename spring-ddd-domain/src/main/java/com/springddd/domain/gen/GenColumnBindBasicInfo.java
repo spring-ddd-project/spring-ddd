@@ -32,3 +32,4 @@ public record GenColumnBindBasicInfo(String columnType, String entityType, Byte 
 
 
 
+
