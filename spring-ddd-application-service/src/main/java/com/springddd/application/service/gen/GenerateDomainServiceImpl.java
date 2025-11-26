@@ -9,6 +9,7 @@ import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.CacheProcessor;
+import com.springddd.application.service.gen.factory.TemplateEngineFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -30,7 +31,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final GenTemplateQueryService templateQueryService;
 
-    private final TemplateEngineAdapter templateEngineAdapter;
+    private final TemplateEngineFactory templateEngineFactory;
 
     private final ProjectTreeBuilder treeBuilder = ProjectTreeBuilder.getInstance();
 
@@ -46,7 +47,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     String projectName = (String) context.get("projectName");
                     return templateQueryService.queryAllTemplate()
                             .flatMapMany(Flux::fromIterable)
-                            .flatMap(template -> templateEngineAdapter.render(template.getTemplateName(),
+                            .flatMap(template -> templateEngineFactory.createEngineAdapter().render(template.getTemplateName(),
                                     template.getTemplateContent(), context)
                                     .map(renderedCode -> {
                                         String filePath = filePathContext.getFilePath(template.getTemplateName(), context, projectName);
