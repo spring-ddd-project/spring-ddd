@@ -9,8 +9,8 @@ public class ReplaceRoleAssignmentStrategy implements RoleAssignmentStrategy {
     public List<SysUserRoleDomain> assign(Long userId, List<Long> roleIds) {
         return roleIds.stream().map(roleId -> {
             SysUserRoleDomain domain = new SysUserRoleDomain();
-            domain.setUserId(userId);
-            domain.setRoleId(roleId);
+            domain.setUserId(new com.springddd.domain.user.UserId(userId));
+            domain.setRoleId(new com.springddd.domain.role.RoleId(roleId));
             return domain;
         }).collect(Collectors.toList());
     }
