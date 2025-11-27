@@ -42,7 +42,7 @@ public class ApiResponse {
     public static Mono<ApiResponse> ok(Mono<?> mono) {
         return mono.map(data -> {
             if (data instanceof PageResponse<?> page) {
-                return page(page.getItems(), page.getTotal(), page.getPageNum(), page.getPageSize());
+                return page(page.getList(), page.getTotal(), page.getPageNum(), page.getPageSize());
             }
             return success(data);
         }).defaultIfEmpty(empty());

@@ -30,11 +30,8 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
             }
             if (this.extendInfo != null) {
                 ExtendInfo ext = new ExtendInfo();
-                ext.setNickName(this.extendInfo.getNickName());
                 ext.setAvatar(this.extendInfo.getAvatar());
-                ext.setEmail(this.extendInfo.getEmail());
-                ext.setPhone(this.extendInfo.getPhone());
-                ext.setGender(this.extendInfo.getGender());
+                ext.setSex(this.extendInfo.getSex());
                 clone.setExtendInfo(ext);
             }
             return clone;
