@@ -24,3 +24,4 @@ public interface DomainRepository<T extends AggregateRootId<?>, E extends Abstra
 
 
 
+
