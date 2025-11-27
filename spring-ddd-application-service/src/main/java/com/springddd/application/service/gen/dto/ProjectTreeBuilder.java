@@ -54,15 +54,21 @@ public class ProjectTreeBuilder {
         ProjectTreeView currentNode = root;
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            Optional<ProjectTreeView> opt = currentNode.getChildren()
-                    .stream()
-                    .filter(c -> c.getLabel().equals(part))
-                    .findFirst();
-
-            ProjectTreeView child;
-            if (opt.isPresent()) {
-                child = opt.get();
+            
+            // Fast lookup without streams
+            ProjectTreeView child = null;
+            if (currentNode.getChildren() != null) {
+                for (ProjectTreeView c : currentNode.getChildren()) {
+                    if (c.getLabel().equals(part)) {
+                        child = c;
+                        break;
+                    }
+                }
             } else {
+                currentNode.setChildren(new ArrayList<>());
+            }
+
+            if (child == null) {
                 child = new ProjectTreeView();
                 child.setLabel(part);
                 child.setChildren(new ArrayList<>());
