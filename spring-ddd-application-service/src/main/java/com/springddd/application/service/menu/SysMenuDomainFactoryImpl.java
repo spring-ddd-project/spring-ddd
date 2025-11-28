@@ -29,3 +29,4 @@ public class SysMenuDomainFactoryImpl implements SysMenuDomainFactory {
         return domain;
     }
 }
+
