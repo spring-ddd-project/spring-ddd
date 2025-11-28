@@ -12,3 +12,4 @@ public interface GenTemplateViewMapStruct {
 
     List<GenTemplateView> toViews(List<GenTemplateEntity> entities);
 }
+

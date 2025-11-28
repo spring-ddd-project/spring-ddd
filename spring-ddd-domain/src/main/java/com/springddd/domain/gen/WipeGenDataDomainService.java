@@ -6,3 +6,4 @@ public interface WipeGenDataDomainService {
 
     Mono<Void> wipe();
 }
+
