@@ -28,3 +28,4 @@ public class RestoreSysUserByIdDomainServiceImpl implements RestoreSysUserByIdDo
                 .then();
     }
 }
+
