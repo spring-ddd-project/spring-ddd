@@ -16,3 +16,4 @@ public class SysRolePageQuery extends SysRoleQuery implements Serializable {
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
