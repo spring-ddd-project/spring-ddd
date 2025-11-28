@@ -25,3 +25,4 @@ public class WipeGenColumnsByIdsDomainServiceImpl implements WipeGenColumnsByIds
                 .then();
     }
 }
+
