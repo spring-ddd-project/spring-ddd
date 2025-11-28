@@ -73,3 +73,4 @@ public class SysRoleQueryService {
         return sysRoleRepository.findAll().collectList().map(sysRoleViewMapStruct::toViewList);
     }
 }
+
