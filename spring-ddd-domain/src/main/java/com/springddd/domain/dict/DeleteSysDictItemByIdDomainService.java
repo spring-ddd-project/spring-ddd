@@ -9,3 +9,4 @@ public interface DeleteSysDictItemByIdDomainService {
     Mono<Void> deleteByIds(List<Long> ids);
 }
 
+

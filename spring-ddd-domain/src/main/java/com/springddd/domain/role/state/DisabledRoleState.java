@@ -14,3 +14,4 @@ public class DisabledRoleState implements RoleState {
         // Already disabled
     }
 }
+
