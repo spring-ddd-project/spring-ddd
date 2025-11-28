@@ -9,3 +9,4 @@ public class DictItemValueNullException extends DomainException {
         super(ErrorCode.DICT_ITEM_VALUE_NULL);
     }
 }
+

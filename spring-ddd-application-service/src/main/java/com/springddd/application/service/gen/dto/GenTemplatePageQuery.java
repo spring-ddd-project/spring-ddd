@@ -16,3 +16,4 @@ public class GenTemplatePageQuery extends GenTemplateQuery implements Serializab
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
