@@ -25,3 +25,4 @@ public class GenerateDomainServiceProxy implements GenerateDomainService {
                 .doFinally(signalType -> log.info("Code generation for {} took {} ms", tableName, System.currentTimeMillis() - start));
     }
 }
+

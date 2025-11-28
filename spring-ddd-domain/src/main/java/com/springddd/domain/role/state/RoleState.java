@@ -6,3 +6,4 @@ public interface RoleState {
     void enable(SysRoleDomain domain);
     void disable(SysRoleDomain domain);
 }
+

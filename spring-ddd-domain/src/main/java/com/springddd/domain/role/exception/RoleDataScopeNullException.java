@@ -9,3 +9,4 @@ public class RoleDataScopeNullException extends DomainException {
         super(ErrorCode.ROLE_DATA_SCOPE_NULL);
     }
 }
+
