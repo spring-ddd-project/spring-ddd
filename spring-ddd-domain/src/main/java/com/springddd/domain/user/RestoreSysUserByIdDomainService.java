@@ -8,3 +8,4 @@ public interface RestoreSysUserByIdDomainService {
 
     Mono<Void> restoreByIds(List<Long> ids);
 }
+

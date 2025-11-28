@@ -11,3 +11,4 @@ public class WildcardPathExpression implements PathExpression {
         return node.getChildren();
     }
 }
+

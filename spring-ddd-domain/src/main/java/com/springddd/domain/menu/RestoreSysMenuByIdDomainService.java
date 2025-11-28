@@ -8,3 +8,4 @@ public interface RestoreSysMenuByIdDomainService {
 
     Mono<Void> restoreByIds(List<Long> ids);
 }
+

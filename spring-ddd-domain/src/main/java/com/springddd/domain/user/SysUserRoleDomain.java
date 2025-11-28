@@ -27,3 +27,4 @@ public class SysUserRoleDomain extends AbstractDomainMask {
         super.setDeleteStatus(true);
     }
 }
+
