@@ -13,3 +13,4 @@ public class GenTemplateView implements Serializable {
 
     private String templateContent;
 }
+

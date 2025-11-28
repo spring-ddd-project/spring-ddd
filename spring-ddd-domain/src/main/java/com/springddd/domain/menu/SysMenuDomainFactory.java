@@ -6,3 +6,4 @@ public interface SysMenuDomainFactory {
                          MenuExtendInfo menuExtendInfo,
                          Long deptId);
 }
+
