@@ -20,3 +20,4 @@ public class SysUserRoleDomainFactoryImpl implements SysUserRoleDomainFactory {
         return sysUserRoleDomain;
     }
 }
+
