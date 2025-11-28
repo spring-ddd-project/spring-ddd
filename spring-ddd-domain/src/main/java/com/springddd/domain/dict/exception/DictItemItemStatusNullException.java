@@ -9,3 +9,4 @@ public class DictItemItemStatusNullException extends DomainException {
         super(ErrorCode.DICT_ITEM_ITEMSTATUS_NULL);
     }
 }
+

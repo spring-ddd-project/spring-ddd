@@ -92,3 +92,4 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
         super.setDeptId(memento.getDeptId());
     }
 }
+
