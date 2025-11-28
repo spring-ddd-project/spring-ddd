@@ -24,3 +24,4 @@ public class SysDictItemQuery implements Serializable {
     private Boolean deleteStatus;
 }
 
+
