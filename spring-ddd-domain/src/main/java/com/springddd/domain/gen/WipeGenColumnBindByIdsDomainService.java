@@ -9,3 +9,4 @@ public interface WipeGenColumnBindByIdsDomainService {
     Mono<Void> wipeByIds(List<Long> ids);
 }
 
+
