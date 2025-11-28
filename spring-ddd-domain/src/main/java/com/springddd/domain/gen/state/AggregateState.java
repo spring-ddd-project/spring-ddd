@@ -6,3 +6,4 @@ public interface AggregateState {
     void delete(GenAggregateDomain domain);
     void restore(GenAggregateDomain domain);
 }
+
