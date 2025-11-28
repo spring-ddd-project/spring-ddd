@@ -17,3 +17,4 @@ public class PreviewCommand implements GenerateCommand {
         return generateDomainService.generateProject(dto).then();
     }
 }
+
