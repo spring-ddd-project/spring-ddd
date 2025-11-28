@@ -14,3 +14,4 @@ public class ActiveDictState implements DictState {
         // Already active
     }
 }
+
