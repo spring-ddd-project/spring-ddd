@@ -9,3 +9,4 @@ public class I18nLocaleNullException extends DomainException {
         super(ErrorCode.GEN_I18N_LOCALE_NULL);
     }
 }
+

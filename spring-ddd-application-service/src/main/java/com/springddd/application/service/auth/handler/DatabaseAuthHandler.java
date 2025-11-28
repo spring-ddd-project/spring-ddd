@@ -23,3 +23,4 @@ public class DatabaseAuthHandler extends AuthHandler {
                 .switchIfEmpty(next != null ? next.handle(query) : Mono.empty());
     }
 }
+

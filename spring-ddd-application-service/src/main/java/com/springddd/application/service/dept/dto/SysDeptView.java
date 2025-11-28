@@ -22,3 +22,4 @@ public class SysDeptView implements Serializable {
 
     private List<SysDeptView> children;
 }
+
