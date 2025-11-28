@@ -16,3 +16,4 @@ public class SysUserMemento {
         this.deptId = deptId;
     }
 }
+

@@ -16,3 +16,4 @@ public class SysRoleMenuPageQuery extends SysRoleMenuQuery implements Serializab
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+

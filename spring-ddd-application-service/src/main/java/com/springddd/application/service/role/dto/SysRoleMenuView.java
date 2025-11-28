@@ -19,3 +19,4 @@ public class SysRoleMenuView implements Serializable {
 
     private Integer version;
 }
+

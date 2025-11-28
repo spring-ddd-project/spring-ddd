@@ -9,3 +9,4 @@ public class JavaTypeNullException extends DomainException {
         super(ErrorCode.GEN_INFO_JAVA_TYPE_NULL);
     }
 }
+
