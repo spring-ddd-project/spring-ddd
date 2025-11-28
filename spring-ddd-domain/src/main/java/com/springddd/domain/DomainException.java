@@ -23,3 +23,4 @@ public abstract class DomainException extends RuntimeException {
         return errorCode.getMessageKey();
     }
 }
+

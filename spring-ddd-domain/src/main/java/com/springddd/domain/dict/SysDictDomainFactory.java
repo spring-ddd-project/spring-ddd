@@ -5,3 +5,4 @@ public interface SysDictDomainFactory {
     SysDictDomain newInstance(DictBasicInfo dictBasicInfo, DictExtendInfo dictExtendInfo);
 }
 
+
