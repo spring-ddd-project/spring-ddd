@@ -38,3 +38,4 @@ public class WipeSysUserByIdsDomainServiceImpl implements WipeSysUserByIdsDomain
                 .thenMany(sysUserRepository.deleteAllById(ids)).then();
     }
 }
+
