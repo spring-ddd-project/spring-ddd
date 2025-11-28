@@ -17,3 +17,4 @@ public class FreemarkerEngineFactory implements TemplateEngineFactory {
         return new FreemarkerTemplateAdapter(configuration);
     }
 }
+

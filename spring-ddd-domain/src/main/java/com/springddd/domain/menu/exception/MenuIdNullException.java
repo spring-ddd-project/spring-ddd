@@ -9,3 +9,4 @@ public class MenuIdNullException extends DomainException {
         super(ErrorCode.MENU_ID_NULL);
     }
 }
+
