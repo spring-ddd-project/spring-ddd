@@ -44,3 +44,4 @@ public class GenAggregateQueryService {
         return queryFactory.getR2dbcEntityTemplate().select(GenAggregateEntity.class).matching(Query.query(criteria)).all().collectList().map(aggregateViewMapStruct::toViews);
     }
 }
+
