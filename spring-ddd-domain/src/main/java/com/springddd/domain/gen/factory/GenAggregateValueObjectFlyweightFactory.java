@@ -12,3 +12,4 @@ public class GenAggregateValueObjectFlyweightFactory {
         return cache.computeIfAbsent(key, k -> new GenAggregateValueObject(name, value, type));
     }
 }
+

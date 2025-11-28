@@ -47,3 +47,4 @@ public class GenProjectInfoCommandService {
         return wipeGenInfoByIdsDomainService.wipeByIds(ids);
     }
 }
+

@@ -26,3 +26,4 @@ public class GenColumnBindDomain extends AbstractDomainMask {
         super.setDeleteStatus(false);
     }
 }
+

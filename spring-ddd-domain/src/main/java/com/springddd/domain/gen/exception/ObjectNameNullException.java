@@ -9,3 +9,4 @@ public class ObjectNameNullException extends DomainException {
         super(ErrorCode.GEN_AGGREGATE_OBJECT_NAME_NULL);
     }
 }
+

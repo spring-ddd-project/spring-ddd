@@ -32,3 +32,4 @@ public class CustomAccessDeniedHandler implements ServerAccessDeniedHandler {
         return response.writeWith(Mono.just(buffer));
     }
 }
+
