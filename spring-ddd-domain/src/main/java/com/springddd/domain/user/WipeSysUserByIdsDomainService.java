@@ -8,3 +8,4 @@ public interface WipeSysUserByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
+

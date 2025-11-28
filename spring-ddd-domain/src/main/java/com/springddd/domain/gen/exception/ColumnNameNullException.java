@@ -9,3 +9,4 @@ public class ColumnNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_COLUMN_NAME_NULL);
     }
 }
+
