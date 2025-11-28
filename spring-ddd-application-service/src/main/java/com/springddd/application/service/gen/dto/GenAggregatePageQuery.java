@@ -16,3 +16,4 @@ public class GenAggregatePageQuery extends GenAggregateQuery implements Serializ
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
