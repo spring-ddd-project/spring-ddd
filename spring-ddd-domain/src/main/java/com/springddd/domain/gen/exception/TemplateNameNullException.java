@@ -9,3 +9,4 @@ public class TemplateNameNullException extends DomainException {
         super(ErrorCode.GEN_TEMPLATE_NAME_NULL);
     }
 }
+

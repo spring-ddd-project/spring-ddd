@@ -9,3 +9,4 @@ public class FilterTypeNullException extends DomainException {
         super(ErrorCode.GEN_INFO_FILTER_TYPE_NULL);
     }
 }
+
