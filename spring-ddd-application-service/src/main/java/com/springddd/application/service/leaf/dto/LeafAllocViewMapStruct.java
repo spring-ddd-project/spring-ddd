@@ -12,3 +12,4 @@ public interface LeafAllocViewMapStruct {
 
     List<LeafAllocView> toViews(List<LeafAllocEntity> entities);
 }
+
