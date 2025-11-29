@@ -22,3 +22,4 @@ public class SysDictItemCommand implements Serializable {
     private Boolean deleteStatus;
 }
 
+
