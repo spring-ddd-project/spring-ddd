@@ -16,3 +16,4 @@ public class SysUserRolePageQuery extends SysUserRoleQuery implements Serializab
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+

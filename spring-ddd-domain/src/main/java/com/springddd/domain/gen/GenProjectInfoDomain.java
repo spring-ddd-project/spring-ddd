@@ -67,3 +67,4 @@ public class GenProjectInfoDomain extends AbstractDomainMask implements Cloneabl
         this.extendInfo = memento.getExtendInfo();
     }
 }
+
