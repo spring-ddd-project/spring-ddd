@@ -9,3 +9,4 @@ public class RequestNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_REQUEST_NAME_NULL);
     }
 }
+
