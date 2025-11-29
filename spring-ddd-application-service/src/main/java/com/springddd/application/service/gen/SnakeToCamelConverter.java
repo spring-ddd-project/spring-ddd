@@ -26,3 +26,4 @@ public class SnakeToCamelConverter {
         return camelCaseString.toString();
     }
 }
+

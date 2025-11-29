@@ -16,3 +16,4 @@ public class GenAggregateDomainFactoryImpl implements GenAggregateDomainFactory 
         return domain;
     }
 }
+

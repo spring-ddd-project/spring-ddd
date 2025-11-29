@@ -17,3 +17,4 @@ public class LeafAllocView implements Serializable {
     private Long id;
 
 }
+
