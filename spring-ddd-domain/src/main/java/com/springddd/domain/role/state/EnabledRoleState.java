@@ -14,3 +14,4 @@ public class EnabledRoleState implements RoleState {
         domain.setState(new DisabledRoleState());
     }
 }
+

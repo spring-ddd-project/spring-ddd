@@ -26,3 +26,4 @@ public class WipeGenProjectInfoByIdsDomainServiceImpl implements WipeGenProjectI
     }
 }
 
+

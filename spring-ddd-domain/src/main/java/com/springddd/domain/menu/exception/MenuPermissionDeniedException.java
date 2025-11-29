@@ -9,3 +9,4 @@ public class MenuPermissionDeniedException extends DomainException {
         super(ErrorCode.MENU_PERMISSION_DENIED);
     }
 }
+

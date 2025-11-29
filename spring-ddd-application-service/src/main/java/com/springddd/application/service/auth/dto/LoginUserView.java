@@ -9,3 +9,4 @@ public class LoginUserView implements Serializable {
 
     private String accessToken;
 }
+
