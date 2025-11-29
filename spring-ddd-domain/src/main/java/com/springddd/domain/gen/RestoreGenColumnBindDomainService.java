@@ -8,3 +8,4 @@ public interface RestoreGenColumnBindDomainService {
 
     Mono<Void> restoreByIds(List<Long> ids);
 }
+

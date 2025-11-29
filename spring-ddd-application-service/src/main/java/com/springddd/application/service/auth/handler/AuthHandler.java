@@ -14,3 +14,4 @@ public abstract class AuthHandler {
     public abstract Mono<AuthUser> handle(LoginUserQuery query);
 }
 
+

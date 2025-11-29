@@ -9,3 +9,4 @@ public class DictSortOrderNullException extends DomainException {
         super(ErrorCode.DICT_SORTORDER_NULL);
     }
 }
+
