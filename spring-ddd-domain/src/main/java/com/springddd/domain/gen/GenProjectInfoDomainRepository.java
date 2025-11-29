@@ -5,3 +5,4 @@ import com.springddd.domain.DomainRepository;
 public interface GenProjectInfoDomainRepository extends DomainRepository<InfoId, GenProjectInfoDomain> {
 }
 
+

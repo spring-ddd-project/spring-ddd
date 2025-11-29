@@ -4,3 +4,4 @@ public interface GenProjectInfoDomainFactory {
 
     GenProjectInfoDomain newInstance(ProjectInfo projectInfo, GenProjectInfoExtendInfo extendInfo);
 }
+

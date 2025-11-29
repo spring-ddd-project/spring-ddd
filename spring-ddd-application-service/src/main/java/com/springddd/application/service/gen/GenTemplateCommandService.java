@@ -51,3 +51,4 @@ public class GenTemplateCommandService {
         return wipeGenTemplateDomainService.wipeByIds(ids);
     }
 }
+

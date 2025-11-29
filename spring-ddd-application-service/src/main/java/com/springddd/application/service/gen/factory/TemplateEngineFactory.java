@@ -5,3 +5,4 @@ import com.springddd.application.service.gen.adapter.TemplateEngineAdapter;
 public interface TemplateEngineFactory {
     TemplateEngineAdapter createEngineAdapter();
 }
+
