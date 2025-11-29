@@ -9,3 +9,4 @@ public class PackageNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_PACKAGE_NAME_NULL);
     }
 }
+
