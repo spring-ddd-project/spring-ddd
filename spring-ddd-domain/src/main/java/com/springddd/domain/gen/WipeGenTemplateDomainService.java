@@ -9,3 +9,4 @@ public interface WipeGenTemplateDomainService {
     Mono<Void> wipeByIds(List<Long> ids);
 }
 
+

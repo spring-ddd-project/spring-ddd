@@ -7,3 +7,4 @@ public interface SysUserRoleDomainFactory {
     SysUserRoleDomain newInstance(UserId userId, RoleId roleId, Long deptId);
 }
 
+
