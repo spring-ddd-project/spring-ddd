@@ -9,3 +9,4 @@ public class FormRequiredNullException extends DomainException {
         super(ErrorCode.GEN_INFO_FORM_REQUIRED_NULL);
     }
 }
+
