@@ -21,3 +21,4 @@ public class SysDictItemView implements Serializable {
 
     private Boolean deleteStatus;
 }
+
