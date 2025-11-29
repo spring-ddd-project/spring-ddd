@@ -7,3 +7,4 @@ public interface RoleAssignmentStrategy {
     List<SysUserRoleDomain> assign(Long userId, List<Long> roleIds);
 }
 
+

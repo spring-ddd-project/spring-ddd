@@ -9,3 +9,4 @@ public class DeptStatusNullException extends DomainException {
         super(ErrorCode.DEPT_STATUS_NULL);
     }
 }
+

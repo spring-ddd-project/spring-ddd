@@ -17,3 +17,4 @@ public class SysRoleMenuPageQuery extends SysRoleMenuQuery implements Serializab
     private Integer pageSize;
 }
 
+
