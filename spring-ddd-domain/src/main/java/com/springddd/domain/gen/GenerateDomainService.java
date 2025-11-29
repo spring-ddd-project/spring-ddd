@@ -6,3 +6,4 @@ public interface GenerateDomainService {
 
     Mono<Void> generate(String tableName);
 }
+
