@@ -13,3 +13,4 @@ public class DataPermission {
     private RowScope rowScope;
     private List<ColumnRule> columnRules;
 }
+
