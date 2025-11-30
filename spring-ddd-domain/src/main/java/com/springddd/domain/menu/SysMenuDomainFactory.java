@@ -7,3 +7,4 @@ public interface SysMenuDomainFactory {
                          Long deptId);
 }
 
+

@@ -90,3 +90,4 @@ public class ProjectTreeBuilder {
         return part.contains(".");
     }
 }
+

@@ -58,3 +58,4 @@ public class SysRoleCommandService {
         return wipeSysRoleByIdsDomainService.deleteByIds(ids);
     }
 }
+

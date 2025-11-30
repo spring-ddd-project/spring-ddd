@@ -74,3 +74,4 @@ public class SysUserCommandService {
         return restoreSysUserByIdDomainService.restoreByIds(ids);
     }
 }
+
