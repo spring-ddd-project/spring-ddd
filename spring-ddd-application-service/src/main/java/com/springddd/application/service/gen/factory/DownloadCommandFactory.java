@@ -16,3 +16,4 @@ public class DownloadCommandFactory implements GenerateCommandFactory {
         return downloadCommand;
     }
 }
+
