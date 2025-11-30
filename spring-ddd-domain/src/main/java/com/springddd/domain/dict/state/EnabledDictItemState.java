@@ -19,3 +19,4 @@ public class EnabledDictItemState implements DictItemState {
         domain.setDeleteStatus(false);
     }
 }
+

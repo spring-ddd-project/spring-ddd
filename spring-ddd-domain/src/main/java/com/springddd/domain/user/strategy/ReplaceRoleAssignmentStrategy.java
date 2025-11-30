@@ -15,3 +15,4 @@ public class ReplaceRoleAssignmentStrategy implements RoleAssignmentStrategy {
         }).collect(Collectors.toList());
     }
 }
+

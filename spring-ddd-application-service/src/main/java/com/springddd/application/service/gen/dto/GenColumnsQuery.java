@@ -51,3 +51,4 @@ public class GenColumnsQuery implements Serializable {
 
     private Boolean deleteStatus;
 }
+
