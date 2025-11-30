@@ -8,3 +8,4 @@ public interface WipeGenAggregateDomainService {
 
     Mono<Void> wipe(List<Long> ids);
 }
+

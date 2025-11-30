@@ -18,3 +18,4 @@ public interface SysMenuViewMapStruct {
 
     List<SysMenuView> toViewList(List<SysMenuEntity> entities);
 }
+
