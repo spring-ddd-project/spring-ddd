@@ -10,3 +10,4 @@ public interface SysRoleDomainFactory {
                               Long deptId);
 }
 
+
