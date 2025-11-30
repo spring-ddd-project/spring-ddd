@@ -19,3 +19,4 @@ public class SysDeptDomainFactoryImpl implements SysDeptDomainFactory {
         return sysDeptDomain;
     }
 }
+

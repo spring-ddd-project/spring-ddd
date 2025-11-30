@@ -9,3 +9,4 @@ public class ValueObjectNullException extends DomainException {
         super(ErrorCode.GEN_INFO_VALUE_OBJECT_NULL);
     }
 }
+

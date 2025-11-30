@@ -34,3 +34,4 @@ public class DeleteSysDeptByIdDomainServiceImpl implements DeleteSysDeptByIdDoma
                 }), SecurityUtils.concurrency()).then();
     }
 }
+

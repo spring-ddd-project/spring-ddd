@@ -11,3 +11,4 @@ public class RoleStatusNullException extends DomainException {
         super(ErrorCode.ROLE_STATUS_NULL);
     }
 }
+
