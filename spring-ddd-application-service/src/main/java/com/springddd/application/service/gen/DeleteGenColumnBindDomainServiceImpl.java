@@ -27,3 +27,4 @@ public class DeleteGenColumnBindDomainServiceImpl implements DeleteGenColumnBind
                         }), SecurityUtils.concurrency()).then();
     }
 }
+
