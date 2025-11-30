@@ -19,3 +19,4 @@ public class WipeSysDictItemByIdsDomainServiceImpl implements WipeSysDictItemByI
         return sysDictItemRepository.deleteAllById(ids);
     }
 }
+
