@@ -19,3 +19,4 @@ public class SysDictCommand implements Serializable {
 
     private Boolean deleteStatus;
 }
+
