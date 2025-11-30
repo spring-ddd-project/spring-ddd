@@ -9,3 +9,4 @@ public interface RestoreSysDictByIdDomainService {
     Mono<Void> restoreByIds(List<Long> ids);
 }
 
+

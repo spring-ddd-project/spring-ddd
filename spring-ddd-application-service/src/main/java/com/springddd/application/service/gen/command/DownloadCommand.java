@@ -17,3 +17,4 @@ public class DownloadCommand implements GenerateCommand {
         return genDownloadDomainService.downloadCode(dto).then();
     }
 }
+
