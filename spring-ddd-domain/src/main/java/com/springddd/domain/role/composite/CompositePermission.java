@@ -15,3 +15,4 @@ public class CompositePermission implements PermissionComponent {
         return components.stream().allMatch(c -> c.isAuthorized(context));
     }
 }
+
