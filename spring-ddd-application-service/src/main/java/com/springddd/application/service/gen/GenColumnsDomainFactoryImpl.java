@@ -18,3 +18,4 @@ public class GenColumnsDomainFactoryImpl implements GenColumnsDomainFactory {
         return domain;
     }
 }
+

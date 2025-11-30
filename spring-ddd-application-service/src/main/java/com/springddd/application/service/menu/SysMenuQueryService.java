@@ -230,3 +230,4 @@ public class SysMenuQueryService {
         return sysMenuRepository.findAll().collectList().map(sysMenuViewMapStruct::toViewList);
     }
 }
+

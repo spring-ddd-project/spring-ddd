@@ -42,3 +42,4 @@ public class GenAggregateDomain extends AbstractDomainMask {
         state.restore(this);
     }
 }
+
