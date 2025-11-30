@@ -16,3 +16,4 @@ public class SysDictItemPageQuery extends SysDictItemQuery implements Serializab
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+

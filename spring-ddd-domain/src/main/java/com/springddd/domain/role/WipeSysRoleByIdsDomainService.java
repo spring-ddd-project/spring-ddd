@@ -8,3 +8,4 @@ public interface WipeSysRoleByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
+

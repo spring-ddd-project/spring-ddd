@@ -18,3 +18,4 @@ public class GenTableInfoPageQuery extends GenTableInfoQuery implements Serializ
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
