@@ -82,3 +82,4 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
         this.itemExtendInfo = memento.getItemExtendInfo();
     }
 }
+

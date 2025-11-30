@@ -47,3 +47,4 @@ public class SysMenuQuery implements Serializable {
 
     private Boolean deleteStatus;
 }
+

@@ -15,3 +15,4 @@ public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationM
         return Mono.just(authentication);
     }
 }
+
