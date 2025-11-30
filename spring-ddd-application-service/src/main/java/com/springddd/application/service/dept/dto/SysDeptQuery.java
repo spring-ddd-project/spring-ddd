@@ -22,3 +22,4 @@ public class SysDeptQuery implements Serializable {
     private Boolean deleteStatus;
 }
 
+

@@ -13,3 +13,4 @@ public class UserInfoView implements Serializable {
     private List<String> roles;
 }
 
+

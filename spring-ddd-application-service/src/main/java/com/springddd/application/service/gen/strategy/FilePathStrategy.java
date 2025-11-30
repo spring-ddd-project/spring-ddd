@@ -6,3 +6,4 @@ public interface FilePathStrategy {
     boolean supports(String templateName);
     String generatePath(String templateName, Map<String, Object> context, String projectName);
 }
+
