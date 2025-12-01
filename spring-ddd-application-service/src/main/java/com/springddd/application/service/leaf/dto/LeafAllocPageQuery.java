@@ -16,3 +16,4 @@ public class LeafAllocPageQuery extends LeafAllocQuery implements Serializable {
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
