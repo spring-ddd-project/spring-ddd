@@ -9,3 +9,4 @@ public class ExtendInfo {
 
     private Boolean sex;
 }
+
