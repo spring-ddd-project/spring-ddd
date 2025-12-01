@@ -19,3 +19,4 @@ public class GenTableInfoQuery implements Serializable {
     private String tableCollation;
 }
 
+

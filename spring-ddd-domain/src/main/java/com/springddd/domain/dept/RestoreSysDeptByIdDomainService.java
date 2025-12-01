@@ -9,3 +9,4 @@ public interface RestoreSysDeptByIdDomainService {
     Mono<Void> restoreByIds(List<Long> ids);
 }
 
+
