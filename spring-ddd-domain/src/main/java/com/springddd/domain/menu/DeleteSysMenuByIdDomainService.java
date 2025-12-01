@@ -9,3 +9,4 @@ public interface DeleteSysMenuByIdDomainService {
     Mono<Void> deleteByIds(List<Long> ids);
 }
 
+
