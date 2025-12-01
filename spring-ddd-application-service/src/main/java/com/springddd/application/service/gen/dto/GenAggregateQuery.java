@@ -22,3 +22,4 @@ public class GenAggregateQuery implements Serializable {
     private Boolean hasCreated;
 }
 
+
