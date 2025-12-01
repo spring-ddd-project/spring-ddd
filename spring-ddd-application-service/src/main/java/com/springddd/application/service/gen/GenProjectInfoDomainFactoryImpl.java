@@ -17,3 +17,4 @@ public class GenProjectInfoDomainFactoryImpl implements GenProjectInfoDomainFact
         return domain;
     }
 }
+
