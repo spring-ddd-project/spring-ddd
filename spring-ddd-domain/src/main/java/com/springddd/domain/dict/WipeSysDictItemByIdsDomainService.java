@@ -8,3 +8,4 @@ public interface WipeSysDictItemByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
+
