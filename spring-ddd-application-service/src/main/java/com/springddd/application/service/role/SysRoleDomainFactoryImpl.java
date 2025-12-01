@@ -21,3 +21,4 @@ public class SysRoleDomainFactoryImpl implements SysRoleDomainFactory {
         return sysRoleDomain;
     }
 }
+
