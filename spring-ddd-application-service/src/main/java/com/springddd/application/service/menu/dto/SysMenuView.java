@@ -54,3 +54,4 @@ public class SysMenuView implements Serializable {
         private String icon;
     }
 }
+
