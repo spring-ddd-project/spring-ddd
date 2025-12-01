@@ -4,3 +4,4 @@ public interface PermissionComponent {
     boolean isAuthorized(Object context);
 }
 
+

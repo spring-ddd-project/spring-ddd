@@ -9,3 +9,4 @@ public class AggregateNullException extends DomainException {
         super(ErrorCode.GEN_INFO_AGGREGATE_NULL);
     }
 }
+
