@@ -11,3 +11,4 @@ public interface DomainRepository<T extends AggregateRootId<?>, E extends Abstra
     Mono<Void> delete(E aggregateRoot);
 }
 
+
