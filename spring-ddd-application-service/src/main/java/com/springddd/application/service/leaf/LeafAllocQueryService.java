@@ -48,3 +48,4 @@ public class LeafAllocQueryService {
         return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where(LeafAllocQuery.Fields.bizTag).is(tag)), LeafAllocEntity.class).map(mapStruct::toView);
     }
 }
+
