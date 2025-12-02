@@ -9,3 +9,4 @@ public class ProjectNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_PROJECT_NAME_NULL);
     }
 }
+

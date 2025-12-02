@@ -14,3 +14,4 @@ public class GenTemplateCommand implements Serializable {
     private String templateContent;
 }
 
+

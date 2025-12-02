@@ -9,3 +9,4 @@ public class RoleIdNullException extends DomainException {
         super(ErrorCode.ROLE_ID_NULL);
     }
 }
+
