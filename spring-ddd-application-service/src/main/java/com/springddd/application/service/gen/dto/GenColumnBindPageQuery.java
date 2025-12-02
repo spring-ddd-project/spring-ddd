@@ -16,3 +16,4 @@ public class GenColumnBindPageQuery extends GenColumnBindQuery implements Serial
     @NotNull(message = "pageSize can not be null")
     private Integer pageSize;
 }
+
