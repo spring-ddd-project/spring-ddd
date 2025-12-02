@@ -15,3 +15,4 @@ public class GenColumnBindDomainFactoryImpl implements GenColumnBindDomainFactor
         return genColumnBindDomain;
     }
 }
+

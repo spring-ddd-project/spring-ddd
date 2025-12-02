@@ -20,3 +20,4 @@ public class SysDictView implements Serializable {
     private Boolean deleteStatus;
 }
 
+

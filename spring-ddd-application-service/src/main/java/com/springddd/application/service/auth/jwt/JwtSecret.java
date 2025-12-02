@@ -14,3 +14,4 @@ public class JwtSecret {
     @Value("${jwt.ttl}")
     private Integer ttl;
 }
+

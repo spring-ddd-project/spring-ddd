@@ -67,3 +67,4 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
                 .then();
     }
 }
+
