@@ -31,3 +31,4 @@ public class SysUserQuery implements Serializable {
 
     private Integer version;
 }
+

@@ -27,3 +27,4 @@ public class RestoreSysDeptByIdDomainServiceImpl implements RestoreSysDeptByIdDo
                         }), SecurityUtils.concurrency()).then();
     }
 }
+
