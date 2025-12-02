@@ -7,3 +7,4 @@ public interface DictState {
     void restore(SysDictDomain domain);
 }
 
+

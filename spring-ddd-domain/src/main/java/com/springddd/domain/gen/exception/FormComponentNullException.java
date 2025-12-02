@@ -9,3 +9,4 @@ public class FormComponentNullException extends DomainException {
         super(ErrorCode.GEN_INFO_FORM_COMPONENT_NULL);
     }
 }
+

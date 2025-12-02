@@ -51,3 +51,4 @@ public class GenTemplateQueryService {
         return queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(Query.query(Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(false))).all().collectList().map(genTemplateViewMapStruct::toViews);
     }
 }
+
