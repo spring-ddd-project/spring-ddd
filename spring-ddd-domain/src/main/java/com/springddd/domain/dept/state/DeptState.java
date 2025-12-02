@@ -7,3 +7,4 @@ public interface DeptState {
     void restore(SysDeptDomain domain);
 }
 
+
