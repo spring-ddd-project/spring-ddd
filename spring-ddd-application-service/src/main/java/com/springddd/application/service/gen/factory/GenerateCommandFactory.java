@@ -5,3 +5,4 @@ import com.springddd.application.service.gen.command.GenerateCommand;
 public interface GenerateCommandFactory {
     GenerateCommand createCommand();
 }
+

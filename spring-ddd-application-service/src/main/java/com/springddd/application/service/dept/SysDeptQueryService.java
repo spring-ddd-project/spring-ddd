@@ -58,3 +58,4 @@ public class SysDeptQueryService {
         return queryFactory.getR2dbcEntityTemplate().select(SysDeptEntity.class).all().collectList().map(sysDeptViewMapStruct::toViews);
     }
 }
+
