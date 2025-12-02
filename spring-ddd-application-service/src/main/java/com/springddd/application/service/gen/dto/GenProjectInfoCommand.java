@@ -22,3 +22,4 @@ public class GenProjectInfoCommand implements Serializable {
     private String requestName;
 }
 
+
