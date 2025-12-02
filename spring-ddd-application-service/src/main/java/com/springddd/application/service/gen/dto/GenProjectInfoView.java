@@ -21,3 +21,4 @@ public class GenProjectInfoView implements Serializable {
 
     private String requestName;
 }
+
