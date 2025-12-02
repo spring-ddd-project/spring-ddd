@@ -13,3 +13,4 @@ public interface GenAggregateViewMapStruct {
     List<GenAggregateView> toViews(List<GenAggregateEntity> entities);
 }
 
+

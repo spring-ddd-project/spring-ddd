@@ -14,3 +14,4 @@ public class ActiveState implements AggregateState {
         // Already active
     }
 }
+
