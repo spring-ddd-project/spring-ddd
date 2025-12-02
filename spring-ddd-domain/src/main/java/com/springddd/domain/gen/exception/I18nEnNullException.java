@@ -9,3 +9,4 @@ public class I18nEnNullException extends DomainException {
         super(ErrorCode.GEN_I18N_EN_NULL);
     }
 }
+
