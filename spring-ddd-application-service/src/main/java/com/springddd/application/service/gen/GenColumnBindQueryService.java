@@ -50,3 +50,4 @@ public class GenColumnBindQueryService {
         return queryFactory.getR2dbcEntityTemplate().selectOne(Query.query(Criteria.where(GenColumnBindPageQuery.Fields.columnType).is(columnType)), GenColumnBindEntity.class).map(genColumnBindViewMapStruct::toView);
     }
 }
+
