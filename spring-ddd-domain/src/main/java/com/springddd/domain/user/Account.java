@@ -16,3 +16,4 @@ public class Account {
     private Boolean lockStatus;
 
 }
+

@@ -7,3 +7,4 @@ public interface AggregateState {
     void restore(GenAggregateDomain domain);
 }
 
+
