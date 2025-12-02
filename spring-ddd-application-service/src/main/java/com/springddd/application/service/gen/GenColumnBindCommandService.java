@@ -50,3 +50,4 @@ public class GenColumnBindCommandService {
         return restoreGenColumnBindDomainService.restoreByIds(ids);
     }
 }
+

@@ -7,3 +7,4 @@ public interface MenuState {
     void hide(SysMenuDomain domain);
 }
 
+
