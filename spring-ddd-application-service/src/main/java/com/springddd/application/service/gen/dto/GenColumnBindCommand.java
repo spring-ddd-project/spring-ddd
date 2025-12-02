@@ -18,3 +18,4 @@ public class GenColumnBindCommand implements Serializable {
     private Byte typescriptType;
 }
 
+
