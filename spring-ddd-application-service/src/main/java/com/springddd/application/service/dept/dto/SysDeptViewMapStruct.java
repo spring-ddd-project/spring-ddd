@@ -13,3 +13,4 @@ public interface SysDeptViewMapStruct {
     List<SysDeptView> toViews(List<SysDeptEntity> entities);
 }
 
+
