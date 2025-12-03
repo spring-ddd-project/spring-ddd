@@ -14,3 +14,4 @@ public class NormalState implements UserState {
         // Already normal
     }
 }
+
