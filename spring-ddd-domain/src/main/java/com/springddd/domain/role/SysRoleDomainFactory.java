@@ -9,3 +9,4 @@ public interface SysRoleDomainFactory {
                               DataPermission dataPermission,
                               Long deptId);
 }
+

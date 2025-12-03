@@ -39,3 +39,4 @@ public class GenColumnsDomain extends AbstractDomainMask {
         super.setDeleteStatus(true);
     }
 }
+

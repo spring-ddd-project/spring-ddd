@@ -9,3 +9,4 @@ public interface LinkUsersAndRolesDomainService {
     Mono<Void> link(Long userId, List<Long> roleIds);
 }
 
+
