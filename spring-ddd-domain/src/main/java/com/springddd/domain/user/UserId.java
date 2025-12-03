@@ -25,3 +25,4 @@ public record UserId(Long value) implements AggregateRootId<Long> {
 
 
 
+
