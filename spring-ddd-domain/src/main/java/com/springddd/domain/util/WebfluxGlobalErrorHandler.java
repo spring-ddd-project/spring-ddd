@@ -60,3 +60,4 @@ public class WebfluxGlobalErrorHandler implements ErrorWebExceptionHandler {
         return response.writeWith(Mono.just(buffer));
     }
 }
+
