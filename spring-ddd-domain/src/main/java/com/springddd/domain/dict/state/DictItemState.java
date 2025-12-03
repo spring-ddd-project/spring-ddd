@@ -8,3 +8,4 @@ public interface DictItemState {
     void restore(SysDictItemDomain domain);
 }
 
+

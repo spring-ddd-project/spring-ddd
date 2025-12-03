@@ -9,3 +9,4 @@ public class ModuleNameNullException extends DomainException {
         super(ErrorCode.GEN_INFO_MODULE_NAME_NULL);
     }
 }
+
