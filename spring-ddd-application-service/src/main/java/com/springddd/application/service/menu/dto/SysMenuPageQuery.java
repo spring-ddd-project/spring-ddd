@@ -17,3 +17,4 @@ public class SysMenuPageQuery extends SysMenuQuery implements Serializable {
     private Integer pageSize;
 }
 
+
