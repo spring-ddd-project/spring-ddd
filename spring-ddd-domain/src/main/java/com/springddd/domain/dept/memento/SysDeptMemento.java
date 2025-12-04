@@ -17,3 +17,4 @@ public class SysDeptMemento {
         this.deptExtendInfo = deptExtendInfo;
     }
 }
+
