@@ -18,3 +18,4 @@ public class GenTemplatePageQuery extends GenTemplateQuery implements Serializab
 }
 
 
+
