@@ -18,3 +18,4 @@ public class GenerationMediator {
         return generator.generate(tableName);
     }
 }
+
