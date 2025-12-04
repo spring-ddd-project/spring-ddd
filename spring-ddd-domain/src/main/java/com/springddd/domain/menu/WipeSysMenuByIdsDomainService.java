@@ -8,3 +8,4 @@ public interface WipeSysMenuByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
+
