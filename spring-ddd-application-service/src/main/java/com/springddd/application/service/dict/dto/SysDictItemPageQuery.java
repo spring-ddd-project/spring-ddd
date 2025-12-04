@@ -17,3 +17,4 @@ public class SysDictItemPageQuery extends SysDictItemQuery implements Serializab
     private Integer pageSize;
 }
 
+
