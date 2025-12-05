@@ -9,3 +9,4 @@ public class MenuPermissionNullException extends DomainException {
         super(MENU_PERMISSION_NULL);
     }
 }
+
