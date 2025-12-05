@@ -14,3 +14,4 @@ public class ColumnRule {
     private String entityName;
     private List<String> columns;
 }
+
