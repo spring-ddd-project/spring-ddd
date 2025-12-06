@@ -19,3 +19,4 @@ public class GenTableInfoPageQuery extends GenTableInfoQuery implements Serializ
     private Integer pageSize;
 }
 
+
