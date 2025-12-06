@@ -17,3 +17,4 @@ public class GenProjectInfoPageQuery extends GenProjectInfoQuery implements Seri
     private Integer pageSize;
 }
 
+
