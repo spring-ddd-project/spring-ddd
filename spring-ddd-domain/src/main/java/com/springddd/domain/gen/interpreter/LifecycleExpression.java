@@ -6,3 +6,4 @@ public interface LifecycleExpression {
     boolean evaluate(GenAggregateDomain domain);
 }
 
+
