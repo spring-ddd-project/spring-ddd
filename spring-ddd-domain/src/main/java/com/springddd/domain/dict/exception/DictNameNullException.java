@@ -9,3 +9,4 @@ public class DictNameNullException extends DomainException {
         super(ErrorCode.DICT_NAME_NULL);
     }
 }
+
