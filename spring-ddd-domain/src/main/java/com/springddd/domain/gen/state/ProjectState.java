@@ -6,3 +6,4 @@ public interface ProjectState {
     void delete(GenProjectInfoDomain domain);
 }
 
+

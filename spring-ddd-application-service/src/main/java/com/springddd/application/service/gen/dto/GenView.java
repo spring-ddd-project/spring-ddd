@@ -15,3 +15,4 @@ public class GenView implements Serializable {
     private List<GenAggregateView> aggregateViews;
 }
 
+
