@@ -6,3 +6,4 @@ public interface TemplateEngineFactory {
     TemplateEngineAdapter createEngineAdapter();
 }
 
+
