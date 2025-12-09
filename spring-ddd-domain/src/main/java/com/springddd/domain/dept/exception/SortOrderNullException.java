@@ -9,3 +9,4 @@ public class SortOrderNullException extends DomainException {
         super(ErrorCode.DEPT_SORT_ORDER_NULL);
     }
 }
+
