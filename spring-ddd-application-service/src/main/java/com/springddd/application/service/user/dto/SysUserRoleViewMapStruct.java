@@ -13,3 +13,4 @@ public interface SysUserRoleViewMapStruct {
     List<SysUserRoleView> toViewList(List<SysUserRoleEntity> entities);
 }
 
+
