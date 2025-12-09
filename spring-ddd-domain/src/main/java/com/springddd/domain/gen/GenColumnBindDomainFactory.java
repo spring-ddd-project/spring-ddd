@@ -5,3 +5,4 @@ public interface GenColumnBindDomainFactory {
     GenColumnBindDomain newInstance(GenColumnBindBasicInfo basicInfo);
 }
 
+
