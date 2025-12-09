@@ -27,3 +27,4 @@ public class RestoreGenColumnBindDomainServiceImpl implements RestoreGenColumnBi
                         }), SecurityUtils.concurrency()).then();
     }
 }
+

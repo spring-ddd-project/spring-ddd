@@ -6,3 +6,4 @@ public interface DeptObserver {
     void onUpdate(SysDeptDomain domain);
 }
 
+
