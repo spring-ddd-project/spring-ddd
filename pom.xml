@@ -109,4 +109,30 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <modules>
+                <module>spring-ddd-launcher</module>
+            </modules>
+            <properties>
+                <profiles.active>dev</profiles.active>
+                <env>dev</env>
+            </properties>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <modules>
+                <module>spring-ddd-launcher</module>
+            </modules>
+            <properties>
+                <profiles.active>prod</profiles.active>
+                <env>prod</env>
+            </properties>
+        </profile>
+    </profiles>
 </project>
