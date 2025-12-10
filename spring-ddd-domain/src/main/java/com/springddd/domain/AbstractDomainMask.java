@@ -1,8 +1,11 @@
 package com.springddd.domain;
 
 
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
+@Data
 public abstract class AbstractDomainMask {
 
     private Long deptId;
