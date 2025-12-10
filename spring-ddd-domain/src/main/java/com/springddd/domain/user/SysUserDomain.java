@@ -30,4 +30,12 @@ public class SysUserDomain extends AbstractDomainMask {
         }
         super.setUpdateTime(LocalDateTime.now());
     }
+
+    public void delete(String updateBy) {
+        super.setDeleteStatus("1");
+        if (!ObjectUtils.isEmpty(updateBy)) {
+            super.setUpdateBy(updateBy);
+        }
+        super.setUpdateTime(LocalDateTime.now());
+    }
 }
