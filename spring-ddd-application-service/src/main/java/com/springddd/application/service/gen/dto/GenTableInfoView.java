@@ -23,3 +23,4 @@ public class GenTableInfoView implements Serializable {
     private String tableCollation;
 }
 
+
