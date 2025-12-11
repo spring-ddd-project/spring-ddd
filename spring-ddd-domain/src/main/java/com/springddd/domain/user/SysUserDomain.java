@@ -17,13 +17,11 @@ public class SysUserDomain extends AbstractDomainMask {
 
     private ExtendInfo extendInfo;
 
-    private Long deptId;
-
     public void updateUser(Account newAccount, ExtendInfo newExtendInfo, Long deptId, String updateBy) {
         this.account = newAccount;
         this.extendInfo = newExtendInfo;
         if (!ObjectUtils.isEmpty(deptId)) {
-            this.deptId = deptId;
+            super.setDeptId(deptId);
         }
         if (!ObjectUtils.isEmpty(updateBy)) {
             super.setUpdateBy(updateBy);
