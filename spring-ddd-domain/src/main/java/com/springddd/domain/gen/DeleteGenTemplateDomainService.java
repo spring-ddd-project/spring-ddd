@@ -9,3 +9,4 @@ public interface DeleteGenTemplateDomainService {
     Mono<Void> deleteByIds(List<Long> ids);
 }
 
+
