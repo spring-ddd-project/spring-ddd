@@ -14,3 +14,4 @@ public record RoleId(Long value) implements AggregateRootId<Long> {
 
 
 
+
