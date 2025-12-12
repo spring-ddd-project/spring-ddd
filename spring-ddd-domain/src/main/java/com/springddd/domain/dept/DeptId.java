@@ -20,3 +20,4 @@ public record DeptId(Long value) implements AggregateRootId<Long> {
 
 
 
+
