@@ -1,0 +1,51 @@
+package com.springddd.infrastructure.persistence.entity;
+
+import lombok.Data;
+import org.springframework.data.annotation.*;
+import org.springframework.data.relational.core.mapping.Table;
+
+import java.time.LocalDateTime;
+
+/**
+ * @author henrikabel25
+ */
+@Data
+@Table("sys_user")
+public class SysUserEntity {
+
+    @Id
+    private Long id;
+
+    private String username;
+
+    private String password;
+
+    private String phone;
+
+    private String avatar;
+
+    private String email;
+
+    private String sex;
+
+    private String lockStatus;
+
+    private Long deptId;
+
+    @CreatedBy
+    private String createBy;
+
+    @CreatedDate
+    private LocalDateTime createTime;
+
+    @LastModifiedBy
+    private String updateBy;
+
+    @LastModifiedDate
+    private LocalDateTime updateTime;
+
+    private String deleteStatus;
+
+    @Version
+    private String version;
+}
