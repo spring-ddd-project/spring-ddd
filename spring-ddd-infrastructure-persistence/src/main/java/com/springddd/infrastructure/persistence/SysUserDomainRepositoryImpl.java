@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import com.springddd.infrastructure.persistence.mapper.SysUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 @Repository
@@ -47,11 +48,15 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
     public Mono<Void> save(SysUserDomain aggregateRoot) {
         SysUserEntity entity = new SysUserEntity();
 
-        entity.setId(aggregateRoot.getUserId().getValue());
+        if (!ObjectUtils.isEmpty(aggregateRoot.getUserId())) {
+            entity.setId(aggregateRoot.getUserId().getValue());
+        }
 
         Account account = aggregateRoot.getAccount();
         entity.setUsername(account.getUsername().getValue());
-        entity.setPassword(account.getPassword().getValue());
+        if (!ObjectUtils.isEmpty(account.getPassword())) {
+            entity.setPassword(account.getPassword().getValue());
+        }
         entity.setPhone(account.getPhone());
         entity.setEmail(account.getEmail());
         entity.setLockStatus(account.getLockStatus());
