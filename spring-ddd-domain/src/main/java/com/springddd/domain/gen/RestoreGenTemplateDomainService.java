@@ -9,3 +9,4 @@ public interface RestoreGenTemplateDomainService {
     Mono<Void> restoreByIds(List<Long> ids);
 }
 
+
