@@ -43,7 +43,7 @@ public class SysUserCommandService {
             Account account = new Account();
             account.setUsername(new Username(command.getUsername()));
             // TODO Passwords will be encrypted using BCryptPasswordEncoder going forward.
-            account.setPassword(new Password(command.getPassword()));
+            account.setPassword(new Password(domain.getAccount().getPassword().value()));
             account.setEmail(command.getEmail());
             account.setPhone(command.getPhone());
             account.setLockStatus(command.getLockStatus());
