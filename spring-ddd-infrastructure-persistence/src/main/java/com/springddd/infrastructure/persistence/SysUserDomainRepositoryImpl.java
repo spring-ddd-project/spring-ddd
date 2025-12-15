@@ -47,7 +47,7 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
     }
 
     @Override
-    public Mono<Void> save(SysUserDomain aggregateRoot) {
+    public Mono<Long> save(SysUserDomain aggregateRoot) {
         SysUserEntity entity = new SysUserEntity();
 
         entity.setId(Optional.ofNullable(aggregateRoot.getUserId()).map(UserId::value).orElse(null));
@@ -71,6 +71,6 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
         entity.setUpdateBy(aggregateRoot.getUpdateBy());
         entity.setUpdateTime(aggregateRoot.getUpdateTime());
 
-        return sysUserRepository.save(entity).then();
+        return sysUserRepository.save(entity).map(SysUserEntity::getId);
     }
 }
