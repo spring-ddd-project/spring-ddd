@@ -6,6 +6,7 @@ import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.application.service.user.dto.SysUserQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,8 +22,8 @@ public class SysUserController {
     private final SysUserQueryService sysUserQueryService;
 
     @PostMapping("/page")
-    public Mono<ApiResponse> page(@RequestBody SysUserQuery query) {
-        return ApiResponse.ok(sysUserQueryService.page(query));
+    public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserQuery> query) {
+        return ApiResponse.ok(query, sysUserQueryService::page);
     }
 
     @PostMapping("/create")
