@@ -7,6 +7,6 @@ import lombok.Getter;
 public class RoleNameNullException extends DomainException {
 
     public RoleNameNullException() {
-        super(1100, "角色名称不能为空");
+        super(1100, "error.role.name.null");
     }
 }

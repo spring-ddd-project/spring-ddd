@@ -1,6 +1,8 @@
 package com.springddd.domain.util;
 
 import com.springddd.domain.DomainException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -8,22 +10,28 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Mono;
 
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Component
 @RestControllerAdvice
 @Order(-1)
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
+
+    private final MessageSource messageSource;
 
     /**
      * Handle custom business exceptions.
      *
-     * @param e the exception
+     * @param e      the exception
+     * @param locale the locale
      * @return standardized API response
      */
     @ExceptionHandler(DomainException.class)
-    public Mono<ApiResponse> handleBadRequestException(DomainException e) {
-        return Mono.just(ApiResponse.error(e.getErrorCode(), e.getMessage()));
+    public Mono<ApiResponse> handleDomainException(DomainException e, Locale locale) {
+        String localizedMessage = messageSource.getMessage(e.getMessageKey(), e.getArgs(), locale);
+        return Mono.just(ApiResponse.error(e.getErrorCode(), localizedMessage));
     }
 
     /**
