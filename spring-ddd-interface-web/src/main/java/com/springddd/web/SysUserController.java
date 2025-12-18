@@ -2,12 +2,8 @@ package com.springddd.web;
 
 import com.springddd.application.service.user.SysUserCommandService;
 import com.springddd.application.service.user.SysUserQueryService;
-import com.springddd.application.service.user.SysUserRoleCommandService;
-import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.application.service.user.dto.SysUserQuery;
-import com.springddd.application.service.user.dto.SysUserRoleCommand;
-import com.springddd.application.service.user.dto.SysUserRoleQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
@@ -24,9 +20,6 @@ public class SysUserController {
     private final SysUserCommandService sysUserCommandService;
 
     private final SysUserQueryService sysUserQueryService;
-
-    private final SysUserRoleCommandService sysUserRoleCommandService;
-    private final SysUserRoleQueryService sysUserRoleQueryService;
 
     @PostMapping("/page")
     public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserQuery> query) {
@@ -51,30 +44,5 @@ public class SysUserController {
     @DeleteMapping("/wipe")
     public Mono<ApiResponse> wipe(@RequestParam List<Long> ids) {
         return ApiResponse.ok(sysUserCommandService.wipe(ids));
-    }
-
-    @PostMapping("/queryRolesByUserId")
-    public Mono<ApiResponse> queryRolesByUserId(@RequestBody SysUserRoleQuery query) {
-        return ApiResponse.ok(sysUserRoleQueryService.queryLinkUserAndRole(query));
-    }
-
-    @PostMapping("/linkUserAndRole")
-    public Mono<ApiResponse> linkUserAndRole(@RequestBody SysUserRoleCommand command) {
-        return ApiResponse.ok(sysUserRoleCommandService.create(command));
-    }
-
-    @PutMapping("/updateLinkUserAndRole")
-    public Mono<ApiResponse> updateLinkUserAndRole(@RequestBody SysUserRoleCommand command) {
-        return ApiResponse.ok(sysUserRoleCommandService.update(command));
-    }
-
-    @DeleteMapping("/deleteLinkUserAndRole")
-    public Mono<ApiResponse> deleteLinkUserAndRole(@RequestBody SysUserRoleCommand command) {
-        return ApiResponse.ok(sysUserRoleCommandService.delete(command));
-    }
-
-    @DeleteMapping("/wipeLinkUserAndRole")
-    public Mono<ApiResponse> wipeLinkUserAndRole(@RequestParam List<Long> ids) {
-        return ApiResponse.ok(sysUserRoleCommandService.wipe(ids));
     }
 }
