@@ -1,7 +1,7 @@
 package com.springddd.application.service.role;
 
 import com.springddd.domain.role.DeleteSysRoleByIdsDomainService;
-import com.springddd.infrastructure.persistence.mapper.SysRoleRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
