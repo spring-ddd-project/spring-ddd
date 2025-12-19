@@ -1,4 +1,4 @@
-package com.springddd.infrastructure.persistence.mapper;
+package com.springddd.infrastructure.persistence.r2dbc;
 
 import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import org.springframework.data.repository.reactive.ReactiveCrudRepository;

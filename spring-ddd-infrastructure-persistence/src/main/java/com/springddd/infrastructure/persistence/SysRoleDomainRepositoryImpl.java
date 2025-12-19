@@ -2,7 +2,7 @@ package com.springddd.infrastructure.persistence;
 
 import com.springddd.domain.role.*;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
-import com.springddd.infrastructure.persistence.mapper.SysRoleRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
