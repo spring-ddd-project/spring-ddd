@@ -20,3 +20,4 @@ public class GenAggregateCommand implements Serializable {
     private Boolean hasCreated;
 }
 
+
