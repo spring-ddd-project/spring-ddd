@@ -16,3 +16,4 @@ public record ColumnBindId(Long value) implements AggregateRootId<Long> {
 
 
 
+
