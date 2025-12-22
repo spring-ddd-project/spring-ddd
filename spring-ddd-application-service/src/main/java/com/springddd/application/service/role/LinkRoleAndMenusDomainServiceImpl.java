@@ -26,8 +26,6 @@ public class LinkRoleAndMenusDomainServiceImpl implements LinkRoleAndMenusDomain
     public Mono<Void> link(Long roleId, List<Long> menuIds) {
         return sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId).flatMap(sysRoleMenuViews -> {
             List<Long> ids = sysRoleMenuViews.stream().map(SysRoleMenuView::getId).toList();
-            if (CollectionUtils.isEmpty(ids))
-                return Mono.empty();
             Mono<Void> deleted = deleteSysRoleMenuByIdsDomainService.deleteByIds(ids);
 
             List<Mono<Long>> saved = menuIds.stream().map(menuId -> {
