@@ -10,8 +10,6 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JwtReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
-    private final JwtFilter jwtFilter;
-
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
         return Mono.just(authentication);
