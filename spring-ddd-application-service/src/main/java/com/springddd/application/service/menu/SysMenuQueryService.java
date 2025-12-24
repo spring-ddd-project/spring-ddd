@@ -38,4 +38,10 @@ public class SysMenuQueryService {
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
         return sysMenuRepository.findById(menuId).map(sysMenuViewMapStruct::toView);
     }
+
+    public Mono<SysMenuView> queryByMenuPath(String path) {
+        Criteria criteria = Criteria.where("path").is(path);
+        Query qry = Query.query(criteria);
+        return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
+    }
 }
