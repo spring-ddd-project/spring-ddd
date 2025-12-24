@@ -1,12 +1,11 @@
 package com.springddd.web;
 
 import com.springddd.application.service.auth.AuthUserService;
+import com.springddd.application.service.auth.dto.LoginUserQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -17,7 +16,17 @@ public class AuthController {
     private final AuthUserService authUserService;
 
     @PostMapping("/login")
-    public Mono<ApiResponse> login(@RequestParam("username") String username, @RequestParam("password") String password) {
-        return ApiResponse.ok(authUserService.getToken(username, password));
+    public Mono<ApiResponse> login(@RequestBody @Validated Mono<LoginUserQuery> query) {
+        return ApiResponse.validated(query, authUserService::getToken);
+    }
+
+    @PostMapping("/user/info")
+    public Mono<ApiResponse> userInfo() {
+        return ApiResponse.ok(authUserService.getUserInfo());
+    }
+
+    @PostMapping("/codes")
+    public Mono<ApiResponse> codes() {
+        return ApiResponse.ok(authUserService.getUserPermissions());
     }
 }
