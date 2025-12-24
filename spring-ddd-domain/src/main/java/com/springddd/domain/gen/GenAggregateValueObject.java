@@ -32,3 +32,4 @@ public record GenAggregateValueObject(String objectName, String objectValue, Byt
 
 
 
+
