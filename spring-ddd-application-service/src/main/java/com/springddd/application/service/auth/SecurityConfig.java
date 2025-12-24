@@ -1,6 +1,8 @@
 package com.springddd.application.service.auth;
 
-import com.springddd.application.service.auth.jwt.JwtFilter;
+import com.springddd.application.service.auth.exception.CustomAccessDeniedHandler;
+import com.springddd.application.service.auth.exception.CustomAuthenticationEntryPoint;
+import com.springddd.application.service.auth.jwt.JwtAuthenticationConverter;
 import com.springddd.application.service.auth.jwt.JwtReactiveAuthenticationManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +15,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.security.web.server.authentication.AuthenticationWebFilter;;
 
 @Configuration
 @RequiredArgsConstructor
@@ -22,9 +24,17 @@ public class SecurityConfig {
 
     private final AuthUserDetailsService authUserDetailsService;
 
-    private final JwtFilter jwtFilter;
+    private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
     private final JwtReactiveAuthenticationManager jwtAuthenticationManager;
+
+    private final AuthorizationManagerConfig authorizationManagerConfig;
+
+    private final SecurityProperties securityProperties;
+
+    private final CustomAccessDeniedHandler accessDeniedHandler;
+
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
 
     @Bean
     public ReactiveAuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
@@ -42,7 +52,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationWebFilter jwtAuthenticationWebFilter() {
         AuthenticationWebFilter filter = new AuthenticationWebFilter(jwtAuthenticationManager);
-        filter.setServerAuthenticationConverter(jwtFilter);
+        filter.setServerAuthenticationConverter(jwtAuthenticationConverter);
         return filter;
     }
 
@@ -51,10 +61,14 @@ public class SecurityConfig {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
                 .authorizeExchange(exchange -> exchange
-                        .pathMatchers("/auth/login").permitAll()
-                        .anyExchange().authenticated()
+                        .pathMatchers(securityProperties.getIgnorePaths().toArray(new String[0])).permitAll()
+                        .anyExchange().access(authorizationManagerConfig)
                 )
                 .addFilterAt(jwtAuthenticationWebFilter(), SecurityWebFiltersOrder.AUTHENTICATION)
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
+                )
                 .build();
     }
 
