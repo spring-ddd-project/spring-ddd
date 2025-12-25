@@ -51,3 +51,4 @@ public class WipeSysDeptByIdsDomainServiceImpl implements WipeSysDeptByIdsDomain
 
 
 
+
