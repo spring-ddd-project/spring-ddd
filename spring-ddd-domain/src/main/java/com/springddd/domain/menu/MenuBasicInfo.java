@@ -15,4 +15,6 @@ public class MenuBasicInfo {
 
     private MenuPath menuPath;
 
+    private MenuComponent menuComponent;
+
 }

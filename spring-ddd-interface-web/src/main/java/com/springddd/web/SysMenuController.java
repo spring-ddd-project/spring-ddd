@@ -26,6 +26,11 @@ public class SysMenuController {
         return ApiResponse.validated(query, sysMenuQueryService::page);
     }
 
+    @PostMapping("/all")
+    public Mono<ApiResponse> all() {
+        return ApiResponse.ok(sysMenuQueryService.queryAll());
+    }
+
     @PostMapping("/getByMenuId")
     public Mono<ApiResponse> getByMenuId(@RequestParam("menuId") Long id) {
         return ApiResponse.ok(sysMenuQueryService.queryByMenuId(id));

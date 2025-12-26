@@ -3,6 +3,7 @@ package com.springddd.application.service.menu;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
+import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
@@ -11,6 +12,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -39,9 +41,22 @@ public class SysMenuQueryService {
         return sysMenuRepository.findById(menuId).map(sysMenuViewMapStruct::toView);
     }
 
-    public Mono<SysMenuView> queryByMenuPath(String path) {
-        Criteria criteria = Criteria.where("path").is(path);
+    public Mono<SysMenuView> queryByMenuComponent(String component) {
+        Criteria criteria = Criteria.where("component").is(component);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
+
+    public Mono<List<SysMenuView>> queryAll() {
+        return Flux.fromIterable(SecurityUtils.getPermissions())
+                .flatMap(p ->
+                        r2dbcEntityTemplate.selectOne(
+                                Query.query(Criteria.where("permission").is(p.value())),
+                                SysMenuEntity.class
+                        ).map(sysMenuViewMapStruct::toView)
+                )
+                .collectList();
+    }
+
+
 }
