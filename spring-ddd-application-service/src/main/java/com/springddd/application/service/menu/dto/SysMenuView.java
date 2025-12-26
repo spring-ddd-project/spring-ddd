@@ -33,5 +33,5 @@ public class SysMenuView implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 }

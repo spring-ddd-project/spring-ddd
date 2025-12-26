@@ -15,7 +15,7 @@ public class SysUserRoleCommand implements Serializable {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
-    private String version;
+    private Integer version;
 }
