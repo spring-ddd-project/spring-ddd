@@ -16,7 +16,7 @@ public class SysRoleMenuDomainFactoryImpl implements SysRoleMenuDomainFactory {
         domain.setMenuId(menuId);
 
         domain.setDeptId(deptId);
-        domain.setDeleteStatus("0");
+        domain.setDeleteStatus(false);
         return domain;
     }
 }

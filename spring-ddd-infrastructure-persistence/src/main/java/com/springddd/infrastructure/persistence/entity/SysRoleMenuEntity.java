@@ -21,7 +21,7 @@ public class SysRoleMenuEntity {
 
     private Long deptId;
 
-    private String deleteStatus;
+    private Boolean deleteStatus;
 
     @CreatedBy
     private String createBy;
@@ -36,5 +36,5 @@ public class SysRoleMenuEntity {
     private LocalDateTime updateTime;
 
     @Version
-    private String version;
+    private Integer version;
 }

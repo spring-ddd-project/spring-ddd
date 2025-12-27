@@ -15,7 +15,10 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -55,7 +58,61 @@ public class SysMenuQueryService {
                                 SysMenuEntity.class
                         ).map(sysMenuViewMapStruct::toView)
                 )
-                .collectList();
+                .collectList()
+                .flatMap(this::loadParentsAndBuildTree);
+    }
+
+    private Mono<List<SysMenuView>> loadParentsAndBuildTree(List<SysMenuView> menus) {
+        Map<Long, SysMenuView> menuMap = new HashMap<>();
+        menus.forEach(menu -> menuMap.put(menu.getId(), menu));
+
+        return Flux.fromIterable(menus)
+                .flatMap(menu -> loadParentChain(menu.getParentId(), menuMap))
+                .then(Mono.fromCallable(() -> new ArrayList<>(menuMap.values())))
+                .map(this::buildMenuTree);
+    }
+
+    private Mono<Void> loadParentChain(Long parentId, Map<Long, SysMenuView> menuMap) {
+        if (parentId == null || parentId == 0 || menuMap.containsKey(parentId)) {
+            return Mono.empty();
+        }
+
+        return r2dbcEntityTemplate.selectOne(
+                        Query.query(Criteria.where("id").is(parentId)),
+                        SysMenuEntity.class
+                )
+                .map(sysMenuViewMapStruct::toView)
+                .flatMap(parent -> {
+                    menuMap.put(parent.getId(), parent);
+                    return loadParentChain(parent.getParentId(), menuMap);
+                });
+    }
+
+
+    private List<SysMenuView> buildMenuTree(List<SysMenuView> flatList) {
+        Map<Long, SysMenuView> idToMenuMap = new HashMap<>();
+        List<SysMenuView> rootMenus = new ArrayList<>();
+
+        for (SysMenuView menu : flatList) {
+            idToMenuMap.put(menu.getId(), menu);
+            menu.setChildren(new ArrayList<>());
+        }
+
+        for (SysMenuView menu : flatList) {
+            Long parentId = menu.getParentId();
+            if (parentId == null || parentId == 0) {
+                rootMenus.add(menu);
+            } else {
+                SysMenuView parent = idToMenuMap.get(parentId);
+                if (parent != null) {
+                    parent.getChildren().add(menu);
+                } else {
+                    rootMenus.add(menu);
+                }
+            }
+        }
+
+        return rootMenus;
     }
 
 
