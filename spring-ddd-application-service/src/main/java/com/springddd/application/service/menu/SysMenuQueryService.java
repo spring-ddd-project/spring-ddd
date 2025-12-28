@@ -1,10 +1,12 @@
 package com.springddd.application.service.menu;
 
+import com.springddd.application.service.menu.dto.SysMenuParentTreeView;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,10 +18,13 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,8 @@ public class SysMenuQueryService {
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final SysMenuViewMapStruct sysMenuViewMapStruct;
+
+    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
     public Mono<PageResponse<SysMenuView>> page(SysMenuQuery query) {
         Criteria criteria = Criteria.where("delete_status").is("0");
@@ -60,14 +67,15 @@ public class SysMenuQueryService {
                         ).map(sysMenuViewMapStruct::toView)
                 )
                 .collectList()
-                .flatMap(this::loadParentsAndBuildTree);
+                .flatMap(this::loadParentsAndBuildTree)
+                .doOnNext(this::cacheTree);
     }
 
     private Mono<List<SysMenuView>> loadParentsAndBuildTree(List<SysMenuView> menus) {
         if (CollectionUtils.isEmpty(menus)) {
             return Mono.empty();
         }
-        Map<Long, SysMenuView> menuMap = new HashMap<>();
+        Map<Long, SysMenuView> menuMap = new ConcurrentHashMap<>();
         menus.forEach(menu -> menuMap.put(menu.getId(), menu));
 
         return Flux.fromIterable(menus)
@@ -117,6 +125,33 @@ public class SysMenuQueryService {
         }
 
         return rootMenus;
+    }
+
+    private Mono<Void> cacheTree(List<SysMenuView> menus) {
+        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menus", menus, Duration.ofDays(1)).then();
+    }
+
+    public Mono<List<SysMenuParentTreeView>> getParentTree() {
+        return Mono.fromCallable(() -> reactiveRedisCacheHelper.getCache("user:" + SecurityUtils.getUserId().toString() + ":menus", List.class))
+                .flatMap(tree -> Mono.just(transformToSimpleMenu((List<SysMenuView>) tree)));
+    }
+
+    private List<SysMenuParentTreeView> transformToSimpleMenu(List<SysMenuView> menuViews) {
+        return menuViews.stream()
+                .map(this::convertToSimple)
+                .collect(Collectors.toList());
+    }
+
+    private SysMenuParentTreeView convertToSimple(SysMenuView view) {
+        SysMenuParentTreeView dto = new SysMenuParentTreeView(view.getId(), view.getName());
+        if (view.getChildren() != null && !view.getChildren().isEmpty()) {
+            dto.setChildren(
+                    view.getChildren().stream()
+                            .map(this::convertToSimple)
+                            .collect(Collectors.toList())
+            );
+        }
+        return dto;
     }
 
 
