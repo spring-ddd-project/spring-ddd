@@ -28,3 +28,4 @@ public interface WipeSysMenuByIdsDomainService {
 
 
 
+
