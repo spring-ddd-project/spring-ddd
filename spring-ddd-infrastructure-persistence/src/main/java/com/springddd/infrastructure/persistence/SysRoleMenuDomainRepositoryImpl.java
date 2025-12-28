@@ -11,6 +11,7 @@ import com.springddd.infrastructure.persistence.entity.SysRoleMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -43,6 +44,7 @@ public class SysRoleMenuDomainRepositoryImpl implements SysRoleMenuDomainReposit
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(SysRoleMenuDomain aggregateRoot) {
         SysRoleMenuEntity entity = new SysRoleMenuEntity();
 

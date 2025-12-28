@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -47,6 +48,7 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(SysUserDomain aggregateRoot) {
         SysUserEntity entity = new SysUserEntity();
 
