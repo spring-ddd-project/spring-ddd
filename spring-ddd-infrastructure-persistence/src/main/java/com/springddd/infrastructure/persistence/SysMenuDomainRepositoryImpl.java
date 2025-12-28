@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
 
             MenuBasicInfo menuBasicInfo = new MenuBasicInfo();
             menuBasicInfo.setMenuName(new MenuName(e.getName()));
+            menuBasicInfo.setMenuRedirect(new MenuRedirect(e.getRedirect()));
             menuBasicInfo.setMenuPermission(new MenuPermission(e.getPermission()));
             menuBasicInfo.setMenuPath(new MenuPath(e.getPath()));
             menuBasicInfo.setMenuComponent(new MenuComponent(e.getComponent()));
@@ -52,6 +54,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         });
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public Mono<Long> save(SysMenuDomain aggregateRoot) {
         SysMenuEntity entity = new SysMenuEntity();

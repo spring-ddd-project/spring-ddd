@@ -36,7 +36,7 @@ public class SysUserController {
         return ApiResponse.ok(sysUserCommandService.updateUser(command));
     }
 
-    @DeleteMapping("/delete")
+    @PostMapping("/delete")
     public Mono<ApiResponse> delete(@RequestBody SysUserCommand command) {
         return ApiResponse.ok(sysUserCommandService.deleteUser(command));
     }
