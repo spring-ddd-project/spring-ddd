@@ -3,6 +3,7 @@ package com.springddd.application.service.auth;
 import com.springddd.application.service.auth.dto.LoginUserQuery;
 import com.springddd.application.service.auth.dto.LoginUserView;
 import com.springddd.application.service.auth.dto.UserInfoView;
+import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
@@ -31,6 +32,8 @@ public class AuthUserService {
 
     private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
+    private final JwtSecret jwtSecret;
+
     public Mono<LoginUserView> getToken(LoginUserQuery query) {
         UsernamePasswordAuthenticationToken unauthenticated =
                 UsernamePasswordAuthenticationToken.unauthenticated(query.getUsername(), query.getPassword());
@@ -38,6 +41,9 @@ public class AuthUserService {
         return authenticationManager.authenticate(unauthenticated)
                 .flatMap(auth -> {
                     AuthUser user = (AuthUser) auth.getPrincipal();
+
+                    SecurityUtils.setAuthUserContext(user);
+
                     Map<String, Object> map = new HashMap<>();
                     map.put("userId", user.getUserId().value());
 
@@ -50,9 +56,9 @@ public class AuthUserService {
                         cacheOp = reactiveRedisCacheHelper.deleteCache(cacheKey)
                                 .then(
                                         reactiveRedisCacheHelper.setCache(
-                                                reactiveRedisCacheHelper.buildKey("user:" + user.getUserId().value() + ":token", user.getUserId().value().toString()),
+                                                reactiveRedisCacheHelper.buildKey("user", user.getUserId().value().toString() + ":token"),
                                                 token,
-                                                Duration.ofDays(100)
+                                                Duration.ofDays(jwtSecret.getTtl())
                                         )
                                 );
                     }
@@ -64,6 +70,7 @@ public class AuthUserService {
                     view.setAccessToken(token);
                     return view;
                 });
+
     }
 
     public Mono<UserInfoView> getUserInfo() {

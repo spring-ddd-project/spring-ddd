@@ -1,6 +1,6 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.application.service.menu.dto.SysMenuParentTreeView;
+import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
@@ -38,6 +38,8 @@ public class SysMenuQueryService {
 
     private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
+    private final JwtSecret jwtSecret;
+
     public Mono<PageResponse<SysMenuView>> page(SysMenuQuery query) {
         Criteria criteria = Criteria.where("delete_status").is("0");
         Query qry = Query.query(criteria)
@@ -68,7 +70,7 @@ public class SysMenuQueryService {
                 )
                 .collectList()
                 .flatMap(this::loadParentsAndBuildTree)
-                .doOnNext(this::cacheTree);
+                .flatMap(menus -> cacheTree(menus).thenReturn(menus));
     }
 
     private Mono<List<SysMenuView>> loadParentsAndBuildTree(List<SysMenuView> menus) {
@@ -128,31 +130,13 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menus", menus, Duration.ofDays(1)).then();
+        return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menus", menus, Duration.ofDays(jwtSecret.getTtl())).then();
     }
 
-    public Mono<List<SysMenuParentTreeView>> getParentTree() {
-        return Mono.fromCallable(() -> reactiveRedisCacheHelper.getCache("user:" + SecurityUtils.getUserId().toString() + ":menus", List.class))
-                .flatMap(tree -> Mono.just(transformToSimpleMenu((List<SysMenuView>) tree)));
+    public Mono<List<SysMenuView>> getParentTree() {
+        return reactiveRedisCacheHelper
+                .getCache("user:" + SecurityUtils.getUserId().toString() + ":menus", List.class)
+                .map(list -> (List<SysMenuView>) list).switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
     }
-
-    private List<SysMenuParentTreeView> transformToSimpleMenu(List<SysMenuView> menuViews) {
-        return menuViews.stream()
-                .map(this::convertToSimple)
-                .collect(Collectors.toList());
-    }
-
-    private SysMenuParentTreeView convertToSimple(SysMenuView view) {
-        SysMenuParentTreeView dto = new SysMenuParentTreeView(view.getId(), view.getName());
-        if (view.getChildren() != null && !view.getChildren().isEmpty()) {
-            dto.setChildren(
-                    view.getChildren().stream()
-                            .map(this::convertToSimple)
-                            .collect(Collectors.toList())
-            );
-        }
-        return dto;
-    }
-
 
 }
