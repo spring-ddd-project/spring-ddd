@@ -49,7 +49,7 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
             try {
                 Object currentValue = field.get(entity);
                 if (currentValue == null) {
-                    long id = System.currentTimeMillis();
+                    long id = IdTemp.generateId();
                     field.set(entity, id);
                     createdByField.set(entity, SecurityUtils.getUsername());
                     lastModifiedByField.set(entity, SecurityUtils.getUsername());
