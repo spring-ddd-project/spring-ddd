@@ -107,6 +107,10 @@ public class ReactiveRedisCacheHelper {
 
     // Delete cache entry by key
     public Mono<Void> deleteCache(String key) {
-        return redisTemplate.delete(key).then();
+        return redisTemplate.keys(key)
+                .collectList()
+                .flatMapMany(Flux::fromIterable)
+                .flatMap(redisTemplate::delete)
+                .then();
     }
 }
