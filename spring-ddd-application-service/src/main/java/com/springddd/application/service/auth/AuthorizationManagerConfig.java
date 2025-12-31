@@ -35,6 +35,13 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
             }
         }
 
+        List<String> tokenOnlyPaths = securityProperties.getTokenOnlyPaths();
+        for (String tokenOnlyPath : tokenOnlyPaths) {
+            if (tokenOnlyPath.equals(path)) {
+                return Mono.just(new AuthorizationDecision(true));
+            }
+        }
+
         return sysMenuQueryService.queryByMenuComponent(path)
                 .flatMap(menu -> {
                     if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
