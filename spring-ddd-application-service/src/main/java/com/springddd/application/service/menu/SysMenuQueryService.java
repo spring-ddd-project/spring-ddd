@@ -152,7 +152,7 @@ public class SysMenuQueryService {
     }
 
     private SysMenuView filterOutInvalidMenusRecursively(SysMenuView menu) {
-        if (menu.getMenuType() == 3 || !StringUtils.hasText(menu.getPath())) {
+        if (menu.getMenuType() == 3) {
             return null;
         }
 
@@ -187,6 +187,5 @@ public class SysMenuQueryService {
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
         return reactiveRedisCacheHelper.setCache("user:" + SecurityUtils.getUserId() + ":menuWithoutPermissions", menus, Duration.ofDays(jwtSecret.getTtl())).then();
-
     }
 }
