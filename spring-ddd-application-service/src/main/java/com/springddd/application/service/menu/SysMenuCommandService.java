@@ -58,7 +58,9 @@ public class SysMenuCommandService {
 
             for (SysMenuDomainStrategy strategy : strategies) {
                 if (strategy.check(command.getMenuType())) {
-                    domain = strategy.handle(menuBasicInfo, menuExtendInfo);
+                    SysMenuDomain domainNew = strategy.handle(menuBasicInfo, menuExtendInfo);
+                    domain.setMenuBasicInfo(domainNew.getMenuBasicInfo());
+                    domain.setMenuExtendInfo(domainNew.getMenuExtendInfo());
                 }
             }
 
