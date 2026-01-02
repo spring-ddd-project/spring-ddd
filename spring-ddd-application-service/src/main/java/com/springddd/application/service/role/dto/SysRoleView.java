@@ -19,7 +19,7 @@ public class SysRoleView implements Serializable {
 
     private Boolean roleStatus;
 
-    private Boolean owner;
+    private Boolean ownerStatus;
 
     private Long deptId;
 
