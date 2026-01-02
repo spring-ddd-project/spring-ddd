@@ -7,5 +7,5 @@ public class ExtendInfo {
 
     private String avatar;
 
-    private String sex;
+    private Boolean sex;
 }

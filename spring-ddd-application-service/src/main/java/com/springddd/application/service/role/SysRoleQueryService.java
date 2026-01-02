@@ -38,4 +38,8 @@ public class SysRoleQueryService {
     public Mono<SysRoleView> getById(Long id) {
         return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("id").is(id))).one().map(sysRoleViewMapStruct::toView);
     }
+
+    public Mono<SysRoleView> getByCode(String code) {
+        return r2dbcEntityTemplate.select(SysRoleEntity.class).matching(Query.query(Criteria.where("role_code").is(code))).one().map(sysRoleViewMapStruct::toView);
+    }
 }
