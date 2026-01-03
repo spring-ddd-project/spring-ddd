@@ -35,6 +35,17 @@ public class SysUserQueryService {
 
     }
 
+    public Mono<PageResponse<SysUserView>> recycle(SysUserQuery query) {
+        Criteria criteria = Criteria.where("delete_status").is(1);
+        Query qry = Query.query(criteria)
+                .limit(query.getPageSize())
+                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+        Mono<List<SysUserView>> list = r2dbcEntityTemplate.select(SysUserEntity.class).matching(qry).all().collectList().map(sysUserViewMapStruct::toViewList);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysUserEntity.class);
+        return Mono.zip(list, count)
+                .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    }
+
     public Mono<SysUserView> queryUserByUsername(String username) {
         return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where("username").is(username)), SysUserEntity.class)
                 .map(sysUserViewMapStruct::toView);
