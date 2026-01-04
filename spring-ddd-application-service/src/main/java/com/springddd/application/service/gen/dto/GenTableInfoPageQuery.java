@@ -25,3 +25,4 @@ public class GenTableInfoPageQuery extends GenTableInfoQuery implements Serializ
 
 
 
+
