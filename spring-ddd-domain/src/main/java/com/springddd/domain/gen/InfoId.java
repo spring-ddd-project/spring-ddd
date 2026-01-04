@@ -17,3 +17,4 @@ public record InfoId(Long value) implements AggregateRootId<Long> {
 
 
 
+
