@@ -24,7 +24,13 @@ public enum ErrorCode {
     MENU_COMPONENT_NULL(1206, "error.menu.component.null"),
     MENU_PERMISSION_DENIED(1207, "error.menu.permission.denied"),
 
-    DEPT_NAME_NULL(1300, "error.dept.name.null")
+    DEPT_NAME_NULL(1300, "error.dept.name.null"),
+    DEPT_ID_NULL(1301, "error.dept.id.null"),
+
+    DICT_NAME_NULL(1400, "error.dict.name.null"),
+    DICT_CODE_NULL(1401, "error.dict.code.null"),
+    DICT_SORTORDER_NULL(1402, "error.dict.sortOrder.null"),
+    DICT_DICTSTATUS_NULL(1403, "error.dict.dictStatus.null")
 
 
     ;
