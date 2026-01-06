@@ -13,4 +13,15 @@ public class SysDictDomain extends AbstractDomainMask {
     private DictBasicInfo dictBasicInfo;
 
     private DictExtendInfo dictExtendInfo;
+
+    public void create() {}
+
+    public void update(DictBasicInfo basicInfo, DictExtendInfo extendInfo) {
+        this.setDictBasicInfo(basicInfo);
+        this.setDictExtendInfo(extendInfo);
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
 }
