@@ -4,7 +4,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface DeleteSysUserRoleByIdsDomainService {
+public interface WipeSysUserRoleByIdsDomainService {
 
     Mono<Void> deleteByIds(List<Long> ids);
 }
