@@ -18,8 +18,7 @@ public class SysDictItemDomain extends AbstractDomainMask {
 
     public void create() {}
 
-    public void update(DictId dictId, DictItemBasicInfo basicInfo, DictItemExtendInfo extendInfo) {
-        this.dictId = dictId;
+    public void update(DictItemBasicInfo basicInfo, DictItemExtendInfo extendInfo) {
         this.itemBasicInfo = basicInfo;
         this.itemExtendInfo = extendInfo;
     }

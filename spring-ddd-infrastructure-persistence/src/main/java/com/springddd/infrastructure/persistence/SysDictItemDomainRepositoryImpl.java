@@ -52,7 +52,13 @@ public class SysDictItemDomainRepositoryImpl implements SysDictItemDomainReposit
         entity.setItemValue(aggregateRoot.getItemBasicInfo().itemValue().value());
         entity.setSortOrder(aggregateRoot.getItemExtendInfo().sortOrder());
         entity.setItemStatus(aggregateRoot.getItemExtendInfo().itemStatus());
+
+        entity.setCreateBy(aggregateRoot.getCreateBy());
+        entity.setCreateTime(aggregateRoot.getCreateTime());
+        entity.setUpdateBy(aggregateRoot.getUpdateBy());
+        entity.setUpdateTime(aggregateRoot.getUpdateTime());
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
+        entity.setVersion(aggregateRoot.getVersion());
 
         return sysDictItemRepository.save(entity).map(SysDictItemEntity::getId);
     }
