@@ -1,7 +1,7 @@
 package com.springddd.application.service.user;
 
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.user.BatchRestoreSysUserByIdDomainService;
+import com.springddd.domain.user.RestoreSysUserByIdDomainService;
 import com.springddd.domain.user.SysUserDomainRepository;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class BatchRestoreSysUserByIdDomainServiceImpl implements BatchRestoreSysUserByIdDomainService {
+public class RestoreSysUserByIdDomainServiceImpl implements RestoreSysUserByIdDomainService {
 
     private final SysUserDomainRepository sysUserDomainRepository;
 
