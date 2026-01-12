@@ -1,6 +1,6 @@
 package com.springddd.application.service.dept;
 
-import com.springddd.domain.dept.DeleteSysDeptByIdsDomainService;
+import com.springddd.domain.dept.WipeSysDeptByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysDeptRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class DeleteSysDeptByIdsDomainServiceImpl implements DeleteSysDeptByIdsDomainService {
+public class WipeSysDeptByIdsDomainServiceImpl implements WipeSysDeptByIdsDomainService {
 
     private final SysDeptRepository sysDeptRepository;
 
