@@ -18,6 +18,10 @@ public class SysDeptCommandService {
 
     private final WipeSysDeptByIdsDomainService wipeSysDeptByIdsDomainService;
 
+    private final DeleteSysDeptByIdDomainService deleteSysDeptByIdDomainService;
+
+    private final RestoreSysDeptByIdDomainService restoreSysDeptByIdDomainService;
+
     public Mono<Long> create(SysDeptCommand command) {
         DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(command.getDeptName()));
         DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
@@ -38,14 +42,15 @@ public class SysDeptCommandService {
         }).then();
     }
 
-    public Mono<Void> delete(SysDeptCommand command) {
-        return sysDeptDomainRepository.load(new DeptId(command.getId())).flatMap(domain -> {
-            domain.delete();
-            return sysDeptDomainRepository.save(domain);
-        }).then();
+    public Mono<Void> delete(List<Long> ids) {
+        return deleteSysDeptByIdDomainService.deleteByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
         return wipeSysDeptByIdsDomainService.deleteByIds(ids);
+    }
+
+    public Mono<Void> restore(List<Long> ids) {
+        return restoreSysDeptByIdDomainService.restoreByIds(ids);
     }
 }
