@@ -36,3 +36,4 @@ public class WipeGenColumnBindByIdsDomainServiceImpl implements WipeGenColumnBin
 
 
 
+
