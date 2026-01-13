@@ -4,6 +4,7 @@ package com.springddd.web;
 import com.springddd.application.service.role.SysRoleCommandService;
 import com.springddd.application.service.role.SysRoleQueryService;
 import com.springddd.application.service.role.dto.SysRoleCommand;
+import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.application.service.role.dto.SysRoleQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,8 @@ public class SysRoleController {
     private final SysRoleQueryService sysRoleQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> page(@Validated @RequestBody Mono<SysRoleQuery> query) {
-        return ApiResponse.validated(query,sysRoleQueryService::page);
+    public Mono<ApiResponse> index(@Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query,sysRoleQueryService::index);
     }
 
     @PostMapping("/all")
