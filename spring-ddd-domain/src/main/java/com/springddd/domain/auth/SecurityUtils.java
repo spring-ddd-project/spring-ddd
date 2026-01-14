@@ -15,11 +15,14 @@ public class SecurityUtils {
 
     private static List<MenuPermission> permissions;
 
+    private static List<Long> menuIds;
+
     public static void setAuthUserContext(AuthUser user) {
         setUserId(user.getUserId().value());
         setUsername(user.getUsername());
         setRoles(user.getRoles());
         setPermissions(user.getPermissions());
+        setMenuIds(user.getMenuIds());
     }
 
     public static void setUserId(Long userId) {
@@ -38,6 +41,10 @@ public class SecurityUtils {
         SecurityUtils.permissions = permissions;
     }
 
+    public static void setMenuIds(List<Long> menuIds) {
+        SecurityUtils.menuIds = menuIds;
+    }
+
     public static Long getUserId() {
         return SecurityUtils.userId;
     }
@@ -52,6 +59,10 @@ public class SecurityUtils {
 
     public static List<MenuPermission> getPermissions() {
         return SecurityUtils.permissions;
+    }
+
+    public static List<Long> getMenuIds() {
+        return SecurityUtils.menuIds;
     }
 
     public static Integer concurrency() {
