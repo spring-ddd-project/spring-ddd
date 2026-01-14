@@ -72,3 +72,4 @@ public class SysUserRoleDomain extends AbstractDomainMask {
 
 
 
+
