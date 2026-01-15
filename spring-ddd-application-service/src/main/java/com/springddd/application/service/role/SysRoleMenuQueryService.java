@@ -1,5 +1,6 @@
 package com.springddd.application.service.role;
 
+import com.springddd.application.service.role.dto.SysRoleMenuQuery;
 import com.springddd.application.service.role.dto.SysRoleMenuView;
 import com.springddd.application.service.role.dto.SysRoleMenuViewMapStruct;
 import com.springddd.infrastructure.persistence.entity.SysRoleMenuEntity;
@@ -21,7 +22,9 @@ public class SysRoleMenuQueryService {
     private final SysRoleMenuViewMapStruct sysRoleMenuViewMapStruct;
 
     public Mono<List<SysRoleMenuView>> queryLinkRoleAndMenus(Long roleId) {
-        Criteria criteria = Criteria.where("role_id").is(roleId).and("delete_status").is("0");
+        Criteria criteria = Criteria
+                .where(SysRoleMenuQuery.Fields.roleId).is(roleId)
+                .and(SysRoleMenuQuery.Fields.deleteStatus).is(false);
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.select(SysRoleMenuEntity.class).matching(qry).all().collectList().map(sysRoleMenuViewMapStruct::toViewList);
     }
