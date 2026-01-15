@@ -50,8 +50,11 @@ public class SysDeptQueryService {
                         SysDeptView::setChildren,
                         v -> v.getParentId() == null,
                         Comparator.comparing(SysDeptView::getSortOrder),
-                        f -> f.getDeptStatus() == true,
+                        SysDeptView::getDeptStatus,
                         30,
-                        d -> !d.getDeptStatus()));
+                        d -> !d.getDeleteStatus()));
+    }
+    public Mono<List<SysDeptView>> queryAllDept() {
+        return r2dbcEntityTemplate.select(SysDeptEntity.class).all().collectList().map(sysDeptViewMapStruct::toViews);
     }
 }
