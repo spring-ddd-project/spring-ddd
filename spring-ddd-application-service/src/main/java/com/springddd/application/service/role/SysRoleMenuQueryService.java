@@ -28,4 +28,12 @@ public class SysRoleMenuQueryService {
         Query qry = Query.query(criteria);
         return r2dbcEntityTemplate.select(SysRoleMenuEntity.class).matching(qry).all().collectList().map(sysRoleMenuViewMapStruct::toViewList);
     }
+
+    public Mono<List<SysRoleMenuView>> queryLinkRoleAndMenusByMenuId(Long menuId) {
+        Criteria criteria = Criteria
+                .where(SysRoleMenuQuery.Fields.menuId).is(menuId)
+                .and(SysRoleMenuQuery.Fields.deleteStatus).is(false);
+        Query qry = Query.query(criteria);
+        return r2dbcEntityTemplate.select(SysRoleMenuEntity.class).matching(qry).all().collectList().map(sysRoleMenuViewMapStruct::toViewList);
+    }
 }
