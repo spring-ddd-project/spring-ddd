@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GenInfoCommandService {
@@ -13,6 +15,8 @@ public class GenInfoCommandService {
     private final GenInfoDomainRepository genInfoDomainRepository;
 
     private final GenInfoDomainFactory genInfoDomainFactory;
+
+    private final WipeGenInfoByIdsDomainService wipeGenInfoByIdsDomainService;
 
     public Mono<Long> create(GenInfoCommand command) {
         GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(command.getTableName()), new PackageName(command.getPackageName()), new ClassName(command.getClassName()));
@@ -36,5 +40,9 @@ public class GenInfoCommandService {
             domain.delete();
             return genInfoDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipeByIds(List<Long> ids) {
+        return wipeGenInfoByIdsDomainService.wipeByIds(ids);
     }
 }
