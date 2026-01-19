@@ -31,10 +31,10 @@ public class SysRoleQueryService {
     public Mono<PageResponse<SysRoleView>> index(SysRolePageQuery query) {
         Criteria criteria = Criteria.where(SysRoleQuery.Fields.deleteStatus).is(false);
         if (!ObjectUtils.isEmpty(query.getRoleName())) {
-            criteria = criteria.and(SysRoleQuery.Fields.roleName).like(query.getRoleName());
+            criteria = criteria.and(SysRoleQuery.Fields.roleName).like("%" + query.getRoleName() + "%");
         }
         if (!ObjectUtils.isEmpty(query.getRoleCode())) {
-            criteria = criteria.and(SysRoleQuery.Fields.roleCode).like(query.getRoleCode());
+            criteria = criteria.and(SysRoleQuery.Fields.roleCode).like("%" + query.getRoleCode() + "%");
         }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
