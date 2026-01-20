@@ -39,7 +39,8 @@ public enum ErrorCode {
 
     GEN_INFO_PACKAGE_NAME_NULL(1500, "error.gen.info.package.name.null"),
     GEN_INFO_TABLE_NAME_NULL(1501, "error.gen.info.table.name.null"),
-    GEN_INFO_CLASS_NAME_NULL(1502, "error.gen.info.class.name.null")
+    GEN_INFO_CLASS_NAME_NULL(1502, "error.gen.info.class.name.null"),
+    GEN_INFO_REQUEST_NAME_NULL(1503, "error.gen.info.request.name.null")
 
     ;
 
