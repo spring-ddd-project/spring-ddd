@@ -35,6 +35,11 @@ public class GenTableController {
         return ApiResponse.validated(query, genInfoQueryService::index);
     }
 
+    @PostMapping("/queryInfoByTableName")
+    public Mono<ApiResponse> getInfo(@RequestParam("tableName") String tableName) {
+        return ApiResponse.ok(genInfoQueryService.queryGenInfoByTableName(tableName));
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody GenInfoCommand command) {
         return ApiResponse.ok(genInfoCommandService.create(command));
