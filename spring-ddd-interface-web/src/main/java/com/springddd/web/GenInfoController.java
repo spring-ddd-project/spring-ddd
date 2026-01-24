@@ -21,7 +21,7 @@ public class GenInfoController {
 
     private final GenInfoCommandService genInfoCommandService;
 
-    @PostMapping("/info")
+    @PostMapping("/index")
     public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenInfoPageQuery> query) {
         return ApiResponse.validated(query, genInfoQueryService::index);
     }
