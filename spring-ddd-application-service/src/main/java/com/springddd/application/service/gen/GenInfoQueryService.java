@@ -46,23 +46,10 @@ public class GenInfoQueryService {
             throw new TableNameNullException();
         }
 
-
         Criteria criteria = Criteria
                 .where(GenInfoQuery.Fields.deleteStatus).is(false)
                 .and(GenInfoQuery.Fields.tableName).is(tableName);
         Query qry = Query.query(criteria);
-        Mono<GenInfoView> genInfo = r2dbcEntityTemplate.select(GenInfoEntity.class).matching(qry).one().map(genInfoViewMapStruct::toView).defaultIfEmpty(new GenInfoView());
-        return Mono.zip(genInfo, columnData)
-                .map(tuple -> {
-                    GenInfoView genInfoView = tuple.getT1();
-                    List<GenInfoView> t2 = tuple.getT2();
-                    if (!CollectionUtils.isEmpty(t2)) {
-                        genInfoView.setPropColumnName(t2.getFirst().getPropColumnName());
-                        genInfoView.setPropColumnType(t2.getFirst().getPropColumnType());
-                        genInfoView.setPropColumnComment(t2.getFirst().getPropColumnComment());
-                        genInfoView.setPropColumnType(t2.getFirst().getPropColumnType());
-                    }
-                    return genInfoView;
-                });
+        return r2dbcEntityTemplate.select(GenInfoEntity.class).matching(qry).one().map(genInfoViewMapStruct::toView);
     }
 }
