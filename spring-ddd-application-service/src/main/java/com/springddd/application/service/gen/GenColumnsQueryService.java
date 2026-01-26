@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -48,7 +49,9 @@ public class GenColumnsQueryService {
 
                     return dataSpec
                             .map((row, meta) -> new GenColumnsView(
-                                    row.get("propColumnKey", String.class),
+                                    Optional.ofNullable(row.get("propColumnKey", String.class))
+                                            .map(Boolean::parseBoolean)
+                                            .orElse(false),
                                     row.get("propColumnName", String.class),
                                     row.get("propColumnType", String.class),
                                     row.get("propColumnComment", String.class)
