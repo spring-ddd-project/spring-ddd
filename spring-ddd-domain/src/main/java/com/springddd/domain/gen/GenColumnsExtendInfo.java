@@ -22,7 +22,7 @@ public record GenColumnsExtendInfo(Long propDictId,
         if (ObjectUtils.isEmpty(tableFilter)) {
             throw new FilterNullException();
         }
-        if (ObjectUtils.isEmpty(tableFilterComponent)) {
+        if (tableFilter && ObjectUtils.isEmpty(tableFilterComponent)) {
             throw new FilterComponentNullException();
         }
         if (ObjectUtils.isEmpty(tableFilterType)) {
