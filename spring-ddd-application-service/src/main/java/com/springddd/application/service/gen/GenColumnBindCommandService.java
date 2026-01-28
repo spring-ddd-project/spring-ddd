@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class GenColumnBindCommandService {
@@ -13,6 +15,8 @@ public class GenColumnBindCommandService {
     private final GenColumnBindDomainRepository genColumnBindDomainRepository;
 
     private final GenColumnBindDomainFactory genColumnBindDomainFactory;
+
+    private final WipeGenColumnBindByIdsDomainService wipeGenColumnBindByIdsDomainService;
 
     public Mono<Long> create(GenColumnBindCommand command) {
         GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(new ColumnName(command.getColumnName()), new EntityName(command.getEntityName()), new ComponentName(command.getComponentName()));
@@ -34,5 +38,9 @@ public class GenColumnBindCommandService {
             domain.delete();
             return genColumnBindDomainRepository.save(domain);
         }).then();
+    }
+
+    public Mono<Void> wipe(List<Long> ids) {
+        return wipeGenColumnBindByIdsDomainService.wipeByIds(ids);
     }
 }
