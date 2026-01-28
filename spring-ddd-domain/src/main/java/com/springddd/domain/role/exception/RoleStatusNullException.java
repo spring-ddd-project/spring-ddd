@@ -56,3 +56,4 @@ public class RoleStatusNullException extends DomainException {
 
 
 
+
