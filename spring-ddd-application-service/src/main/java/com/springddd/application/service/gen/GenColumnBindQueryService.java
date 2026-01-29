@@ -10,6 +10,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,6 +25,9 @@ public class GenColumnBindQueryService {
 
     public Mono<PageResponse<GenColumnBindView>> index(GenColumnBindPageQuery query) {
         Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(false);
+        if (!ObjectUtils.isEmpty(query.getColumnName())) {
+            criteria = criteria.and(GenColumnBindPageQuery.Fields.columnName).like("%" + query.getColumnName() + "%");
+        }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
