@@ -45,4 +45,8 @@ public class GenColumnBindQueryService {
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenColumnBindEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
+
+    public Mono<GenColumnBindView> queryByColumnType(String columnType) {
+        return r2dbcEntityTemplate.selectOne(Query.query(Criteria.where(GenColumnBindPageQuery.Fields.columnType).is(columnType)), GenColumnBindEntity.class).map(genColumnBindViewMapStruct::toView);
+    }
 }
