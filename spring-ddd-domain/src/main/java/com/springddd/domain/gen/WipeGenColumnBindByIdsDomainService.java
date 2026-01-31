@@ -35,3 +35,4 @@ public interface WipeGenColumnBindByIdsDomainService {
 
 
 
+
