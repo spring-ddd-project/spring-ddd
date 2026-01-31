@@ -74,9 +74,11 @@ public class GenColumnsQueryService {
                     List<Mono<Void>> asyncOperations = coreColumnList.stream()
                             .map(column -> genColumnBindQueryService.queryByColumnType(column.getPropColumnType())
                                     .doOnNext(bind -> {
-                                        column.setPropJavaType(bind.getEntityType());
                                         column.setPropJavaEntity(SnakeToCamelConverter.convertToCamelCase(column.getPropColumnName()));
+                                        column.setPropJavaType(bind.getEntityType());
                                         column.setFormComponent(bind.getComponentType());
+                                        column.setTableVisible(true);
+                                        column.setFormVisible(true);
                                         columnList.add(column);
                                     })
                                     .then())
