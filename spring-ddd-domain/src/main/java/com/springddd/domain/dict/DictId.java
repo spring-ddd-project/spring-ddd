@@ -62,3 +62,4 @@ public record DictId(Long value) implements AggregateRootId<Long> {
 
 
 
+
