@@ -23,7 +23,7 @@ public class GenTableInfoQueryService {
         int limit = query.getPageSize();
 
         StringBuilder dataSql = new StringBuilder("""
-                    SELECT table_name, table_comment, create_time, table_collation
+                    SELECT table_schema, table_name, table_comment, create_time, table_collation
                     FROM information_schema.TABLES
                     WHERE table_schema = :db
                 """);
@@ -42,12 +42,12 @@ public class GenTableInfoQueryService {
         dataSql.append(" ORDER BY create_time DESC LIMIT :limit OFFSET :offset");
 
         DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(dataSql.toString())
-                .bind("db", "spring_ddd")
+                .bind("db", query.getDatabaseName())
                 .bind("limit", limit)
                 .bind("offset", offset);
 
         DatabaseClient.GenericExecuteSpec countSpec = databaseClient.sql(countSql.toString())
-                .bind("db", "spring_ddd");
+                .bind("db", query.getDatabaseName());
 
         if (!ObjectUtils.isEmpty(query.getTableName())) {
             String tableNameLike = "%" + query.getTableName() + "%";
@@ -57,6 +57,7 @@ public class GenTableInfoQueryService {
 
         Mono<List<GenTableInfoView>> data = dataSpec
                 .map((row, meta) -> new GenTableInfoView(
+                        row.get("table_schema", String.class),
                         row.get("table_name", String.class),
                         row.get("table_comment", String.class),
                         row.get("create_time", LocalDateTime.class),
