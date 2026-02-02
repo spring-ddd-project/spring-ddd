@@ -1,8 +1,8 @@
 package com.springddd.infrastructure.persistence;
 
 import com.springddd.domain.gen.*;
-import com.springddd.infrastructure.persistence.entity.GenInfoEntity;
-import com.springddd.infrastructure.persistence.r2dbc.GenInfoRepository;
+import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
+import com.springddd.infrastructure.persistence.r2dbc.GenProjectInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
@@ -11,20 +11,20 @@ import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
-public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
+public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainRepository {
 
-    private final GenInfoRepository genInfoRepository;
+    private final GenProjectInfoRepository genProjectInfoRepository;
 
     @Override
-    public Mono<GenInfoDomain> load(GenInfoId aggregateRootId) {
-        return genInfoRepository.findById(aggregateRootId.value()).map(e -> {
-            GenInfoDomain genInfoDomain = new GenInfoDomain();
-            genInfoDomain.setId(new GenInfoId(e.getId()));
+    public Mono<GenProjectInfoDomain> load(GenProjectInfoId aggregateRootId) {
+        return genProjectInfoRepository.findById(aggregateRootId.value()).map(e -> {
+            GenProjectInfoDomain genInfoDomain = new GenProjectInfoDomain();
+            genInfoDomain.setId(new GenProjectInfoId(e.getId()));
 
-            GenInfoBasicInfo basicInfo = new GenInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
+            GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
             genInfoDomain.setBasicInfo(basicInfo);
 
-            GenInfoExtendInfo extendInfo = new GenInfoExtendInfo(e.getRequestName());
+            GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(e.getRequestName());
             genInfoDomain.setExtendInfo(extendInfo);
 
             genInfoDomain.setDeleteStatus(e.getDeleteStatus());
@@ -39,10 +39,10 @@ public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
     }
 
     @Override
-    public Mono<Long> save(GenInfoDomain aggregateRoot) {
-        GenInfoEntity entity = new GenInfoEntity();
+    public Mono<Long> save(GenProjectInfoDomain aggregateRoot) {
+        GenProjectInfoEntity entity = new GenProjectInfoEntity();
 
-        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenInfoId::value).orElse(null));
+        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenProjectInfoId::value).orElse(null));
 
         entity.setTableName(aggregateRoot.getBasicInfo().tableName().value());
         entity.setPackageName(aggregateRoot.getBasicInfo().packageName().value());
@@ -57,6 +57,6 @@ public class GenInfoDomainRepositoryImpl implements GenInfoDomainRepository {
         entity.setUpdateTime(aggregateRoot.getUpdateTime());
         entity.setVersion(aggregateRoot.getVersion());
 
-        return genInfoRepository.save(entity).map(GenInfoEntity::getId);
+        return genProjectInfoRepository.save(entity).map(GenProjectInfoEntity::getId);
     }
 }
