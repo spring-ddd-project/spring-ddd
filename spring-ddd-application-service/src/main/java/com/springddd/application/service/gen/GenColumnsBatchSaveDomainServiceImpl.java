@@ -29,7 +29,6 @@ public class GenColumnsBatchSaveDomainServiceImpl implements GenColumnsBatchSave
             entity.setId(Optional.ofNullable(domain.getId()).map(GenColumnsId::value).orElse(null));
             entity.setInfoId(domain.getInfoId().value());
 
-            entity.setPropAggregate(domain.getBasicInfo().aggregate().value());
             entity.setPropColumnKey(domain.getBasicInfo().key().value());
             entity.setPropColumnName(domain.getBasicInfo().name().value());
             entity.setPropColumnType(domain.getBasicInfo().type().value());
