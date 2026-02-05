@@ -1,6 +1,7 @@
 package com.springddd.application.service.gen;
 
 import com.springddd.domain.gen.WipeGenDataDomainService;
+import com.springddd.infrastructure.persistence.r2dbc.GenAggregateRepository;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
 import com.springddd.infrastructure.persistence.r2dbc.GenProjectInfoRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,12 +17,15 @@ public class WipeGenDataDomainServiceImpl implements WipeGenDataDomainService {
 
     private final GenColumnsRepository columnsRepository;
 
+    private final GenAggregateRepository aggregateRepository;
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> wipe() {
         return Mono.when(
                 infoProjectRepository.deleteAll(),
-                columnsRepository.deleteAll()
+                columnsRepository.deleteAll(),
+                aggregateRepository.deleteAll()
         );
     }
 }
