@@ -120,4 +120,8 @@ public class GenColumnsQueryService {
                 });
 
     }
+
+    public Mono<List<GenColumnsView>> queryJavaEntityInfoByInfoId(Long infoId) {
+        return r2dbcEntityTemplate.select(GenColumnsEntity.class).matching(Query.query(Criteria.where(GenColumnsQuery.Fields.infoId).is(infoId))).all().collectList().map(genColumnsViewMapStruct::toViews);
+    }
 }
