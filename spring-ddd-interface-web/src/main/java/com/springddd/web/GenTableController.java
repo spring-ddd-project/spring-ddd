@@ -28,4 +28,9 @@ public class GenTableController {
         return ApiResponse.ok(genTableInfoCommandService.wipe());
     }
 
+    @PostMapping("/generate")
+    public Mono<ApiResponse> generate(@RequestParam("tableName") String tableName) {
+        return ApiResponse.ok(genTableInfoQueryService.generate(tableName));
+    }
+
 }
