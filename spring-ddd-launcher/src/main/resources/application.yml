@@ -11,3 +11,7 @@ spring:
       - /auth/codes
       - /auth/user/info
       - /sys/menu/all
+gg:
+  jte:
+    template-location: templates
+    binaryStaticContent: false
