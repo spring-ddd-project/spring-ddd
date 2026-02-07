@@ -1,8 +1,6 @@
 package com.springddd.application.service.gen;
 
-import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
-import com.springddd.application.service.gen.dto.GenTableInfoView;
-import com.springddd.application.service.gen.dto.GenView;
+import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.util.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -115,15 +113,36 @@ public class GenTableInfoQueryService {
                 });
     }
 
-    public Mono<Void> buildTemplateContent(GenView view) {
-        String templateName = "entity";
-        Map<String, Object> context = new HashMap<>();
-        context.put("packageName", view.getProjectInfoView().getPackageName());
-        context.put("tableName", view.getProjectInfoView().getTableName());
-        context.put("className", view.getProjectInfoView().getClassName());
+    public Mono<Void> buildTemplateContent(GenView genView) {
+        GenProjectInfoView projectInfoView = genView.getProjectInfoView();
+        List<GenColumnsView> columnsViews = genView.getColumnsViews();
+        List<GenAggregateView> aggregateViews = genView.getAggregateViews();
 
-        String entity = renderTemplate(templateName, context);
-        System.out.println("entity = " + entity);
+        Map<String, Object> context = new HashMap<>();
+        context.put("packageName", projectInfoView.getPackageName());
+        context.put("tableName", projectInfoView.getTableName());
+        context.put("className", projectInfoView.getClassName());
+        context.put("columnsViews", columnsViews);
+        context.put("aggregateViews", aggregateViews);
+
+        String entity = renderTemplate("entity", context);
+        String domain = renderTemplate("domain", context);
+        String rootId = renderTemplate("rootId", context);
+        String extendInfo = renderTemplate("extendInfo", context);
+        String domainMask = renderTemplate("domainMask", context);
+        String repository = renderTemplate("repository", context);
+        String domainRepository = renderTemplate("domainRepository", context);
+        String domainRepositoryImpl = renderTemplate("domainRepositoryImpl", context);
+        String domainService = renderTemplate("domainService", context);
+        String domainServiceImpl = renderTemplate("domainServiceImpl", context);
+        String command = renderTemplate("command", context);
+        String query = renderTemplate("query", context);
+        String pageQuery = renderTemplate("pageQuery", context);
+        String view = renderTemplate("view", context);
+        String viewMapStruct = renderTemplate("viewMapStruct", context);
+        String commandService = renderTemplate("commandService", context);
+        String queryService = renderTemplate("queryService", context);
+        String controller = renderTemplate("controller", context);
 
         return Mono.empty();
     }
