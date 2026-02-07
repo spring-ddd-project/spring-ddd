@@ -65,3 +65,4 @@ public record RoleMenuId(Long value) implements AggregateRootId<Long> {
 
 
 
+
