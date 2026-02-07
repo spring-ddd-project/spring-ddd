@@ -2,6 +2,7 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenTableInfoView;
+import com.springddd.application.service.gen.dto.GenView;
 import com.springddd.domain.util.PageResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -23,6 +24,10 @@ public class GenTableInfoQueryService {
     private final DatabaseClient databaseClient;
 
     private final GenProjectInfoQueryService projectInfoQueryService;
+
+    private final GenColumnsQueryService columnsQueryService;
+
+    private final GenAggregateQueryService aggregateQueryService;
 
     private final TemplateEngine engine;
 
@@ -94,20 +99,33 @@ public class GenTableInfoQueryService {
     }
 
     public Mono<Void> generate(String tableName) {
+        GenView view = new GenView();
         return projectInfoQueryService.queryGenInfoByTableName(tableName)
                 .flatMap(projectInfo -> {
-
-                    String templateName = "entity";
-                    Map<String, Object> context = new HashMap<>();
-                    context.put("packageName", projectInfo.getPackageName());
-                    context.put("tableName", projectInfo.getTableName());
-                    context.put("className", projectInfo.getClassName());
-
-                    String entity = renderTemplate(templateName, context);
-                    System.out.println("entity = " + entity);
-
-                    return Mono.empty();
+                    view.setProjectInfoView(projectInfo);
+                    return columnsQueryService.queryJavaEntityInfoByInfoId(projectInfo.getId())
+                            .flatMap(columns -> {
+                                view.setColumnsViews(columns);
+                                return aggregateQueryService.queryAggregateByInfoId(projectInfo.getId())
+                                        .flatMap(aggregates -> {
+                                            view.setAggregateViews(aggregates);
+                                            return buildTemplateContent(view);
+                                        });
+                            });
                 });
+    }
+
+    public Mono<Void> buildTemplateContent(GenView view) {
+        String templateName = "entity";
+        Map<String, Object> context = new HashMap<>();
+        context.put("packageName", view.getProjectInfoView().getPackageName());
+        context.put("tableName", view.getProjectInfoView().getTableName());
+        context.put("className", view.getProjectInfoView().getClassName());
+
+        String entity = renderTemplate(templateName, context);
+        System.out.println("entity = " + entity);
+
+        return Mono.empty();
     }
 
     public String renderTemplate(String templateName, Map<String, Object> dataModel) {
