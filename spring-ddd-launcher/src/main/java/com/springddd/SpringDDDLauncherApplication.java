@@ -1,13 +1,13 @@
 package com.springddd;
 
-import gg.jte.ContentType;
-import gg.jte.TemplateEngine;
-import gg.jte.resolve.ResourceCodeResolver;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 @SpringBootApplication
 public class SpringDDDLauncherApplication {
@@ -23,15 +23,18 @@ public class SpringDDDLauncherApplication {
         messageSource.setDefaultEncoding("UTF-8");
         return messageSource;
     }
-    @Bean
-    public TemplateEngine templateEngine() {
-        ResourceCodeResolver codeResolver = new ResourceCodeResolver("templates", getClass().getClassLoader());
-        TemplateEngine engine = TemplateEngine.create(codeResolver, ContentType.Html);
-        engine.setBinaryStaticContent(false);
-        engine.cleanAll();
 
+    @Bean(name = "engine")
+    public TemplateEngine templateEngine() {
+        ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+        resolver.setPrefix("templates/");
+        resolver.setSuffix(".java");
+        resolver.setTemplateMode(TemplateMode.TEXT);
+        resolver.setCharacterEncoding("UTF-8");
+
+        TemplateEngine engine = new TemplateEngine();
+        engine.setTemplateResolver(resolver);
         return engine;
     }
-
 
 }
