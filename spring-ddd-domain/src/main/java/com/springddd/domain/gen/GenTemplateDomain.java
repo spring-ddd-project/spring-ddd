@@ -11,4 +11,14 @@ public class GenTemplateDomain extends AbstractDomainMask {
     private TemplateId id;
 
     private TemplateInfo templateInfo;
+
+    public void create() {}
+
+    public void update(TemplateInfo templateInfo) {
+        this.templateInfo = templateInfo;
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
 }
