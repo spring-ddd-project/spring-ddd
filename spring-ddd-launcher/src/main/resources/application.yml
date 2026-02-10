@@ -3,7 +3,7 @@ spring:
     name: spring-ddd
   profiles:
     active: '@env@'
-  thymeleaf:
+  freemarker:
     check-template-location: false
   security:
     ignore-paths:
