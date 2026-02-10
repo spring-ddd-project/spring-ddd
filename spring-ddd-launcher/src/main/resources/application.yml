@@ -3,6 +3,8 @@ spring:
     name: spring-ddd
   profiles:
     active: '@env@'
+  thymeleaf:
+    check-template-location: false
   security:
     ignore-paths:
       - /auth/login

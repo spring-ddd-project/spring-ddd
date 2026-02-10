@@ -27,7 +27,7 @@ public class SpringDDDLauncherApplication {
     @Bean(name = "engine")
     public TemplateEngine templateEngine() {
         StringTemplateResolver resolver = new StringTemplateResolver();
-        resolver.setTemplateMode(TemplateMode.TEXT);
+        resolver.setTemplateMode(TemplateMode.HTML);
         resolver.setCacheable(false);
 
         TemplateEngine engine = new TemplateEngine();
