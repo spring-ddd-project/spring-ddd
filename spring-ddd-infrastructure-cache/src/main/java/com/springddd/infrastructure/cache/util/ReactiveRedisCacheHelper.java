@@ -81,11 +81,6 @@ public class ReactiveRedisCacheHelper {
                 .flatMap(json -> deserialize(json, clazz));
     }
 
-    // Build unified cache key with namespace
-    public String buildKey(String namespace, String id) {
-        return namespace + ":" + id;
-    }
-
     private <T> Mono<T> deserialize(String json, Class<T> clazz) {
         try {
             if (json == null || json.isBlank() || NULL_MARK.equals(json)) {

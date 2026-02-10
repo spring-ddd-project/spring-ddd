@@ -3,6 +3,7 @@ package com.springddd.application.service.auth.jwt;
 import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -59,7 +60,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         Jws<Claims> claims = jwtTemplate.parseToken(token);
         Long userId = claims.getPayload().get("userId", Long.class);
 
-        return reactiveRedisCacheHelper.getCache("user:" + userId + ":token", String.class)
+        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(userId), String.class)
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
@@ -69,8 +70,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
 
                     // Token matches cache, continue with parsing
                     try {
-                        String userCacheKey = "user:" + userId + ":detail";
-                        return reactiveRedisCacheHelper.getCache(userCacheKey, AuthUser.class)
+                        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(userId), AuthUser.class)
                                 .switchIfEmpty(Mono.error(new AccessDeniedException("User detail not found in cache")))
                                 .flatMap(u -> {
                                     SecurityUtils.setAuthUserContext(u);

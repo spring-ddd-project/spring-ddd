@@ -42,12 +42,17 @@ public class GenTemplateController {
     }
 
     @PostMapping("/delete")
-    public Mono<ApiResponse> delete(@RequestParam("ids")List<Long> ids) {
+    public Mono<ApiResponse> delete(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(genTemplateCommandService.delete(ids));
     }
 
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(genTemplateCommandService.restore(ids));
+    }
+
     @DeleteMapping("/wipe")
-    public Mono<ApiResponse> wipe(@RequestParam("ids")List<Long> ids) {
+    public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(genTemplateCommandService.wipe(ids));
     }
 }
