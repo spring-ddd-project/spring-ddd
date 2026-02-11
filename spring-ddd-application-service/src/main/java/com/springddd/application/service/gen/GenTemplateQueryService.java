@@ -43,9 +43,7 @@ public class GenTemplateQueryService {
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
-    public Mono<GenTemplateView> queryByTemplateName(String name) {
-        return r2dbcEntityTemplate.selectOne(Query.query(Criteria
-                .where(GenTemplateQuery.Fields.deleteStatus).is(false)
-                .and(GenTemplateQuery.Fields.templateName).is(name)), GenTemplateEntity.class).map(genTemplateViewMapStruct::toView);
+    public Mono<List<GenTemplateView>> queryAllTemplate() {
+        return r2dbcEntityTemplate.select(GenTemplateEntity.class).all().collectList().map(genTemplateViewMapStruct::toViews);
     }
 }
