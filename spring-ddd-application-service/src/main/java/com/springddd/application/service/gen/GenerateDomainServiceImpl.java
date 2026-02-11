@@ -24,14 +24,12 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
-                .flatMap(context -> {
-                    return templateQueryService.queryByTemplateName("r2dbc")
-                            .flatMap(template -> renderTemplate(template.getTemplateContent(), context))
-                            .flatMap(text -> {
-                                System.out.println("text = " + text);
-                                return Mono.empty();
-                            });
-        });
+                .flatMap(context -> templateQueryService.queryByTemplateName("r2dbc")
+                        .flatMap(template -> renderTemplate(template.getTemplateContent(), context))
+                        .flatMap(text -> {
+                            System.out.println("text = " + text);
+                            return Mono.empty();
+                        }));
     }
 
     public Mono<String> renderTemplate(String templateContent, Map<String, Object> dataModel) {
