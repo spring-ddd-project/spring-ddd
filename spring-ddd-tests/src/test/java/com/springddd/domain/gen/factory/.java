@@ -1,0 +1,9 @@
+package com.springddd.domain.gen.factory;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+public class  {
+    @Test
+    public void test() {
+        assertTrue(true);
+    }
+}
