@@ -1,88 +1,177 @@
-package ${packageName}.application.service.${requestName};
+<script lang="ts" setup>
+import type { VxeTableGridOptions } from '#/adapter/vxe-table';
 
-import ${packageName}.application.service.${requestName}.dto.${className}Command;
-import ${packageName}.domain.${requestName}.*;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
+import { ref } from 'vue';
 
-import java.util.List;
+import { useAccess } from '@vben/access';
+import { confirm, Page } from '@vben/common-ui';
+import { $t } from '@vben/locales';
 
-@Service
-@RequiredArgsConstructor
-public class ${className}CommandService {
+import { ElButton, ElMessage } from 'element-plus';
 
-    private final ${className}DomainRepository ${requestName}DomainRepository;
+import Dict from '#/adapter/component/Dict.vue';
+import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { delete${className}, get${className}Page } from '#/api/${requestName}';
 
-    private final ${className}DomainFactory ${requestName}DomainFactory;
+import ${className}Form from './form.vue';
+import RecycleForm from './recycle.vue';
 
-    private final Delete${className}DomainService delete${className}DomainService;
+const { hasAccessByCodes } = useAccess();
 
-    private final Restore${className}DomainService restore${className}DomainService;
+const ${requestName}FormRef = ref();
+const recycleFormRef = ref();
 
-    private final Wipe${className}DomainService wipe${className}DomainService;
-
-    public Mono<Long> create(${className}Command command) {
-    <#assign newInstanceParams = []>
-    <#list aggregateViews as aggregateView>
-        <#if aggregateView.objectType != 1 && aggregateView.objectType != 4>
-            <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
-            <#assign constructorParams = []>
-            <#list fieldList as field>
-                <#assign fieldTrimmed = field?trim>
-                <#list columnsViews as col>
-                    <#if col.propJavaEntity == fieldTrimmed>
-                        <#assign constructorParams += ["command.get" + fieldTrimmed?cap_first + "()"]>
-                    </#if>
-                </#list>
-            </#list>
-            <#assign varName = aggregateView.objectName?uncap_first>
-        ${aggregateView.objectName} ${varName} = new ${aggregateView.objectName}(${constructorParams?join(", ")});
-            <#assign newInstanceParams += [varName]>
-        </#if>
-    </#list>
-
-        ${className}Domain domain = ${requestName}DomainFactory.newInstance(${newInstanceParams?join(", ")});
-        domain.create();
-        return ${requestName}DomainRepository.save(domain);
-    }
-
-    public Mono<Void> update(${className}Command command) {
-        <#assign updateParams = []>
-        <#list aggregateViews as aggregateView>
-            <#if aggregateView.objectType != 1 && aggregateView.objectType != 4>
-                <#assign fieldList = aggregateView.objectValue?replace('"', '')?replace('[', '')?replace(']', '')?split(",")>
-                <#assign constructorParams = []>
-                <#list fieldList as field>
-                    <#assign fieldTrimmed = field?trim>
-                    <#list columnsViews as col>
-                        <#if col.propJavaEntity == fieldTrimmed>
-                            <#assign constructorParams += ["command.get" + fieldTrimmed?cap_first + "()"]>
-                        </#if>
-                    </#list>
-                </#list>
-                <#assign varName = aggregateView.objectName?uncap_first>
-        ${aggregateView.objectName} ${varName} = new ${aggregateView.objectName}(${constructorParams?join(", ")});
-                <#assign updateParams += [varName]>
-            </#if>
-        </#list>
-
-        return ${requestName}DomainRepository.load(new ${className}Id(command.getId()))
-                .flatMap(domain -> {
-                    domain.update(${updateParams?join(", ")});
-                    return ${requestName}DomainRepository.save(domain);
-                }).then();
-    }
-
-    public Mono<Void> delete(List<Long> ids) {
-        return delete${className}DomainService.deleteByIds(ids);
-    }
-
-    public Mono<Void> restore(List<Long> ids) {
-        return restore${className}DomainService.restoreByIds(ids);
-    }
-
-    public Mono<Void> wipe(List<Long> ids) {
-        return wipe${className}DomainService.wipeByIds(ids);
-    }
+interface RowType {
+  id: string;
+  templateName: string;
+  templateContent: string;
 }
+
+const gridOptions: VxeTableGridOptions<RowType> = {
+  checkboxConfig: {
+    highlight: true,
+  },
+  columnConfig: {
+    resizable: true,
+  },
+  rowConfig: {
+    isHover: true,
+  },
+  columns: [
+    { title: 'No.', type: 'seq', width: 50 },
+    { align: 'left', title: '#', type: 'checkbox', width: 50 },
+    { field: 'templateName', title: $t('codegen.template.name') },
+    { field: 'templateContent', title: $t('codegen.template.content') },
+    {
+      field: 'action',
+      fixed: 'right',
+      slots: { default: 'action' },
+      title: $t('system.common.operation'),
+      width: 150,
+    },
+  ],
+  exportConfig: {},
+  keepSource: true,
+  proxyConfig: {
+    ajax: {
+      query: async ({ page }) => {
+        return await get${className}Page({
+          pageNum: page.currentPage,
+          pageSize: page.pageSize,
+        });
+      },
+    },
+  },
+  editConfig: {
+    mode: 'row',
+    trigger: 'click',
+  },
+  toolbarConfig: {
+    custom: true,
+    export: true,
+    // import: true,
+    refresh: true,
+    zoom: true,
+    search: false,
+  },
+};
+
+const [Grid, gridApi] = useVbenVxeGrid({
+  gridOptions,
+});
+
+const openRecycleForm = () => {
+  recycleFormRef.value?.open();
+};
+
+const openForm = () => {
+  ${requestName}FormRef.value?.open();
+};
+
+const editRow = (row: RowType) => {
+  ${requestName}FormRef.value?.open(row);
+};
+
+const deleteByIds = (row?: RowType) => {
+  const ids: string[] = row
+    ? [row.id]
+    : gridApi.grid.getCheckboxRecords().map((item) => item.id);
+
+  if (ids.length === 0) {
+    ElMessage.warning($t('system.common.delete.warning'));
+    return;
+  }
+
+  confirm({
+    content: $t('system.common.delete.confirm'),
+    icon: 'error',
+  }).then(async () => {
+    try {
+      await delete${requestName}(ids);
+      await gridApi.reload();
+      ElMessage.success($t('system.common.delete.success'));
+    } catch {
+      ElMessage.error($t('system.common.delete.error'));
+    }
+  });
+};
+</script>
+
+<template>
+  <Page>
+    <Grid>
+      <template #toolbar-actions>
+        <ElButton
+          class="mr-2"
+          bg
+          text
+          type="primary"
+          @click="openForm"
+          v-if="hasAccessByCodes(['gen:template:create'])"
+        >
+          {{ $t('system.common.button.add') }}
+        </ElButton>
+        <ElButton
+          class="mr-2"
+          bg
+          text
+          type="danger"
+          @click="deleteByIds()"
+          v-if="hasAccessByCodes(['gen:template:delete'])"
+        >
+          {{ $t('system.common.button.delete') }}
+        </ElButton>
+        <ElButton
+          class="mr-2"
+          bg
+          text
+          type="info"
+          @click="openRecycleForm"
+          v-if="hasAccessByCodes(['gen:template:recycle'])"
+        >
+          {{ $t('system.common.button.recycle') }}
+        </ElButton>
+      </template>
+      <template #action="{ row }">
+        <ElButton
+          type="primary"
+          link
+          @click="editRow(row)"
+          v-if="hasAccessByCodes(['gen:template:update'])"
+        >
+          {{ $t('system.common.button.edit') }}
+        </ElButton>
+        <ElButton
+          type="danger"
+          link
+          @click="deleteByIds(row)"
+          v-if="hasAccessByCodes(['gen:template:delete'])"
+        >
+          {{ $t('system.common.button.delete') }}
+        </ElButton>
+      </template>
+    </Grid>
+    <${className}Form ref="${requestName}FormRef" :grid-api="gridApi" />
+    <RecycleForm ref="recycleFormRef" :grid-api="gridApi" />
+  </Page>
+</template>
