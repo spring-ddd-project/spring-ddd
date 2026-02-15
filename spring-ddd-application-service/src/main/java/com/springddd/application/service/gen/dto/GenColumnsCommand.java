@@ -35,7 +35,7 @@ public class GenColumnsCommand implements Serializable {
 
     private Integer tableFilterType;
 
-    private Integer formComponent;
+    private Byte formComponent;
 
     private Boolean formVisible;
 

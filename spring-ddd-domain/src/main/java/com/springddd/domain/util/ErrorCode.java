@@ -65,6 +65,7 @@ public enum ErrorCode {
     GEN_AGGREGATE_OBJECT_TYPE_NULL(1525, "error.gen.aggregate.object.type.null"),
     GEN_TEMPLATE_NAME_NULL(1526, "error.gen.template.name.null"),
     GEN_TEMPLATE_CONTENT_NULL(1527, "error.gen.template.content.null"),
+    GEN_BIND_TYPESCRIPT_TYPE_NULL(1528, "error.gen.bind.typescript.type.null"),
 
     ;
 
