@@ -1,0 +1,9 @@
+package com.springddd.application.service.dict.dto;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+public class  {
+    @Test
+    public void test() {
+        assertTrue(true);
+    }
+}
