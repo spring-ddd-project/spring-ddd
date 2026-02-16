@@ -12,14 +12,14 @@ public class GenColumnsDomain extends AbstractDomainMask {
 
     private GenProjectInfoId infoId;
 
-    private GenColumnsBasicInfo basicInfo;
+    private GenColumnsProp prop;
 
     private GenColumnsExtendInfo extendInfo;
 
     public void create() {}
 
-    public void update(GenColumnsBasicInfo basicInfo, GenColumnsExtendInfo extendInfo) {
-        this.basicInfo = basicInfo;
+    public void update(GenColumnsProp prop, GenColumnsExtendInfo extendInfo) {
+        this.prop = prop;
         this.extendInfo = extendInfo;
     }
 
