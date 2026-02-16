@@ -1,5 +1,6 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.application.service.dict.SysDictQueryService;
 import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
@@ -31,6 +32,8 @@ public class GenColumnsQueryService {
     private final DatabaseClient databaseClient;
 
     private final GenColumnBindQueryService genColumnBindQueryService;
+
+    private final SysDictQueryService sysDictQueryService;
 
     public Mono<PageResponse<GenColumnsView>> queryColumnsByGenInfoId(Long infoId, String databaseName) {
 
@@ -102,11 +105,13 @@ public class GenColumnsQueryService {
                                                     column.setTableFilter(dbColumn.getTableFilter());
                                                     column.setTableFilterComponent(dbColumn.getTableFilterComponent());
                                                     column.setTableFilterType(dbColumn.getTableFilterType());
+                                                    column.setTypescriptType(dbColumn.getTypescriptType());
                                                     column.setFormVisible(dbColumn.getFormVisible());
                                                     column.setFormRequired(dbColumn.getFormRequired());
                                                     column.setPropDictId(dbColumn.getPropDictId());
                                                 } else {
                                                     column.setPropJavaType(bind.getEntityType());
+                                                    column.setTypescriptType(bind.getTypescriptType());
                                                     column.setFormComponent(bind.getComponentType());
                                                     column.setTableVisible(true);
                                                     column.setFormVisible(true);
@@ -122,6 +127,27 @@ public class GenColumnsQueryService {
     }
 
     public Mono<List<GenColumnsView>> queryJavaEntityInfoByInfoId(Long infoId) {
-        return r2dbcEntityTemplate.select(GenColumnsEntity.class).matching(Query.query(Criteria.where(GenColumnsQuery.Fields.infoId).is(infoId))).all().collectList().map(genColumnsViewMapStruct::toViews);
+        return r2dbcEntityTemplate.select(GenColumnsEntity.class)
+                .matching(Query.query(Criteria.where(GenColumnsQuery.Fields.infoId).is(infoId)))
+                .all()
+                .collectList()
+                .map(genColumnsViewMapStruct::toViews)
+                .flatMap(columns -> Flux.fromIterable(columns)
+                        .flatMap(column -> {
+                            Mono<Void> typescriptTypeMono = sysDictQueryService
+                                    .queryItemLabelByDictCode("typescript_type", Integer.valueOf(column.getTypescriptType()))
+                                    .doOnNext(column::setTypescriptTypeStr)
+                                    .then();
+
+                            Mono<Void> formComponentMono = sysDictQueryService
+                                    .queryItemLabelByDictCode("component_type", Integer.valueOf(column.getFormComponent()))
+                                    .doOnNext(column::setFormComponentStr)
+                                    .then();
+
+                            return Mono.when(typescriptTypeMono, formComponentMono).thenReturn(column);
+                        })
+                        .collectList()
+                );
     }
+
 }
