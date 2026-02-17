@@ -32,6 +32,9 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
             Form form = new Form(e.getFormComponent(), e.getFormVisible(), e.getFormRequired());
             genColumnsDomain.setForm(form);
 
+            I18n i18n = new I18n(e.getEn(), e.getLocale());
+            genColumnsDomain.setI18n(i18n);
+
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(e.getPropDictId(), e.getTypescriptType());
             genColumnsDomain.setExtendInfo(extendInfo);
 
@@ -68,6 +71,9 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
         entity.setFormComponent(aggregateRoot.getForm().formComponent());
         entity.setFormVisible(aggregateRoot.getForm().formVisible());
         entity.setFormRequired(aggregateRoot.getForm().formRequired());
+
+        entity.setEn(aggregateRoot.getI18n().en());
+        entity.setLocale(aggregateRoot.getI18n().locale());
 
         entity.setPropDictId(aggregateRoot.getExtendInfo().propDictId());
         entity.setTypescriptType(aggregateRoot.getExtendInfo().typescriptType());
