@@ -26,7 +26,7 @@ public class GenColumnsCommandService {
         Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
         Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
         GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
-        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
+        GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, table, form, extendInfo);
         domain.create();
         return genColumnsDomainRepository.save(domain);
     }
@@ -37,7 +37,7 @@ public class GenColumnsCommandService {
             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
             Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
-            domain.update(prop, extendInfo);
+            domain.update(prop, table, form, extendInfo);
             return genColumnsDomainRepository.save(domain);
         }).then();
     }
@@ -60,7 +60,7 @@ public class GenColumnsCommandService {
                     Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
                     Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
                     GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
-                    GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, extendInfo);
+                    GenColumnsDomain domain = genColumnsDomainFactory.newInstance(new InfoId(command.getInfoId()), prop, table, form, extendInfo);
                     domain.create();
                     return domain;
                 })
@@ -77,7 +77,7 @@ public class GenColumnsCommandService {
                             Table table = new Table(command.getTableVisible(), command.getTableOrder(), command.getTableFilter(), command.getTableFilterComponent(), command.getTableFilterType());
                             Form form = new Form(command.getFormComponent(), command.getFormVisible(), command.getFormRequired());
                             GenColumnsExtendInfo extendInfo = new GenColumnsExtendInfo(command.getPropDictId(), command.getTypescriptType());
-                            domain.update(prop, extendInfo);
+                            domain.update(prop, table, form, extendInfo);
                             return domain;
                         })
                 )
