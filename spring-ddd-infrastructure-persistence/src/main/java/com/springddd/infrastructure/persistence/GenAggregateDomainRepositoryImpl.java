@@ -21,7 +21,7 @@ public class GenAggregateDomainRepositoryImpl implements GenAggregateDomainRepos
             GenAggregateDomain genAggregateDomain = new GenAggregateDomain();
 
             genAggregateDomain.setAggregateId(new AggregateId(e.getId()));
-            genAggregateDomain.setInfoId(new GenProjectInfoId(e.getInfoId()));
+            genAggregateDomain.setInfoId(new InfoId(e.getInfoId()));
 
             GenAggregateValueObject valueObject = new GenAggregateValueObject(e.getObjectName(), e.getObjectValue(), e.getObjectType());
             genAggregateDomain.setValueObject(valueObject);
