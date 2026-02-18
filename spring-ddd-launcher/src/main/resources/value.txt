@@ -9,8 +9,10 @@ import { confirm, Page } from '@vben/common-ui';
 import { $t } from '@vben/locales';
 
 import { ElButton, ElMessage } from 'element-plus';
-
+<#assign filteredProperties = columnsViews?filter(p -> p.propDictId?exists && p.propDictId?has_content)>
+<#if filteredProperties?has_content>
 import Dict from '#/adapter/component/Dict.vue';
+</#if>
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { delete${className}, get${className}Page } from '#/api/${requestName}';
 
@@ -73,7 +75,15 @@ const gridOptions: VxeTableGridOptions<RowType> = {
 <#assign excludeFields = ["id", "createBy", "createTime", "updateBy", "updateTime", "version", "deleteStatus"]>
 <#list columnsViews as property>
     <#if !(excludeFields?seq_contains(property.propJavaEntity))>
+    <#if property?has_content && property.propDictId?has_content>
+    {
+      field: '${property.propJavaEntity}',
+      title: $t('${requestName}.${property.propJavaEntity}'),
+      slots: { default: '${property.propJavaEntity}' },
+    },
+    <#else>
     { field: '${property.propJavaEntity}', title: $t('${requestName}.${property.propJavaEntity}') },
+    </#if>
     </#if>
 </#list>
     {
@@ -169,6 +179,16 @@ const deleteByIds = (row?: RowType) => {
 <template>
   <Page>
     <Grid>
+<#assign filteredProperties = columnsViews?filter(p -> p.propDictId?exists && p.propDictId?has_content)>
+<#if filteredProperties?has_content>
+<#list columnsViews as property>
+<#if property?has_content && property.propDictId?has_content>
+      <template #${property.propJavaEntity}="{ row }">
+        <Dict dict-key="${property.propDictStr}" :value="row.${property.propJavaEntity}" />
+      </template>
+</#if>
+</#list>
+</#if>
       <template #toolbar-actions>
         <ElButton
           class="mr-2"
