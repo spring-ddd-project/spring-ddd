@@ -66,6 +66,8 @@ public enum ErrorCode {
     GEN_TEMPLATE_NAME_NULL(1526, "error.gen.template.name.null"),
     GEN_TEMPLATE_CONTENT_NULL(1527, "error.gen.template.content.null"),
     GEN_BIND_TYPESCRIPT_TYPE_NULL(1528, "error.gen.bind.typescript.type.null"),
+    GEN_I18N_EN_NULL(1529, "error.gen.i18n.en.null"),
+    GEN_I18N_LOCALE_NULL(1530, "error.gen.i18n.locale.null"),
 
     ;
 

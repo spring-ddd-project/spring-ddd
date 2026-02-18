@@ -16,10 +16,10 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
     private final GenProjectInfoRepository genProjectInfoRepository;
 
     @Override
-    public Mono<GenProjectInfoDomain> load(GenProjectInfoId aggregateRootId) {
+    public Mono<GenProjectInfoDomain> load(InfoId aggregateRootId) {
         return genProjectInfoRepository.findById(aggregateRootId.value()).map(e -> {
             GenProjectInfoDomain genInfoDomain = new GenProjectInfoDomain();
-            genInfoDomain.setId(new GenProjectInfoId(e.getId()));
+            genInfoDomain.setId(new InfoId(e.getId()));
 
             GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(e.getTableName()), new PackageName(e.getPackageName()), new ClassName(e.getClassName()));
             genInfoDomain.setBasicInfo(basicInfo);
@@ -42,7 +42,7 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
     public Mono<Long> save(GenProjectInfoDomain aggregateRoot) {
         GenProjectInfoEntity entity = new GenProjectInfoEntity();
 
-        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(GenProjectInfoId::value).orElse(null));
+        entity.setId(Optional.ofNullable(aggregateRoot.getId()).map(InfoId::value).orElse(null));
 
         entity.setTableName(aggregateRoot.getBasicInfo().tableName().value());
         entity.setPackageName(aggregateRoot.getBasicInfo().packageName().value());
