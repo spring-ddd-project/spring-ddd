@@ -73,4 +73,20 @@ public class SysDictQueryService {
         return r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).one().map(sysDictViewMapStruct::toView)
                 .flatMap(view -> sysDictItemQueryService.queryItemLabelByDictId(view.getId()));
     }
+
+    public Mono<String> queryDictNameById(Long id) {
+        if (ObjectUtils.isEmpty(id)) {
+            return Mono.empty();
+        }
+        return r2dbcEntityTemplate.select(SysDictEntity.class)
+                .matching(Query.query(Criteria
+                        .where(SysDictQuery.Fields.id).is(id)
+                        .and(SysDictQuery.Fields.deleteStatus).is(false)))
+                .one()
+                .flatMap(entity -> {
+                    SysDictView view = sysDictViewMapStruct.toView(entity);
+                    return view != null ? Mono.just(view.getDictCode()) : Mono.empty();
+                });
+    }
+
 }
