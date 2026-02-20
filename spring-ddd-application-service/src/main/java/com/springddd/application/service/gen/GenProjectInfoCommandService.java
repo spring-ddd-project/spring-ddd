@@ -19,18 +19,18 @@ public class GenProjectInfoCommandService {
     private final WipeGenProjectInfoByIdsDomainService wipeGenInfoByIdsDomainService;
 
     public Mono<Long> create(GenProjectInfoCommand command) {
-        GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(command.getTableName()), new PackageName(command.getPackageName()), new ClassName(command.getClassName()));
+        ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
         GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
-        GenProjectInfoDomain genInfoDomain = genProjectInfoDomainFactory.newInstance(basicInfo, extendInfo);
+        GenProjectInfoDomain genInfoDomain = genProjectInfoDomainFactory.newInstance(projectInfo, extendInfo);
         genInfoDomain.create();
         return genProjectInfoDomainRepository.save(genInfoDomain);
     }
 
     public Mono<Void> update(GenProjectInfoCommand command) {
         return genProjectInfoDomainRepository.load(new InfoId(command.getId())).flatMap(domain -> {
-            GenProjectInfoBasicInfo basicInfo = new GenProjectInfoBasicInfo(new TableName(command.getTableName()), new PackageName(command.getPackageName()), new ClassName(command.getClassName()));
+            ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
             GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
-            domain.update(basicInfo, extendInfo);
+            domain.update(projectInfo, extendInfo);
             return genProjectInfoDomainRepository.save(domain);
         }).then();
     }
