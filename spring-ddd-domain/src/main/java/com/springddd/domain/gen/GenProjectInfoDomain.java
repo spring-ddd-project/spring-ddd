@@ -10,15 +10,15 @@ public class GenProjectInfoDomain extends AbstractDomainMask {
 
     private InfoId id;
 
-    private GenProjectInfoBasicInfo basicInfo;
+    private ProjectInfo projectInfo;
 
     private GenProjectInfoExtendInfo extendInfo;
 
     public void create() {
     }
 
-    public void update(GenProjectInfoBasicInfo basicInfo, GenProjectInfoExtendInfo extendInfo) {
-        this.basicInfo = basicInfo;
+    public void update(ProjectInfo projectInfo, GenProjectInfoExtendInfo extendInfo) {
+        this.projectInfo = projectInfo;
         this.extendInfo = extendInfo;
     }
 
