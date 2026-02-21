@@ -30,9 +30,8 @@ public class GenTableController {
 
     @PostMapping("/generate")
     public Mono<ApiResponse> generate(
-            @RequestParam("tableName") String tableName,
-            @RequestParam("projectName") String projectName) {
-        return ApiResponse.ok(genTableInfoCommandService.generate(tableName, projectName));
+            @RequestParam("tableName") String tableName) {
+        return ApiResponse.ok(genTableInfoCommandService.generate(tableName));
     }
 
 }
