@@ -1,7 +1,10 @@
 package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.*;
+import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
+import com.springddd.infrastructure.cache.keys.CacheKeys;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
@@ -24,6 +27,8 @@ public class GenTableInfoQueryService {
     private final GenColumnsQueryService columnsQueryService;
 
     private final GenAggregateQueryService aggregateQueryService;
+
+    private final ReactiveRedisCacheHelper cacheHelper;
 
     public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
 
@@ -125,6 +130,10 @@ public class GenTableInfoQueryService {
         context.put("aggregateViews", aggregateViews);
 
         return Mono.just(context);
+    }
+
+    public Mono<List> preview() {
+        return cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), List.class);
     }
 
 }

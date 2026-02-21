@@ -23,6 +23,11 @@ public class GenTableController {
         return ApiResponse.validated(query, genTableInfoQueryService::index);
     }
 
+    @PostMapping("/preview")
+    public Mono<ApiResponse> preview() {
+        return ApiResponse.ok(genTableInfoQueryService.preview());
+    }
+
     @DeleteMapping("/wipe")
     public Mono<ApiResponse> wipe() {
         return ApiResponse.ok(genTableInfoCommandService.wipe());
