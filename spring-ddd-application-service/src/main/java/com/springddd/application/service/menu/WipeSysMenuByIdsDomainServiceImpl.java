@@ -105,3 +105,4 @@ public class WipeSysMenuByIdsDomainServiceImpl implements WipeSysMenuByIdsDomain
 
 
 
+
