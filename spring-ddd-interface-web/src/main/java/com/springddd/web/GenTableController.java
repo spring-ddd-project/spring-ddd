@@ -5,6 +5,8 @@ import com.springddd.application.service.gen.GenTableInfoQueryService;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -26,6 +28,11 @@ public class GenTableController {
     @PostMapping("/preview")
     public Mono<ApiResponse> preview() {
         return ApiResponse.ok(genTableInfoQueryService.preview());
+    }
+
+    @PostMapping("/download")
+    public Mono<ResponseEntity<Resource>> download() {
+        return genTableInfoCommandService.download();
     }
 
     @DeleteMapping("/wipe")
