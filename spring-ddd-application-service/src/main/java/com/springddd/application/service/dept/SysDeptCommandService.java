@@ -23,7 +23,7 @@ public class SysDeptCommandService {
     private final RestoreSysDeptByIdDomainService restoreSysDeptByIdDomainService;
 
     public Mono<Long> create(SysDeptCommand command) {
-        DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(command.getDeptName()));
+        DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
         DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
 
         SysDeptDomain sysDeptDomain = sysDeptDomainFactory.newInstance(new DeptId(command.getParentId()), basicInfo, extendInfo);
@@ -34,7 +34,7 @@ public class SysDeptCommandService {
 
     public Mono<Void> update(SysDeptCommand command) {
         return sysDeptDomainRepository.load(new DeptId(command.getId())).flatMap(domain -> {
-            DeptBasicInfo basicInfo = new DeptBasicInfo(new DeptName(command.getDeptName()));
+            DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
             DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
 
             domain.update(new DeptId(command.getParentId()), basicInfo, extendInfo);
