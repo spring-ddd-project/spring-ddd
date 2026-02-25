@@ -1,6 +1,5 @@
 package com.springddd.domain.auth;
 
-import com.springddd.domain.menu.MenuPermission;
 import com.springddd.domain.role.RoleCode;
 
 import java.util.List;
@@ -13,7 +12,7 @@ public class SecurityUtils {
 
     private static List<RoleCode> roles;
 
-    private static List<MenuPermission> permissions;
+    private static List<String> permissions;
 
     private static List<Long> menuIds;
 
@@ -37,7 +36,7 @@ public class SecurityUtils {
         SecurityUtils.roles = roles;
     }
 
-    public static void setPermissions(List<MenuPermission> permissions) {
+    public static void setPermissions(List<String> permissions) {
         SecurityUtils.permissions = permissions;
     }
 
@@ -57,7 +56,7 @@ public class SecurityUtils {
         return SecurityUtils.roles;
     }
 
-    public static List<MenuPermission> getPermissions() {
+    public static List<String> getPermissions() {
         return SecurityUtils.permissions;
     }
 
