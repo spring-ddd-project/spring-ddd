@@ -36,6 +36,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final List<ProjectTreeView> treeList = new ArrayList<>();
 
+    private String projectName = "spring-ddd";
+
     @Override
     public Mono<Void> generate(String tableName) {
         return genTableInfoQueryService.buildData(tableName)
@@ -55,7 +57,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      * projectName-application-infrastructure.persistence/packageName/infrastructure/persistence/entity/ClassNameEntity.java
      */
     private String generateFilePath(String templateName, Map<String, Object> context) {
-        String projectName = (String) context.get("projectName");
+        projectName = (String) context.get("projectName");
         String moduleName = (String) context.get("moduleName");
         String packageName = (String) context.get("packageName");
         String className = (String) context.get("className");
@@ -148,6 +150,11 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + moduleName + "/"
                     + requestName + "/dto/"
                     + className + "PageQuery.java";
+            case "factoryImpl" -> projectName + "-application-service/"
+                    + packagePath + "/service/"
+                    + moduleName + "/"
+                    + requestName + "/"
+                    + className + "DomainFactoryImpl.java";
             case "deleteDomainImpl" -> projectName + "-application-service/"
                     + packagePath + "/service/"
                     + moduleName + "/"
@@ -178,9 +185,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "controller" -> projectName + "-application-web/"
                     + className + "Controller.java";
 
-            // sql
-            case "sql" -> className + "SQL.sql";
-
             // vue
             case "index.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
@@ -203,7 +207,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
                     + requestName + ".json";
 
-            case "index.ts" -> "apps/web-ele/TODO.txt";
+            // readme
+            case "sql" -> "SQL.sql";
+            case "readme.txt" -> "readme.txt";
 
             default -> className + ".txt";
         };
@@ -211,9 +217,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private Mono<Void> saveGeneratedFile(String filePath, String content) {
         // Find or create the root node for both cases
-        ProjectTreeView applicationRoot = findOrCreateRootNode("Application Root");
-        ProjectTreeView appsRoot = findOrCreateRootNode("Apps Root");
-        ProjectTreeView otherRoot = findOrCreateRootNode("Other Root");
+        ProjectTreeView applicationRoot = findOrCreateRootNode(projectName);
+        ProjectTreeView appsRoot = findOrCreateRootNode(projectName + "-ui");
+        ProjectTreeView otherRoot = findOrCreateRootNode("README");
 
         // Depending on the file path, process under the correct root
         if (filePath.contains("-application-infrastructure/persistence/") ||
