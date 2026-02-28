@@ -185,9 +185,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "controller" -> projectName + "-application-web/"
                     + className + "Controller.java";
 
-            // sql
-            case "sql" -> className + "SQL.sql";
-
             // vue
             case "index.vue" -> "apps/web-ele/src/views/"
                     + moduleName + "/"
@@ -210,7 +207,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "i18n.locale.json" -> "apps/web-ele/src/locales/langs/zh-CN/"
                     + requestName + ".json";
 
-            case "index.ts" -> "apps/web-ele/TODO.txt";
+            // readme
+            case "sql" -> "SQL.sql";
+            case "readme.txt" -> "readme.txt";
 
             default -> className + ".txt";
         };
