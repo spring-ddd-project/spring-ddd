@@ -35,3 +35,4 @@ public class DeptStatusNullException extends DomainException {
 
 
 
+
