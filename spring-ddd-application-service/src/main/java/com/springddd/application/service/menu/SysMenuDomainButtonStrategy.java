@@ -23,7 +23,6 @@ public class SysMenuDomainButtonStrategy implements SysMenuDomainStrategy {
                 null,
                 null,
                 menuBasicInfo.api(),
-                null,
                 menuBasicInfo.menuPermission());
         domain.setMenuBasicInfo(basicInfo);
 
