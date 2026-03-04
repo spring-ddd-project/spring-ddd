@@ -27,6 +27,7 @@ public class SysMenuCommandService {
     public Mono<Long> create(SysMenuCommand command) {
         MenuBasicInfo menuBasicInfo = new MenuBasicInfo(command.getName(), command.getPath(), command.getComponent(), command.getApi(), command.getPermission());
         Catalog catalog = new Catalog(command.getRedirect());
+        Menu menu = new Menu(command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
                 command.getTitle(),
