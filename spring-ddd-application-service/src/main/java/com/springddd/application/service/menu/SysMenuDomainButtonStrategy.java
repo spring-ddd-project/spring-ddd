@@ -1,9 +1,6 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.domain.menu.MenuBasicInfo;
-import com.springddd.domain.menu.MenuExtendInfo;
-import com.springddd.domain.menu.SysMenuDomain;
-import com.springddd.domain.menu.SysMenuDomainStrategy;
+import com.springddd.domain.menu.*;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,16 +12,11 @@ public class SysMenuDomainButtonStrategy implements SysMenuDomainStrategy {
     }
 
     @Override
-    public SysMenuDomain handle(MenuBasicInfo menuBasicInfo, MenuExtendInfo menuExtendInfo) {
+    public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
 
-        MenuBasicInfo basicInfo = new MenuBasicInfo(
-                menuBasicInfo.menuName(),
-                null,
-                null,
-                menuBasicInfo.api(),
-                menuBasicInfo.menuPermission());
-        domain.setMenuBasicInfo(basicInfo);
+        Button bu = new Button(button.api(), button.permission());
+        domain.setButton(bu);
 
         MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.menuType(), menuExtendInfo.menuStatus());
         domain.setMenuExtendInfo(extendInfo);
