@@ -15,7 +15,7 @@ public class SysMenuDomainButtonStrategy implements SysMenuDomainStrategy {
     public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
 
-        Button bu = new Button(button.api(), button.permission());
+        Button bu = new Button(button.permission());
         domain.setButton(bu);
 
         MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.menuType(), menuExtendInfo.menuStatus());
