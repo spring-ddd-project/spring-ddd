@@ -38,3 +38,4 @@ public class RoleDataScopeNullException extends DomainException {
 
 
 
+
