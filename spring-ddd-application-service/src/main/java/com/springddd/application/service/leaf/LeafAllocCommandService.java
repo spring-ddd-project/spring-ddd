@@ -24,6 +24,8 @@ public class LeafAllocCommandService {
 
     private final UpdateLeafAllocMaxIdByTagDomainService updateLeafAllocMaxIdByTagDomainService;
 
+    private final UpdateLeafAllocMaxIdByCustomStepDomainService updateLeafAllocMaxIdByCustomStepDomainService;
+
     public Mono<Long> create(LeafAllocCommand command) {
         LeafProp leafProp = new LeafProp(command.getBizTag(), command.getStep(), command.getMaxId());
         ExtendInfo extendInfo = new ExtendInfo(command.getDescription());
@@ -58,5 +60,11 @@ public class LeafAllocCommandService {
 
     public Mono<Void> updateMaxId(LeafAllocCommand command) {
         return updateLeafAllocMaxIdByTagDomainService.updateMaxIdByTag(command.getBizTag());
+    }
+
+    public Mono<Void> updateMaxIdByCustomStep(LeafAllocCommand command) {
+        LeafProp leafProp = new LeafProp(command.getBizTag(), command.getStep(), command.getMaxId());
+        LeafAllocDomain domain = leafAllocDomainFactory.newInstance(leafProp, null);
+        return updateLeafAllocMaxIdByCustomStepDomainService.updateMaxIdByCustomStep(domain);
     }
 }
