@@ -1,25 +1,62 @@
 package com.springddd.application.service.leaf.dto;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicLong;
 
-public record SegmentCommand(SegmentBufferCommand buffer, AtomicLong value, long max, int step) {
+public class SegmentCommand implements Serializable {
+
+    private AtomicLong value = new AtomicLong(0);
+    private volatile long max;
+    private volatile int step;
+    private SegmentBufferCommand buffer;
 
     public SegmentCommand(SegmentBufferCommand buffer) {
-        this(buffer, new AtomicLong(0), 0L, 0);
+        this.buffer = buffer;
     }
 
-    public SegmentCommand() {
-
+    public AtomicLong getValue() {
+        return value;
     }
 
-    // Getter for idle computation
+    public void setValue(AtomicLong value) {
+        this.value = value;
+    }
+
+    public long getMax() {
+        return max;
+    }
+
+    public void setMax(long max) {
+        this.max = max;
+    }
+
+    public int getStep() {
+        return step;
+    }
+
+    public void setStep(int step) {
+        this.step = step;
+    }
+
+    public SegmentBufferCommand getBuffer() {
+        return buffer;
+    }
+
     public long getIdle() {
-        return max - value.get();
+        return this.getMax() - getValue().get();
     }
 
     @Override
     public String toString() {
-        return String.format("Segment(value=%s, max=%d, step=%d)", value, max, step);
+        StringBuilder sb = new StringBuilder("Segment(");
+        sb.append("value:");
+        sb.append(value);
+        sb.append(",max:");
+        sb.append(max);
+        sb.append(",step:");
+        sb.append(step);
+        sb.append(")");
+        return sb.toString();
     }
 }
 
