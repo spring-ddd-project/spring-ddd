@@ -4,7 +4,6 @@ import com.springddd.application.service.gen.dto.GenAggregateView;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.gen.CodeFormatter;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -37,7 +36,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ReactiveRedisCacheHelper cacheHelper;
 
-    private final List<CodeFormatter> codeFormatters;
 
     @Override
     public Mono<Void> generate(String tableName) {
@@ -48,10 +46,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                             .flatMapMany(Flux::fromIterable)
                             .flatMap(template -> renderTemplate(template.getTemplateName(),
                                     template.getTemplateContent(), context)
-                                    .flatMap(renderedCode -> {
+                                    .map(renderedCode -> {
                                         String filePath = generateFilePath(template.getTemplateName(), context, projectName);
-                                        return formatCode(filePath, renderedCode)
-                                                .map(formatted -> new GeneratedFile(filePath, formatted));
+                                        return new GeneratedFile(filePath, renderedCode);
                                     }))
                             .collectList()
                             .flatMap(generatedFiles -> {
@@ -64,13 +61,6 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private record GeneratedFile(String filePath, String content) {}
-    private Mono<String> formatCode(String filePath, String content) {
-        Mono<String> result = Mono.just(content);
-        for (CodeFormatter formatter : codeFormatters) {
-            result = result.flatMap(c -> formatter.format(filePath, c));
-        }
-        return result;
-    }
 
     /**
      * build location
