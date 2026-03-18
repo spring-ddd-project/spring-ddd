@@ -16,3 +16,6 @@ spring:
 jwt:
   secret: 'r)],&w1%g$26idpK7@.UmZ-=SXwy_Hkb-hf~3ebr,2QHI8YEIbg3_&tMW8UwzQ1f'
   ttl: 7
+
+gen:
+  ui-project-path: 'absolute path to the spring-ddd-ui frontend project'

@@ -4,6 +4,7 @@ import com.springddd.application.service.gen.dto.GenAggregateView;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.gen.CodeFormatter;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -11,8 +12,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -20,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Component
 @RequiredArgsConstructor
@@ -35,6 +37,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ReactiveRedisCacheHelper cacheHelper;
 
+    private final List<CodeFormatter> codeFormatters;
+
     private final List<ProjectTreeView> treeList = new ArrayList<>();
 
     private String projectName = "spring-ddd";
@@ -45,12 +49,26 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                 .doOnNext(c -> treeList.clear())
                 .flatMap(context -> templateQueryService.queryAllTemplate()
                         .flatMapMany(Flux::fromIterable)
-                        .flatMap(template -> renderTemplate(template.getTemplateName(), template.getTemplateContent(), context)
+                        .flatMap(template -> renderTemplate(template.getTemplateName(),
+                                template.getTemplateContent(), context)
                                 .flatMap(renderedCode -> {
-                                    String filePath = generateFilePath(template.getTemplateName(), context);
-                                    return saveGeneratedFile(filePath, renderedCode);
+                                    String filePath = generateFilePath(
+                                            template.getTemplateName(),
+                                            context);
+                                    return formatCode(filePath, renderedCode)
+                                            .flatMap(formatted -> saveGeneratedFile(
+                                                    filePath,
+                                                    formatted));
                                 }))
                         .then());
+    }
+
+    private Mono<String> formatCode(String filePath, String content) {
+        Mono<String> result = Mono.just(content);
+        for (CodeFormatter formatter : codeFormatters) {
+            result = result.flatMap(c -> formatter.format(filePath, c));
+        }
+        return result;
     }
 
     /**
@@ -84,15 +102,24 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             case "aggregateRoot" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + aggregateViews.stream().filter(q -> q.getObjectType() == 1 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
+                    + aggregateViews.stream()
+                    .filter(q -> q.getObjectType() == 1 && q.getHasCreated())
+                    .map(GenAggregateView::getObjectName).toList().getFirst()
+                    + ".java";
             case "objectValue" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + aggregateViews.stream().filter(q -> q.getObjectType() == 2 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
+                    + aggregateViews.stream()
+                    .filter(q -> q.getObjectType() == 2 && q.getHasCreated())
+                    .map(GenAggregateView::getObjectName).toList().getFirst()
+                    + ".java";
             case "extendInfo" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
-                    + aggregateViews.stream().filter(q -> q.getObjectType() == 3 && q.getHasCreated()).map(GenAggregateView::getObjectName).toList().getFirst() + ".java";
+                    + aggregateViews.stream()
+                    .filter(q -> q.getObjectType() == 3 && q.getHasCreated())
+                    .map(GenAggregateView::getObjectName).toList().getFirst()
+                    + ".java";
             case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
@@ -125,7 +152,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + className + "Command.java";
             case "query" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
-                    + moduleName +"/dto/"
+                    + moduleName + "/dto/"
                     + className + "Query.java";
             case "view" -> projectName + "-application-service/" + srcPath
                     + packagePath + "/application/service/"
@@ -243,7 +270,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             root = updatedRoot;
         }
 
-        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
+                CacheKeys.GEN_FILES.ttl()).then();
     }
 
     private Mono<Void> processOtherPaths(String filePath, String content, ProjectTreeView root) {
@@ -261,12 +289,14 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
             treeList.add(tree);
         }
 
-        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList, CacheKeys.GEN_FILES.ttl()).then();
+        return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
+                CacheKeys.GEN_FILES.ttl()).then();
     }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
         try {
-            Template template = new Template(templateName, new StringReader(templateContent), configuration);
+            Template template = new Template(templateName, new StringReader(templateContent),
+                    configuration);
             StringWriter out = new StringWriter();
             template.process(dataModel, out);
             return Mono.just(out.toString());
