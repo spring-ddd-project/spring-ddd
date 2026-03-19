@@ -1,5 +1,6 @@
 package com.springddd.application.service.role.dto;
 
+import com.springddd.domain.role.DataPermission;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -22,6 +23,8 @@ public class SysRoleCommand implements Serializable {
     private Boolean ownerStatus;
 
     private Long deptId;
+
+    private DataPermission dataPermission;
 
     private Boolean deleteStatus;
 
