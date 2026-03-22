@@ -1,6 +1,6 @@
-package com.springddd.application.service.gen;
+package com.springddd.application.service.user;
 
-import com.springddd.application.service.gen.dto.*;
+import com.springddd.application.service.user.dto.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -8,16 +8,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
-class GenTemplateQueryServiceTest {
+class SysUserRoleQueryServiceTest {
 
     @Test
     void service_shouldBeCreated_withDependencies() {
-        GenTemplateQueryService service = new GenTemplateQueryService(null, null);
+        SysUserRoleQueryService service = new SysUserRoleQueryService(null, null);
         assertNotNull(service);
     }
 
     @Test
     void service_shouldNotBeNull() {
-        assertNotNull(new GenTemplateQueryService(null, null));
+        assertNotNull(new SysUserRoleQueryService(null, null));
     }
 }
