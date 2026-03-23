@@ -183,7 +183,8 @@ class ApiResponseTest {
                 .assertNext(response -> {
                     assertEquals(0, response.getCode());
                     assertEquals("Success", response.getMessage());
-                    assertNull(response.getData());
+                    // flux.collectList() returns an empty list [], not null
+                    assertNotNull(response.getData());
                 })
                 .verifyComplete();
     }

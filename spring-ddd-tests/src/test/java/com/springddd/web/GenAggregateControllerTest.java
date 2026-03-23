@@ -44,7 +44,7 @@ class GenAggregateControllerTest {
         webTestClient.post()
                 .uri("/gen/aggregate/index")
                 .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"infoId\":1}")
+                .bodyValue("{\"infoId\":1,\"pageNum\":1,\"pageSize\":10}")
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
