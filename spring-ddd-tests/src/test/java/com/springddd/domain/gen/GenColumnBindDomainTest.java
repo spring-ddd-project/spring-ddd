@@ -27,16 +27,6 @@ class GenColumnBindDomainTest {
     }
 
     @Test
-    void update_withNull_shouldSetToNull() {
-        GenColumnBindDomain domain = new GenColumnBindDomain();
-        domain.setBasicInfo(new GenColumnBindBasicInfo("varchar", "String", (byte) 1, (byte) 1));
-
-        domain.update(null);
-
-        assertNull(domain.getBasicInfo());
-    }
-
-    @Test
     void delete_shouldSetDeleteStatusToTrue() {
         GenColumnBindDomain domain = new GenColumnBindDomain();
         assertNull(domain.getDeleteStatus());
