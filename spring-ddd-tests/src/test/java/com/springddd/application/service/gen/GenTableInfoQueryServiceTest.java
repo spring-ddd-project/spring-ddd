@@ -1,10 +1,7 @@
 package com.springddd.application.service.gen;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springddd.application.service.gen.dto.GenColumnsView;
-import com.springddd.application.service.gen.dto.GenProjectInfoView;
-import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
-import com.springddd.application.service.gen.dto.ProjectTreeView;
+import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -12,10 +9,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -29,6 +26,9 @@ import static org.mockito.Mockito.*;
 class GenTableInfoQueryServiceTest {
 
     @Mock
+    private DatabaseClient databaseClient;
+
+    @Mock
     private GenProjectInfoQueryService projectInfoQueryService;
 
     @Mock
@@ -40,17 +40,24 @@ class GenTableInfoQueryServiceTest {
     @Mock
     private ReactiveRedisCacheHelper cacheHelper;
 
-    @Mock
-    private ObjectMapper objectMapper;
-
-    @InjectMocks
     private GenTableInfoQueryService genTableInfoQueryService;
 
+    private ObjectMapper objectMapper;
     private GenTableInfoPageQuery pageQuery;
     private MockedStatic<SecurityUtils> securityUtilsMockedStatic;
 
     @BeforeEach
     void setUp() {
+        objectMapper = new ObjectMapper();
+        genTableInfoQueryService = new GenTableInfoQueryService(
+                databaseClient,
+                projectInfoQueryService,
+                columnsQueryService,
+                aggregateQueryService,
+                cacheHelper,
+                objectMapper
+        );
+
         pageQuery = new GenTableInfoPageQuery();
         pageQuery.setDatabaseName("test_db");
         pageQuery.setPageNum(1);
@@ -74,19 +81,35 @@ class GenTableInfoQueryServiceTest {
     }
 
     @Test
+    void index_withEmptyDatabaseName_shouldReturnEmpty() {
+        pageQuery.setDatabaseName("");
+
+        StepVerifier.create(genTableInfoQueryService.index(pageQuery))
+                .verifyComplete();
+    }
+
+    @Test
     void preview_shouldReturnCachedTreeView() throws Exception {
-        List<ProjectTreeView> treeViews = Arrays.asList(new ProjectTreeView());
+        List<ProjectTreeView> treeViews = new ArrayList<>();
+        treeViews.add(new ProjectTreeView());
 
         when(cacheHelper.getCache(eq(CacheKeys.GEN_FILES.buildKey(1L)), eq(List.class)))
-                .thenReturn(Mono.just(treeViews));
-        when(objectMapper.convertValue(any(), any(com.fasterxml.jackson.core.type.TypeReference.class)))
-                .thenReturn(treeViews);
+                .thenReturn(Mono.just((List) treeViews));
 
         StepVerifier.create(genTableInfoQueryService.preview())
                 .assertNext(response -> {
                     assertNotNull(response);
                     assertEquals(1, response.size());
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    void preview_withEmptyCache_shouldReturnEmpty() {
+        when(cacheHelper.getCache(eq(CacheKeys.GEN_FILES.buildKey(1L)), eq(List.class)))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(genTableInfoQueryService.preview())
                 .verifyComplete();
     }
 }
