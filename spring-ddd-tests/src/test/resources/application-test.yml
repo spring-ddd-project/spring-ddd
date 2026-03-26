@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: spring-ddd-test
+  r2dbc:
+    url: r2dbc:h2:mem:///testdb;DB_CLOSE_DELAY=-1;MODE=MySQL
+    driver: h2
+    username: sa
+    password:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema-h2.sql
+
+logging:
+  level:
+    com.springddd: DEBUG
+    org.springframework.r2dbc: DEBUG
+    reactor.netty: WARN
+
+jacoco:
+  test:
+    ignore:
+      failures: true
