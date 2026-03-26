@@ -184,6 +184,7 @@ class SysRoleCommandServiceTest {
         updateCommand.setRoleCode("NEW_CODE");
         updateCommand.setDataScope(1);
         updateCommand.setOwnerStatus(true);
+        updateCommand.setRoleStatus(true);
 
         when(sysRoleDomainRepository.load(any(RoleId.class))).thenReturn(Mono.just(mockDomain));
         when(sysRoleDomainRepository.save(any(SysRoleDomain.class))).thenReturn(Mono.just(1L));

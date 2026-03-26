@@ -1,5 +1,6 @@
 package com.springddd.domain.role;
 
+import com.springddd.domain.role.exception.RoleStatusNullException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,23 +28,19 @@ class RoleExtendInfoTest {
     }
 
     @Test
-    void constructor_WithNullRoleStatus_ShouldCreateSuccessfully() {
-        // When
-        RoleExtendInfo info = new RoleExtendInfo("Administrator role", null);
-
-        // Then
-        assertEquals("Administrator role", info.roleDesc());
-        assertNull(info.roleStatus());
+    void constructor_WithNullRoleStatus_ShouldThrowException() {
+        // When/Then
+        assertThrows(RoleStatusNullException.class, () -> {
+            new RoleExtendInfo("Administrator role", null);
+        });
     }
 
     @Test
-    void constructor_WithBothNull_ShouldCreateSuccessfully() {
-        // When
-        RoleExtendInfo info = new RoleExtendInfo(null, null);
-
-        // Then
-        assertNull(info.roleDesc());
-        assertNull(info.roleStatus());
+    void constructor_WithBothNull_ShouldThrowException() {
+        // When/Then
+        assertThrows(RoleStatusNullException.class, () -> {
+            new RoleExtendInfo(null, null);
+        });
     }
 
     @Test
