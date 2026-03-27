@@ -43,7 +43,7 @@ class SecurityUtilsTest {
         authUser.setAvatar("avatar.png");
         authUser.setEmail("test@example.com");
         authUser.setSex("M");
-        authUser.setLockStatus("0");
+        authUser.setLockStatus(false);
         authUser.setRoles(TEST_ROLES);
         authUser.setPermissions(TEST_PERMISSIONS);
         authUser.setMenuIds(TEST_MENU_IDS);

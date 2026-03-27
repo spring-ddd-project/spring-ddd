@@ -43,6 +43,7 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                     user.setUserId(new UserId(sysUserView.getId()));
                     user.setUsername(sysUserView.getUsername());
                     user.setPassword(sysUserView.getPassword());
+                    user.setLockStatus(sysUserView.getLockStatus());
 
                     return sysUserRoleQueryService.queryLinkUserAndRole(user.getUserId().value())
                             .flatMapMany(Flux::fromIterable)
