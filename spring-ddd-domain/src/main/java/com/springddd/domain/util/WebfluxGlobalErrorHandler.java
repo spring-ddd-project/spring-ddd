@@ -36,8 +36,8 @@ public class WebfluxGlobalErrorHandler implements ErrorWebExceptionHandler {
 
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
 
-        if (ex instanceof ResponseStatusException) {
-            status = (HttpStatus) ((ResponseStatusException) ex).getStatusCode();
+        if (ex instanceof ResponseStatusException rse) {
+            status = HttpStatus.resolve(rse.getStatusCode().value());
         } else if (ex instanceof AccessDeniedException) {
             status = HttpStatus.FORBIDDEN;
         } else if (ex instanceof org.springframework.security.core.AuthenticationException) {
@@ -46,13 +46,13 @@ public class WebfluxGlobalErrorHandler implements ErrorWebExceptionHandler {
 
         response.setStatusCode(status);
 
-        ApiResponse apiResponse = ApiResponse.error(status.value(), ex.getMessage());
+        ApiResponse apiResponse = ApiResponse.error(status != null ? status.value() : 500, ex.getMessage());
 
         byte[] bytes;
         try {
             bytes = objectMapper.writeValueAsBytes(apiResponse);
         } catch (JsonProcessingException e) {
-            String fallbackJson = "{\"code\":500,\"msg\":\"Failed to serialize error response\"}";
+            String fallbackJson = "{\"code\":500,\"message\":\"Failed to serialize error response\"}";
             bytes = fallbackJson.getBytes(StandardCharsets.UTF_8);
         }
 
