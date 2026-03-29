@@ -124,7 +124,7 @@ class ReactiveRedisCacheHelperTest {
     @Test
     @DisplayName("deleteCache() should delete matching keys")
     void deleteCache_DeletesMatchingKeys() {
-        when(redisTemplate.keys("deleteKey*")).thenReturn(Flux.just("deleteKey1", "deleteKey2"));
+        when(redisTemplate.scan()).thenReturn(Flux.just("deleteKey1", "deleteKey2", "otherKey"));
         when(redisTemplate.delete("deleteKey1")).thenReturn(Mono.just(1L));
         when(redisTemplate.delete("deleteKey2")).thenReturn(Mono.just(1L));
 
