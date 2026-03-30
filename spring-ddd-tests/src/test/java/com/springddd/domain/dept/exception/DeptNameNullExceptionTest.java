@@ -10,7 +10,7 @@ class DeptNameNullExceptionTest {
     void shouldCreateExceptionWithDefaultMessage() {
         DeptNameNullException exception = new DeptNameNullException();
         assertNotNull(exception);
-        assertEquals("Dept name cannot be null", exception.getMessage());
+        assertEquals("error.dept.name.null", exception.getMessage());
     }
 
     @Test

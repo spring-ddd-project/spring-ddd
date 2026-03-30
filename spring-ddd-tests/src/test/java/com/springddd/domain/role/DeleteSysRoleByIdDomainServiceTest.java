@@ -1,5 +1,6 @@
 package com.springddd.domain.role;
 
+import com.springddd.application.service.role.DeleteSysRoleByIdDomainServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,7 +21,7 @@ class DeleteSysRoleByIdDomainServiceTest {
     private SysRoleDomainRepository repository;
 
     @InjectMocks
-    private DeleteSysRoleByIdDomainService domainService;
+    private DeleteSysRoleByIdDomainServiceImpl domainService;
 
     @Test
     void deleteByIds_shouldDeleteEntities() {

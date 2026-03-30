@@ -47,6 +47,6 @@ class MenuIdTest {
     @Test
     void toString_shouldReturnValueAsString() {
         MenuId menuId = new MenuId(123L);
-        assertEquals("123", menuId.toString());
+        assertEquals("MenuId[value=123]", menuId.toString());
     }
 }

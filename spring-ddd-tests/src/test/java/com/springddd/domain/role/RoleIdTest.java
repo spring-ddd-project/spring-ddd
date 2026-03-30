@@ -47,6 +47,6 @@ class RoleIdTest {
     @Test
     void toString_shouldReturnValueAsString() {
         RoleId roleId = new RoleId(123L);
-        assertEquals("123", roleId.toString());
+        assertEquals("RoleId[value=123]", roleId.toString());
     }
 }

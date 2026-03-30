@@ -46,6 +46,6 @@ class DeptBasicInfoTest {
     @Test
     void toString_shouldReturnName() {
         DeptBasicInfo info = new DeptBasicInfo("测试部门");
-        assertEquals("测试部门", info.toString());
+        assertEquals("DeptBasicInfo[deptName=测试部门]", info.toString());
     }
 }
