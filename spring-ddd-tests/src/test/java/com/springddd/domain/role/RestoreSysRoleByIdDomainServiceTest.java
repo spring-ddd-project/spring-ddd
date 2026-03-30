@@ -20,7 +20,7 @@ class RestoreSysRoleByIdDomainServiceTest {
     private SysRoleDomainRepository repository;
 
     @InjectMocks
-    private RestoreSysRoleByIdDomainServiceImpl domainService;
+    private RestoreSysRoleByIdDomainService domainService;
 
     @Test
     void restoreByIds_shouldRestoreEntities() {
