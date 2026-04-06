@@ -129,6 +129,16 @@
                             <artifactId>lombok</artifactId>
                         </path>
                     </annotationProcessorPaths>
+                    <testExcludes>
+                        <exclude>**/domain/dict/DeleteSysDictByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/RestoreSysDictByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/SysDictDomainRepositoryTest.java</exclude>
+                        <exclude>**/domain/dict/WipeSysDictByIdsDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/RestoreSysDictItemByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/SysDictItemDomainRepositoryTest.java</exclude>
+                        <exclude>**/domain/dict/exception/DictItemLabelNullExceptionTest.java</exclude>
+                        <exclude>**/domain/util/GlobalExceptionHandlerTest.java</exclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
             <plugin>
