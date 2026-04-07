@@ -6,22 +6,34 @@ import static org.junit.jupiter.api.Assertions.*;
 class MenuIdTest {
 
     @Test
-    void shouldCreateMenuIdWithValue() {
-        Long expectedValue = 1L;
-        MenuId menuId = new MenuId(expectedValue);
-        assertEquals(expectedValue, menuId.value());
+    void shouldCreateMenuIdWithValidValue() {
+        MenuId menuId = new MenuId(1L);
+        assertEquals(1L, menuId.value());
     }
 
     @Test
-    void shouldReturnValueFromLongWrapper() {
-        Long value = 123L;
-        MenuId menuId = new MenuId(value);
-        assertEquals(123L, menuId.value());
+    void shouldCreateMenuIdWithZero() {
+        MenuId menuId = new MenuId(0L);
+        assertEquals(0L, menuId.value());
     }
 
     @Test
-    void shouldHandleNullValue() {
-        MenuId menuId = new MenuId(null);
-        assertNull(menuId.value());
+    void equals_shouldWorkForSameValue() {
+        MenuId id1 = new MenuId(1L);
+        MenuId id2 = new MenuId(1L);
+        assertEquals(id1, id2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        MenuId id1 = new MenuId(1L);
+        MenuId id2 = new MenuId(2L);
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        MenuId menuId = new MenuId(123L);
+        assertEquals("MenuId[value=123]", menuId.toString());
     }
 }

@@ -1,77 +1,76 @@
 package com.springddd.domain.role;
 
 import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ColumnPermissionTest {
 
     @Test
-    void constructor_WithValidParams_ShouldCreateSuccessfully() {
-        // Given
-        String entityCode = "sys_user";
-        String entityName = "System User";
+    void shouldCreateWithValidValues() {
         List<String> columns = Arrays.asList("id", "name", "email");
 
-        // When
-        ColumnPermission permission = new ColumnPermission(entityCode, entityName, columns);
+        ColumnPermission permission = new ColumnPermission("user", "用户", columns);
 
-        // Then
-        assertEquals(entityCode, permission.entityCode());
-        assertEquals(entityName, permission.entityName());
+        assertEquals("user", permission.entityCode());
+        assertEquals("用户", permission.entityName());
         assertEquals(columns, permission.columns());
     }
 
     @Test
-    void constructor_WithNullColumns_ShouldCreateSuccessfully() {
-        // Given
-        String entityCode = "sys_user";
-        String entityName = "System User";
-
-        // When
-        ColumnPermission permission = new ColumnPermission(entityCode, entityName, null);
-
-        // Then
-        assertEquals(entityCode, permission.entityCode());
-        assertEquals(entityName, permission.entityName());
+    void shouldCreateWithNullColumns() {
+        ColumnPermission permission = new ColumnPermission("user", "用户", null);
         assertNull(permission.columns());
     }
 
     @Test
-    void equals_ShouldWorkCorrectly() {
-        // Given
-        ColumnPermission permission1 = new ColumnPermission("sys_user", "System User", Arrays.asList("id", "name"));
-        ColumnPermission permission2 = new ColumnPermission("sys_user", "System User", Arrays.asList("id", "name"));
-        ColumnPermission permission3 = new ColumnPermission("sys_role", "System Role", Arrays.asList("id", "name"));
-
-        // Then
-        assertEquals(permission1, permission2);
-        assertNotEquals(permission1, permission3);
+    void shouldCreateWithEmptyColumns() {
+        ColumnPermission permission = new ColumnPermission("user", "用户", Arrays.asList());
+        assertNotNull(permission.columns());
+        assertTrue(permission.columns().isEmpty());
     }
 
     @Test
-    void hashCode_ShouldBeConsistent() {
-        // Given
-        ColumnPermission permission1 = new ColumnPermission("sys_user", "System User", Arrays.asList("id", "name"));
-        ColumnPermission permission2 = new ColumnPermission("sys_user", "System User", Arrays.asList("id", "name"));
-
-        // Then
-        assertEquals(permission1.hashCode(), permission2.hashCode());
+    void equals_shouldWorkForSameValues() {
+        ColumnPermission cp1 = new ColumnPermission("user", "用户", Arrays.asList("id", "name"));
+        ColumnPermission cp2 = new ColumnPermission("user", "用户", Arrays.asList("id", "name"));
+        assertEquals(cp1, cp2);
     }
 
     @Test
-    void toString_ShouldReturnCorrectFormat() {
-        // Given
-        ColumnPermission permission = new ColumnPermission("sys_user", "System User", Arrays.asList("id", "name"));
+    void equals_shouldFailForDifferentEntityCode() {
+        ColumnPermission cp1 = new ColumnPermission("user1", "用户", Arrays.asList("id"));
+        ColumnPermission cp2 = new ColumnPermission("user2", "用户", Arrays.asList("id"));
+        assertNotEquals(cp1, cp2);
+    }
 
-        // When
-        String result = permission.toString();
+    @Test
+    void equals_shouldFailForDifferentEntityName() {
+        ColumnPermission cp1 = new ColumnPermission("user", "用户1", Arrays.asList("id"));
+        ColumnPermission cp2 = new ColumnPermission("user", "用户2", Arrays.asList("id"));
+        assertNotEquals(cp1, cp2);
+    }
 
-        // Then
-        assertTrue(result.contains("sys_user"));
-        assertTrue(result.contains("System User"));
+    @Test
+    void equals_shouldFailForDifferentColumns() {
+        ColumnPermission cp1 = new ColumnPermission("user", "用户", Arrays.asList("id"));
+        ColumnPermission cp2 = new ColumnPermission("user", "用户", Arrays.asList("name"));
+        assertNotEquals(cp1, cp2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        ColumnPermission cp1 = new ColumnPermission("user", "用户", Arrays.asList("id"));
+        ColumnPermission cp2 = new ColumnPermission("user", "用户", Arrays.asList("id"));
+        assertEquals(cp1.hashCode(), cp2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        ColumnPermission permission = new ColumnPermission("test_entity", "测试", Arrays.asList("c1"));
+        String str = permission.toString();
+        assertTrue(str.contains("test_entity"));
+        assertTrue(str.contains("测试"));
     }
 }

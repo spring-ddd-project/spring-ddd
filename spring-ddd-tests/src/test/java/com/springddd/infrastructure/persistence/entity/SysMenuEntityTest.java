@@ -1,168 +1,225 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@DisplayName("SysMenuEntity Tests")
 class SysMenuEntityTest {
 
     @Test
-    @DisplayName("should create instance with default constructor")
-    void create_WithDefaultConstructor_Success() {
+    void shouldCreateSysMenuEntityWithDefaultConstructor() {
         SysMenuEntity entity = new SysMenuEntity();
-        assertThat(entity).isNotNull();
+        assertNotNull(entity);
     }
 
     @Test
-    @DisplayName("should set and get all fields correctly")
-    void setterGetter_AllFields_Success() {
-        SysMenuEntity entity = new SysMenuEntity();
-
-        Long id = 1L;
-        Long parentId = 0L;
-        String name = "Dashboard";
-        String path = "/dashboard";
-        String component = "Dashboard.vue";
-        String api = "/api/dashboard";
-        String redirect = "/";
-        String permission = "dashboard:view";
-        Integer sortOrder = 1;
-        String title = "Dashboard";
-        Boolean affixTab = true;
-        Boolean noBasicLayout = false;
-        String icon = "dashboard";
-        Integer menuType = 1;
-        Boolean visible = true;
-        Boolean embedded = false;
-        Boolean menuStatus = true;
-        Long deptId = 1L;
-        Boolean deleteStatus = false;
-        String createBy = "admin";
-        LocalDateTime createTime = LocalDateTime.now();
-        String updateBy = "admin";
-        LocalDateTime updateTime = LocalDateTime.now();
-        Integer version = 0;
-
-        entity.setId(id);
-        entity.setParentId(parentId);
-        entity.setName(name);
-        entity.setPath(path);
-        entity.setComponent(component);
-        entity.setApi(api);
-        entity.setRedirect(redirect);
-        entity.setPermission(permission);
-        entity.setSortOrder(sortOrder);
-        entity.setTitle(title);
-        entity.setAffixTab(affixTab);
-        entity.setNoBasicLayout(noBasicLayout);
-        entity.setIcon(icon);
-        entity.setMenuType(menuType);
-        entity.setVisible(visible);
-        entity.setEmbedded(embedded);
-        entity.setMenuStatus(menuStatus);
-        entity.setDeptId(deptId);
-        entity.setDeleteStatus(deleteStatus);
-        entity.setCreateBy(createBy);
-        entity.setCreateTime(createTime);
-        entity.setUpdateBy(updateBy);
-        entity.setUpdateTime(updateTime);
-        entity.setVersion(version);
-
-        assertThat(entity.getId()).isEqualTo(id);
-        assertThat(entity.getParentId()).isEqualTo(parentId);
-        assertThat(entity.getName()).isEqualTo(name);
-        assertThat(entity.getPath()).isEqualTo(path);
-        assertThat(entity.getComponent()).isEqualTo(component);
-        assertThat(entity.getApi()).isEqualTo(api);
-        assertThat(entity.getRedirect()).isEqualTo(redirect);
-        assertThat(entity.getPermission()).isEqualTo(permission);
-        assertThat(entity.getSortOrder()).isEqualTo(sortOrder);
-        assertThat(entity.getTitle()).isEqualTo(title);
-        assertThat(entity.getAffixTab()).isEqualTo(affixTab);
-        assertThat(entity.getNoBasicLayout()).isEqualTo(noBasicLayout);
-        assertThat(entity.getIcon()).isEqualTo(icon);
-        assertThat(entity.getMenuType()).isEqualTo(menuType);
-        assertThat(entity.getVisible()).isEqualTo(visible);
-        assertThat(entity.getEmbedded()).isEqualTo(embedded);
-        assertThat(entity.getMenuStatus()).isEqualTo(menuStatus);
-        assertThat(entity.getDeptId()).isEqualTo(deptId);
-        assertThat(entity.getDeleteStatus()).isEqualTo(deleteStatus);
-        assertThat(entity.getCreateBy()).isEqualTo(createBy);
-        assertThat(entity.getCreateTime()).isEqualTo(createTime);
-        assertThat(entity.getUpdateBy()).isEqualTo(updateBy);
-        assertThat(entity.getUpdateTime()).isEqualTo(updateTime);
-        assertThat(entity.getVersion()).isEqualTo(version);
-    }
-
-    @Test
-    @DisplayName("should handle null values for optional fields")
-    void setterGetter_NullValues_Success() {
-        SysMenuEntity entity = new SysMenuEntity();
-
-        entity.setId(null);
-        entity.setParentId(null);
-        entity.setName(null);
-        entity.setPath(null);
-        entity.setComponent(null);
-        entity.setApi(null);
-        entity.setRedirect(null);
-        entity.setPermission(null);
-        entity.setSortOrder(null);
-        entity.setTitle(null);
-        entity.setAffixTab(null);
-        entity.setNoBasicLayout(null);
-        entity.setIcon(null);
-        entity.setMenuType(null);
-        entity.setVisible(null);
-        entity.setEmbedded(null);
-        entity.setMenuStatus(null);
-        entity.setDeptId(null);
-        entity.setDeleteStatus(null);
-        entity.setCreateBy(null);
-        entity.setCreateTime(null);
-        entity.setUpdateBy(null);
-        entity.setUpdateTime(null);
-        entity.setVersion(null);
-
-        assertThat(entity.getId()).isNull();
-        assertThat(entity.getParentId()).isNull();
-        assertThat(entity.getName()).isNull();
-        assertThat(entity.getPath()).isNull();
-        assertThat(entity.getComponent()).isNull();
-        assertThat(entity.getApi()).isNull();
-        assertThat(entity.getRedirect()).isNull();
-        assertThat(entity.getPermission()).isNull();
-        assertThat(entity.getSortOrder()).isNull();
-        assertThat(entity.getTitle()).isNull();
-        assertThat(entity.getAffixTab()).isNull();
-        assertThat(entity.getNoBasicLayout()).isNull();
-        assertThat(entity.getIcon()).isNull();
-        assertThat(entity.getMenuType()).isNull();
-        assertThat(entity.getVisible()).isNull();
-        assertThat(entity.getEmbedded()).isNull();
-        assertThat(entity.getMenuStatus()).isNull();
-        assertThat(entity.getDeptId()).isNull();
-        assertThat(entity.getDeleteStatus()).isNull();
-        assertThat(entity.getCreateBy()).isNull();
-        assertThat(entity.getCreateTime()).isNull();
-        assertThat(entity.getUpdateBy()).isNull();
-        assertThat(entity.getUpdateTime()).isNull();
-        assertThat(entity.getVersion()).isNull();
-    }
-
-    @Test
-    @DisplayName("toString should contain all field values")
-    void toString_ShouldContainFieldValues() {
+    void shouldSetAndGetId() {
         SysMenuEntity entity = new SysMenuEntity();
         entity.setId(1L);
-        entity.setName("TestMenu");
+        assertEquals(1L, entity.getId());
+    }
 
+    @Test
+    void shouldSetAndGetParentId() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setParentId(0L);
+        assertEquals(0L, entity.getParentId());
+    }
+
+    @Test
+    void shouldSetAndGetName() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setName("菜单A");
+        assertEquals("菜单A", entity.getName());
+    }
+
+    @Test
+    void shouldSetAndGetPath() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setPath("/menu");
+        assertEquals("/menu", entity.getPath());
+    }
+
+    @Test
+    void shouldSetAndGetComponent() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setComponent("menu/index");
+        assertEquals("menu/index", entity.getComponent());
+    }
+
+    @Test
+    void shouldSetAndGetApi() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setApi("/api/menu");
+        assertEquals("/api/menu", entity.getApi());
+    }
+
+    @Test
+    void shouldSetAndGetRedirect() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setRedirect("/redirect");
+        assertEquals("/redirect", entity.getRedirect());
+    }
+
+    @Test
+    void shouldSetAndGetPermission() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setPermission("menu:view");
+        assertEquals("menu:view", entity.getPermission());
+    }
+
+    @Test
+    void shouldSetAndGetSortOrder() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setSortOrder(1);
+        assertEquals(1, entity.getSortOrder());
+    }
+
+    @Test
+    void shouldSetAndGetTitle() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setTitle("菜单标题");
+        assertEquals("菜单标题", entity.getTitle());
+    }
+
+    @Test
+    void shouldSetAndGetAffixTab() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setAffixTab(true);
+        assertTrue(entity.getAffixTab());
+    }
+
+    @Test
+    void shouldSetAndGetNoBasicLayout() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setNoBasicLayout(false);
+        assertFalse(entity.getNoBasicLayout());
+    }
+
+    @Test
+    void shouldSetAndGetIcon() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setIcon("icon-menu");
+        assertEquals("icon-menu", entity.getIcon());
+    }
+
+    @Test
+    void shouldSetAndGetMenuType() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setMenuType(1);
+        assertEquals(1, entity.getMenuType());
+    }
+
+    @Test
+    void shouldSetAndGetVisible() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setVisible(true);
+        assertTrue(entity.getVisible());
+    }
+
+    @Test
+    void shouldSetAndGetEmbedded() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setEmbedded(false);
+        assertFalse(entity.getEmbedded());
+    }
+
+    @Test
+    void shouldSetAndGetMenuStatus() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setMenuStatus(true);
+        assertTrue(entity.getMenuStatus());
+    }
+
+    @Test
+    void shouldSetAndGetDeptId() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setDeptId(100L);
+        assertEquals(100L, entity.getDeptId());
+    }
+
+    @Test
+    void shouldSetAndGetDeleteStatus() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setDeleteStatus(false);
+        assertFalse(entity.getDeleteStatus());
+    }
+
+    @Test
+    void shouldSetAndGetCreateBy() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setCreateBy("admin");
+        assertEquals("admin", entity.getCreateBy());
+    }
+
+    @Test
+    void shouldSetAndGetCreateTime() {
+        SysMenuEntity entity = new SysMenuEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setCreateTime(now);
+        assertEquals(now, entity.getCreateTime());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateBy() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setUpdateBy("admin");
+        assertEquals("admin", entity.getUpdateBy());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateTime() {
+        SysMenuEntity entity = new SysMenuEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setUpdateTime(now);
+        assertEquals(now, entity.getUpdateTime());
+    }
+
+    @Test
+    void shouldSetAndGetVersion() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setVersion(0);
+        assertEquals(0, entity.getVersion());
+    }
+
+    @Test
+    void equals_shouldWorkForSameInstance() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setId(1L);
+        assertEquals(entity, entity);
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        SysMenuEntity entity1 = new SysMenuEntity();
+        entity1.setId(1L);
+        entity1.setName("菜单A");
+
+        SysMenuEntity entity2 = new SysMenuEntity();
+        entity2.setId(1L);
+        entity2.setName("菜单A");
+
+        assertEquals(entity1, entity2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setId(1L);
+        entity.setName("菜单A");
+        int hash1 = entity.hashCode();
+        int hash2 = entity.hashCode();
+        assertEquals(hash1, hash2);
+    }
+
+    @Test
+    void toString_shouldContainFields() {
+        SysMenuEntity entity = new SysMenuEntity();
+        entity.setId(1L);
+        entity.setName("菜单A");
         String str = entity.toString();
-        assertThat(str).contains("1");
-        assertThat(str).contains("TestMenu");
+        assertTrue(str.contains("SysMenuEntity"));
+        assertTrue(str.contains("1"));
+        assertTrue(str.contains("菜单A"));
     }
 }

@@ -1,88 +1,63 @@
 package com.springddd.domain.user;
 
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExtendInfoTest {
 
     @Test
-    void defaultConstructor_ShouldCreateEmptyExtendInfo() {
-        // When
-        ExtendInfo extendInfo = new ExtendInfo();
-
-        // Then
-        assertNull(extendInfo.getAvatar());
-        assertNull(extendInfo.getSex());
+    void shouldCreateExtendInfoWithDefaultConstructor() {
+        ExtendInfo info = new ExtendInfo();
+        assertNull(info.getAvatar());
+        assertNull(info.getSex());
     }
 
     @Test
-    void setters_ShouldUpdateValues() {
-        // Given
-        ExtendInfo extendInfo = new ExtendInfo();
-
-        // When
-        extendInfo.setAvatar("avatar.png");
-        extendInfo.setSex(true);
-
-        // Then
-        assertEquals("avatar.png", extendInfo.getAvatar());
-        assertTrue(extendInfo.getSex());
+    void shouldSetAndGetAvatar() {
+        ExtendInfo info = new ExtendInfo();
+        info.setAvatar("avatar.png");
+        assertEquals("avatar.png", info.getAvatar());
     }
 
     @Test
-    void equals_ShouldWorkCorrectly() {
-        // Given
+    void shouldSetAndGetSex() {
+        ExtendInfo info = new ExtendInfo();
+        info.setSex(true);
+        assertTrue(info.getSex());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
         ExtendInfo info1 = new ExtendInfo();
-        ExtendInfo info2 = new ExtendInfo();
-        ExtendInfo info3 = new ExtendInfo();
-
         info1.setAvatar("avatar.png");
-        info2.setAvatar("avatar.png");
-        info3.setAvatar("other.png");
+        info1.setSex(true);
 
-        // Then
+        ExtendInfo info2 = new ExtendInfo();
+        info2.setAvatar("avatar.png");
+        info2.setSex(true);
+
         assertEquals(info1, info2);
-        assertNotEquals(info1, info3);
     }
 
     @Test
-    void hashCode_ShouldBeConsistent() {
-        // Given
+    void equals_shouldFailForDifferentValues() {
         ExtendInfo info1 = new ExtendInfo();
+        info1.setAvatar("avatar1.png");
+        info1.setSex(true);
+
         ExtendInfo info2 = new ExtendInfo();
+        info2.setAvatar("avatar2.png");
+        info2.setSex(false);
 
-        info1.setAvatar("avatar.png");
-        info2.setAvatar("avatar.png");
-
-        // Then
-        assertEquals(info1.hashCode(), info2.hashCode());
+        assertNotEquals(info1, info2);
     }
 
     @Test
-    void toString_ShouldReturnCorrectFormat() {
-        // Given
-        ExtendInfo extendInfo = new ExtendInfo();
-        extendInfo.setAvatar("avatar.png");
-
-        // When
-        String result = extendInfo.toString();
-
-        // Then
-        assertNotNull(result);
-        assertTrue(result.contains("avatar.png"));
-    }
-
-    @Test
-    void sex_ShouldToggleCorrectly() {
-        // Given
-        ExtendInfo extendInfo = new ExtendInfo();
-
-        // When & Then
-        assertNull(extendInfo.getSex());
-        extendInfo.setSex(true);
-        assertTrue(extendInfo.getSex());
-        extendInfo.setSex(false);
-        assertFalse(extendInfo.getSex());
+    void toString_shouldReturnValues() {
+        ExtendInfo info = new ExtendInfo();
+        info.setAvatar("test.png");
+        info.setSex(false);
+        String result = info.toString();
+        assertTrue(result.contains("test.png"));
     }
 }

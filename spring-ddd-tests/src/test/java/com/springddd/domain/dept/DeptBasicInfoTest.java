@@ -7,26 +7,45 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeptBasicInfoTest {
 
     @Test
-    void shouldCreateDeptBasicInfoWithValidName() {
-        String deptName = "Engineering";
-        DeptBasicInfo info = new DeptBasicInfo(deptName);
-        assertEquals(deptName, info.deptName());
+    void shouldCreateWithValidName() {
+        DeptBasicInfo info = new DeptBasicInfo("部门A");
+        assertEquals("部门A", info.deptName());
     }
 
     @Test
-    void shouldThrowDeptNameNullExceptionWhenNameIsNull() {
+    void shouldThrowWhenNameIsNull() {
         assertThrows(DeptNameNullException.class, () -> new DeptBasicInfo(null));
     }
 
     @Test
-    void shouldThrowDeptNameNullExceptionWhenNameIsEmpty() {
+    void shouldThrowWhenNameIsEmpty() {
         assertThrows(DeptNameNullException.class, () -> new DeptBasicInfo(""));
     }
 
     @Test
-    void shouldNotThrowExceptionForBlankString() {
-        // ObjectUtils.isEmpty only checks null or empty string, not whitespace
-        DeptBasicInfo info = new DeptBasicInfo("   ");
-        assertEquals("   ", info.deptName());
+    void equals_shouldWorkForSameName() {
+        DeptBasicInfo info1 = new DeptBasicInfo("部门A");
+        DeptBasicInfo info2 = new DeptBasicInfo("部门A");
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentName() {
+        DeptBasicInfo info1 = new DeptBasicInfo("部门A");
+        DeptBasicInfo info2 = new DeptBasicInfo("部门B");
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        DeptBasicInfo info1 = new DeptBasicInfo("部门A");
+        DeptBasicInfo info2 = new DeptBasicInfo("部门A");
+        assertEquals(info1.hashCode(), info2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnName() {
+        DeptBasicInfo info = new DeptBasicInfo("测试部门");
+        assertEquals("DeptBasicInfo[deptName=测试部门]", info.toString());
     }
 }

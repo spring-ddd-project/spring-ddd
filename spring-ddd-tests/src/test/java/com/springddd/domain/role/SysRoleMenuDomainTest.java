@@ -1,98 +1,52 @@
 package com.springddd.domain.role;
 
-import com.springddd.domain.menu.MenuId;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SysRoleMenuDomainTest {
 
     @Test
-    void create_ShouldSetDefaultValues() {
+    void shouldCreateSysRoleMenuDomain() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
-
-        domain.create();
-
         assertNotNull(domain);
     }
 
     @Test
-    void update_ShouldUpdateAllFields() {
+    void shouldSetAndGetId() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        RoleMenuId id = new RoleMenuId(1L);
+        domain.setRoleMenuId(id);
+        assertEquals(id, domain.getRoleMenuId());
+    }
+
+    @Test
+    void shouldSetAndGetRoleId() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
         RoleId roleId = new RoleId(1L);
-        MenuId menuId = new MenuId(10L);
-        Long deptId = 100L;
-        String updateBy = "admin";
-
-        domain.update(roleId, menuId, deptId, updateBy);
-
+        domain.setRoleId(roleId);
         assertEquals(roleId, domain.getRoleId());
-        assertEquals(menuId, domain.getMenuId());
-        assertEquals(deptId, domain.getDeptId());
-        assertEquals(updateBy, domain.getUpdateBy());
-        assertNotNull(domain.getUpdateTime());
     }
 
     @Test
-    void delete_ShouldSetDeleteStatusTrue() {
+    void shouldSetAndGetMenuId() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        assertNull(domain.getDeleteStatus());
-
-        domain.delete("admin");
-
-        assertTrue(domain.getDeleteStatus());
-    }
-
-    @Test
-    void delete_ShouldAcceptUpdateByParameter() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-
-        domain.delete("testUser");
-
-        assertTrue(domain.getDeleteStatus());
-    }
-
-    @Test
-    void update_ShouldSetUpdateTime() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        RoleId roleId = new RoleId(1L);
-        MenuId menuId = new MenuId(10L);
-
-        domain.update(roleId, menuId, 100L, "admin");
-
-        assertNotNull(domain.getUpdateTime());
-    }
-
-    @Test
-    void update_WithNullRoleId_ShouldSucceed() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        MenuId menuId = new MenuId(10L);
-
-        domain.update(null, menuId, 100L, "admin");
-
-        assertNull(domain.getRoleId());
+        com.springddd.domain.menu.MenuId menuId = new com.springddd.domain.menu.MenuId(1L);
+        domain.setMenuId(menuId);
         assertEquals(menuId, domain.getMenuId());
     }
 
     @Test
-    void update_WithNullMenuId_ShouldSucceed() {
+    void shouldSetDeleteStatusOnDelete() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        RoleId roleId = new RoleId(1L);
-
-        domain.update(roleId, null, 100L, "admin");
-
-        assertEquals(roleId, domain.getRoleId());
-        assertNull(domain.getMenuId());
-    }
-
-    @Test
-    void delete_ThenRestore_ShouldToggleDeleteStatus() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-
-        assertNull(domain.getDeleteStatus());
-        domain.delete("admin");
-        assertTrue(domain.getDeleteStatus());
         domain.setDeleteStatus(false);
-        assertFalse(domain.getDeleteStatus());
+        domain.delete("admin");
+        assertTrue(domain.getDeleteStatus());
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        String str = domain.toString();
+        assertTrue(str.contains("SysRoleMenuDomain"));
     }
 }

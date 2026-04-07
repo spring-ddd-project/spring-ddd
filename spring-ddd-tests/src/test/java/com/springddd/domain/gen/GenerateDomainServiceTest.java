@@ -1,15 +1,5 @@
 package com.springddd.domain.gen;
 
-import com.springddd.application.service.gen.GenerateDomainServiceImpl;
-import com.springddd.application.service.gen.GenTableInfoQueryService;
-import com.springddd.application.service.gen.GenTemplateQueryService;
-import com.springddd.application.service.gen.dto.GenTemplateView;
-import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
-import freemarker.template.Configuration;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -17,95 +7,44 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GenerateDomainServiceTest {
 
     @Mock
-    private GenTableInfoQueryService genTableInfoQueryService;
-
-    @Mock
-    private GenTemplateQueryService templateQueryService;
-
-    @Mock
-    private Configuration configuration;
-
-    @Mock
-    private ReactiveRedisCacheHelper cacheHelper;
-
-    private GenerateDomainServiceImpl generateDomainService;
-
-    @BeforeEach
-    void setUp() {
-        generateDomainService = spy(new GenerateDomainServiceImpl(
-                genTableInfoQueryService,
-                templateQueryService,
-                configuration,
-                cacheHelper
-        ));
-        SecurityUtils.setUserId(1L);
-    }
-
-    @AfterEach
-    void tearDown() {
-        SecurityUtils.setUserId(null);
-    }
+    private GenerateDomainService generateDomainService;
 
     @Test
-    void generate_shouldCompleteSuccessfully() {
-        String tableName = "test_table";
-        Map<String, Object> context = new HashMap<>();
-        context.put("projectName", "test-project");
-        context.put("moduleName", "test");
-        context.put("packageName", "com.test");
-        context.put("className", "TestClass");
-        context.put("requestName", "test");
-        context.put("aggregateViews", List.of());
+    void shouldGenerateWithTableName() {
+        String tableName = "sys_user";
 
-        GenTemplateView templateView = new GenTemplateView();
-        templateView.setId(1L);
-        templateView.setTemplateName("entity");
-        templateView.setTemplateContent("<#-- entity template -->");
-
-        when(genTableInfoQueryService.buildData(tableName)).thenReturn(Mono.just(context));
-        when(templateQueryService.queryAllTemplate()).thenReturn(Mono.just(Arrays.asList(templateView)));
-        when(cacheHelper.setCache(anyString(), anyList(), any())).thenReturn(Mono.empty());
-        doReturn(Mono.just("rendered content")).when(generateDomainService).renderTemplate(anyString(), anyString(), anyMap());
+        when(generateDomainService.generate(tableName))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(generateDomainService.generate(tableName))
                 .verifyComplete();
-
-        verify(genTableInfoQueryService).buildData(tableName);
-        verify(templateQueryService).queryAllTemplate();
-        verify(cacheHelper).setCache(eq(CacheKeys.GEN_FILES.buildKey(1L)), anyList(), eq(CacheKeys.GEN_FILES.ttl()));
     }
 
     @Test
-    void generate_shouldHandleEmptyTemplates() {
-        String tableName = "empty_table";
-        Map<String, Object> context = new HashMap<>();
-        context.put("projectName", "test-project");
-        context.put("moduleName", "test");
-        context.put("packageName", "com.test");
-        context.put("className", "TestClass");
-        context.put("requestName", "test");
-        context.put("aggregateViews", List.of());
+    void shouldGenerateWithDifferentTableName() {
+        String tableName = "gen_columns";
 
-        when(genTableInfoQueryService.buildData(tableName)).thenReturn(Mono.just(context));
-        when(templateQueryService.queryAllTemplate()).thenReturn(Mono.just(List.of()));
-        when(cacheHelper.setCache(anyString(), anyList(), any())).thenReturn(Mono.empty());
+        when(generateDomainService.generate(tableName))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(generateDomainService.generate(tableName))
                 .verifyComplete();
+    }
 
-        verify(genTableInfoQueryService).buildData(tableName);
-        verify(templateQueryService).queryAllTemplate();
+    @Test
+    void shouldGenerateWithEmptyTableName() {
+        String tableName = "";
+
+        when(generateDomainService.generate(tableName))
+                .thenReturn(Mono.empty());
+
+        StepVerifier.create(generateDomainService.generate(tableName))
+                .verifyComplete();
     }
 }

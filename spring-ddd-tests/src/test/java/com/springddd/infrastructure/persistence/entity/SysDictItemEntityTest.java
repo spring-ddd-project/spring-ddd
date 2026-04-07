@@ -1,108 +1,141 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.time.LocalDateTime;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-@DisplayName("SysDictItemEntity Tests")
 class SysDictItemEntityTest {
 
     @Test
-    @DisplayName("should create instance with default constructor")
-    void create_WithDefaultConstructor_Success() {
+    void shouldCreateSysDictItemEntityWithDefaultConstructor() {
         SysDictItemEntity entity = new SysDictItemEntity();
-        assertThat(entity).isNotNull();
+        assertNotNull(entity);
     }
 
     @Test
-    @DisplayName("should set and get all fields correctly")
-    void setterGetter_AllFields_Success() {
-        SysDictItemEntity entity = new SysDictItemEntity();
-
-        Long id = 1L;
-        Long dictId = 100L;
-        String itemLabel = "Active";
-        Integer itemValue = 1;
-        Integer sortOrder = 1;
-        Boolean itemStatus = true;
-        Boolean deleteStatus = false;
-        String createBy = "admin";
-        LocalDateTime createTime = LocalDateTime.now();
-        String updateBy = "admin";
-        LocalDateTime updateTime = LocalDateTime.now();
-        Integer version = 0;
-
-        entity.setId(id);
-        entity.setDictId(dictId);
-        entity.setItemLabel(itemLabel);
-        entity.setItemValue(itemValue);
-        entity.setSortOrder(sortOrder);
-        entity.setItemStatus(itemStatus);
-        entity.setDeleteStatus(deleteStatus);
-        entity.setCreateBy(createBy);
-        entity.setCreateTime(createTime);
-        entity.setUpdateBy(updateBy);
-        entity.setUpdateTime(updateTime);
-        entity.setVersion(version);
-
-        assertThat(entity.getId()).isEqualTo(id);
-        assertThat(entity.getDictId()).isEqualTo(dictId);
-        assertThat(entity.getItemLabel()).isEqualTo(itemLabel);
-        assertThat(entity.getItemValue()).isEqualTo(itemValue);
-        assertThat(entity.getSortOrder()).isEqualTo(sortOrder);
-        assertThat(entity.getItemStatus()).isEqualTo(itemStatus);
-        assertThat(entity.getDeleteStatus()).isEqualTo(deleteStatus);
-        assertThat(entity.getCreateBy()).isEqualTo(createBy);
-        assertThat(entity.getCreateTime()).isEqualTo(createTime);
-        assertThat(entity.getUpdateBy()).isEqualTo(updateBy);
-        assertThat(entity.getUpdateTime()).isEqualTo(updateTime);
-        assertThat(entity.getVersion()).isEqualTo(version);
-    }
-
-    @Test
-    @DisplayName("should handle null values for optional fields")
-    void setterGetter_NullValues_Success() {
-        SysDictItemEntity entity = new SysDictItemEntity();
-
-        entity.setId(null);
-        entity.setDictId(null);
-        entity.setItemLabel(null);
-        entity.setItemValue(null);
-        entity.setSortOrder(null);
-        entity.setItemStatus(null);
-        entity.setDeleteStatus(null);
-        entity.setCreateBy(null);
-        entity.setCreateTime(null);
-        entity.setUpdateBy(null);
-        entity.setUpdateTime(null);
-        entity.setVersion(null);
-
-        assertThat(entity.getId()).isNull();
-        assertThat(entity.getDictId()).isNull();
-        assertThat(entity.getItemLabel()).isNull();
-        assertThat(entity.getItemValue()).isNull();
-        assertThat(entity.getSortOrder()).isNull();
-        assertThat(entity.getItemStatus()).isNull();
-        assertThat(entity.getDeleteStatus()).isNull();
-        assertThat(entity.getCreateBy()).isNull();
-        assertThat(entity.getCreateTime()).isNull();
-        assertThat(entity.getUpdateBy()).isNull();
-        assertThat(entity.getUpdateTime()).isNull();
-        assertThat(entity.getVersion()).isNull();
-    }
-
-    @Test
-    @DisplayName("toString should contain all field values")
-    void toString_ShouldContainFieldValues() {
+    void shouldSetAndGetId() {
         SysDictItemEntity entity = new SysDictItemEntity();
         entity.setId(1L);
-        entity.setItemLabel("TestItem");
+        assertEquals(1L, entity.getId());
+    }
 
+    @Test
+    void shouldSetAndGetDictId() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setDictId(100L);
+        assertEquals(100L, entity.getDictId());
+    }
+
+    @Test
+    void shouldSetAndGetItemLabel() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setItemLabel("启用");
+        assertEquals("启用", entity.getItemLabel());
+    }
+
+    @Test
+    void shouldSetAndGetItemValue() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setItemValue(1);
+        assertEquals(1, entity.getItemValue());
+    }
+
+    @Test
+    void shouldSetAndGetSortOrder() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setSortOrder(1);
+        assertEquals(1, entity.getSortOrder());
+    }
+
+    @Test
+    void shouldSetAndGetItemStatus() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setItemStatus(true);
+        assertTrue(entity.getItemStatus());
+    }
+
+    @Test
+    void shouldSetAndGetDeleteStatus() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setDeleteStatus(false);
+        assertFalse(entity.getDeleteStatus());
+    }
+
+    @Test
+    void shouldSetAndGetCreateBy() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setCreateBy("admin");
+        assertEquals("admin", entity.getCreateBy());
+    }
+
+    @Test
+    void shouldSetAndGetCreateTime() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setCreateTime(now);
+        assertEquals(now, entity.getCreateTime());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateBy() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setUpdateBy("admin");
+        assertEquals("admin", entity.getUpdateBy());
+    }
+
+    @Test
+    void shouldSetAndGetUpdateTime() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        LocalDateTime now = LocalDateTime.now();
+        entity.setUpdateTime(now);
+        assertEquals(now, entity.getUpdateTime());
+    }
+
+    @Test
+    void shouldSetAndGetVersion() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setVersion(0);
+        assertEquals(0, entity.getVersion());
+    }
+
+    @Test
+    void equals_shouldWorkForSameInstance() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setId(1L);
+        assertEquals(entity, entity);
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        SysDictItemEntity entity1 = new SysDictItemEntity();
+        entity1.setId(1L);
+        entity1.setItemLabel("启用");
+
+        SysDictItemEntity entity2 = new SysDictItemEntity();
+        entity2.setId(1L);
+        entity2.setItemLabel("启用");
+
+        assertEquals(entity1, entity2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setId(1L);
+        entity.setItemLabel("启用");
+        int hash1 = entity.hashCode();
+        int hash2 = entity.hashCode();
+        assertEquals(hash1, hash2);
+    }
+
+    @Test
+    void toString_shouldContainFields() {
+        SysDictItemEntity entity = new SysDictItemEntity();
+        entity.setId(1L);
+        entity.setItemLabel("启用");
         String str = entity.toString();
-        assertThat(str).contains("1");
-        assertThat(str).contains("TestItem");
+        assertTrue(str.contains("SysDictItemEntity"));
+        assertTrue(str.contains("1"));
+        assertTrue(str.contains("启用"));
     }
 }

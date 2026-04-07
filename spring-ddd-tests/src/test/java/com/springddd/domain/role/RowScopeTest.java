@@ -1,39 +1,27 @@
 package com.springddd.domain.role;
 
 import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class RowScopeTest {
 
     @Test
-    void defaultConstructor_ShouldCreateEmptyRowScope() {
-        // When
+    void shouldCreateWithDefaultConstructor() {
         RowScope rowScope = new RowScope();
-
-        // Then
-        assertNull(rowScope.getDeptIds());
-        assertNull(rowScope.getPostIds());
-        assertNull(rowScope.getUserIds());
-        assertNull(rowScope.getSelf());
+        assertNotNull(rowScope);
     }
 
     @Test
-    void allArgsConstructor_ShouldCreateRowScopeWithValues() {
-        // Given
-        List<Long> deptIds = Arrays.asList(1L, 2L, 3L);
+    void shouldCreateWithAllArgsConstructor() {
+        List<Long> deptIds = Arrays.asList(1L, 2L);
         List<Long> postIds = Arrays.asList(10L, 20L);
-        List<Long> userIds = Arrays.asList(100L, 200L, 300L);
+        List<Long> userIds = Arrays.asList(100L, 200L);
         Boolean self = true;
 
-        // When
         RowScope rowScope = new RowScope(deptIds, postIds, userIds, self);
 
-        // Then
         assertEquals(deptIds, rowScope.getDeptIds());
         assertEquals(postIds, rowScope.getPostIds());
         assertEquals(userIds, rowScope.getUserIds());
@@ -41,56 +29,92 @@ class RowScopeTest {
     }
 
     @Test
-    void setters_ShouldUpdateValues() {
-        // Given
+    void shouldSetAndGetDeptIds() {
         RowScope rowScope = new RowScope();
-        List<Long> deptIds = Arrays.asList(1L, 2L);
+        List<Long> deptIds = Arrays.asList(1L, 2L, 3L);
 
-        // When
         rowScope.setDeptIds(deptIds);
-        rowScope.setPostIds(Arrays.asList(10L));
-        rowScope.setUserIds(Arrays.asList(100L));
-        rowScope.setSelf(false);
 
-        // Then
         assertEquals(deptIds, rowScope.getDeptIds());
-        assertEquals(Arrays.asList(10L), rowScope.getPostIds());
-        assertEquals(Arrays.asList(100L), rowScope.getUserIds());
+    }
+
+    @Test
+    void shouldSetAndGetPostIds() {
+        RowScope rowScope = new RowScope();
+        List<Long> postIds = Arrays.asList(10L, 20L);
+
+        rowScope.setPostIds(postIds);
+
+        assertEquals(postIds, rowScope.getPostIds());
+    }
+
+    @Test
+    void shouldSetAndGetUserIds() {
+        RowScope rowScope = new RowScope();
+        List<Long> userIds = Arrays.asList(100L, 200L);
+
+        rowScope.setUserIds(userIds);
+
+        assertEquals(userIds, rowScope.getUserIds());
+    }
+
+    @Test
+    void shouldSetAndGetSelf() {
+        RowScope rowScope = new RowScope();
+
+        rowScope.setSelf(true);
+        assertTrue(rowScope.getSelf());
+
+        rowScope.setSelf(false);
         assertFalse(rowScope.getSelf());
     }
 
     @Test
-    void equals_ShouldWorkCorrectly() {
-        // Given
-        RowScope scope1 = new RowScope(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RowScope scope2 = new RowScope(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RowScope scope3 = new RowScope();
-
-        // Then
-        assertEquals(scope1, scope2);
-        assertNotEquals(scope1, scope3);
-    }
-
-    @Test
-    void hashCode_ShouldBeConsistent() {
-        // Given
-        RowScope scope1 = new RowScope(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-        RowScope scope2 = new RowScope(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
-
-        // Then
-        assertEquals(scope1.hashCode(), scope2.hashCode());
-    }
-
-    @Test
-    void toString_ShouldReturnCorrectFormat() {
-        // Given
+    void shouldHandleNullLists() {
         RowScope rowScope = new RowScope();
-        rowScope.setDeptIds(Arrays.asList(1L, 2L));
+        rowScope.setDeptIds(null);
+        rowScope.setPostIds(null);
+        rowScope.setUserIds(null);
 
-        // When
-        String result = rowScope.toString();
+        assertNull(rowScope.getDeptIds());
+        assertNull(rowScope.getPostIds());
+        assertNull(rowScope.getUserIds());
+    }
 
-        // Then
-        assertNotNull(result);
+    @Test
+    void equals_shouldWorkForSameValues() {
+        RowScope rs1 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        RowScope rs2 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        assertEquals(rs1, rs2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentDeptIds() {
+        RowScope rs1 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        RowScope rs2 = new RowScope(Arrays.asList(9L), Arrays.asList(2L), Arrays.asList(3L), true);
+        assertNotEquals(rs1, rs2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentSelf() {
+        RowScope rs1 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        RowScope rs2 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), false);
+        assertNotEquals(rs1, rs2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        RowScope rs1 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        RowScope rs2 = new RowScope(Arrays.asList(1L), Arrays.asList(2L), Arrays.asList(3L), true);
+        assertEquals(rs1.hashCode(), rs2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        RowScope rowScope = new RowScope(Arrays.asList(1L, 2L), Arrays.asList(10L), Arrays.asList(100L), true);
+        String str = rowScope.toString();
+        assertTrue(str.contains("1"));
+        assertTrue(str.contains("10"));
+        assertTrue(str.contains("100"));
     }
 }
