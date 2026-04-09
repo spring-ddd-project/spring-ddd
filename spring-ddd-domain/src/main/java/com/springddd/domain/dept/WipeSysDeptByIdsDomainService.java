@@ -60,3 +60,4 @@ public interface WipeSysDeptByIdsDomainService {
 
 
 
+
