@@ -12,10 +12,11 @@ public class SysMenuDomainMenuStrategy implements SysMenuDomainStrategy {
     }
 
     @Override
-    public SysMenuDomain handle(Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
+    public SysMenuDomain handle(String name, Catalog catalog, Menu menu, Button button, MenuExtendInfo menuExtendInfo) {
         SysMenuDomain domain = new SysMenuDomain();
+        domain.setName(name);
 
-        Menu m = new Menu(menu.menuName(), menu.menuPath(), menu.component(), menu.affixTab(), menu.noBasicLayout(), menu.embedded());
+        Menu m = new Menu(menu.menuPath(), menu.component(), menu.affixTab(), menu.noBasicLayout(), menu.embedded());
 
         domain.setMenu(m);
 

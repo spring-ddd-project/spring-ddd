@@ -31,7 +31,7 @@ public class AuthUser implements Serializable, UserDetails {
 
     private String sex;
 
-    private String lockStatus;
+    private Boolean lockStatus;
 
     private List<String> roles;
 
@@ -68,7 +68,7 @@ public class AuthUser implements Serializable, UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return !Boolean.TRUE.equals(lockStatus);
     }
 
     @Override
@@ -78,6 +78,6 @@ public class AuthUser implements Serializable, UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return !Boolean.TRUE.equals(lockStatus);
     }
 }
