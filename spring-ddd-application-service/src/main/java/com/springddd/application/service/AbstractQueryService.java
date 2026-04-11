@@ -89,3 +89,4 @@ public abstract class AbstractQueryService<T, V, Q extends com.springddd.domain.
 
 
 
+
