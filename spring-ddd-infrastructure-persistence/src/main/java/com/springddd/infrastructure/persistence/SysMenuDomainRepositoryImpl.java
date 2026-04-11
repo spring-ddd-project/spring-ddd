@@ -6,6 +6,7 @@ import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -26,10 +27,12 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             Catalog catalog = new Catalog(e.getRedirect());
             sysMenuDomain.setCatalog(catalog);
 
-            Menu menu = new Menu(e.getName(), e.getPath(), e.getComponent(), e.getAffixTab(), e.getNoBasicLayout(), e.getEmbedded());
+            sysMenuDomain.setName(e.getName());
+
+            Menu menu = new Menu(e.getPath(), e.getComponent(), e.getAffixTab(), e.getNoBasicLayout(), e.getEmbedded());
             sysMenuDomain.setMenu(menu);
 
-            Button button = new Button(e.getPermission());
+            Button button = new Button(e.getPermission(), e.getApi());
             sysMenuDomain.setButton(button);
 
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(e.getSortOrder(), e.getTitle(), e.getIcon(), e.getMenuType(), e.getVisible(), e.getMenuStatus());
@@ -55,18 +58,25 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(MenuId::value).orElse(null));
 
         Catalog catalog = aggregateRoot.getCatalog();
-        entity.setRedirect(catalog.menuRedirect());
+        if (!ObjectUtils.isEmpty(catalog)) {
+            entity.setRedirect(catalog.menuRedirect());
+        }
 
+        entity.setName(aggregateRoot.getName());
         Menu menu = aggregateRoot.getMenu();
-        entity.setName(menu.menuName());
-        entity.setPath(menu.menuPath());
-        entity.setComponent(menu.component());
-        entity.setAffixTab(menu.affixTab());
-        entity.setNoBasicLayout(menu.noBasicLayout());
-        entity.setEmbedded(menu.embedded());
+        if (menu != null) {
+            entity.setPath(menu.menuPath());
+            entity.setComponent(menu.component());
+            entity.setAffixTab(menu.affixTab());
+            entity.setNoBasicLayout(menu.noBasicLayout());
+            entity.setEmbedded(menu.embedded());
+        }
 
         Button button = aggregateRoot.getButton();
-        entity.setPermission(button.permission());
+        if (button != null) {
+            entity.setPermission(button.permission());
+            entity.setApi(button.api());
+        }
 
         MenuExtendInfo menuExtendInfo = aggregateRoot.getMenuExtendInfo();
         entity.setSortOrder(menuExtendInfo.order());

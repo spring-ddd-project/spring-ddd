@@ -43,7 +43,39 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <jacoco.version>0.8.11</jacoco.version>
+        <jacoco.destFile>${session.executionRootDirectory}/target/jacoco.exec</jacoco.destFile>
     </properties>
+
+    <build>
+        <plugins>
+            <!-- JaCoCo for coverage - prepare agent in all modules -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.11</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <propertyName>jacoco.agent.arg</propertyName>
+                            <append>true</append>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>${jacoco.agent.arg}</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencyManagement>
         <dependencies>

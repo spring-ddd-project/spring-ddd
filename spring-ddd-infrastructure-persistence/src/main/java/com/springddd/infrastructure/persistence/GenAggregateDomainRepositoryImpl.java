@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.GenAggregateEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenAggregateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class GenAggregateDomainRepositoryImpl implements GenAggregateDomainRepos
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(GenAggregateDomain aggregateRoot) {
         GenAggregateEntity entity = new GenAggregateEntity();
 

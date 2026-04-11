@@ -8,6 +8,7 @@ import com.springddd.infrastructure.persistence.entity.GenTemplateEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class GenTemplateDomainRepositoryImpl implements GenTemplateDomainReposit
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(GenTemplateDomain aggregateRoot) {
         GenTemplateEntity entity = new GenTemplateEntity();
 

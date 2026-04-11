@@ -100,12 +100,22 @@ public class ReactiveRedisCacheHelper {
         }
     }
 
-    // Delete cache entry by key
+    // Delete cache entry by key using SCAN for production safety
     public Mono<Void> deleteCache(String key) {
-        return redisTemplate.keys(key)
-                .collectList()
-                .flatMapMany(Flux::fromIterable)
-                .flatMap(redisTemplate::delete)
-                .then();
+        if (key.contains("*")) {
+            // Use SCAN for pattern matching
+            return redisTemplate.scan()
+                    .filter(k -> matchesPattern(k, key))
+                    .flatMap(k -> redisTemplate.delete(k).then())
+                    .then();
+        } else {
+            // Direct key deletion
+            return redisTemplate.delete(key).then();
+        }
+    }
+
+    private boolean matchesPattern(String key, String pattern) {
+        String regex = pattern.replace("*", ".*").replace("?", ".");
+        return key.matches(regex);
     }
 }

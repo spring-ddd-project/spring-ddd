@@ -20,6 +20,8 @@ public class SysMenuView implements Serializable {
 
     private String component;
 
+    private String api;
+
     private String redirect;
 
     private String permission;
@@ -39,7 +41,7 @@ public class SysMenuView implements Serializable {
     private List<SysMenuView> children;
 
     @Data
-    public static class Meta implements Serializable{
+    public static class Meta implements Serializable {
 
         private Integer order;
 
