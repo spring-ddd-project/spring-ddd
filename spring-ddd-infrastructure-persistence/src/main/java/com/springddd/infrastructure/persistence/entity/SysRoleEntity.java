@@ -28,6 +28,8 @@ public class SysRoleEntity {
 
     private Integer dataScope;
 
+    private String dataPermission;
+
     private Boolean roleStatus;
 
     private Boolean ownerStatus;
