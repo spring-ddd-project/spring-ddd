@@ -12,6 +12,8 @@ public class SysMenuDomain extends AbstractDomainMask {
 
     private MenuId parentId;
 
+    private String name;
+
     private Catalog catalog;
 
     private Menu menu;
@@ -26,11 +28,13 @@ public class SysMenuDomain extends AbstractDomainMask {
     }
 
     public void update(MenuId parentId,
+                       String name,
                        Catalog catalog,
                        Menu menu,
                        Button button,
                        MenuExtendInfo menuExtendInfo, Long deptId) {
         this.parentId = parentId;
+        this.name = name;
         this.catalog = catalog;
         this.menu = menu;
         this.button = button;
