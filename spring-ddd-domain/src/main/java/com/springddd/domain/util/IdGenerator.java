@@ -36,29 +36,41 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
                     " has more than one field annotated with both @Id and @SnowflakeId.");
         }
 
+        if (idFields.isEmpty()) {
+            return Mono.just(entity);
+        }
+
         Field field = idFields.getFirst();
         field.setAccessible(true);
 
-        Field createdByField = createdByFields.getFirst();
-        createdByField.setAccessible(true);
+        Field createdByField = !createdByFields.isEmpty() ? createdByFields.getFirst() : null;
+        if (createdByField != null) {
+            createdByField.setAccessible(true);
+        }
 
-        Field lastModifiedByField = lastModifiedByFields.getFirst();
-        lastModifiedByField.setAccessible(true);
+        Field lastModifiedByField = !lastModifiedByFields.isEmpty() ? lastModifiedByFields.getFirst() : null;
+        if (lastModifiedByField != null) {
+            lastModifiedByField.setAccessible(true);
+        }
 
-        if (idFields.size() == 1) {
-            try {
-                Object currentValue = field.get(entity);
-                if (currentValue == null) {
-                    long id = IdTemp.generateId();
-                    field.set(entity, id);
+        try {
+            Object currentValue = field.get(entity);
+            if (currentValue == null) {
+                long id = IdTemp.generateId();
+                field.set(entity, id);
+                if (createdByField != null) {
                     createdByField.set(entity, SecurityUtils.getUsername());
-                    lastModifiedByField.set(entity, SecurityUtils.getUsername());
-                } else {
+                }
+                if (lastModifiedByField != null) {
                     lastModifiedByField.set(entity, SecurityUtils.getUsername());
                 }
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException("Failed to generate ID for field: " + field.getName(), e);
+            } else {
+                if (lastModifiedByField != null) {
+                    lastModifiedByField.set(entity, SecurityUtils.getUsername());
+                }
             }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to generate ID for field: " + field.getName(), e);
         }
 
         return Mono.just(entity);

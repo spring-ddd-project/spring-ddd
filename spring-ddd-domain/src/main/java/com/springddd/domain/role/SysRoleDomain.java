@@ -4,6 +4,8 @@ import com.springddd.domain.AbstractDomainMask;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class SysRoleDomain extends AbstractDomainMask {
@@ -14,11 +16,14 @@ public class SysRoleDomain extends AbstractDomainMask {
 
     private RoleExtendInfo roleExtendInfo;
 
+    private DataPermission dataPermission;
+
     public void create() {}
 
-    public void updateRole(RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, Long deptId) {
+    public void updateRole(RoleBasicInfo roleBasicInfo, RoleExtendInfo roleExtendInfo, DataPermission dataPermission, Long deptId) {
         this.roleBasicInfo = roleBasicInfo;
         this.roleExtendInfo = roleExtendInfo;
+        this.dataPermission = dataPermission;
         super.setDeptId(deptId);
     }
 

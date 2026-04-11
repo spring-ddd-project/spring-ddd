@@ -10,11 +10,16 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @Repository
 @RequiredArgsConstructor
 public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
 
     private final SysRoleRepository sysRoleRepository;
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public Mono<SysRoleDomain> load(RoleId aggregateRootId) {
@@ -29,6 +34,15 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
             sysRoleDomain.setRoleExtendInfo(roleExtendInfo);
 
             sysRoleDomain.setDeptId(e.getDeptId());
+
+            if (e.getDataPermission() != null) {
+                try {
+                    sysRoleDomain.setDataPermission(objectMapper.readValue(e.getDataPermission(), DataPermission.class));
+                } catch (JsonProcessingException ex) {
+                    throw new RuntimeException("Failed to read data permission config", ex);
+                }
+            }
+
             sysRoleDomain.setDeleteStatus(e.getDeleteStatus());
             sysRoleDomain.setVersion(e.getVersion());
             sysRoleDomain.setCreateBy(e.getCreateBy());
@@ -58,6 +72,15 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         sysRoleEntity.setRoleStatus(roleExtendInfo.roleStatus());
 
         sysRoleEntity.setDeptId(aggregateRoot.getDeptId());
+
+        if (aggregateRoot.getDataPermission() != null) {
+            try {
+                sysRoleEntity.setDataPermission(objectMapper.writeValueAsString(aggregateRoot.getDataPermission()));
+            } catch (JsonProcessingException ex) {
+                throw new RuntimeException("Failed to write data permission config", ex);
+            }
+        }
+
         sysRoleEntity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         sysRoleEntity.setVersion(aggregateRoot.getVersion());
         sysRoleEntity.setCreateBy(aggregateRoot.getCreateBy());

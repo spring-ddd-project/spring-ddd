@@ -12,6 +12,7 @@ public class GenAggregateDomainFactoryImpl implements GenAggregateDomainFactory 
         domain.setInfoId(infoId);
         domain.setValueObject(valueObject);
         domain.setExtendInfo(extendInfo);
+        domain.setDeleteStatus(false);
         return domain;
     }
 }

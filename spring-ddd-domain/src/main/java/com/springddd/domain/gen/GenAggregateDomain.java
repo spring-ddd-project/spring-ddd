@@ -23,4 +23,12 @@ public class GenAggregateDomain extends AbstractDomainMask {
         this.valueObject = valueObject;
         this.extendInfo = extendInfo;
     }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
+
+    public void restore() {
+        super.setDeleteStatus(false);
+    }
 }
