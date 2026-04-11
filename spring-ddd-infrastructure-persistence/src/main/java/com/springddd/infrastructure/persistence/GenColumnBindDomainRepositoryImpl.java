@@ -5,6 +5,7 @@ import com.springddd.infrastructure.persistence.entity.GenColumnBindEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnBindRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 
 import java.util.Optional;
@@ -36,6 +37,7 @@ public class GenColumnBindDomainRepositoryImpl implements GenColumnBindDomainRep
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Long> save(GenColumnBindDomain aggregateRoot) {
         GenColumnBindEntity entity = new GenColumnBindEntity();
         entity.setId(Optional.ofNullable(aggregateRoot.getBindId()).map(ColumnBindId::value).orElse(null));

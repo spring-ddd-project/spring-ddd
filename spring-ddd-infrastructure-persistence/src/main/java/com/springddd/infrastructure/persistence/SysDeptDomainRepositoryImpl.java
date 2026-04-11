@@ -31,7 +31,6 @@ public class SysDeptDomainRepositoryImpl implements SysDeptDomainRepository {
             sysDeptDomain.setDeptExtendInfo(extendInfo);
 
             sysDeptDomain.setDeleteStatus(entity.getDeleteStatus());
-            sysDeptDomain.setDeptId(entity.getId());
             sysDeptDomain.setCreateBy(entity.getCreateBy());
             sysDeptDomain.setCreateTime(entity.getCreateTime());
             sysDeptDomain.setUpdateBy(entity.getUpdateBy());

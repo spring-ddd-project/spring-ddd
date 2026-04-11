@@ -19,6 +19,8 @@ public class SysMenuCommand implements Serializable {
 
     private String redirect;
 
+    private String api;
+
     private String permission;
 
     private Integer order;

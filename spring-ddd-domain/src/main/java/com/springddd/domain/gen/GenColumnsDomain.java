@@ -25,6 +25,9 @@ public class GenColumnsDomain extends AbstractDomainMask {
     public void create() {}
 
     public void update(Prop prop, Table table, Form form, I18n i18n, GenColumnsExtendInfo extendInfo) {
+        if (prop == null || table == null || form == null || i18n == null || extendInfo == null) {
+            throw new IllegalArgumentException("All domain components must be non-null");
+        }
         this.prop = prop;
         this.table = table;
         this.form = form;
