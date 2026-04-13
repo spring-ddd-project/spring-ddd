@@ -62,3 +62,4 @@ public class RoleIdNullException extends DomainException {
 
 
 
+
