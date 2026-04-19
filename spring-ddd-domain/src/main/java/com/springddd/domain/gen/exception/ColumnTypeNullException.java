@@ -62,3 +62,4 @@ public class ColumnTypeNullException extends DomainException {
 
 
 
+
