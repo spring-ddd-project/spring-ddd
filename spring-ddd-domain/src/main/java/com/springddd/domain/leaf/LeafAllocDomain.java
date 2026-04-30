@@ -1,0 +1,40 @@
+package com.springddd.domain.leaf;
+
+import com.springddd.domain.AbstractDomainMask;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class LeafAllocDomain extends AbstractDomainMask {
+
+    private LeafId leafId;
+
+    private LeafProp leafProp;
+
+    private ExtendInfo extendInfo;
+
+    public void create() {}
+
+    public void update(LeafProp leafProp, ExtendInfo extendInfo) {
+        this.leafProp = leafProp;
+        this.extendInfo = extendInfo;
+    }
+
+    public void delete() {
+        super.setDeleteStatus(true);
+    }
+
+    public void restore() {
+        super.setDeleteStatus(false);
+    }
+
+    public void updateMaxId(LeafProp leafProp) {
+        Long newMaxId = leafProp.maxId() + leafProp.step();
+        this.leafProp = new LeafProp(leafProp.bizTag(), leafProp.step(), newMaxId);
+    }
+
+    public void updateMaxIdByCustomStep(LeafProp leafProp) {
+        this.updateMaxId(leafProp);
+    }
+}
