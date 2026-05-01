@@ -1,6 +1,5 @@
 package com.springddd.application.service.gen;
 
-import com.springddd.application.service.gen.GenColumnBindDomainFactoryImpl;
 import com.springddd.domain.gen.GenColumnBindBasicInfo;
 import com.springddd.domain.gen.GenColumnBindDomain;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,7 @@ class GenColumnBindDomainFactoryImplTest {
     private final GenColumnBindDomainFactoryImpl factory = new GenColumnBindDomainFactoryImpl();
 
     @Test
-    void shouldCreateGenColumnBindDomainWithBasicInfo() {
+    void newInstance_shouldCreateDomain_withValidBasicInfo() {
         GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo("varchar", "String", (byte) 1, (byte) 1);
 
         GenColumnBindDomain domain = factory.newInstance(basicInfo);
@@ -23,20 +22,39 @@ class GenColumnBindDomainFactoryImplTest {
     }
 
     @Test
-    void shouldCreateGenColumnBindDomainWithNullBasicInfo() {
-        GenColumnBindDomain domain = factory.newInstance(null);
-
-        assertNotNull(domain);
-        assertNull(domain.getBasicInfo());
-        assertFalse(domain.getDeleteStatus());
-    }
-
-    @Test
-    void shouldSetDeleteStatusToFalse() {
-        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo("int", "Integer", (byte) 2, (byte) 2);
+    void newInstance_shouldSetDeleteStatusToFalse() {
+        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo("varchar", "String", (byte) 1, (byte) 1);
 
         GenColumnBindDomain domain = factory.newInstance(basicInfo);
 
         assertFalse(domain.getDeleteStatus());
+    }
+
+    @Test
+    void newInstance_shouldThrowException_whenColumnTypeIsNull() {
+        assertThrows(Exception.class, () -> {
+            new GenColumnBindBasicInfo(null, "String", (byte) 1, (byte) 1);
+        });
+    }
+
+    @Test
+    void newInstance_shouldThrowException_whenEntityTypeIsNull() {
+        assertThrows(Exception.class, () -> {
+            new GenColumnBindBasicInfo("varchar", null, (byte) 1, (byte) 1);
+        });
+    }
+
+    @Test
+    void newInstance_shouldThrowException_whenComponentTypeIsNull() {
+        assertThrows(Exception.class, () -> {
+            new GenColumnBindBasicInfo("varchar", "String", null, (byte) 1);
+        });
+    }
+
+    @Test
+    void newInstance_shouldThrowException_whenTypescriptTypeIsNull() {
+        assertThrows(Exception.class, () -> {
+            new GenColumnBindBasicInfo("varchar", "String", (byte) 1, null);
+        });
     }
 }
