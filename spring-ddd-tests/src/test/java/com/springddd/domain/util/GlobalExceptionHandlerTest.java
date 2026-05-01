@@ -9,13 +9,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+
 import java.util.Locale;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -66,19 +70,22 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleWebExchangeBindException() {
-        WebExchangeBindException exception = new WebExchangeBindException(
-                new org.springframework.validation.BindingResult(
-                        new org.springframework.web.bind.annotation.RequestParamMethodArgumentResolver(null)
-                ) {
-                }
-        );
+    void shouldHandleWebExchangeBindException() throws Exception {
+        // Create WebExchangeBindException using a simpler approach with a mock MethodParameter
+        org.springframework.core.MethodParameter methodParameter = new org.springframework.core.MethodParameter(
+                GlobalExceptionHandlerTest.class.getDeclaredMethod("dummyMethod", String.class), 0);
+
+        BeanPropertyBindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "object");
+        bindingResult.addError(new FieldError("object", "fieldName", "Field cannot be null"));
+
+        WebExchangeBindException exception = new WebExchangeBindException(methodParameter, bindingResult);
 
         Mono<ApiResponse> result = globalExceptionHandler.handleValidationException(exception);
 
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertEquals(501, response.getCode());
+                    assertTrue(response.getMessage().contains("fieldName"));
                 })
                 .verifyComplete();
     }
@@ -142,5 +149,8 @@ class GlobalExceptionHandlerTest {
                     assertEquals("Menu permission denied", response.getMessage());
                 })
                 .verifyComplete();
+    }
+
+    private void dummyMethod(String field) {
     }
 }
