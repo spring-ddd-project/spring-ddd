@@ -77,3 +77,4 @@ public class DeleteGenColumnBindDomainServiceImpl implements DeleteGenColumnBind
 
 
 
+
