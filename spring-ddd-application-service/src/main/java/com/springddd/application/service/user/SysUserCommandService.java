@@ -27,16 +27,9 @@ public class SysUserCommandService {
     private final RestoreSysUserByIdDomainService restoreSysUserByIdDomainService;
 
     public Mono<Long> createUser(SysUserCommand command) {
-        Account account = new Account();
-        account.setUsername(new Username(command.getUsername()));
-        account.setPassword(new Password(passwordEncoder.encode(command.getPassword())));
-        account.setPhone(command.getPhone());
-        account.setEmail(command.getEmail());
-        account.setLockStatus(command.getLockStatus());
+        Account account = new Account(new Username(command.getUsername()), new Password(passwordEncoder.encode(command.getPassword())), command.getEmail(), command.getPhone(), command.getLockStatus());
 
-        ExtendInfo extendInfo = new ExtendInfo();
-        extendInfo.setAvatar(command.getAvatar());
-        extendInfo.setSex(command.getSex());
+        ExtendInfo extendInfo = new ExtendInfo(command.getAvatar(), command.getSex());
 
         SysUserDomain sysUserDomain = sysUserDomainFactory.newInstance(account, extendInfo, command.getDeptId());
         sysUserDomain.create();
@@ -46,16 +39,9 @@ public class SysUserCommandService {
 
     public Mono<Void> updateUser(SysUserCommand command) {
         return repositoryFactory.getSysUserDomainRepository().load(new UserId(command.getId())).flatMap(domain -> {
-            Account account = new Account();
-            account.setUsername(new Username(command.getUsername()));
-            account.setPassword(new Password(passwordEncoder.encode(domain.getAccount().getPassword().value())));
-            account.setEmail(command.getEmail());
-            account.setPhone(command.getPhone());
-            account.setLockStatus(command.getLockStatus());
+            Account account = new Account(new Username(command.getUsername()), new Password(passwordEncoder.encode(domain.getAccount().password().value())), command.getEmail(), command.getPhone(), command.getLockStatus());
 
-            ExtendInfo extendInfo = new ExtendInfo();
-            extendInfo.setAvatar(command.getAvatar());
-            extendInfo.setSex(command.getSex());
+            ExtendInfo extendInfo = new ExtendInfo(command.getAvatar(), command.getSex());
 
             domain.updateUser(account, extendInfo, command.getDeptId());
             return repositoryFactory.getSysUserDomainRepository().save(domain);

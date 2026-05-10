@@ -34,6 +34,6 @@ public class GenTemplateDomainRepositoryImpl implements GenTemplateDomainReposit
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(GenTemplateDomain aggregateRoot) {
-        return genTemplateRepository.deleteById(aggregateRoot.getTemplateId().value());
+        return genTemplateRepository.deleteById(aggregateRoot.getId().value());
     }
 }

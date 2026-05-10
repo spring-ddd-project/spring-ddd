@@ -20,15 +20,11 @@ public class SysDictDomain extends AbstractDomainMask implements Cloneable {
             SysDictDomain clone = (SysDictDomain) super.clone();
             if (this.dictId != null) clone.setDictId(new DictId(this.dictId.value()));
             if (this.dictBasicInfo != null) {
-                DictBasicInfo basic = new DictBasicInfo();
-                basic.setDictName(this.dictBasicInfo.getDictName());
-                basic.setDictType(this.dictBasicInfo.getDictType());
-                basic.setDictStatus(this.dictBasicInfo.getDictStatus());
+                DictBasicInfo basic = new DictBasicInfo(this.dictBasicInfo.dictName(), this.dictBasicInfo.dictCode());
                 clone.setDictBasicInfo(basic);
             }
             if (this.dictExtendInfo != null) {
-                DictExtendInfo ext = new DictExtendInfo();
-                ext.setDictRemark(this.dictExtendInfo.getDictRemark());
+                DictExtendInfo ext = new DictExtendInfo(this.dictExtendInfo.sortOrder(), this.dictExtendInfo.dictStatus());
                 clone.setDictExtendInfo(ext);
             }
             return clone;

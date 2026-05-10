@@ -1,11 +1,17 @@
 package com.springddd.domain.dict.state;
 
+import com.springddd.domain.dict.DictItemBasicInfo;
 import com.springddd.domain.dict.SysDictItemDomain;
 
 public class DisabledDictItemState implements DictItemState {
     @Override
     public void enable(SysDictItemDomain domain) {
-        domain.getItemBasicInfo().setItemStatus(true);
+        DictItemBasicInfo old = domain.getItemBasicInfo();
+        DictItemBasicInfo newItemBasicInfo = new DictItemBasicInfo(
+            old.itemLabel(),
+            old.itemValue()
+        );
+        domain.setItemBasicInfo(newItemBasicInfo);
         domain.setState(new EnabledDictItemState());
     }
 
@@ -19,58 +25,3 @@ public class DisabledDictItemState implements DictItemState {
         domain.setDeleteStatus(false);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

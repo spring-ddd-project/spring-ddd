@@ -3,9 +3,10 @@ package com.springddd.application.service.dict;
 import com.springddd.application.service.dict.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictItemEntity;
-import com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory;
 import com.springddd.infrastructure.persistence.factory.QueryFactory;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
+import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
@@ -13,17 +14,24 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Service
-public class SysDictItemQueryService extends com.springddd.application.service.AbstractQueryService<SysDictItemEntity, SysDictItemView, SysDictItemPageQuery> {
+@RequiredArgsConstructor
+public class SysDictItemQueryService {
+
+    private final QueryFactory queryFactory;
 
     private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
-    public SysDictItemQueryService(QueryFactory queryFactory, SysDictItemViewMapStruct sysDictItemViewMapStruct) {
-        super(queryFactory);
-        this.sysDictItemViewMapStruct = sysDictItemViewMapStruct;
+    public Mono<PageResponse<SysDictItemView>> index(SysDictItemPageQuery query) {
+        Criteria criteria = buildIndexCriteria(query);
+        return performQuery(query, criteria);
     }
 
-    @Override
-    protected Criteria buildIndexCriteria(SysDictItemPageQuery query) {
+    public Mono<PageResponse<SysDictItemView>> recycle(SysDictItemPageQuery query) {
+        Criteria criteria = buildRecycleCriteria(query);
+        return performQuery(query, criteria);
+    }
+
+    private Criteria buildIndexCriteria(SysDictItemPageQuery query) {
         Criteria criteria = com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory.getDeleteStatusCriteria(false);
         if (!ObjectUtils.isEmpty(query) && !ObjectUtils.isEmpty(query.getDictId())) {
             criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
@@ -31,8 +39,7 @@ public class SysDictItemQueryService extends com.springddd.application.service.A
         return criteria;
     }
 
-    @Override
-    protected Criteria buildRecycleCriteria(SysDictItemPageQuery query) {
+    private Criteria buildRecycleCriteria(SysDictItemPageQuery query) {
         Criteria criteria = com.springddd.infrastructure.persistence.factory.CriteriaFlyweightFactory.getDeleteStatusCriteria(true);
         if (!ObjectUtils.isEmpty(query) && !ObjectUtils.isEmpty(query.getDictId())) {
             criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
@@ -40,14 +47,23 @@ public class SysDictItemQueryService extends com.springddd.application.service.A
         return criteria;
     }
 
-    @Override
-    protected Class<SysDictItemEntity> getEntityClass() {
-        return SysDictItemEntity.class;
-    }
+    private Mono<PageResponse<SysDictItemView>> performQuery(SysDictItemPageQuery query, Criteria criteria) {
+        Query qry = Query.query(criteria)
+                .limit(query.getPageSize())
+                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
 
-    @Override
-    protected List<SysDictItemView> mapToViews(List<SysDictItemEntity> entities) {
-        return sysDictItemViewMapStruct.toViews(entities);
+        Mono<List<SysDictItemView>> list = queryFactory.getR2dbcEntityTemplate()
+                .select(SysDictItemEntity.class)
+                .matching(qry)
+                .all()
+                .collectList()
+                .map(sysDictItemViewMapStruct::toViews);
+
+        Mono<Long> count = queryFactory.getR2dbcEntityTemplate()
+                .count(Query.query(criteria), SysDictItemEntity.class);
+
+        return Mono.zip(list, count)
+                .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
 
     public Mono<SysDictItemView> queryItemLabelByItemValueAndDictId(Long dictId, Integer itemValue) {

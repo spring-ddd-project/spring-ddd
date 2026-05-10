@@ -22,16 +22,11 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
             SysUserDomain clone = (SysUserDomain) super.clone();
             if (this.userId != null) clone.setUserId(new UserId(this.userId.value()));
             if (this.account != null) {
-                Account acc = new Account();
-                acc.setUsername(this.account.getUsername());
-                acc.setPassword(this.account.getPassword());
-                acc.setLockStatus(this.account.getLockStatus());
+                Account acc = new Account(this.account.username(), this.account.password(), this.account.email(), this.account.phone(), this.account.lockStatus());
                 clone.setAccount(acc);
             }
             if (this.extendInfo != null) {
-                ExtendInfo ext = new ExtendInfo();
-                ext.setAvatar(this.extendInfo.getAvatar());
-                ext.setSex(this.extendInfo.getSex());
+                ExtendInfo ext = new ExtendInfo(this.extendInfo.avatar(), this.extendInfo.sex());
                 clone.setExtendInfo(ext);
             }
             return clone;
@@ -68,12 +63,12 @@ public class SysUserDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void lock() {
-        if (userState == null) userState = account.getLockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        if (userState == null) userState = account.lockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
         userState.lock(this);
     }
 
     public void unlock() {
-        if (userState == null) userState = account.getLockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        if (userState == null) userState = account.lockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
         userState.unlock(this);
     }
 

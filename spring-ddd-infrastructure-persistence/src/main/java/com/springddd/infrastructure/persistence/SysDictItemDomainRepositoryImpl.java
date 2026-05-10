@@ -32,6 +32,6 @@ public class SysDictItemDomainRepositoryImpl implements SysDictItemDomainReposit
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(SysDictItemDomain aggregateRoot) {
-        return sysDictItemRepository.deleteById(aggregateRoot.getDictItemId().value());
+        return sysDictItemRepository.deleteById(aggregateRoot.getItemId().value());
     }
 }

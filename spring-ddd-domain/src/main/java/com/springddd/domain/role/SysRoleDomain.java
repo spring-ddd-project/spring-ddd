@@ -25,12 +25,12 @@ public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void enable() {
-        if (state == null) state = roleBasicInfo.getRoleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        if (state == null) state = roleBasicInfo.roleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
         state.enable(this);
     }
 
     public void disable() {
-        if (state == null) state = roleBasicInfo.getRoleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        if (state == null) state = roleBasicInfo.roleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
         state.disable(this);
     }
 
@@ -40,23 +40,15 @@ public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
             SysRoleDomain clone = (SysRoleDomain) super.clone();
             if (this.roleId != null) clone.setRoleId(new RoleId(this.roleId.value()));
             if (this.roleBasicInfo != null) {
-                RoleBasicInfo basic = new RoleBasicInfo();
-                basic.setRoleName(this.roleBasicInfo.getRoleName());
-                basic.setRoleCode(this.roleBasicInfo.getRoleCode());
-                basic.setRoleSort(this.roleBasicInfo.getRoleSort());
-                basic.setRoleStatus(this.roleBasicInfo.getRoleStatus());
+                RoleBasicInfo basic = new RoleBasicInfo(this.roleBasicInfo.roleName(), this.roleBasicInfo.roleCode(), this.roleBasicInfo.roleSort(), this.roleBasicInfo.roleStatus(), this.roleBasicInfo.roleDataScope(), this.roleBasicInfo.roleOwner());
                 clone.setRoleBasicInfo(basic);
             }
             if (this.roleExtendInfo != null) {
-                RoleExtendInfo ext = new RoleExtendInfo();
-                ext.setRoleRemark(this.roleExtendInfo.getRoleRemark());
-                ext.setOwnerStatus(this.roleExtendInfo.getOwnerStatus());
+                RoleExtendInfo ext = new RoleExtendInfo(this.roleExtendInfo.roleRemark(), this.roleExtendInfo.ownerStatus(), this.roleExtendInfo.roleDesc(), this.roleExtendInfo.roleStatus());
                 clone.setRoleExtendInfo(ext);
             }
             if (this.dataPermission != null) {
-                DataPermission dp = new DataPermission();
-                dp.setDataScope(this.dataPermission.getDataScope());
-                dp.setDeptIds(this.dataPermission.getDeptIds());
+                DataPermission dp = new DataPermission(this.dataPermission.rowScope(), this.dataPermission.columnRules(), this.dataPermission.dataScope(), this.dataPermission.deptIds());
                 clone.setDataPermission(dp);
             }
             return clone;

@@ -32,6 +32,6 @@ public class SysDeptDomainRepositoryImpl implements SysDeptDomainRepository {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(SysDeptDomain aggregateRoot) {
-        return sysDeptRepository.deleteById(aggregateRoot.getDeptId().value());
+        return sysDeptRepository.deleteById(aggregateRoot.getDeptIdentifier().value());
     }
 }

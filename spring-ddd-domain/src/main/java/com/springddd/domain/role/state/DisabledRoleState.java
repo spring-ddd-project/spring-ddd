@@ -1,11 +1,13 @@
 package com.springddd.domain.role.state;
 
+import com.springddd.domain.role.RoleBasicInfo;
 import com.springddd.domain.role.SysRoleDomain;
 
 public class DisabledRoleState implements RoleState {
     @Override
     public void enable(SysRoleDomain domain) {
-        domain.getRoleBasicInfo().setRoleStatus(true);
+        RoleBasicInfo old = domain.getRoleBasicInfo();
+        domain.setRoleBasicInfo(new RoleBasicInfo(old.roleName(), old.roleCode(), old.roleSort(), true, old.roleDataScope(), old.roleOwner()));
         domain.setState(new EnabledRoleState());
     }
 
