@@ -23,16 +23,11 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
             if (this.itemId != null) clone.setItemId(new DictItemId(this.itemId.value()));
             if (this.dictId != null) clone.setDictId(new DictId(this.dictId.value()));
             if (this.itemBasicInfo != null) {
-                DictItemBasicInfo basic = new DictItemBasicInfo();
-                basic.setItemLabel(this.itemBasicInfo.getItemLabel());
-                basic.setItemValue(this.itemBasicInfo.getItemValue());
-                basic.setItemSort(this.itemBasicInfo.getItemSort());
-                basic.setItemStatus(this.itemBasicInfo.getItemStatus());
+                DictItemBasicInfo basic = new DictItemBasicInfo(this.itemBasicInfo.itemLabel(), this.itemBasicInfo.itemValue());
                 clone.setItemBasicInfo(basic);
             }
             if (this.itemExtendInfo != null) {
-                DictItemExtendInfo ext = new DictItemExtendInfo();
-                ext.setItemRemark(this.itemExtendInfo.getItemRemark());
+                DictItemExtendInfo ext = new DictItemExtendInfo(this.itemExtendInfo.sortOrder(), this.itemExtendInfo.itemStatus());
                 clone.setItemExtendInfo(ext);
             }
             return clone;
@@ -48,12 +43,12 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void enable() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
         state.enable(this);
     }
 
     public void disable() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
         state.disable(this);
     }
 
@@ -69,7 +64,7 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void restore() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.getItemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
         state.restore(this);
     }
 
@@ -82,75 +77,3 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
         this.itemExtendInfo = memento.getItemExtendInfo();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

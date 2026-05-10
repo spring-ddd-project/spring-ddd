@@ -20,17 +20,11 @@ public class GenProjectInfoDomain extends AbstractDomainMask implements Cloneabl
             GenProjectInfoDomain clone = (GenProjectInfoDomain) super.clone();
             if (this.id != null) clone.setId(new InfoId(this.id.value()));
             if (this.projectInfo != null) {
-                ProjectInfo info = new ProjectInfo();
-                info.setProjectName(this.projectInfo.getProjectName());
-                info.setProjectCode(this.projectInfo.getProjectCode());
-                info.setProjectAuthor(this.projectInfo.getProjectAuthor());
-                info.setProjectPackage(this.projectInfo.getProjectPackage());
-                info.setProjectDescription(this.projectInfo.getProjectDescription());
+                ProjectInfo info = new ProjectInfo(this.projectInfo.tableName(), this.projectInfo.packageName(), this.projectInfo.className(), this.projectInfo.moduleName(), this.projectInfo.projectName());
                 clone.setProjectInfo(info);
             }
             if (this.extendInfo != null) {
-                GenProjectInfoExtendInfo ext = new GenProjectInfoExtendInfo();
-                ext.setProjectVersion(this.extendInfo.getProjectVersion());
+                GenProjectInfoExtendInfo ext = new GenProjectInfoExtendInfo(this.extendInfo.requestName(), this.extendInfo.projectVersion());
                 clone.setExtendInfo(ext);
             }
             return clone;
@@ -67,66 +61,3 @@ public class GenProjectInfoDomain extends AbstractDomainMask implements Cloneabl
         this.extendInfo = memento.getExtendInfo();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

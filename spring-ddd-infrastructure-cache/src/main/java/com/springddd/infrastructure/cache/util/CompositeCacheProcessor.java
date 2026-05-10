@@ -1,8 +1,10 @@
 package com.springddd.infrastructure.cache.util;
 
 import reactor.core.publisher.Mono;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class CompositeCacheProcessor implements CacheProcessor {
     private final List<CacheProcessor> processors = new ArrayList<>();
@@ -12,27 +14,30 @@ public class CompositeCacheProcessor implements CacheProcessor {
     }
 
     @Override
-    public <T> Mono<T> get(String key, Class<T> clazz) {
-        Mono<T> result = Mono.empty();
+    public <R> Mono<R> getOrLoad(String key, Class<?> clazz, Duration ttl, Supplier<Mono<R>> dbLoader) {
+        Mono<R> result = Mono.empty();
         for (CacheProcessor processor : processors) {
-            result = result.switchIfEmpty(processor.get(key, clazz));
+            result = result.switchIfEmpty(processor.getOrLoad(key, clazz, ttl, dbLoader));
         }
         return result;
     }
 
     @Override
-    public Mono<Void> put(String key, Object value, long timeout) {
-        return Mono.when(processors.stream().map(p -> p.put(key, value, timeout)).toArray(Mono[]::new));
+    public <T> Mono<Boolean> setCache(String key, T value, Duration ttl) {
+        return Mono.when(processors.stream().map(p -> p.setCache(key, value, ttl)).toArray(Mono[]::new)).thenReturn(true);
     }
 
     @Override
-    public Mono<Boolean> delete(String key) {
-        return Mono.zip(processors.stream().map(p -> p.delete(key)).toArray(Mono[]::new),
-                results -> {
-                    for (Object res : results) {
-                        if (Boolean.TRUE.equals(res)) return true;
-                    }
-                    return false;
-                });
+    public <T> Mono<T> getCache(String key, Class<T> clazz) {
+        Mono<T> result = Mono.empty();
+        for (CacheProcessor processor : processors) {
+            result = result.switchIfEmpty(processor.getCache(key, clazz));
+        }
+        return result;
+    }
+
+    @Override
+    public Mono<Void> deleteCache(String key) {
+        return Mono.when(processors.stream().map(p -> p.deleteCache(key)).toArray(Mono[]::new));
     }
 }

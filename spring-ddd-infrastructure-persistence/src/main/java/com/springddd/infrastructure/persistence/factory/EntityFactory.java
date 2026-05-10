@@ -2,7 +2,12 @@ package com.springddd.infrastructure.persistence.factory;
 
 import com.springddd.domain.dept.SysDeptDomain;
 import com.springddd.domain.dict.SysDictDomain;
+import com.springddd.domain.dict.SysDictItemDomain;
 import com.springddd.domain.gen.GenAggregateDomain;
+import com.springddd.domain.gen.GenColumnBindDomain;
+import com.springddd.domain.gen.GenColumnsDomain;
+import com.springddd.domain.gen.GenProjectInfoDomain;
+import com.springddd.domain.gen.GenTemplateDomain;
 import com.springddd.domain.menu.SysMenuDomain;
 import com.springddd.domain.role.SysRoleDomain;
 import com.springddd.domain.user.SysUserDomain;

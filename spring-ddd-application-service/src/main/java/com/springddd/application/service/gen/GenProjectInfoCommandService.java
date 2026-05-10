@@ -21,7 +21,7 @@ public class GenProjectInfoCommandService {
 
     public Mono<Long> create(GenProjectInfoCommand command) {
         ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
-        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
+        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName(), null);
         GenProjectInfoDomain genInfoDomain = genProjectInfoDomainFactory.newInstance(projectInfo, extendInfo);
         genInfoDomain.create();
         return repositoryFactory.getGenProjectInfoDomainRepository().save(genInfoDomain);
@@ -30,7 +30,7 @@ public class GenProjectInfoCommandService {
     public Mono<Void> update(GenProjectInfoCommand command) {
         return repositoryFactory.getGenProjectInfoDomainRepository().load(new InfoId(command.getId())).flatMap(domain -> {
             ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
-            GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
+            GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName(), null);
             domain.update(projectInfo, extendInfo);
             return repositoryFactory.getGenProjectInfoDomainRepository().save(domain);
         }).then();

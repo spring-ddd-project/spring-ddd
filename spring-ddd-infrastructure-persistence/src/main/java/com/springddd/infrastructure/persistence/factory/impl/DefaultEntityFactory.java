@@ -59,16 +59,16 @@ public class DefaultEntityFactory implements EntityFactory {
         entity.setId(Optional.ofNullable(domain.getUserId()).map(UserId::value).orElse(null));
         
         if (domain.getAccount() != null) {
-            entity.setUserName(domain.getAccount().getUsername() != null ? domain.getAccount().getUsername().value() : null);
-            entity.setPassword(domain.getAccount().getPassword() != null ? domain.getAccount().getPassword().value() : null);
-            entity.setPhone(domain.getAccount().getPhone());
-            entity.setEmail(domain.getAccount().getEmail());
-            entity.setLockStatus(domain.getAccount().getLockStatus());
+            entity.setUsername(domain.getAccount().username() != null ? domain.getAccount().username().value() : null);
+            entity.setPassword(domain.getAccount().password() != null ? domain.getAccount().password().value() : null);
+            entity.setPhone(domain.getAccount().phone());
+            entity.setEmail(domain.getAccount().email());
+            entity.setLockStatus(domain.getAccount().lockStatus());
         }
         
         if (domain.getExtendInfo() != null) {
-            entity.setAvatar(domain.getExtendInfo().getAvatar());
-            entity.setSex(domain.getExtendInfo().getSex());
+            entity.setAvatar(domain.getExtendInfo().avatar());
+            entity.setSex(domain.getExtendInfo().sex());
         }
 
         entity.setDeptId(domain.getDeptId());
@@ -86,17 +86,10 @@ public class DefaultEntityFactory implements EntityFactory {
         SysUserDomain domain = new SysUserDomain();
         domain.setUserId(new UserId(entity.getId()));
         
-        Account account = new Account();
-        account.setUsername(new Username(entity.getUserName()));
-        account.setPassword(new Password(entity.getPassword()));
-        account.setPhone(entity.getPhone());
-        account.setEmail(entity.getEmail());
-        account.setLockStatus(entity.getLockStatus());
+        Account account = new Account(new Username(entity.getUsername()), new Password(entity.getPassword()), entity.getEmail(), entity.getPhone(), entity.getLockStatus());
         domain.setAccount(account);
         
-        ExtendInfo extendInfo = new ExtendInfo();
-        extendInfo.setAvatar(entity.getAvatar());
-        extendInfo.setSex(entity.getSex());
+        ExtendInfo extendInfo = new ExtendInfo(entity.getAvatar(), entity.getSex());
         domain.setExtendInfo(extendInfo);
         
         domain.setDeptId(entity.getDeptId());
@@ -112,7 +105,7 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public SysDeptEntity createSysDeptEntity(SysDeptDomain domain) {
         SysDeptEntity entity = new SysDeptEntity();
-        entity.setId(Optional.ofNullable(domain.getId()).map(DeptId::value).orElse(null));
+        entity.setId(Optional.ofNullable(domain.getDeptIdentifier()).map(DeptId::value).orElse(null));
         entity.setParentId(Optional.ofNullable(domain.getParentId()).map(DeptId::value).orElse(null));
         if (domain.getDeptBasicInfo() != null) {
             entity.setDeptName(domain.getDeptBasicInfo().deptName());
@@ -133,7 +126,7 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public SysDeptDomain createSysDeptDomain(SysDeptEntity entity) {
         SysDeptDomain domain = new SysDeptDomain();
-        domain.setId(new DeptId(entity.getId()));
+        domain.setDeptIdentifier(new DeptId(entity.getId()));
         domain.setParentId(new DeptId(entity.getParentId()));
         domain.setDeptBasicInfo(new DeptBasicInfo(entity.getDeptName()));
         domain.setDeptExtendInfo(new DeptExtendInfo(entity.getSortOrder(), entity.getDeptStatus()));
@@ -190,7 +183,7 @@ public class DefaultEntityFactory implements EntityFactory {
         entity.setName(domain.getName());
         
         if (domain.getCatalog() != null) {
-            entity.setRedirect(domain.getCatalog().menuRedirect());
+            entity.setRedirect(domain.getCatalog().redirect());
         }
         
         if (domain.getMenu() != null) {
@@ -231,7 +224,7 @@ public class DefaultEntityFactory implements EntityFactory {
         domain.setMenuId(new MenuId(entity.getId()));
         domain.setParentId(new MenuId(entity.getParentId()));
         domain.setName(entity.getName());
-        domain.setCatalog(new Catalog(entity.getRedirect()));
+        domain.setCatalog(new Catalog(null, null, entity.getRedirect()));
         domain.setMenu(new Menu(entity.getPath(), entity.getComponent(), entity.getAffixTab(), entity.getNoBasicLayout(), entity.getEmbedded()));
         domain.setButton(new Button(entity.getPermission(), entity.getApi()));
         domain.setMenuExtendInfo(new MenuExtendInfo(entity.getSortOrder(), entity.getTitle(), entity.getIcon(), entity.getMenuType(), entity.getVisible(), entity.getMenuStatus()));
@@ -279,6 +272,22 @@ public class DefaultEntityFactory implements EntityFactory {
         entity.setUpdateTime(domain.getUpdateTime());
         entity.setVersion(domain.getVersion());
         return entity;
+    }
+
+    @Override
+    public SysRoleDomain createSysRoleDomain(SysRoleEntity entity) {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleId(new RoleId(entity.getId()));
+        domain.setRoleBasicInfo(new RoleBasicInfo(entity.getRoleName(), entity.getRoleCode(), entity.getDataScope(), entity.getOwnerStatus()));
+        domain.setRoleExtendInfo(new RoleExtendInfo(entity.getRoleDesc(), entity.getRoleStatus()));
+        domain.setDeptId(entity.getDeptId());
+        domain.setDeleteStatus(entity.getDeleteStatus());
+        domain.setCreateBy(entity.getCreateBy());
+        domain.setCreateTime(entity.getCreateTime());
+        domain.setUpdateBy(entity.getUpdateBy());
+        domain.setUpdateTime(entity.getUpdateTime());
+        domain.setVersion(entity.getVersion());
+        return domain;
     }
 
     @Override
@@ -445,7 +454,7 @@ public class DefaultEntityFactory implements EntityFactory {
         GenProjectInfoDomain domain = new GenProjectInfoDomain();
         domain.setId(new InfoId(entity.getId()));
         domain.setProjectInfo(new ProjectInfo(entity.getTableName(), entity.getPackageName(), entity.getClassName(), entity.getModuleName(), entity.getProjectName()));
-        domain.setExtendInfo(new GenProjectInfoExtendInfo(entity.getRequestName()));
+        domain.setExtendInfo(new GenProjectInfoExtendInfo(entity.getRequestName(), null));
         domain.setDeleteStatus(entity.getDeleteStatus());
         domain.setCreateBy(entity.getCreateBy());
         domain.setCreateTime(entity.getCreateTime());
