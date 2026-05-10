@@ -1,6 +1,6 @@
 package com.springddd.application.service.gen.facade;
 
-import com.springddd.application.service.gen.GenerateDomainService;
+import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.application.service.gen.GenTableInfoQueryService;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import lombok.RequiredArgsConstructor;

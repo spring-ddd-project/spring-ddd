@@ -32,6 +32,6 @@ public class GenColumnsDomainRepositoryImpl implements GenColumnsDomainRepositor
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(GenColumnsDomain aggregateRoot) {
-        return genColumnsRepository.deleteById(aggregateRoot.getColumnsId().value());
+        return genColumnsRepository.deleteById(aggregateRoot.getId().value());
     }
 }

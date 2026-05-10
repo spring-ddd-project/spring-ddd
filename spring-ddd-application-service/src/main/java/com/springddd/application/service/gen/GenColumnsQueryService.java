@@ -123,7 +123,7 @@ public class GenColumnsQueryService {
                                             })
                             )
                             .collectList()
-                            .map(list -> new PageResponse<>(list, 0, 0, 0));
+                            .map(list -> new PageResponse<GenColumnsView>(list, 0L, 0, 0));
                 });
 
     }

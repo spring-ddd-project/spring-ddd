@@ -11,6 +11,7 @@ import java.util.List;
 public class PageResponse<T> implements java.io.Serializable, Iterable<T> {
 
     private List<T> list;
+    private List<T> items;
 
     private Long total;
 
@@ -20,6 +21,7 @@ public class PageResponse<T> implements java.io.Serializable, Iterable<T> {
 
     public PageResponse(List<T> list, Long total, Integer pageNum, Integer pageSize) {
         this.list = list;
+        this.items = list;
         this.total = total;
         this.pageNum = pageNum;
         this.pageSize = pageSize;
@@ -30,75 +32,3 @@ public class PageResponse<T> implements java.io.Serializable, Iterable<T> {
         return list.iterator();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

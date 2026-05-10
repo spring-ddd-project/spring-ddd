@@ -8,7 +8,7 @@ import lombok.EqualsAndHashCode;
 @Data
 public class SysDeptDomain extends AbstractDomainMask implements Cloneable {
 
-    private DeptId deptId;
+    private DeptId deptIdentifier;
 
     private DeptId parentId;
 
@@ -20,20 +20,14 @@ public class SysDeptDomain extends AbstractDomainMask implements Cloneable {
     public SysDeptDomain clone() {
         try {
             SysDeptDomain clone = (SysDeptDomain) super.clone();
-            if (this.deptId != null) clone.setDeptId(new DeptId(this.deptId.value()));
+            if (this.deptIdentifier != null) clone.setDeptIdentifier(new DeptId(this.deptIdentifier.value()));
             if (this.parentId != null) clone.setParentId(new DeptId(this.parentId.value()));
             if (this.deptBasicInfo != null) {
-                DeptBasicInfo basic = new DeptBasicInfo();
-                basic.setDeptName(this.deptBasicInfo.getDeptName());
-                basic.setDeptSort(this.deptBasicInfo.getDeptSort());
-                basic.setDeptStatus(this.deptBasicInfo.getDeptStatus());
+                DeptBasicInfo basic = new DeptBasicInfo(this.deptBasicInfo.deptName());
                 clone.setDeptBasicInfo(basic);
             }
             if (this.deptExtendInfo != null) {
-                DeptExtendInfo ext = new DeptExtendInfo();
-                ext.setDeptLeader(this.deptExtendInfo.getDeptLeader());
-                ext.setDeptPhone(this.deptExtendInfo.getDeptPhone());
-                ext.setDeptEmail(this.deptExtendInfo.getDeptEmail());
+                DeptExtendInfo ext = new DeptExtendInfo(this.deptExtendInfo.sortOrder(), this.deptExtendInfo.deptStatus());
                 clone.setDeptExtendInfo(ext);
             }
             return clone;

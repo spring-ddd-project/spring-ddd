@@ -32,6 +32,6 @@ public class GenProjectInfoDomainRepositoryImpl implements GenProjectInfoDomainR
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(GenProjectInfoDomain aggregateRoot) {
-        return genProjectInfoRepository.deleteById(aggregateRoot.getInfoId().value());
+        return genProjectInfoRepository.deleteById(aggregateRoot.getId().value());
     }
 }

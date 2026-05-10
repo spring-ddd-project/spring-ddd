@@ -2,7 +2,7 @@ package com.springddd.application.service.gen.mediator;
 
 import com.springddd.application.service.gen.GenTableInfoQueryService;
 import com.springddd.application.service.gen.GenTemplateQueryService;
-import com.springddd.application.service.gen.GenerateDomainService;
+import com.springddd.domain.gen.GenerateDomainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
