@@ -1,6 +1,6 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.util.IdGenerate;
+import com.springddd.domain.util.LeafId;
 import lombok.Data;
 import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 public class SysUserEntity {
 
     @Id
-    @IdGenerate
+    @LeafId
     private Long id;
 
     private String username;
