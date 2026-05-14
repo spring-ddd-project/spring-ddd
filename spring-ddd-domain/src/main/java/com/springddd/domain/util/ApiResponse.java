@@ -45,7 +45,8 @@ public class ApiResponse {
                 return page(page.getList(), page.getTotal(), page.getPageNum(), page.getPageSize());
             }
             return success(data);
-        }).defaultIfEmpty(empty());
+        }).onErrorResume(e -> Mono.just(error(e.getMessage())))
+         .defaultIfEmpty(empty());
     }
 
     // Reactive return with Validated parameter support for regular and paginated requests
