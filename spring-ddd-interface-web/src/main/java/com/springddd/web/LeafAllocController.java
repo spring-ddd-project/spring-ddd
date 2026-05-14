@@ -13,13 +13,12 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RestController
+@RequestMapping("/leaf/alloc")
 @RequiredArgsConstructor
-@RequestMapping("/leaf/leafAlloc")
 public class LeafAllocController {
 
-    private final LeafAllocQueryService queryService;
-
     private final LeafAllocCommandService commandService;
+    private final LeafAllocQueryService queryService;
 
     @PostMapping("/index")
     public Mono<ApiResponse> index(@RequestBody @Validated Mono<LeafAllocPageQuery> query) {
@@ -46,13 +45,13 @@ public class LeafAllocController {
         return ApiResponse.ok(commandService.delete(ids));
     }
 
-    @PostMapping("/restore")
-    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
-        return ApiResponse.ok(commandService.restore(ids));
-    }
-
     @DeleteMapping("/wipe")
     public Mono<ApiResponse> wipe(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(commandService.wipe(ids));
+    }
+
+    @PostMapping("/restore")
+    public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
+        return ApiResponse.ok(commandService.restore(ids));
     }
 }

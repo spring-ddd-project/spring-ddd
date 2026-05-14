@@ -14,6 +14,13 @@ spring:
           min-idle: 8
           max-wait: 4s
 
+leaf:
+  snowflake:
+    enabled: true
+    worker-id: 0
+    datacenter-id: 0
+    port: 8080
+
 jwt:
   secret: 'r)],&w1%g$26idpK7@.UmZ-=SXwy_Hkb-hf~3ebr,2QHI8YEIbg3_&tMW8UwzQ1f'
   ttl: 7

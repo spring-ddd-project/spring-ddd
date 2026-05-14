@@ -6,108 +6,38 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class LeafAllocDomain extends AbstractDomainMask {
+public class LeafAllocDomain extends AbstractDomainMask implements Cloneable {
 
-    private LeafId leafId;
+    private LeafAllocId leafAllocId;
 
-    private LeafProp leafProp;
+    private Long id;
 
-    private ExtendInfo extendInfo;
+    private LeafAllocBasicInfo basicInfo;
 
-    public void create() {}
+    private LeafAllocExtendInfo extendInfo;
 
-    public void update(LeafProp leafProp, ExtendInfo extendInfo) {
-        this.leafProp = leafProp;
+    private LeafAllocState state;
+
+    public void setState(LeafAllocState state) {
+        this.state = state;
+    }
+
+    public void create() {
+        this.state = new com.springddd.domain.leaf.state.ActiveLeafAllocState();
+    }
+
+    public void update(LeafAllocBasicInfo basicInfo, LeafAllocExtendInfo extendInfo) {
+        this.basicInfo = basicInfo;
         this.extendInfo = extendInfo;
     }
 
     public void delete() {
-        super.setDeleteStatus(true);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.leaf.state.DeletedLeafAllocState() : new com.springddd.domain.leaf.state.ActiveLeafAllocState();
+        state.delete(this);
     }
 
     public void restore() {
-        super.setDeleteStatus(false);
-    }
-
-    public void updateMaxId(LeafProp leafProp) {
-        Long newMaxId = leafProp.maxId() + leafProp.step();
-        this.leafProp = new LeafProp(leafProp.bizTag(), leafProp.step(), newMaxId);
-    }
-
-    public void updateMaxIdByCustomStep(LeafProp leafProp) {
-        this.updateMaxId(leafProp);
+        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.leaf.state.DeletedLeafAllocState() : new com.springddd.domain.leaf.state.ActiveLeafAllocState();
+        state.restore(this);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

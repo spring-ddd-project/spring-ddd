@@ -11,12 +11,16 @@ import com.springddd.domain.gen.GenTemplateDomain;
 import com.springddd.domain.menu.SysMenuDomain;
 import com.springddd.domain.role.SysRoleDomain;
 import com.springddd.domain.user.SysUserDomain;
+import com.springddd.domain.leaf.LeafAllocDomain;
 import com.springddd.infrastructure.persistence.entity.*;
 
 /**
  * Factory for creating persistence entities.
  */
 public interface EntityFactory extends InfrastructureFactory {
+    LeafAllocEntity createLeafAllocEntity(LeafAllocDomain domain);
+    LeafAllocDomain createLeafAllocDomain(LeafAllocEntity entity);
+
     GenAggregateEntity createGenAggregateEntity(GenAggregateDomain domain);
     GenAggregateDomain createGenAggregateDomain(GenAggregateEntity entity);
 

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.domain.dept.*;
 import com.springddd.domain.dict.*;
 import com.springddd.domain.gen.*;
+import com.springddd.domain.leaf.LeafAllocDomain;
+import com.springddd.domain.leaf.LeafAllocId;
 import com.springddd.domain.menu.*;
 import com.springddd.domain.role.*;
 import com.springddd.domain.user.*;
@@ -20,6 +22,43 @@ import java.util.Optional;
 public class DefaultEntityFactory implements EntityFactory {
 
     private final ObjectMapper objectMapper;
+
+    @Override
+    public LeafAllocEntity createLeafAllocEntity(LeafAllocDomain domain) {
+        LeafAllocEntity entity = new LeafAllocEntity();
+        entity.setId(domain.getId());
+        entity.setBizTag(Optional.ofNullable(domain.getLeafAllocId()).map(LeafAllocId::value).orElse(null));
+        entity.setMaxId(domain.getExtendInfo() != null ? domain.getExtendInfo().maxId() : null);
+        entity.setStep(domain.getExtendInfo() != null ? domain.getExtendInfo().step() : null);
+        entity.setDescription(domain.getBasicInfo() != null ? domain.getBasicInfo().description() : null);
+        entity.setDeleteStatus(domain.getDeleteStatus());
+        entity.setCreateBy(domain.getCreateBy());
+        entity.setCreateTime(domain.getCreateTime());
+        entity.setUpdateBy(domain.getUpdateBy());
+        entity.setUpdateTime(domain.getUpdateTime());
+        entity.setVersion(domain.getVersion());
+        entity.setDeptId(domain.getDeptId());
+        return entity;
+    }
+
+    @Override
+    public LeafAllocDomain createLeafAllocDomain(LeafAllocEntity entity) {
+        LeafAllocDomain domain = new LeafAllocDomain();
+        domain.setId(entity.getId());
+        domain.setLeafAllocId(new LeafAllocId(entity.getBizTag()));
+        domain.setBasicInfo(new com.springddd.domain.leaf.LeafAllocBasicInfo(entity.getDescription()));
+        domain.setExtendInfo(new com.springddd.domain.leaf.LeafAllocExtendInfo(
+                entity.getMaxId() != null ? entity.getMaxId() : 0L,
+                entity.getStep() != null ? entity.getStep() : 0));
+        domain.setDeleteStatus(entity.getDeleteStatus());
+        domain.setCreateBy(entity.getCreateBy());
+        domain.setCreateTime(entity.getCreateTime());
+        domain.setUpdateBy(entity.getUpdateBy());
+        domain.setUpdateTime(entity.getUpdateTime());
+        domain.setVersion(entity.getVersion());
+        domain.setDeptId(entity.getDeptId());
+        return domain;
+    }
 
     @Override
     public GenAggregateEntity createGenAggregateEntity(GenAggregateDomain domain) {

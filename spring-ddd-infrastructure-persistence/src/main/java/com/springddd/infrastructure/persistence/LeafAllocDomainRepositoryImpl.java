@@ -1,56 +1,39 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.leaf.*;
+import com.springddd.domain.leaf.LeafAllocDomain;
+import com.springddd.domain.leaf.LeafAllocDomainRepository;
+import com.springddd.domain.leaf.LeafAllocId;
 import com.springddd.infrastructure.persistence.entity.LeafAllocEntity;
+import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.LeafAllocRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
-
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
 public class LeafAllocDomainRepositoryImpl implements LeafAllocDomainRepository {
 
-    private final LeafAllocRepository repository;
+    private final LeafAllocRepository leafAllocRepository;
+    private final EntityFactory entityFactory;
 
     @Override
-    public Mono<LeafAllocDomain> load(LeafId leafId) {
-        return repository.findById(leafId.value()).map(e -> {
-            LeafAllocDomain domain = new LeafAllocDomain();
-
-            domain.setLeafId(new LeafId(e.getId()));
-
-            domain.setLeafProp(new LeafProp(e.getBizTag(), e.getStep(), e.getMaxId()));
-            domain.setExtendInfo(new ExtendInfo(e.getDescription()));
-
-            domain.setUpdateTime(e.getUpdateTime());
-            domain.setVersion(e.getVersion());
-
-            return domain;
-        });
+    public Mono<LeafAllocDomain> load(LeafAllocId aggregateRootId) {
+        return leafAllocRepository.findByBizTag(aggregateRootId.value())
+                .map(entityFactory::createLeafAllocDomain);
     }
 
     @Override
-    public Mono<Long> save(LeafAllocDomain domain) {
-        LeafAllocEntity entity = new LeafAllocEntity();
-
-        entity.setId(Optional.ofNullable(domain.getLeafId()).map(LeafId::value).orElse(null));
-
-        entity.setBizTag(domain.getLeafProp().bizTag());
-        entity.setStep(domain.getLeafProp().step());
-        entity.setMaxId(domain.getLeafProp().maxId());
-        entity.setDescription(domain.getExtendInfo().description());
-
-        entity.setUpdateTime(domain.getUpdateTime());
-        entity.setVersion(domain.getVersion());
-
-        return repository.save(entity).map(LeafAllocEntity::getId);
+    @Transactional(rollbackFor = Exception.class)
+    public Mono<Long> save(LeafAllocDomain aggregateRoot) {
+        LeafAllocEntity entity = entityFactory.createLeafAllocEntity(aggregateRoot);
+        return leafAllocRepository.save(entity).map(LeafAllocEntity::getId);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Mono<Void> delete(LeafAllocDomain aggregateRoot) {
-        return repository.deleteById(aggregateRoot.getLeafId().value());
+        return leafAllocRepository.deleteById(aggregateRoot.getId());
     }
 }
