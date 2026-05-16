@@ -39,6 +39,8 @@ public class AuthUser implements Serializable, UserDetails {
 
     private List<Long> menuIds;
 
+    private java.util.Map<String, java.util.Set<String>> columnPermissions = new java.util.HashMap<>();
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
