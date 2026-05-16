@@ -326,6 +326,16 @@ public class DefaultEntityFactory implements EntityFactory {
         domain.setUpdateBy(entity.getUpdateBy());
         domain.setUpdateTime(entity.getUpdateTime());
         domain.setVersion(entity.getVersion());
+
+        if (entity.getDataPermission() != null && !entity.getDataPermission().isEmpty()) {
+            try {
+                DataPermission dp = objectMapper.readValue(entity.getDataPermission(), DataPermission.class);
+                domain.setDataPermission(dp);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Failed to deserialize dataPermission for role " + entity.getId(), e);
+            }
+        }
+
         return domain;
     }
 

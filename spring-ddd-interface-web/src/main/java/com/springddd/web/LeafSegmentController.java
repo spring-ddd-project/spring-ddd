@@ -14,7 +14,7 @@ public class LeafSegmentController {
     private final LeafSegmentDomainService leafSegmentDomainService;
 
     @PostMapping("/get/{bizTag}")
-    public Mono<ApiResponse> getId(@PathVariable("bizTag") String bizTag) {
+    public Mono<ApiResponse> getId(@PathVariable String bizTag) {
         return ApiResponse.ok(leafSegmentDomainService.getId(bizTag));
     }
 

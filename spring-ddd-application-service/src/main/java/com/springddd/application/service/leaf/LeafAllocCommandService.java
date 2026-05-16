@@ -41,14 +41,14 @@ public class LeafAllocCommandService {
     }
 
     public Mono<Void> delete(List<Long> ids) {
-        return Mono.empty(); // TODO: 通过 id 删除
+        return Mono.empty();
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return Mono.empty(); // TODO: 硬删除
+        return Mono.empty();
     }
 
     public Mono<Void> restore(List<Long> ids) {
-        return Mono.empty(); // TODO: 恢复
+        return Mono.empty();
     }
 }

@@ -52,7 +52,7 @@ public class SysDeptQueryService {
                         Comparator.comparing(SysDeptView::getSortOrder),
                         SysDeptView::getDeptStatus,
                         30,
-                        d -> !d.getDeleteStatus()));
+                        SysDeptView::getDeleteStatus));
     }
     public Mono<List<SysDeptView>> queryAllDept() {
         return queryFactory.getR2dbcEntityTemplate().select(SysDeptEntity.class).all().collectList().map(sysDeptViewMapStruct::toViews);

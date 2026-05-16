@@ -9,6 +9,8 @@ import com.springddd.application.service.user.SysUserQueryService;
 import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.role.ColumnRule;
+import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -18,7 +20,7 @@ import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -79,6 +81,11 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
 
                                                     user.setPermissions(permissions);
                                                     return user;
+                                                })
+                                                .flatMap(u -> {
+                                                    Map<String, Set<String>> columnPermissions = mergeColumnPermissions(roleViews);
+                                                    u.setColumnPermissions(columnPermissions);
+                                                    return Mono.just(u);
                                                 });
 
                                     }));
@@ -86,59 +93,31 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                 });
     }
 
+    private Map<String, Set<String>> mergeColumnPermissions(List<SysRoleView> roleViews) {
+        Map<String, Set<String>> result = new HashMap<>();
+        if (roleViews == null || roleViews.isEmpty()) {
+            return result;
+        }
 
+        for (SysRoleView roleView : roleViews) {
+            DataPermission dp = roleView.getDataPermission();
+            if (dp == null || dp.columnRules() == null || dp.columnRules().isEmpty()) {
+                return new HashMap<>();
+            }
+        }
+
+        for (SysRoleView roleView : roleViews) {
+            DataPermission dp = roleView.getDataPermission();
+            for (ColumnRule rule : dp.columnRules()) {
+                String entityCode = rule.entityCode();
+                List<String> columns = rule.columns();
+                if (entityCode == null || columns == null || columns.isEmpty()) {
+                    continue;
+                }
+                result.computeIfAbsent(entityCode, k -> new HashSet<>()).addAll(columns);
+            }
+        }
+
+        return result;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
