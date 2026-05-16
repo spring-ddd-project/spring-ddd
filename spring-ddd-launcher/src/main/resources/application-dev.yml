@@ -1,11 +1,11 @@
 spring:
   r2dbc:
-    url: r2dbc:pool:mysql://spring-ddd-db:3306/spring_ddd
+    url: r2dbc:pool:mysql://127.0.0.1:3306/spring_ddd
     username: test_user
     password: QAZ123wsx456
   data:
     redis:
-      host: spring-ddd-redis
+      host: 127.0.0.1
       password: QAZ123wsx456
       lettuce:
         pool:
@@ -13,6 +13,8 @@ spring:
           max-idle: 32
           min-idle: 8
           max-wait: 4s
+  main:
+    allow-circular-references: true
 
 leaf:
   snowflake:
