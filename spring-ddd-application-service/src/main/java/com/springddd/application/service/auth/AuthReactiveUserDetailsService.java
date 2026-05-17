@@ -102,12 +102,8 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
         for (SysRoleView roleView : roleViews) {
             DataPermission dp = roleView.getDataPermission();
             if (dp == null || dp.columnRules() == null || dp.columnRules().isEmpty()) {
-                return new HashMap<>();
+                continue;
             }
-        }
-
-        for (SysRoleView roleView : roleViews) {
-            DataPermission dp = roleView.getDataPermission();
             for (ColumnRule rule : dp.columnRules()) {
                 String entityCode = rule.entityCode();
                 List<String> columns = rule.columns();
