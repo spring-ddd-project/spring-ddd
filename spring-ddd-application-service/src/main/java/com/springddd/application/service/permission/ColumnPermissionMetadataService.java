@@ -1,6 +1,7 @@
 package com.springddd.application.service.permission;
 
 import com.springddd.domain.auth.ReactiveSecurityUtils;
+import com.springddd.domain.permission.EntityColumnMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -10,6 +11,8 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class ColumnPermissionMetadataService {
+
+    private final ColumnPermissionMetadataProvider metadataProvider;
 
     public Mono<Map<String, List<String>>> getCurrentUserColumnPermissions() {
         return ReactiveSecurityUtils.getCurrentUser()
@@ -25,7 +28,11 @@ public class ColumnPermissionMetadataService {
 
     public Mono<List<String>> getVisibleColumns(String entityCode) {
         return ReactiveSecurityUtils.getVisibleColumns(entityCode)
-                .map(v -> new ArrayList<>(v))
-                .switchIfEmpty(Mono.just(new ArrayList<>()));
+                .map(v -> (List<String>) new ArrayList<>(v))
+                .switchIfEmpty(Mono.just(Collections.emptyList()));
+    }
+
+    public Mono<List<EntityColumnMetadata>> getAllEntityMetadata() {
+        return Mono.just(metadataProvider.getAllMetadata());
     }
 }

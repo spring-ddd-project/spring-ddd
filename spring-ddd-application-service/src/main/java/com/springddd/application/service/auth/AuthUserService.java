@@ -73,15 +73,15 @@ public class AuthUserService {
     public Mono<UserInfoView> getUserInfo() {
         UserInfoView view = new UserInfoView();
         view.setRealName(SecurityUtils.getUsername());
-        view.setRoles(SecurityUtils.getRoles().stream().toList());
+        List<String> roles = SecurityUtils.getRoles();
+        view.setRoles(roles != null ? roles.stream().toList() : java.util.Collections.emptyList());
         return Mono.just(view);
     }
 
     public Mono<List<String>> getUserPermissions() {
+        List<String> permissions = SecurityUtils.getPermissions();
         return Mono.just(
-                SecurityUtils.getPermissions()
-                        .stream()
-                        .toList()
+                permissions != null ? permissions.stream().toList() : java.util.Collections.emptyList()
         );
     }
 
