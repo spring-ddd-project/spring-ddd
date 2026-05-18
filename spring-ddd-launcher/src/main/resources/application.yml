@@ -13,3 +13,6 @@ spring:
       - /auth/codes
       - /auth/user/info
       - /sys/menu/all
+      - /sys/column-permission/entities
+      - /sys/column-permission/metadata
+      - /sys/column-permission/visible-columns

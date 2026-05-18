@@ -1,6 +1,18 @@
 package com.springddd.domain.role;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.util.List;
 
-public record ColumnRule(String entityCode, String entityName, List<String> columns) {
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ColumnRule {
+    private String entityCode;
+    private String entityName;
+    private List<String> columns;
+    private String dimensionType;
+    private List<Long> dimensionIds;
 }
