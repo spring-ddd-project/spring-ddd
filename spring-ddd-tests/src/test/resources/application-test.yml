@@ -1,0 +1,28 @@
+spring:
+  r2dbc:
+    url: r2dbc:pool:mysql://127.0.0.1:33306/spring_ddd
+    username: root
+    password: root
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 36379
+      lettuce:
+        pool:
+          max-active: 64
+          max-idle: 32
+          min-idle: 8
+          max-wait: 4s
+  main:
+    allow-circular-references: true
+
+leaf:
+  snowflake:
+    enabled: true
+    worker-id: 0
+    datacenter-id: 0
+    port: 8080
+
+jwt:
+  secret: 'test-secret-key-for-integration-testing-only-do-not-use-in-production'
+  ttl: 7

@@ -1,6 +1,7 @@
 package com.springddd.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.springddd.domain.role.ColumnRule;
 import com.springddd.domain.user.UserId;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -10,8 +11,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -33,13 +37,23 @@ public class AuthUser implements Serializable, UserDetails {
 
     private Boolean lockStatus;
 
+    private Long deptId;
+
     private List<String> roles;
 
     private List<String> permissions;
 
     private List<Long> menuIds;
 
-    private java.util.Map<String, java.util.Set<String>> columnPermissions = new java.util.HashMap<>();
+    /**
+     * 列权限预计算映射（向后兼容）
+     */
+    private Map<String, Set<String>> columnPermissions = new java.util.HashMap<>();
+
+    /**
+     * 原始列权限规则列表（支持多维度匹配）
+     */
+    private List<ColumnRule> columnRules = new ArrayList<>();
 
     @JsonIgnore
     @Override
@@ -51,7 +65,6 @@ public class AuthUser implements Serializable, UserDetails {
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toUnmodifiableSet());
     }
-
 
     @Override
     public String getPassword() {
@@ -83,50 +96,3 @@ public class AuthUser implements Serializable, UserDetails {
         return !Boolean.TRUE.equals(lockStatus);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

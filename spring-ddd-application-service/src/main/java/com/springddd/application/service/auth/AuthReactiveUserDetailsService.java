@@ -46,6 +46,7 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                     user.setUsername(sysUserView.getUsername());
                     user.setPassword(sysUserView.getPassword());
                     user.setLockStatus(sysUserView.getLockStatus());
+                    user.setDeptId(sysUserView.getDeptId());
 
                     return sysUserRoleQueryService.queryLinkUserAndRole(user.getUserId().value())
                             .flatMapMany(Flux::fromIterable)
@@ -85,6 +86,10 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                 .flatMap(u -> {
                                                     Map<String, Set<String>> columnPermissions = mergeColumnPermissions(roleViews);
                                                     u.setColumnPermissions(columnPermissions);
+
+                                                    List<ColumnRule> columnRules = mergeColumnRules(roleViews);
+                                                    u.setColumnRules(columnRules);
+
                                                     return Mono.just(u);
                                                 });
 
@@ -105,8 +110,8 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                 continue;
             }
             for (ColumnRule rule : dp.columnRules()) {
-                String entityCode = rule.entityCode();
-                List<String> columns = rule.columns();
+                String entityCode = rule.getEntityCode();
+                List<String> columns = rule.getColumns();
                 if (entityCode == null || columns == null || columns.isEmpty()) {
                     continue;
                 }
@@ -114,6 +119,21 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
             }
         }
 
+        return result;
+    }
+
+    private List<ColumnRule> mergeColumnRules(List<SysRoleView> roleViews) {
+        List<ColumnRule> result = new ArrayList<>();
+        if (roleViews == null || roleViews.isEmpty()) {
+            return result;
+        }
+        for (SysRoleView roleView : roleViews) {
+            DataPermission dp = roleView.getDataPermission();
+            if (dp == null || dp.columnRules() == null) {
+                continue;
+            }
+            result.addAll(dp.columnRules());
+        }
         return result;
     }
 }
