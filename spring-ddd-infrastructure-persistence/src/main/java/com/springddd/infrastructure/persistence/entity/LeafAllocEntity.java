@@ -1,5 +1,7 @@
 package com.springddd.infrastructure.persistence.entity;
 
+import com.springddd.domain.permission.DataPermissionEntity;
+
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -8,6 +10,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Table("leaf_alloc")
+@DataPermissionEntity(name = "号段分配")
 public class LeafAllocEntity {
 
     @Id

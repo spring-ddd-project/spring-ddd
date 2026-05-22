@@ -11,6 +11,7 @@ import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.role.ColumnRule;
 import com.springddd.domain.role.DataPermission;
+import com.springddd.domain.role.RowScope;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -90,6 +91,9 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                                     List<ColumnRule> columnRules = mergeColumnRules(roleViews);
                                                     u.setColumnRules(columnRules);
 
+                                                    DataPermission dataPermission = mergeDataPermission(roleViews);
+                                                    u.setDataPermission(dataPermission);
+
                                                     return Mono.just(u);
                                                 });
 
@@ -135,5 +139,68 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
             result.addAll(dp.columnRules());
         }
         return result;
+    }
+
+    private DataPermission mergeDataPermission(List<SysRoleView> roleViews) {
+        if (roleViews == null || roleViews.isEmpty()) {
+            return null;
+        }
+
+        Integer strictestDataScope = 1; // default: all
+        Set<Long> mergedDeptIds = new HashSet<>();
+        Set<Long> mergedPostIds = new HashSet<>();
+        Set<Long> mergedUserIds = new HashSet<>();
+        boolean self = false;
+        List<ColumnRule> mergedColumnRules = new ArrayList<>();
+
+        for (SysRoleView roleView : roleViews) {
+            DataPermission dp = roleView.getDataPermission();
+            if (dp == null) {
+                continue;
+            }
+
+            // Merge dataScope: take the strictest (largest number)
+            Integer ds = dp.dataScope();
+            if (ds != null && ds > strictestDataScope) {
+                strictestDataScope = ds;
+            }
+
+            // Merge columnRules
+            if (dp.columnRules() != null) {
+                mergedColumnRules.addAll(dp.columnRules());
+            }
+
+            // Merge deptIds from top-level
+            if (dp.deptIds() != null) {
+                mergedDeptIds.addAll(dp.deptIds());
+            }
+
+            // Merge RowScope
+            RowScope rs = dp.rowScope();
+            if (rs != null) {
+                if (rs.deptIds() != null) {
+                    mergedDeptIds.addAll(rs.deptIds());
+                }
+                if (rs.postIds() != null) {
+                    mergedPostIds.addAll(rs.postIds());
+                }
+                if (rs.userIds() != null) {
+                    mergedUserIds.addAll(rs.userIds());
+                }
+                if (Boolean.TRUE.equals(rs.self())) {
+                    self = true;
+                }
+            }
+        }
+
+        RowScope mergedRowScope = new RowScope(
+                new ArrayList<>(mergedDeptIds),
+                new ArrayList<>(mergedPostIds),
+                new ArrayList<>(mergedUserIds),
+                self
+        );
+
+        return new DataPermission(mergedRowScope, mergedColumnRules, strictestDataScope,
+                new ArrayList<>(mergedDeptIds));
     }
 }

@@ -1,13 +1,13 @@
 package com.springddd.application.service.role;
 
 
+import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.application.service.role.dto.SysRoleQuery;
 import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.application.service.role.dto.SysRoleViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
@@ -20,9 +20,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SysRoleQueryService {
-
-    private final QueryFactory queryFactory;
+public class SysRoleQueryService extends BaseQueryService<SysRoleEntity> {
 
     private final SysRoleViewMapStruct sysRoleViewMapStruct;
 
@@ -36,26 +34,32 @@ public class SysRoleQueryService {
         if (!ObjectUtils.isEmpty(query.getRoleCode())) {
             criteria = criteria.and(SysRoleQuery.Fields.roleCode).like("%" + query.getRoleCode() + "%");
         }
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+        return applyDataScope(criteria, SysRoleEntity.class)
+                .flatMap(scopedCriteria -> {
+                    Query qry = Query.query(scopedCriteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
 
-        Mono<List<SysRoleView>> list = queryFactory.getR2dbcEntityTemplate().select(SysRoleEntity.class).matching(qry).all().collectList().map(sysRoleViewMapStruct::toViewList);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysRoleEntity.class);
-        return Mono.zip(list, count)
-                .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                    Mono<List<SysRoleView>> list = queryFactory.getR2dbcEntityTemplate().select(SysRoleEntity.class).matching(qry).all().collectList().map(sysRoleViewMapStruct::toViewList);
+                    Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), SysRoleEntity.class);
+                    return Mono.zip(list, count)
+                            .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
     public Mono<PageResponse<SysRoleView>> recycle(SysRolePageQuery query) {
         Criteria criteria = Criteria.where(SysRoleQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+        return applyDataScope(criteria, SysRoleEntity.class)
+                .flatMap(scopedCriteria -> {
+                    Query qry = Query.query(scopedCriteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
 
-        Mono<List<SysRoleView>> list = queryFactory.getR2dbcEntityTemplate().select(SysRoleEntity.class).matching(qry).all().collectList().map(sysRoleViewMapStruct::toViewList);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysRoleEntity.class);
-        return Mono.zip(list, count)
-                .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                    Mono<List<SysRoleView>> list = queryFactory.getR2dbcEntityTemplate().select(SysRoleEntity.class).matching(qry).all().collectList().map(sysRoleViewMapStruct::toViewList);
+                    Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), SysRoleEntity.class);
+                    return Mono.zip(list, count)
+                            .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
     public Mono<SysRoleView> getById(Long id) {
@@ -73,66 +77,3 @@ public class SysRoleQueryService {
         return sysRoleRepository.findAll().collectList().map(sysRoleViewMapStruct::toViewList);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

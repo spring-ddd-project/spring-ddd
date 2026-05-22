@@ -1,6 +1,7 @@
 package com.springddd.application.service.dept;
 
 import com.springddd.application.service.dept.dto.SysDeptCommand;
+import com.springddd.application.service.permission.DataScopeCriteriaBuilder;
 import com.springddd.domain.dept.*;
 import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,8 @@ public class SysDeptCommandService {
 
     private final RestoreSysDeptByIdDomainService restoreSysDeptByIdDomainService;
 
+    private final DataScopeCriteriaBuilder dataScopeCriteriaBuilder;
+
     public Mono<Long> create(SysDeptCommand command) {
         DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
         DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
@@ -30,7 +33,8 @@ public class SysDeptCommandService {
         SysDeptDomain sysDeptDomain = sysDeptDomainFactory.newInstance(new DeptId(command.getParentId()), basicInfo, extendInfo);
         sysDeptDomain.create();
 
-        return repositoryFactory.getSysDeptDomainRepository().save(sysDeptDomain);
+        return repositoryFactory.getSysDeptDomainRepository().save(sysDeptDomain)
+                .flatMap(id -> dataScopeCriteriaBuilder.evictDeptTreeCache().thenReturn(id));
     }
 
     public Mono<Void> update(SysDeptCommand command) {
@@ -40,19 +44,22 @@ public class SysDeptCommandService {
 
             domain.update(new DeptId(command.getParentId()), basicInfo, extendInfo);
             return repositoryFactory.getSysDeptDomainRepository().save(domain);
-        }).then();
+        }).flatMap(id -> dataScopeCriteriaBuilder.evictDeptTreeCache().then());
     }
 
     public Mono<Void> delete(List<Long> ids) {
-        return deleteSysDeptByIdDomainService.deleteByIds(ids);
+        return deleteSysDeptByIdDomainService.deleteByIds(ids)
+                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return wipeSysDeptByIdsDomainService.deleteByIds(ids);
+        return wipeSysDeptByIdsDomainService.deleteByIds(ids)
+                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
     }
 
     public Mono<Void> restore(List<Long> ids) {
-        return restoreSysDeptByIdDomainService.restoreByIds(ids);
+        return restoreSysDeptByIdDomainService.restoreByIds(ids)
+                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
     }
 }
 

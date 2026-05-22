@@ -2,10 +2,10 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.dict.SysDictQueryService;
 import com.springddd.application.service.gen.dto.*;
+import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -21,9 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GenColumnsQueryService {
-
-    private final QueryFactory queryFactory;
+public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
 
     private final GenColumnsViewMapStruct genColumnsViewMapStruct;
 
@@ -157,59 +155,3 @@ public class GenColumnsQueryService {
                 );
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

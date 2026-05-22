@@ -1,9 +1,9 @@
 package com.springddd.application.service.dict;
 
 import com.springddd.application.service.dict.dto.*;
+import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -15,9 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SysDictQueryService {
-
-    private final QueryFactory queryFactory;
+public class SysDictQueryService extends BaseQueryService<SysDictEntity> {
 
     private final SysDictViewMapStruct sysDictViewMapStruct;
 
@@ -33,12 +31,14 @@ public class SysDictQueryService {
         if (!ObjectUtils.isEmpty(query.getDictCode())) {
             criteria = criteria.and(SysDictQuery.Fields.dictCode).like("%" + query.getDictCode() + "%");
         }
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<SysDictView>> list = queryFactory.getR2dbcEntityTemplate().select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysDictEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        return applyDataScope(criteria, SysDictEntity.class).flatMap(scopedCriteria -> {
+            Query qry = Query.query(scopedCriteria)
+                    .limit(query.getPageSize())
+                    .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+            Mono<List<SysDictView>> list = queryFactory.getR2dbcEntityTemplate().select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
+            Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), SysDictEntity.class);
+            return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        });
     }
 
     public Mono<List<SysDictView>> queryAll() {
@@ -47,12 +47,14 @@ public class SysDictQueryService {
 
     public Mono<PageResponse<SysDictView>> recycle(SysDictPageQuery query) {
         Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<SysDictView>> list = queryFactory.getR2dbcEntityTemplate().select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), SysDictEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        return applyDataScope(criteria, SysDictEntity.class).flatMap(scopedCriteria -> {
+            Query qry = Query.query(scopedCriteria)
+                    .limit(query.getPageSize())
+                    .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+            Mono<List<SysDictView>> list = queryFactory.getR2dbcEntityTemplate().select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
+            Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), SysDictEntity.class);
+            return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        });
     }
 
     public Mono<String> queryItemLabelByDictCode(String dictCode, Integer itemValue) {
@@ -89,54 +91,3 @@ public class SysDictQueryService {
                 });
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
