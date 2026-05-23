@@ -149,6 +149,40 @@ class ColumnPermissionEvaluatorImplTest {
                 .verifyComplete();
     }
 
+    @Test
+    @DisplayName("当用户有列权限限制时，不可见列应被移除")
+    void filter_withRemoveStrategy_shouldRemoveInvisibleColumns() {
+        TestUser user = new TestUser("zhangsan", "13800138000", "zhangsan@example.com");
+        Map<String, Set<String>> permissions = Map.of("sys_user", Set.of("username"));
+
+        StepVerifier.create(
+                        evaluator.filter(user, "sys_user", MaskStrategy.REMOVE)
+                                .contextWrite(withAuthUser(permissions))
+                )
+                .assertNext(result -> {
+                    assertThat(result.getUsername()).isEqualTo("zhangsan");
+                    assertThat(result.getPhone()).isNull();
+                    assertThat(result.getEmail()).isNull();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("filter 当 objectMapper 转换失败时应返回原始对象")
+    void filter_whenObjectMapperThrows_shouldReturnOriginal() {
+        // Test with a primitive type that cannot be converted to a map,
+        // triggering the onErrorReturn path in applyFilter
+        String value = "test";
+        Map<String, Set<String>> permissions = Map.of("sys_user", Set.of("username"));
+
+        StepVerifier.create(
+                        evaluator.filter(value, "sys_user", MaskStrategy.NULL)
+                                .contextWrite(withAuthUser(permissions))
+                )
+                .assertNext(result -> assertThat(result).isEqualTo("test"))
+                .verifyComplete();
+    }
+
     static class TestUser {
         private String username;
         private String phone;

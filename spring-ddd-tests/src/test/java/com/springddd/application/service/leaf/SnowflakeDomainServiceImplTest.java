@@ -11,6 +11,8 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import reactor.test.StepVerifier;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,8 @@ class SnowflakeDomainServiceImplTest {
         when(snowflakeWorkerService.getAssignedDatacenterId()).thenReturn(0L);
         snowflakeDomainService.init();
     }
+
+    // ---------- getId tests ----------
 
     @Test
     @DisplayName("当服务启用且 worker 初始化完成时，应成功生成 ID")
@@ -84,6 +88,8 @@ class SnowflakeDomainServiceImplTest {
         assertThat(id2).isNotEqualTo(id3);
         assertThat(id3).isGreaterThanOrEqualTo(id1);
     }
+
+    // ---------- decodeId tests ----------
 
     @Test
     @DisplayName("decodeId 应正确解析 Snowflake ID 的各部分")
@@ -149,5 +155,123 @@ class SnowflakeDomainServiceImplTest {
         long workerId2 = (id2 >> 12) & 0x1F;
         assertThat(workerId1).isEqualTo(0);
         assertThat(workerId2).isEqualTo(5);
+    }
+
+    // ---------- init tests ----------
+
+    @Test
+    @DisplayName("init 当服务禁用时不应设置 twepoch")
+    void init_whenDisabled_shouldNotSetTwepoch() throws Exception {
+        SnowflakeDomainServiceImpl freshService = new SnowflakeDomainServiceImpl(properties, snowflakeWorkerService);
+        when(properties.isEnabled()).thenReturn(false);
+
+        freshService.init();
+
+        Field twepochField = SnowflakeDomainServiceImpl.class.getDeclaredField("twepoch");
+        twepochField.setAccessible(true);
+        long twepoch = (long) twepochField.get(freshService);
+        assertThat(twepoch).isEqualTo(0L);
+    }
+
+    // ---------- nextId edge case tests ----------
+
+    @Test
+    @DisplayName("nextId 当序列溢出时应重新随机序列并等待下一毫秒")
+    void nextId_whenSequenceOverflow_shouldRegenerateSequence() throws Exception {
+        Field lastTimestampField = SnowflakeDomainServiceImpl.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        Field sequenceField = SnowflakeDomainServiceImpl.class.getDeclaredField("sequence");
+        sequenceField.setAccessible(true);
+        Method nextIdMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("nextId");
+        nextIdMethod.setAccessible(true);
+
+        long now = System.currentTimeMillis();
+        lastTimestampField.setLong(snowflakeDomainService, now);
+        sequenceField.setLong(snowflakeDomainService, 4095L); // SEQUENCE_MASK
+
+        long id = (long) nextIdMethod.invoke(snowflakeDomainService);
+
+        assertThat(id).isPositive();
+        // Verify sequence was reset to something < 100 (random nextInt(100))
+        long seq = id & 0xFFF;
+        assertThat(seq).isLessThan(100);
+    }
+
+    @Test
+    @DisplayName("nextId 当时钟回拨超过 5ms 时应抛出异常")
+    void nextId_whenClockMovedBackwardsMoreThanFiveMs_shouldThrowException() throws Exception {
+        Field lastTimestampField = SnowflakeDomainServiceImpl.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        Method nextIdMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("nextId");
+        nextIdMethod.setAccessible(true);
+
+        long future = System.currentTimeMillis() + 10;
+        lastTimestampField.setLong(snowflakeDomainService, future);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> {
+            try {
+                nextIdMethod.invoke(snowflakeDomainService);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw e.getCause();
+            }
+        })
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Clock moved backwards");
+    }
+
+    @Test
+    @DisplayName("nextId 当时钟回拨不超过 5ms 时应等待后恢复")
+    void nextId_whenClockMovedBackwardsWithinFiveMs_shouldRecover() throws Exception {
+        Field lastTimestampField = SnowflakeDomainServiceImpl.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        Method nextIdMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("nextId");
+        nextIdMethod.setAccessible(true);
+
+        long future = System.currentTimeMillis() + 3;
+        lastTimestampField.setLong(snowflakeDomainService, future);
+
+        long id = (long) nextIdMethod.invoke(snowflakeDomainService);
+        assertThat(id).isPositive();
+    }
+
+    @Test
+    @DisplayName("nextId 当等待被中断时应抛出异常")
+    void nextId_whenWaitInterrupted_shouldThrowException() throws Exception {
+        Field lastTimestampField = SnowflakeDomainServiceImpl.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        Method nextIdMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("nextId");
+        nextIdMethod.setAccessible(true);
+
+        long future = System.currentTimeMillis() + 2;
+        lastTimestampField.setLong(snowflakeDomainService, future);
+
+        Thread.currentThread().interrupt();
+        try {
+            org.assertj.core.api.Assertions.assertThatThrownBy(() -> {
+                try {
+                    nextIdMethod.invoke(snowflakeDomainService);
+                } catch (java.lang.reflect.InvocationTargetException e) {
+                    throw e.getCause();
+                }
+            })
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessageContaining("Wait interrupted");
+        } finally {
+            Thread.interrupted(); // clear interrupt flag
+        }
+    }
+
+    // ---------- tilNextMillis tests ----------
+
+    @Test
+    @DisplayName("tilNextMillis 应返回大于 lastTimestamp 的时间戳")
+    void tilNextMillis_shouldReturnTimestampGreaterThanLast() throws Exception {
+        Method tilNextMillisMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("tilNextMillis", long.class);
+        tilNextMillisMethod.setAccessible(true);
+
+        long pastTimestamp = System.currentTimeMillis() - 1000;
+        long result = (long) tilNextMillisMethod.invoke(snowflakeDomainService, pastTimestamp);
+
+        assertThat(result).isGreaterThan(pastTimestamp);
     }
 }

@@ -104,7 +104,7 @@ public class ColumnPermissionResponseFilter implements WebFilter {
                                 ((ObjectNode) root).set("data", filtered);
                             } else if (dataNode.has("list") || dataNode.has("items")) {
                                 JsonNode listNode = dataNode.has("list") ? dataNode.get("list") : dataNode.get("items");
-                                if (listNode != null && listNode.isArray()) {
+                                if (listNode.isArray()) {
                                     ArrayNode filtered = objectMapper.createArrayNode();
                                     for (JsonNode item : listNode) {
                                         filtered.add(filterNode(item, visibleColumns));

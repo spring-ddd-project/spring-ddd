@@ -62,7 +62,7 @@ public class EntityMetadataScanner {
 
         // Collect all declared fields including inherited ones
         Class<?> current = clazz;
-        while (current != null && current != Object.class) {
+        while (current != Object.class) {
             for (Field field : current.getDeclaredFields()) {
                 // Skip Spring Data internal fields and static fields
                 if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
