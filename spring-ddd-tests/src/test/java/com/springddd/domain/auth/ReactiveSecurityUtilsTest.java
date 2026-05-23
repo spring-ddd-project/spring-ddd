@@ -199,4 +199,197 @@ class ReactiveSecurityUtilsTest {
                 .assertNext(cols -> assertThat(cols).containsExactlyInAnyOrder("username", "phone"))
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("getVisibleColumns userId为null时user维度不应匹配")
+    void getVisibleColumns_withNullUserId_shouldNotMatchUserDimension() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id"), "user", List.of(1L))
+        );
+        AuthUser user = createUserWithRules(null, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 当userId对象本身为null时应正常处理")
+    void getVisibleColumns_withNullUserIdObject_shouldHandleNullUserId() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id"), "user", List.of(1L))
+        );
+        AuthUser user = new AuthUser();
+        user.setUserId(null);
+        user.setUsername("test");
+        user.setRoles(List.of("ADMIN"));
+        user.setPermissions(List.of("sys:user:index"));
+        user.setMenuIds(List.of(1L, 2L, 3L));
+        user.setDeptId(10L);
+        user.setColumnRules(rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns deptId为null时dept维度应正常处理")
+    void getVisibleColumns_withNullDeptId_shouldHandleDeptDimension() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id"), "dept", List.of(10L))
+        );
+        AuthUser user = createUserWithRules(1L, null, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns dimensionIds为null时应正常处理")
+    void getVisibleColumns_withNullDimensionIds_shouldHandleNullDimensionIds() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id"), "user", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns columns为null时应正常处理")
+    void getVisibleColumns_withNullColumns_shouldHandleNullColumns() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", null, "self", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns all维度dimensionType为null时应匹配")
+    void getVisibleColumns_withNullDimensionType_shouldMatchAllFallback() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id", "username"), null, null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).containsExactlyInAnyOrder("id", "username"))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns columnRules和columnPermissions都为null时应返回空集")
+    void getVisibleColumns_whenBothRulesAndPermissionsNull_shouldReturnEmpty() {
+        AuthUser user = new AuthUser();
+        user.setUserId(new UserId(1L));
+        user.setUsername("test");
+        user.setColumnRules(null);
+        user.setColumnPermissions(null);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns columnRules为空且columnPermissions为null时应返回空集")
+    void getVisibleColumns_whenRulesEmptyAndPermissionsNull_shouldReturnEmpty() {
+        AuthUser user = new AuthUser();
+        user.setUserId(new UserId(1L));
+        user.setUsername("test");
+        user.setColumnRules(Collections.emptyList());
+        user.setColumnPermissions(null);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - 所有规则都是其他实体时应返回空集")
+    void getVisibleColumns_withAllDifferentEntityCodes_shouldReturnEmpty() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_dept", "部门", List.of("id", "name"), "all", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - 包含其他实体代码的规则应被过滤")
+    void getVisibleColumns_withMixedEntityCodes_shouldFilterByEntityCode() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_dept", "部门", List.of("id", "name"), "all", null),
+                new ColumnRule("sys_user", "用户", List.of("id", "username"), "all", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).containsExactlyInAnyOrder("id", "username"))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - dept规则存在但不匹配时应回退到self")
+    void getVisibleColumns_withDeptRuleNoMatch_shouldFallbackToSelf() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id", "email"), "dept", List.of(999L)),
+                new ColumnRule("sys_user", "用户", List.of("id", "phone"), "self", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).containsExactlyInAnyOrder("id", "phone"))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - user维度columns为null时应返回空集")
+    void getVisibleColumns_withUserColumnsNull_shouldReturnEmpty() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", null, "user", List.of(1L))
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - dept维度columns为null时应返回空集")
+    void getVisibleColumns_withDeptColumnsNull_shouldReturnEmpty() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", null, "dept", List.of(10L))
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - all维度columns为null时应返回空集")
+    void getVisibleColumns_withAllColumnsNull_shouldReturnEmpty() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", null, "all", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
 }
