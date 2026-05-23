@@ -68,7 +68,7 @@ public final class ReactiveSecurityUtils {
         // 优先级 1: 指定用户 (user)
         Set<String> userCols = matched.stream()
                 .filter(r -> "user".equals(r.getDimensionType()))
-                .filter(r -> r.getDimensionIds() != null && r.getDimensionIds().contains(uid))
+                .filter(r -> r.getDimensionIds() != null && uid != null && r.getDimensionIds().contains(uid))
                 .flatMap(r -> r.getColumns() != null ? r.getColumns().stream() : java.util.stream.Stream.empty())
                 .collect(Collectors.toSet());
         if (!userCols.isEmpty()) {
@@ -78,7 +78,7 @@ public final class ReactiveSecurityUtils {
         // 优先级 2: 指定部门 (dept)
         Set<String> deptCols = matched.stream()
                 .filter(r -> "dept".equals(r.getDimensionType()))
-                .filter(r -> r.getDimensionIds() != null && r.getDimensionIds().contains(deptId))
+                .filter(r -> r.getDimensionIds() != null && deptId != null && r.getDimensionIds().contains(deptId))
                 .flatMap(r -> r.getColumns() != null ? r.getColumns().stream() : java.util.stream.Stream.empty())
                 .collect(Collectors.toSet());
         if (!deptCols.isEmpty()) {
