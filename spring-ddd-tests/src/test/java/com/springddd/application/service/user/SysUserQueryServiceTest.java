@@ -70,6 +70,36 @@ class SysUserQueryServiceTest {
     }
 
     @Test
+    @DisplayName("page 当 phone 不为空时应按 phone 过滤")
+    void page_whenPhoneNotEmpty_shouldFilterByPhone() {
+        SysUserPageQuery query = new SysUserPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setPhone("138");
+
+        SysUserEntity entity = new SysUserEntity();
+        entity.setId(1L);
+        entity.setPhone("13800138000");
+
+        SysUserView view = new SysUserView();
+        view.setId(1L);
+        view.setPhone("13800138000");
+
+        when(r2dbcEntityTemplate.select(SysUserEntity.class)).thenReturn(selectOp);
+        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
+        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
+        when(sysUserViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysUserEntity.class))).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(service.page(query))
+                .assertNext(page -> {
+                    assertThat(page.getList()).hasSize(1);
+                    assertThat(page.getList().get(0).getPhone()).isEqualTo("13800138000");
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @DisplayName("page 应返回分页结果")
     void page_shouldReturnPage() {
         SysUserPageQuery query = new SysUserPageQuery();

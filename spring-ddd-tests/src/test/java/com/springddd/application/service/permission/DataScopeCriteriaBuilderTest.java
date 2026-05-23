@@ -452,6 +452,66 @@ class DataScopeCriteriaBuilderTest {
     }
 
     @Test
+    @DisplayName("当数据权限为部门及子部门且缓存返回 null 时应回退到 DB 查询")
+    void apply_whenDataScopeIsDeptAndSubAndCacheReturnsNull_shouldFallbackToDb() {
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(null, null, 3, null));
+        Criteria criteria = Criteria.empty();
+
+        SysDeptView child1 = new SysDeptView();
+        child1.setId(11L);
+        child1.setParentId(10L);
+
+        when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
+        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.empty());
+        when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(List.of(child1)));
+        when(cacheProcessor.setCache(anyString(), anyList(), any(Duration.class))).thenReturn(Mono.just(true));
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> {
+                    assertThat(result).isNotSameAs(criteria);
+                    assertThat(result.toString()).contains("deptId");
+                    assertThat(result.toString()).contains("IN");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当数据权限为部门及子部门且缓存返回非法类型时应回退到 DB 查询")
+    void apply_whenDataScopeIsDeptAndSubAndCacheReturnsInvalidType_shouldFallbackToDb() {
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(null, null, 3, null));
+        Criteria criteria = Criteria.empty();
+
+        SysDeptView child1 = new SysDeptView();
+        child1.setId(11L);
+        child1.setParentId(10L);
+
+        @SuppressWarnings("unchecked")
+        List<Long> badList = org.mockito.Mockito.mock(List.class);
+        when(badList.iterator()).thenThrow(new RuntimeException("bad list"));
+
+        when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
+        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.just(badList));
+        when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(List.of(child1)));
+        when(cacheProcessor.setCache(anyString(), anyList(), any(Duration.class))).thenReturn(Mono.just(true));
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> {
+                    assertThat(result).isNotSameAs(criteria);
+                    assertThat(result.toString()).contains("deptId");
+                    assertThat(result.toString()).contains("IN");
+                })
+                .verifyComplete();
+    }
+
+    @Test
     @DisplayName("当数据权限为部门及子部门且存在多级嵌套部门时，应收集所有后代部门")
     void apply_whenDataScopeIsDeptAndSubWithNestedDepts_shouldCollectAllDescendants() {
         AuthUser user = userWithDataPermission(10L, "user1",

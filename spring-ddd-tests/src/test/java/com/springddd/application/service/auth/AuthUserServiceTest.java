@@ -81,11 +81,35 @@ class AuthUserServiceTest {
     }
 
     @Test
-    @DisplayName("getUserPermissions 应返回权限列表")
-    void getUserPermissions_shouldReturnPermissions() {
-        StepVerifier.create(service.getUserPermissions())
-                .assertNext(list -> assertThat(list).isNotNull())
-                .verifyComplete();
+    @DisplayName("getUserInfo 当 SecurityUtils 返回非 null 角色时应返回角色列表")
+    void getUserInfo_whenRolesNotNull_shouldReturnRoles() throws Exception {
+        java.lang.reflect.Field rolesField = com.springddd.domain.auth.SecurityUtils.class.getDeclaredField("roles");
+        rolesField.setAccessible(true);
+        Object oldRoles = rolesField.get(null);
+        try {
+            rolesField.set(null, List.of("ADMIN", "USER"));
+            StepVerifier.create(service.getUserInfo())
+                    .assertNext(view -> assertThat(view.getRoles()).containsExactly("ADMIN", "USER"))
+                    .verifyComplete();
+        } finally {
+            rolesField.set(null, oldRoles);
+        }
+    }
+
+    @Test
+    @DisplayName("getUserPermissions 当 SecurityUtils 返回非 null 权限时应返回权限列表")
+    void getUserPermissions_whenPermissionsNotNull_shouldReturnPermissions() throws Exception {
+        java.lang.reflect.Field permsField = com.springddd.domain.auth.SecurityUtils.class.getDeclaredField("permissions");
+        permsField.setAccessible(true);
+        Object oldPerms = permsField.get(null);
+        try {
+            permsField.set(null, List.of("sys:user:list", "sys:role:list"));
+            StepVerifier.create(service.getUserPermissions())
+                    .assertNext(list -> assertThat(list).containsExactly("sys:user:list", "sys:role:list"))
+                    .verifyComplete();
+        } finally {
+            permsField.set(null, oldPerms);
+        }
     }
 
     @Test
