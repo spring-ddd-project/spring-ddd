@@ -55,4 +55,20 @@ class ProjectTreeBuilderTest {
         assertThat(root.getChildren().get(0).getChildren().get(0).getValue()).isNull();
         assertThat(root.getChildren().get(0).getChildren().get(0).getChildren().get(0).getValue()).isEqualTo("content");
     }
+
+    @Test
+    @DisplayName("buildTree 当传入的 root 节点 children 为 null 时应初始化 children")
+    void buildTree_whenRootChildrenIsNull_shouldInitializeChildren() {
+        ProjectTreeView root = new ProjectTreeView();
+        root.setLabel("a");
+        // children is null by default
+
+        ProjectTreeView result = builder.buildTree(root, "a/b.java", "content");
+
+        assertThat(result.getLabel()).isEqualTo("a");
+        assertThat(result.getChildren()).isNotNull();
+        assertThat(result.getChildren().get(0).getLabel()).isEqualTo("a");
+        assertThat(result.getChildren().get(0).getChildren().get(0).getLabel()).isEqualTo("b.java");
+        assertThat(result.getChildren().get(0).getChildren().get(0).getValue()).isEqualTo("content");
+    }
 }

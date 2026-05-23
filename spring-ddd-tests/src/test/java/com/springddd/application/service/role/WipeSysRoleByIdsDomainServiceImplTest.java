@@ -56,4 +56,27 @@ class WipeSysRoleByIdsDomainServiceImplTest {
         verify(sysUserRoleCommandService).wipe(List.of(100L));
         verify(sysRoleRepository).deleteAllById(List.of(1L));
     }
+
+    @Test
+    @DisplayName("deleteByIds 当角色关联菜单时应同时删除菜单关联")
+    void deleteByIds_whenRoleHasMenus_shouldWipeMenuRelations() {
+        SysUserRoleView ur = new SysUserRoleView();
+        ur.setId(100L);
+
+        com.springddd.application.service.role.dto.SysRoleMenuView rm = new com.springddd.application.service.role.dto.SysRoleMenuView();
+        rm.setId(200L);
+
+        when(sysUserRoleQueryService.queryLinkUserAndRoleByRoleId(1L)).thenReturn(Mono.just(List.of(ur)));
+        when(sysUserRoleCommandService.wipe(anyList())).thenReturn(Mono.empty());
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenus(1L)).thenReturn(Mono.just(List.of(rm)));
+        when(sysRoleMenuCommandService.wipe(anyList())).thenReturn(Mono.empty());
+        when(sysRoleRepository.deleteAllById(anyList())).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.deleteByIds(List.of(1L)))
+                .verifyComplete();
+
+        verify(sysUserRoleCommandService).wipe(List.of(100L));
+        verify(sysRoleMenuCommandService).wipe(List.of(200L));
+        verify(sysRoleRepository).deleteAllById(List.of(1L));
+    }
 }

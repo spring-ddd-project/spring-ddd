@@ -74,4 +74,42 @@ class WipeSysMenuByIdsDomainServiceImplTest {
 
         verify(sysMenuRepository).deleteAllById(anyList());
     }
+
+    @Test
+    @DisplayName("deleteByIds 当菜单 ID 不存在于列表中时应返回空")
+    void deleteByIds_whenMenuIdNotInList_shouldReturnEmpty() {
+        SysMenuView menu = new SysMenuView();
+        menu.setId(1L);
+        menu.setParentId(null);
+
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(List.of(menu)));
+
+        StepVerifier.create(service.deleteByIds(List.of(999L)))
+                .verifyComplete();
+
+        verify(sysMenuRepository, never()).deleteAllById(anyList());
+    }
+
+    @Test
+    @DisplayName("deleteByIds 当菜单无角色关联时应跳过角色清理")
+    void deleteByIds_whenMenuHasNoRoleLinks_shouldSkipRoleCleanup() {
+        SysMenuView parent = new SysMenuView();
+        parent.setId(1L);
+        parent.setParentId(null);
+
+        SysMenuView child = new SysMenuView();
+        child.setId(2L);
+        child.setParentId(1L);
+
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(List.of(parent, child)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(1L)).thenReturn(Mono.just(List.of()));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(2L)).thenReturn(Mono.just(List.of()));
+        when(sysMenuRepository.deleteAllById(anyList())).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.deleteByIds(List.of(1L)))
+                .verifyComplete();
+
+        verify(sysMenuRepository).deleteAllById(anyList());
+        verify(wipeSysRoleMenuByIdsDomainService, never()).deleteByIds(anyList());
+    }
 }

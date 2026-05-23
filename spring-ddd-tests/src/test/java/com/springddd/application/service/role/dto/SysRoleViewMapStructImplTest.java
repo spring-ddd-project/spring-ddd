@@ -1,5 +1,6 @@
 package com.springddd.application.service.role.dto;
 
+import com.springddd.domain.role.DataPermission;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -58,5 +59,32 @@ class SysRoleViewMapStructImplTest {
 
         assertThat(views).hasSize(2);
         assertThat(views.get(0).getId()).isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("toDataPermission 当 dataPermission 为 null 时应返回 null")
+    void toDataPermission_whenNull_shouldReturnNull() {
+        assertThat(impl.toDataPermission(null)).isNull();
+    }
+
+    @Test
+    @DisplayName("toDataPermission 当 dataPermission 为空字符串时应返回 null")
+    void toDataPermission_whenEmpty_shouldReturnNull() {
+        assertThat(impl.toDataPermission("")).isNull();
+    }
+
+    @Test
+    @DisplayName("toDataPermission 当 dataPermission 为合法 JSON 时应解析为 DataPermission")
+    void toDataPermission_whenValidJson_shouldReturnDataPermission() {
+        String json = "{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"columnRules\":[],\"dataScope\":1,\"deptIds\":[]}";
+        DataPermission dp = impl.toDataPermission(json);
+        assertThat(dp).isNotNull();
+        assertThat(dp.dataScope()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("toDataPermission 当 dataPermission 为非法 JSON 时应返回 null")
+    void toDataPermission_whenInvalidJson_shouldReturnNull() {
+        assertThat(impl.toDataPermission("not json")).isNull();
     }
 }
