@@ -163,7 +163,7 @@ public class DataScopeCriteriaBuilder {
                         return loadAndCacheChildDeptIds(rootDeptId, cacheKey);
                     }
                 })
-                .switchIfEmpty(loadAndCacheChildDeptIds(rootDeptId, cacheKey));
+                .switchIfEmpty(Mono.defer(() -> loadAndCacheChildDeptIds(rootDeptId, cacheKey)));
     }
 
     private Mono<Set<Long>> loadAndCacheChildDeptIds(Long rootDeptId, String cacheKey) {

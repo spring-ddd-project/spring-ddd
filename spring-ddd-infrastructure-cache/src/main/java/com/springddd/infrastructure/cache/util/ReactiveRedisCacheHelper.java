@@ -29,17 +29,10 @@ public class ReactiveRedisCacheHelper implements CacheProcessor {
                 .flatMap(json -> deserialize(json, clazz).map(obj -> (R) obj))
                 .switchIfEmpty(
                         dbLoader.get()
-                                .flatMap(value -> {
-                                    if (value == null) {
-                                        return redisTemplate.opsForValue()
-                                                .set(key, NULL_MARK, Duration.ofMinutes(1))
-                                                .then(Mono.empty());
-                                    }
-                                    return serialize(value)
-                                            .flatMap(json -> redisTemplate.opsForValue()
-                                                    .set(key, json, ttl)
-                                                    .thenReturn(value));
-                                })
+                                .flatMap(value -> serialize(value)
+                                        .flatMap(json -> redisTemplate.opsForValue()
+                                                .set(key, json, ttl)
+                                                .then(Mono.justOrEmpty(value))))
                 )
                 .publishOn(Schedulers.boundedElastic())
                 .onErrorResume(e -> dbLoader.get());

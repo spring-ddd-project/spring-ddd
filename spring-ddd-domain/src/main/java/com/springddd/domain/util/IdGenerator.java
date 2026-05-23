@@ -64,7 +64,7 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
             Object currentValue = field.get(entity);
             if (currentValue == null) {
                 LeafId idGenerate = field.getAnnotation(LeafId.class);
-                String bizTag = idGenerate != null ? idGenerate.value() : "";
+                String bizTag = idGenerate.value();
 
                 if (!bizTag.isEmpty()) {
                     // Segment mode: use bizTag-based ID allocation
