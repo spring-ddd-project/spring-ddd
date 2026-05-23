@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -33,21 +33,7 @@ import java.util.Set;
 public class ColumnPermissionResponseFilter implements WebFilter {
 
     private final ObjectMapper objectMapper;
-
-    private static final Map<String, String> PATH_TO_ENTITY_MAP = Map.ofEntries(
-            Map.entry("/sys/user", "sys_user"),
-            Map.entry("/sys/dept", "sys_dept"),
-            Map.entry("/sys/role", "sys_role"),
-            Map.entry("/sys/dict/item", "sys_dict_item"),
-            Map.entry("/sys/dict", "sys_dict"),
-            Map.entry("/sys/menu", "sys_menu"),
-            Map.entry("/gen/aggregate", "gen_aggregate"),
-            Map.entry("/gen/column/bind", "gen_column_bind"),
-            Map.entry("/gen/columns", "gen_columns"),
-            Map.entry("/gen/projectInfo", "gen_project_info"),
-            Map.entry("/gen/table", "gen_table"),
-            Map.entry("/gen/template", "gen_template")
-    );
+    private final EntityPathResolver entityPathResolver;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -94,12 +80,7 @@ public class ColumnPermissionResponseFilter implements WebFilter {
     }
 
     private String resolveEntityCode(String path) {
-        for (Map.Entry<String, String> entry : PATH_TO_ENTITY_MAP.entrySet()) {
-            if (path.startsWith(entry.getKey())) {
-                return entry.getValue();
-            }
-        }
-        return null;
+        return entityPathResolver.resolveEntityCode(path).orElse(null);
     }
 
     private Mono<String> filterResponse(String json, String entityCode) {

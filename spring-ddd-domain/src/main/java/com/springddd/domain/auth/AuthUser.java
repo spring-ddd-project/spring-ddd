@@ -2,6 +2,7 @@ package com.springddd.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.springddd.domain.role.ColumnRule;
+import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.user.UserId;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -54,6 +55,11 @@ public class AuthUser implements Serializable, UserDetails {
      * 原始列权限规则列表（支持多维度匹配）
      */
     private List<ColumnRule> columnRules = new ArrayList<>();
+
+    /**
+     * 数据权限（行级+列级合并后）
+     */
+    private DataPermission dataPermission;
 
     @JsonIgnore
     @Override

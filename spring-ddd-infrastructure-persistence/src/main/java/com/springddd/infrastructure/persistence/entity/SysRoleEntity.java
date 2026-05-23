@@ -1,5 +1,7 @@
 package com.springddd.infrastructure.persistence.entity;
 
+import com.springddd.domain.permission.DataPermissionEntity;
+
 import com.springddd.domain.util.LeafId;
 import lombok.Data;
 import org.springframework.data.annotation.*;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
  */
 @Data
 @Table("sys_role")
+@DataPermissionEntity(name = "角色管理")
 public class SysRoleEntity {
 
     @Id

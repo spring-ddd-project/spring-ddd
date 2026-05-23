@@ -1,9 +1,9 @@
 package com.springddd.application.service.dict;
 
 import com.springddd.application.service.dict.dto.*;
+import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictItemEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -15,20 +15,18 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class SysDictItemQueryService {
-
-    private final QueryFactory queryFactory;
+public class SysDictItemQueryService extends BaseQueryService<SysDictItemEntity> {
 
     private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
     public Mono<PageResponse<SysDictItemView>> index(SysDictItemPageQuery query) {
         Criteria criteria = buildIndexCriteria(query);
-        return performQuery(query, criteria);
+        return applyDataScope(criteria, SysDictItemEntity.class).flatMap(scopedCriteria -> performQuery(query, scopedCriteria));
     }
 
     public Mono<PageResponse<SysDictItemView>> recycle(SysDictItemPageQuery query) {
         Criteria criteria = buildRecycleCriteria(query);
-        return performQuery(query, criteria);
+        return applyDataScope(criteria, SysDictItemEntity.class).flatMap(scopedCriteria -> performQuery(query, scopedCriteria));
     }
 
     private Criteria buildIndexCriteria(SysDictItemPageQuery query) {
@@ -83,62 +81,3 @@ public class SysDictItemQueryService {
         return queryFactory.getR2dbcEntityTemplate().select(SysDictItemEntity.class).matching(qry).all().collectList().map(sysDictItemViewMapStruct::toViews);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

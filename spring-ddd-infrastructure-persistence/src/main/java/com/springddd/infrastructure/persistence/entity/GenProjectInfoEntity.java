@@ -1,5 +1,7 @@
 package com.springddd.infrastructure.persistence.entity;
 
+import com.springddd.domain.permission.DataPermissionEntity;
+
 import com.springddd.domain.util.LeafId;
 import lombok.Data;
 import org.springframework.data.annotation.*;
@@ -9,6 +11,7 @@ import java.time.LocalDateTime;
 
 @Data
 @Table("gen_project_info")
+@DataPermissionEntity(name = "项目信息管理")
 public class GenProjectInfoEntity {
 
     @Id

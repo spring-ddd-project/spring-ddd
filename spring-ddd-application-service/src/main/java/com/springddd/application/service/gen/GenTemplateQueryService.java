@@ -4,9 +4,9 @@ import com.springddd.application.service.gen.dto.GenTemplatePageQuery;
 import com.springddd.application.service.gen.dto.GenTemplateQuery;
 import com.springddd.application.service.gen.dto.GenTemplateView;
 import com.springddd.application.service.gen.dto.GenTemplateViewMapStruct;
+import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenTemplateEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
@@ -18,9 +18,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GenTemplateQueryService {
-
-    private final QueryFactory queryFactory;
+public class GenTemplateQueryService extends BaseQueryService<GenTemplateEntity> {
 
     private final GenTemplateViewMapStruct genTemplateViewMapStruct;
 
@@ -29,82 +27,29 @@ public class GenTemplateQueryService {
         if (!ObjectUtils.isEmpty(query.getTemplateName())) {
             criteria = criteria.and(GenTemplateQuery.Fields.templateName).like("%" + query.getTemplateName() + "%");
         }
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), GenTemplateEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        return applyDataScope(criteria, GenTemplateEntity.class).flatMap(scopedCriteria -> {
+            Query qry = Query.query(scopedCriteria)
+                    .limit(query.getPageSize())
+                    .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+            Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
+            Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), GenTemplateEntity.class);
+            return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        });
     }
 
     public Mono<PageResponse<GenTemplateView>> recycle(GenTemplatePageQuery query) {
         Criteria criteria = Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(criteria), GenTemplateEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        return applyDataScope(criteria, GenTemplateEntity.class).flatMap(scopedCriteria -> {
+            Query qry = Query.query(scopedCriteria)
+                    .limit(query.getPageSize())
+                    .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+            Mono<List<GenTemplateView>> list = queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(qry).all().collectList().map(genTemplateViewMapStruct::toViews);
+            Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), GenTemplateEntity.class);
+            return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+        });
     }
 
     public Mono<List<GenTemplateView>> queryAllTemplate() {
         return queryFactory.getR2dbcEntityTemplate().select(GenTemplateEntity.class).matching(Query.query(Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(false))).all().collectList().map(genTemplateViewMapStruct::toViews);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
