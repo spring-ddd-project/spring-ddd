@@ -1,17 +1,32 @@
 package com.springddd.domain.role.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.DomainException;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RoleCodeNullExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldCreateExceptionWithDefaultMessage() {
         RoleCodeNullException exception = new RoleCodeNullException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ROLE_CODE_NULL);
+        assertNotNull(exception);
+        assertEquals("error.role.code.null", exception.getMessage());
+    }
+
+    @Test
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(RoleCodeNullException.class));
+    }
+
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(RoleCodeNullException.class));
+    }
+
+    @Test
+    void shouldHaveCorrectErrorCode() {
+        RoleCodeNullException exception = new RoleCodeNullException();
+        assertEquals(1100, exception.getCode());
+        assertEquals("error.role.code.null", exception.getMessageKey());
     }
 }

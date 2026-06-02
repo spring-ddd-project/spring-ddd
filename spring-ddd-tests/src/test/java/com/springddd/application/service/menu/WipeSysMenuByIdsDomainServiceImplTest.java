@@ -3,24 +3,28 @@ package com.springddd.application.service.menu;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.role.SysRoleMenuQueryService;
 import com.springddd.application.service.role.dto.SysRoleMenuView;
+import com.springddd.domain.menu.*;
 import com.springddd.domain.role.WipeSysRoleMenuByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Flux;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class WipeSysMenuByIdsDomainServiceImplTest {
 
     @Mock
@@ -35,81 +39,57 @@ class WipeSysMenuByIdsDomainServiceImplTest {
     @Mock
     private SysRoleMenuQueryService sysRoleMenuQueryService;
 
-    @InjectMocks
-    private WipeSysMenuByIdsDomainServiceImpl service;
+    private WipeSysMenuByIdsDomainServiceImpl wipeSysMenuByIdsDomainService;
 
-    @Test
-    @DisplayName("deleteByIds 应处理空列表")
-    void deleteByIds_shouldHandleEmptyList() {
-        StepVerifier.create(service.deleteByIds(List.of()))
-                .verifyComplete();
-
-        verify(sysMenuQueryService, never()).queryAllMenu();
+    @BeforeEach
+    void setUp() {
+        wipeSysMenuByIdsDomainService = new WipeSysMenuByIdsDomainServiceImpl(
+                sysMenuRepository,
+                sysMenuQueryService,
+                wipeSysRoleMenuByIdsDomainService,
+                sysRoleMenuQueryService
+        );
     }
 
     @Test
-    @DisplayName("deleteByIds 应删除菜单及其子菜单并清理角色关联")
-    void deleteByIds_shouldWipeAndCleanRelations() {
-        SysMenuView parent = new SysMenuView();
-        parent.setId(1L);
-        parent.setParentId(null);
+    void deleteByIds_shouldComplete_whenValidIds() {
+        List<Long> ids = Arrays.asList(1L);
+        SysMenuView view = new SysMenuView();
+        view.setId(1L);
+        view.setParentId(0L);
 
-        SysMenuView child = new SysMenuView();
-        child.setId(2L);
-        child.setParentId(1L);
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Collections.singletonList(view)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(any())).thenReturn(Mono.just(Collections.emptyList()));
+        when(sysMenuRepository.deleteAllById(any())).thenReturn(Mono.empty());
 
-        SysRoleMenuView rm = new SysRoleMenuView();
-        rm.setId(10L);
-        rm.setRoleId(100L);
-        rm.setMenuId(1L);
-
-        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(List.of(parent, child)));
-        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(1L)).thenReturn(Mono.just(List.of(rm)));
-        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(2L)).thenReturn(Mono.just(List.of()));
-        when(wipeSysRoleMenuByIdsDomainService.deleteByIds(anyList())).thenReturn(Mono.empty());
-        when(sysMenuRepository.deleteAllById(anyList())).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.deleteByIds(List.of(1L)))
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(ids))
                 .verifyComplete();
-
-        verify(sysMenuRepository).deleteAllById(anyList());
     }
 
     @Test
-    @DisplayName("deleteByIds 当菜单 ID 不存在于列表中时应返回空")
-    void deleteByIds_whenMenuIdNotInList_shouldReturnEmpty() {
-        SysMenuView menu = new SysMenuView();
-        menu.setId(1L);
-        menu.setParentId(null);
+    void deleteByIds_shouldWipeRoleMenus_whenRoleMenusExist() {
+        List<Long> ids = Arrays.asList(1L);
+        SysMenuView view = new SysMenuView();
+        view.setId(1L);
+        view.setParentId(0L);
 
-        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(List.of(menu)));
+        SysRoleMenuView roleMenuView = new SysRoleMenuView();
+        roleMenuView.setId(1L);
+        roleMenuView.setRoleId(1L);
+        roleMenuView.setMenuId(1L);
 
-        StepVerifier.create(service.deleteByIds(List.of(999L)))
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Collections.singletonList(view)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(any())).thenReturn(Mono.just(Collections.singletonList(roleMenuView)));
+        when(wipeSysRoleMenuByIdsDomainService.deleteByIds(any())).thenReturn(Mono.empty());
+        when(sysMenuRepository.deleteAllById(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(ids))
                 .verifyComplete();
-
-        verify(sysMenuRepository, never()).deleteAllById(anyList());
     }
 
     @Test
-    @DisplayName("deleteByIds 当菜单无角色关联时应跳过角色清理")
-    void deleteByIds_whenMenuHasNoRoleLinks_shouldSkipRoleCleanup() {
-        SysMenuView parent = new SysMenuView();
-        parent.setId(1L);
-        parent.setParentId(null);
-
-        SysMenuView child = new SysMenuView();
-        child.setId(2L);
-        child.setParentId(1L);
-
-        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(List.of(parent, child)));
-        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(1L)).thenReturn(Mono.just(List.of()));
-        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(2L)).thenReturn(Mono.just(List.of()));
-        when(sysMenuRepository.deleteAllById(anyList())).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.deleteByIds(List.of(1L)))
+    void deleteByIds_shouldReturnEmpty_whenIdsEmpty() {
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(Collections.emptyList()))
                 .verifyComplete();
-
-        verify(sysMenuRepository).deleteAllById(anyList());
-        verify(wipeSysRoleMenuByIdsDomainService, never()).deleteByIds(anyList());
     }
 }

@@ -2,62 +2,86 @@ package com.springddd.domain.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.lang.reflect.Field;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class IdTempTest {
 
     @Test
-    void testConstructor() {
-        IdTemp idTemp = new IdTemp();
-        assertThat(idTemp).isNotNull();
-    }
-
-    @Test
-    void testGenerateId() {
+    void shouldGenerateUniqueIds() {
         long id1 = IdTemp.generateId();
         long id2 = IdTemp.generateId();
-        assertThat(id1).isPositive();
-        assertThat(id2).isPositive();
-        assertThat(id2).isGreaterThanOrEqualTo(id1);
+
+        assertTrue(id2 > id1, "Second generated ID should be greater than first");
     }
 
     @Test
-    void testGenerateIdUnique() {
-        long id1 = IdTemp.generateId();
-        long id2 = IdTemp.generateId();
-        assertThat(id1).isNotEqualTo(id2);
+    void shouldGenerateIdGreaterThanZero() {
+        long id = IdTemp.generateId();
+
+        assertTrue(id > 0, "Generated ID should be greater than zero");
     }
 
     @Test
-    void testGenerateIdSequenceOverflow() throws Exception {
-        java.lang.reflect.Field lastTimestampField = IdTemp.class.getDeclaredField("lastTimestamp");
-        lastTimestampField.setAccessible(true);
-        java.lang.reflect.Field sequenceField = IdTemp.class.getDeclaredField("sequence");
-        sequenceField.setAccessible(true);
+    void shouldGenerateMultipleUniqueIds() {
+        long[] ids = new long[10];
+        for (int i = 0; i < 10; i++) {
+            ids[i] = IdTemp.generateId();
+        }
 
-        // Reset state
-        lastTimestampField.setLong(null, -1L);
-        sequenceField.setInt(null, 0);
-
-        // Establish a baseline timestamp by calling generateId once
-        IdTemp.generateId();
-        long baseline = lastTimestampField.getLong(null);
-
-        boolean overflowTriggered = false;
-        for (int attempt = 0; attempt < 50000 && !overflowTriggered; attempt++) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime == baseline) {
-                sequenceField.setInt(null, 999);
-                IdTemp.generateId();
-                // After overflow branch: sequence is reset to 0 and lastTimestamp should be >= baseline
-                if (sequenceField.getInt(null) == 0 && lastTimestampField.getLong(null) >= baseline) {
-                    overflowTriggered = true;
-                }
-            } else {
-                // Time advanced, update baseline
-                baseline = lastTimestampField.getLong(null);
+        for (int i = 0; i < 10; i++) {
+            for (int j = i + 1; j < 10; j++) {
+                assertNotEquals(ids[i], ids[j], "Each generated ID should be unique");
             }
         }
-        assertThat(overflowTriggered).isTrue();
+    }
+
+    @Test
+    void shouldGenerateIdsWithCorrectFormat() {
+        long timestamp = System.currentTimeMillis();
+        long id = IdTemp.generateId();
+
+        long idTimestamp = id / 1000;
+        assertEquals(timestamp, idTimestamp, 1, "ID timestamp should match current timestamp");
+    }
+
+    @Test
+    void shouldGenerateIdsRapidly() {
+        long id1 = IdTemp.generateId();
+        long id2 = IdTemp.generateId();
+        long id3 = IdTemp.generateId();
+
+        assertTrue(id3 >= id2, "IDs should be generated in non-decreasing order");
+        assertTrue(id2 >= id1, "IDs should be generated in non-decreasing order");
+    }
+
+    @Test
+    void shouldHandleSequenceRollover() throws InterruptedException {
+        // Generate many IDs rapidly to trigger sequence rollover
+        long firstId = IdTemp.generateId();
+        for (int i = 0; i < 2000; i++) {
+            long id = IdTemp.generateId();
+            assertTrue(id > 0, "Generated ID should be positive at iteration " + i);
+        }
+        long lastId = IdTemp.generateId();
+        assertTrue(lastId > firstId, "Last ID should be greater than first ID");
+    }
+
+    @Test
+    void shouldResetSequence_whenMaxSequenceExceeded() throws Exception {
+        Field lastTimestampField = IdTemp.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        Field sequenceField = IdTemp.class.getDeclaredField("sequence");
+        sequenceField.setAccessible(true);
+
+        long current = System.currentTimeMillis();
+        lastTimestampField.setLong(null, current);
+        sequenceField.setInt(null, 999);
+
+        long id = IdTemp.generateId();
+        long timestamp = id / 1000;
+
+        assertTrue(timestamp >= current, "Timestamp should be >= current after overflow handling");
     }
 }

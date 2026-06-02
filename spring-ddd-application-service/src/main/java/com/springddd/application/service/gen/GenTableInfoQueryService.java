@@ -6,8 +6,7 @@ import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.CacheProcessor;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -25,7 +24,7 @@ import java.util.Map;
 @Slf4j
 public class GenTableInfoQueryService {
 
-    private final QueryFactory queryFactory;
+    private final DatabaseClient databaseClient;
 
     private final GenProjectInfoQueryService projectInfoQueryService;
 
@@ -33,7 +32,7 @@ public class GenTableInfoQueryService {
 
     private final GenAggregateQueryService aggregateQueryService;
 
-    private final CacheProcessor cacheProcessor;
+    private final ReactiveRedisCacheHelper cacheHelper;
 
     private final ObjectMapper objectMapper;
 
@@ -65,12 +64,12 @@ public class GenTableInfoQueryService {
 
         dataSql.append(" ORDER BY create_time DESC LIMIT :limit OFFSET :offset");
 
-        DatabaseClient.GenericExecuteSpec dataSpec = queryFactory.getDatabaseClient().sql(dataSql.toString())
+        DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(dataSql.toString())
                 .bind("db", query.getDatabaseName())
                 .bind("limit", limit)
                 .bind("offset", offset);
 
-        DatabaseClient.GenericExecuteSpec countSpec = queryFactory.getDatabaseClient().sql(countSql.toString())
+        DatabaseClient.GenericExecuteSpec countSpec = databaseClient.sql(countSql.toString())
                 .bind("db", query.getDatabaseName());
 
         if (!ObjectUtils.isEmpty(query.getTableName())) {
@@ -140,7 +139,7 @@ public class GenTableInfoQueryService {
     }
 
     public Mono<List<ProjectTreeView>> preview() {
-        return cacheProcessor.getCache(
+        return cacheHelper.getCache(
                         CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
                         List.class
                 )
@@ -157,55 +156,3 @@ public class GenTableInfoQueryService {
 
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,17 +1,39 @@
 package com.springddd.domain.dict;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictIdTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        DictId obj = new DictId(1L);
-        assertThat(obj.value()).isEqualTo(1L);
+    void shouldCreateDictIdWithValidValue() {
+        DictId dictId = new DictId(1L);
+        assertEquals(1L, dictId.value());
     }
 
+    @Test
+    void shouldCreateDictIdWithZero() {
+        DictId dictId = new DictId(0L);
+        assertEquals(0L, dictId.value());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValue() {
+        DictId id1 = new DictId(1L);
+        DictId id2 = new DictId(1L);
+        assertEquals(id1, id2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        DictId id1 = new DictId(1L);
+        DictId id2 = new DictId(2L);
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        DictId dictId = new DictId(123L);
+        assertEquals("DictId[value=123]", dictId.toString());
+    }
 }

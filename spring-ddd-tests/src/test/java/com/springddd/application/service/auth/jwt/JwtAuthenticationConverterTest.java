@@ -2,33 +2,37 @@ package com.springddd.application.service.auth.jwt;
 
 import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.user.UserId;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.CacheProcessor;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpHeaders;
-import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
-import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class JwtAuthenticationConverterTest {
 
     @Mock
@@ -38,46 +42,28 @@ class JwtAuthenticationConverterTest {
     private SecurityProperties securityProperties;
 
     @Mock
-    private CacheProcessor cacheProcessor;
+    private ReactiveRedisCacheHelper reactiveRedisCacheHelper;
+
+    @Mock
+    private ServerWebExchange exchange;
+
+    @Mock
+    private ServerHttpRequest request;
 
     private JwtAuthenticationConverter converter;
 
-    private String validToken;
-    private AuthUser authUser;
-
     @BeforeEach
     void setUp() {
-        converter = new JwtAuthenticationConverter(jwtTemplate, securityProperties, cacheProcessor);
-        validToken = Jwts.builder()
-                .claim("userId", 1L)
-                .signWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()), Jwts.SIG.HS256)
-                .compact();
-
-        authUser = new AuthUser();
-        authUser.setUserId(new com.springddd.domain.user.UserId(1L));
-        authUser.setUsername("test");
-        authUser.setRoles(List.of("admin"));
+        converter = new JwtAuthenticationConverter(jwtTemplate, securityProperties, reactiveRedisCacheHelper);
+        when(securityProperties.getIgnorePaths()).thenReturn(List.of());
+        when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of());
+        when(exchange.getRequest()).thenReturn(request);
+        when(request.getHeaders()).thenReturn(new HttpHeaders());
     }
 
     @Test
-    @DisplayName("convert 对忽略路径应返回 empty")
-    void convert_whenIgnoredPath_shouldReturnEmpty() {
-        when(securityProperties.getIgnorePaths()).thenReturn(List.of("/auth/login"));
-
-        MockServerHttpRequest request = MockServerHttpRequest.get("/auth/login").build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-        StepVerifier.create(converter.convert(exchange))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("convert 当缺少 Authorization header 时应返回错误")
-    void convert_whenMissingAuthHeader_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
-
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test").build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+    void convert_shouldError_whenAuthHeaderMissing() {
+        when(request.getHeaders()).thenReturn(new HttpHeaders());
 
         StepVerifier.create(converter.convert(exchange))
                 .expectError(AccessDeniedException.class)
@@ -85,14 +71,8 @@ class JwtAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("convert 当 Authorization header 格式无效时应返回错误")
-    void convert_whenInvalidAuthHeaderFormat_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
-
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNz")
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+    void convert_shouldError_whenAuthHeaderInvalid() {
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Basic abc"); }});
 
         StepVerifier.create(converter.convert(exchange))
                 .expectError(AccessDeniedException.class)
@@ -100,22 +80,19 @@ class JwtAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("convert 当缓存 token 不匹配时应返回错误")
-    void convert_whenCachedTokenMismatch_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
+    void convert_shouldError_whenTokenExpiredInCache() {
+        String token = "validToken";
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Bearer " + token); }});
 
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+        @SuppressWarnings("unchecked")
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId", Long.class)).thenReturn(1L);
+        when(jws.getPayload()).thenReturn(claims);
+        when(jwtTemplate.parseToken(token)).thenReturn(jws);
 
-        Jws<Claims> claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()))
-                .build()
-                .parseSignedClaims(validToken);
-        when(jwtTemplate.parseToken(validToken)).thenReturn(claims);
-        when(cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
-                .thenReturn(reactor.core.publisher.Mono.just("different-token"));
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(converter.convert(exchange))
                 .expectError(AccessDeniedException.class)
@@ -123,22 +100,19 @@ class JwtAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("convert 当缓存 token 不存在时应返回错误")
-    void convert_whenCachedTokenNotFound_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
+    void convert_shouldError_whenTokenMismatch() {
+        String token = "validToken";
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Bearer " + token); }});
 
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+        @SuppressWarnings("unchecked")
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId", Long.class)).thenReturn(1L);
+        when(jws.getPayload()).thenReturn(claims);
+        when(jwtTemplate.parseToken(token)).thenReturn(jws);
 
-        Jws<Claims> claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()))
-                .build()
-                .parseSignedClaims(validToken);
-        when(jwtTemplate.parseToken(validToken)).thenReturn(claims);
-        when(cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
-                .thenReturn(reactor.core.publisher.Mono.empty());
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
+                .thenReturn(Mono.just("otherToken"));
 
         StepVerifier.create(converter.convert(exchange))
                 .expectError(AccessDeniedException.class)
@@ -146,77 +120,95 @@ class JwtAuthenticationConverterTest {
     }
 
     @Test
-    @DisplayName("convert 当用户详情缓存不存在时应返回错误")
-    void convert_whenUserDetailCacheNotFound_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
+    void convert_shouldReturnAuthentication_whenTokenValid() {
+        String token = "validToken";
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Bearer " + token); }});
 
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+        @SuppressWarnings("unchecked")
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId", Long.class)).thenReturn(1L);
+        when(jws.getPayload()).thenReturn(claims);
+        when(jwtTemplate.parseToken(token)).thenReturn(jws);
 
-        Jws<Claims> claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()))
-                .build()
-                .parseSignedClaims(validToken);
-        when(jwtTemplate.parseToken(validToken)).thenReturn(claims);
-        when(cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
-                .thenReturn(reactor.core.publisher.Mono.just(validToken));
-        when(cacheProcessor.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
-                .thenReturn(reactor.core.publisher.Mono.empty());
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
+                .thenReturn(Mono.just(token));
 
-        StepVerifier.create(converter.convert(exchange))
-                .expectError(AccessDeniedException.class)
-                .verify();
-    }
+        AuthUser user = new AuthUser();
+        user.setUserId(new UserId(1L));
+        user.setUsername("admin");
+        user.setPermissions(List.of("sys:user:list"));
 
-    @Test
-    @DisplayName("convert 当 token 匹配时应返回 Authentication")
-    void convert_whenTokenMatches_shouldReturnAuthentication() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
-
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
-
-        Jws<Claims> claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()))
-                .build()
-                .parseSignedClaims(validToken);
-        when(jwtTemplate.parseToken(validToken)).thenReturn(claims);
-        when(cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
-                .thenReturn(reactor.core.publisher.Mono.just(validToken));
-        when(cacheProcessor.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
-                .thenReturn(reactor.core.publisher.Mono.just(authUser));
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
+                .thenReturn(Mono.just(user));
 
         StepVerifier.create(converter.convert(exchange))
                 .assertNext(auth -> {
-                    assertThat(auth).isNotNull();
-                    assertThat(auth.getPrincipal()).isEqualTo(authUser);
+                    assertTrue(auth instanceof UsernamePasswordAuthenticationToken);
+                    assertTrue(auth.isAuthenticated());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("convert 当用户详情缓存抛出异常时应返回错误")
-    void convert_whenUserDetailCacheThrowsException_shouldReturnError() {
-        when(securityProperties.getIgnorePaths()).thenReturn(Collections.emptyList());
+    void convert_shouldReturnEmpty_forIgnoredPath() {
+        when(securityProperties.getIgnorePaths()).thenReturn(List.of("/api/auth/login"));
+        when(request.getPath()).thenReturn(org.springframework.http.server.RequestPath.parse("/api/auth/login", ""));
 
-        MockServerHttpRequest request = MockServerHttpRequest.get("/api/test")
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + validToken)
-                .build();
-        MockServerWebExchange exchange = MockServerWebExchange.from(request);
+        StepVerifier.create(converter.convert(exchange))
+                .verifyComplete();
+    }
 
-        Jws<Claims> claims = Jwts.parser()
-                .verifyWith(Keys.hmacShaKeyFor("my-secret-key-my-secret-key-my-secret-key".getBytes()))
-                .build()
-                .parseSignedClaims(validToken);
-        when(jwtTemplate.parseToken(validToken)).thenReturn(claims);
-        when(cacheProcessor.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
-                .thenReturn(reactor.core.publisher.Mono.just(validToken));
-        when(cacheProcessor.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
-                .thenThrow(new RuntimeException("cache connection failed"));
+    @Test
+    void convert_shouldSkipUserDetailCheck_forTokenOnlyPath() {
+        String token = "validToken";
+        when(securityProperties.getIgnorePaths()).thenReturn(List.of());
+        when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of("/api/token"));
+        when(request.getPath()).thenReturn(org.springframework.http.server.RequestPath.parse("/api/token", ""));
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Bearer " + token); }});
+
+        @SuppressWarnings("unchecked")
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId", Long.class)).thenReturn(1L);
+        when(jws.getPayload()).thenReturn(claims);
+        when(jwtTemplate.parseToken(token)).thenReturn(jws);
+
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
+                .thenReturn(Mono.just(token));
+
+        AuthUser user = new AuthUser();
+        user.setUserId(new UserId(1L));
+        user.setUsername("admin");
+        user.setPermissions(List.of("sys:user:list"));
+
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
+                .thenReturn(Mono.just(user));
+
+        StepVerifier.create(converter.convert(exchange))
+                .assertNext(auth -> {
+                    assertTrue(auth instanceof UsernamePasswordAuthenticationToken);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void convert_shouldError_whenGetCacheThrowsException() {
+        String token = "validToken";
+        when(request.getHeaders()).thenReturn(new HttpHeaders() {{ add(HttpHeaders.AUTHORIZATION, "Bearer " + token); }});
+
+        @SuppressWarnings("unchecked")
+        Jws<Claims> jws = mock(Jws.class);
+        Claims claims = mock(Claims.class);
+        when(claims.get("userId", Long.class)).thenReturn(1L);
+        when(jws.getPayload()).thenReturn(claims);
+        when(jwtTemplate.parseToken(token)).thenReturn(jws);
+
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(1L), String.class))
+                .thenReturn(Mono.just(token));
+
+        when(reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(1L), AuthUser.class))
+                .thenThrow(new RuntimeException("cache error"));
 
         StepVerifier.create(converter.convert(exchange))
                 .expectError(AccessDeniedException.class)

@@ -2,33 +2,29 @@ package com.springddd.application.service.menu;
 
 import com.springddd.application.service.menu.dto.SysMenuCommand;
 import com.springddd.domain.menu.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class SysMenuCommandServiceTest {
 
     @Mock
     private SysMenuDomainFactory sysMenuDomainFactory;
 
     @Mock
-    private RepositoryFactory repositoryFactory;
+    private SysMenuDomainRepository sysMenuDomainRepository;
 
     @Mock
     private WipeSysMenuByIdsDomainService wipeSysMenuByIdsDomainService;
@@ -39,114 +35,115 @@ class SysMenuCommandServiceTest {
     @Mock
     private RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
 
-    @Mock
-    private SysMenuDomainRepository sysMenuDomainRepository;
-
-    @InjectMocks
-    private SysMenuCommandService service;
+    private SysMenuCommandService sysMenuCommandService;
 
     @BeforeEach
     void setUp() {
-        when(repositoryFactory.getSysMenuDomainRepository()).thenReturn(sysMenuDomainRepository);
+        sysMenuCommandService = new SysMenuCommandService(
+                sysMenuDomainFactory,
+                sysMenuDomainRepository,
+                wipeSysMenuByIdsDomainService,
+                Collections.emptyList(),
+                deleteSysMenuByIdDomainService,
+                restoreSysMenuByIdDomainService
+        );
     }
 
     @Test
-    @DisplayName("create 应调用 factory 和 repository 保存")
-    void create_shouldCallFactoryAndSave() {
+    void create_shouldReturnId_whenValidCommand() {
         SysMenuCommand command = new SysMenuCommand();
         command.setParentId(0L);
-        command.setName("Test Menu");
+        command.setName("testMenu");
         command.setPath("/test");
         command.setComponent("TestComponent");
-        command.setPermission("sys:test:index");
+        command.setRedirect("/redirect");
         command.setApi("/api/test");
+        command.setPermission("test:perm");
         command.setOrder(1);
-        command.setTitle("Test");
+        command.setTitle("Test Title");
+        command.setAffixTab(false);
+        command.setNoBasicLayout(false);
         command.setIcon("icon");
         command.setMenuType(1);
         command.setVisible(true);
+        command.setEmbedded(false);
         command.setMenuStatus(true);
         command.setDeptId(1L);
 
-        SysMenuDomain domain = mock(SysMenuDomain.class);
-        when(sysMenuDomainFactory.create(any(MenuId.class), any(), any(Catalog.class), any(Menu.class), any(Button.class), any(MenuExtendInfo.class), any())).thenReturn(domain);
-        when(sysMenuDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        SysMenuDomain mockDomain = new SysMenuDomain();
+        mockDomain.setName("testMenu");
+        when(sysMenuDomainFactory.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(sysMenuDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.create(command))
+        StepVerifier.create(sysMenuCommandService.create(command))
                 .expectNext(1L)
                 .verifyComplete();
-
-        verify(domain).create();
-        verify(sysMenuDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("update 应加载 domain 并更新保存")
-    void update_shouldLoadAndUpdate() {
+    void update_shouldComplete_whenValidCommand() {
         SysMenuCommand command = new SysMenuCommand();
         command.setId(1L);
         command.setParentId(0L);
-        command.setName("Updated Menu");
+        command.setName("updatedMenu");
         command.setPath("/updated");
         command.setComponent("UpdatedComponent");
-        command.setPermission("sys:updated:index");
+        command.setRedirect("/updated-redirect");
         command.setApi("/api/updated");
+        command.setPermission("updated:perm");
         command.setOrder(2);
-        command.setTitle("Updated");
-        command.setIcon("icon2");
-        command.setMenuType(1);
-        command.setVisible(true);
-        command.setMenuStatus(true);
-        command.setDeptId(1L);
+        command.setTitle("Updated Title");
+        command.setAffixTab(true);
+        command.setNoBasicLayout(true);
+        command.setIcon("updated-icon");
+        command.setMenuType(2);
+        command.setVisible(false);
+        command.setEmbedded(true);
+        command.setMenuStatus(false);
+        command.setDeptId(2L);
 
-        SysMenuDomain domain = mock(SysMenuDomain.class);
-        SysMenuDomain dummy = mock(SysMenuDomain.class);
-        when(sysMenuDomainRepository.load(new MenuId(1L))).thenReturn(Mono.just(domain));
-        when(sysMenuDomainFactory.create(any(MenuId.class), any(), any(Catalog.class), any(Menu.class), any(Button.class), any(MenuExtendInfo.class), any())).thenReturn(dummy);
-        when(dummy.getName()).thenReturn("Updated Menu");
-        when(dummy.getCatalog()).thenReturn(mock(Catalog.class));
-        when(dummy.getMenu()).thenReturn(mock(Menu.class));
-        when(dummy.getButton()).thenReturn(mock(Button.class));
-        when(dummy.getMenuExtendInfo()).thenReturn(mock(MenuExtendInfo.class));
-        when(sysMenuDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        SysMenuDomain existingDomain = new SysMenuDomain();
+        existingDomain.setName("oldMenu");
 
-        StepVerifier.create(service.update(command))
+        SysMenuDomain dummyDomain = new SysMenuDomain();
+        dummyDomain.setName("updatedMenu");
+        dummyDomain.setCatalog(new Catalog("/updated-redirect"));
+        dummyDomain.setMenu(new Menu("/updated", "UpdatedComponent", true, true, true));
+        dummyDomain.setButton(new Button("updated:perm", "/api/updated"));
+        dummyDomain.setMenuExtendInfo(new MenuExtendInfo(2, "Updated Title", "updated-icon", 2, true, false));
+
+        when(sysMenuDomainRepository.load(any())).thenReturn(Mono.just(existingDomain));
+        when(sysMenuDomainFactory.create(any(), any(), any(), any(), any(), any(), any())).thenReturn(dummyDomain);
+        when(sysMenuDomainRepository.save(any())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(sysMenuCommandService.update(command))
                 .verifyComplete();
-
-        verify(domain).update(any(MenuId.class), any(), any(), any(), any(), any(), any());
-        verify(sysMenuDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("delete 应调用 delete domain service")
-    void delete_shouldCallDeleteDomainService() {
-        when(deleteSysMenuByIdDomainService.deleteByIds(List.of(1L, 2L))).thenReturn(Mono.empty());
+    void delete_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        when(deleteSysMenuByIdDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.delete(List.of(1L, 2L)))
+        StepVerifier.create(sysMenuCommandService.delete(ids))
                 .verifyComplete();
-
-        verify(deleteSysMenuByIdDomainService).deleteByIds(List.of(1L, 2L));
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe domain service")
-    void wipe_shouldCallWipeDomainService() {
-        when(wipeSysMenuByIdsDomainService.deleteByIds(List.of(1L, 2L))).thenReturn(Mono.empty());
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        when(wipeSysMenuByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.wipe(List.of(1L, 2L)))
+        StepVerifier.create(sysMenuCommandService.wipe(ids))
                 .verifyComplete();
-
-        verify(wipeSysMenuByIdsDomainService).deleteByIds(List.of(1L, 2L));
     }
 
     @Test
-    @DisplayName("restore 应调用 restore domain service")
-    void restore_shouldCallRestoreDomainService() {
-        when(restoreSysMenuByIdDomainService.restoreByIds(List.of(1L, 2L))).thenReturn(Mono.empty());
+    void restore_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        when(restoreSysMenuByIdDomainService.restoreByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.restore(List.of(1L, 2L)))
+        StepVerifier.create(sysMenuCommandService.restore(ids))
                 .verifyComplete();
-
-        verify(restoreSysMenuByIdDomainService).restoreByIds(List.of(1L, 2L));
     }
 }

@@ -1,41 +1,79 @@
 package com.springddd.domain.menu;
 
 import com.springddd.domain.menu.exception.MenuPermissionNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ButtonTest {
 
     @Test
-    @DisplayName("当权限不为空时应成功创建 Button")
-    void shouldCreateButton_whenPermissionIsNotEmpty() {
-        Button button = new Button("sys:user:add", "/api/user");
-        assertThat(button.permission()).isEqualTo("sys:user:add");
-        assertThat(button.api()).isEqualTo("/api/user");
+    void shouldCreateButtonWithValidValues() {
+        Button button = new Button("permission:edit", "/api/edit");
+        assertEquals("permission:edit", button.permission());
+        assertEquals("/api/edit", button.api());
     }
 
     @Test
-    @DisplayName("当 api 为 null 时应成功创建 Button")
-    void shouldCreateButton_whenApiIsNull() {
-        Button button = new Button("sys:user:add");
-        assertThat(button.permission()).isEqualTo("sys:user:add");
-        assertThat(button.api()).isNull();
+    void shouldThrowMenuPermissionNullExceptionWhenPermissionIsNull() {
+        assertThrows(MenuPermissionNullException.class, () -> {
+            new Button(null, "/api/edit");
+        });
     }
 
     @Test
-    @DisplayName("当权限为空时应抛出 MenuPermissionNullException")
-    void shouldThrowException_whenPermissionIsEmpty() {
-        assertThatThrownBy(() -> new Button(""))
-                .isInstanceOf(MenuPermissionNullException.class);
+    void shouldThrowMenuPermissionNullExceptionWhenPermissionIsEmpty() {
+        assertThrows(MenuPermissionNullException.class, () -> {
+            new Button("", "/api/edit");
+        });
     }
 
     @Test
-    @DisplayName("当权限为 null 时应抛出 MenuPermissionNullException")
-    void shouldThrowException_whenPermissionIsNull() {
-        assertThatThrownBy(() -> new Button(null))
-                .isInstanceOf(MenuPermissionNullException.class);
+    void shouldAllowNullApi() {
+        Button button = new Button("permission:view", null);
+        assertEquals("permission:view", button.permission());
+        assertNull(button.api());
+    }
+
+    @Test
+    void shouldAllowEmptyApi() {
+        Button button = new Button("permission:view", "");
+        assertEquals("permission:view", button.permission());
+        assertEquals("", button.api());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        Button button1 = new Button("permission:edit", "/api/edit");
+        Button button2 = new Button("permission:edit", "/api/edit");
+        assertEquals(button1, button2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentPermission() {
+        Button button1 = new Button("permission:edit", "/api/edit");
+        Button button2 = new Button("permission:delete", "/api/edit");
+        assertNotEquals(button1, button2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentApi() {
+        Button button1 = new Button("permission:edit", "/api/edit");
+        Button button2 = new Button("permission:edit", "/api/delete");
+        assertNotEquals(button1, button2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        Button button1 = new Button("permission:edit", "/api/edit");
+        Button button2 = new Button("permission:edit", "/api/edit");
+        assertEquals(button1.hashCode(), button2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        Button button = new Button("permission:edit", "/api/edit");
+        String str = button.toString();
+        assertTrue(str.contains("permission:edit"));
+        assertTrue(str.contains("/api/edit"));
     }
 }

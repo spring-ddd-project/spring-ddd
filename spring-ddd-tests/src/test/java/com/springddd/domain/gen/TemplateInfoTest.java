@@ -2,34 +2,53 @@ package com.springddd.domain.gen;
 
 import com.springddd.domain.gen.exception.TemplateContentNullException;
 import com.springddd.domain.gen.exception.TemplateNameNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TemplateInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        TemplateInfo obj = new TemplateInfo("test", "test");
-        assertThat(obj.templateName()).isEqualTo("test");
-        assertThat(obj.templateContent()).isEqualTo("test");
+    void shouldCreateTemplateInfoWithValidValues() {
+        TemplateInfo info = new TemplateInfo("template1", "template content here");
+        assertEquals("template1", info.templateName());
+        assertEquals("template content here", info.templateContent());
     }
 
     @Test
-    @DisplayName("templateName 为 null 应抛异常")
-    void constructor_withNullTemplatename_shouldThrowException() {
-        assertThatThrownBy(() -> new TemplateInfo(null, "test"))
-                .isInstanceOf(TemplateNameNullException.class);
+    void equals_shouldWorkForSameValues() {
+        TemplateInfo info1 = new TemplateInfo("template1", "template content here");
+        TemplateInfo info2 = new TemplateInfo("template1", "template content here");
+        assertEquals(info1, info2);
     }
 
     @Test
-    @DisplayName("templateContent 为 null 应抛异常")
-    void constructor_withNullTemplatecontent_shouldThrowException() {
-        assertThatThrownBy(() -> new TemplateInfo("test", null))
-                .isInstanceOf(TemplateContentNullException.class);
+    void toString_shouldReturnValueAsString() {
+        TemplateInfo info = new TemplateInfo("template1", "template content here");
+        String str = info.toString();
+        assertTrue(str.contains("TemplateInfo"));
     }
 
+    @Test
+    void shouldThrowWhenNameIsNull() {
+        assertThrows(TemplateNameNullException.class, () ->
+            new TemplateInfo(null, "template content"));
+    }
+
+    @Test
+    void shouldThrowWhenContentIsNull() {
+        assertThrows(TemplateContentNullException.class, () ->
+            new TemplateInfo("template1", null));
+    }
+
+    @Test
+    void shouldThrowWhenNameIsEmpty() {
+        assertThrows(TemplateNameNullException.class, () ->
+            new TemplateInfo("", "template content"));
+    }
+
+    @Test
+    void shouldThrowWhenContentIsEmpty() {
+        assertThrows(TemplateContentNullException.class, () ->
+            new TemplateInfo("template1", ""));
+    }
 }

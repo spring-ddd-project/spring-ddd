@@ -8,8 +8,10 @@ import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.CacheProcessor;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -23,17 +25,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthUserService {
 
-    private final com.springddd.application.service.auth.handler.AuthHandler authHandler;
+    private final ReactiveAuthenticationManager authenticationManager;
 
     private final JwtTemplate jwtTemplate;
 
-    private final CacheProcessor cacheProcessor;
+    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
     private final JwtSecret jwtSecret;
 
     public Mono<LoginUserView> getToken(LoginUserQuery query) {
-        return authHandler.handle(query)
-                .flatMap(user -> {
+        UsernamePasswordAuthenticationToken unauthenticated =
+                UsernamePasswordAuthenticationToken.unauthenticated(query.getUsername(), query.getPassword());
+
+        return authenticationManager.authenticate(unauthenticated)
+                .flatMap(auth -> {
+                    AuthUser user = (AuthUser) auth.getPrincipal();
+
                     SecurityUtils.setAuthUserContext(user);
 
                     Map<String, Object> map = new HashMap<>();
@@ -44,15 +51,15 @@ public class AuthUserService {
                     Mono<Boolean> cacheOp = Mono.empty();
 
                     if (!CollectionUtils.isEmpty(user.getPermissions())) {
-                        cacheOp = cacheProcessor.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
+                        cacheOp = reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
                                 .then(
-                                        cacheProcessor.setCache(
+                                        reactiveRedisCacheHelper.setCache(
                                                 CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()),
                                                 token,
                                                 Duration.ofDays(jwtSecret.getTtl())
                                         )
                                 ).then(
-                                        cacheProcessor.setCache(
+                                        reactiveRedisCacheHelper.setCache(
                                                 CacheKeys.USER_DETAIL.buildKey(user.getUserId().value()),
                                                 user,
                                                 Duration.ofDays(jwtSecret.getTtl())
@@ -73,83 +80,21 @@ public class AuthUserService {
     public Mono<UserInfoView> getUserInfo() {
         UserInfoView view = new UserInfoView();
         view.setRealName(SecurityUtils.getUsername());
-        List<String> roles = SecurityUtils.getRoles();
-        view.setRoles(roles != null ? roles.stream().toList() : java.util.Collections.emptyList());
+        view.setRoles(SecurityUtils.getRoles().stream().toList());
         return Mono.just(view);
     }
 
     public Mono<List<String>> getUserPermissions() {
-        List<String> permissions = SecurityUtils.getPermissions();
         return Mono.just(
-                permissions != null ? permissions.stream().toList() : java.util.Collections.emptyList()
+                SecurityUtils.getPermissions()
+                        .stream()
+                        .toList()
         );
     }
 
     public Mono<Void> clearCache() {
-        return cacheProcessor.deleteCache(CacheKeys.USER_ALL.buildKey(SecurityUtils.getUserId()));
+        return reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_ALL.buildKey(SecurityUtils.getUserId()));
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

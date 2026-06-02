@@ -1,25 +1,21 @@
 package com.springddd.application.service.role;
 
 import com.springddd.application.service.role.dto.SysRoleMenuView;
-import com.springddd.domain.menu.MenuId;
-import com.springddd.domain.role.RoleId;
-import com.springddd.domain.role.SysRoleMenuDomain;
-import com.springddd.domain.role.SysRoleMenuDomainFactory;
-import com.springddd.domain.role.SysRoleMenuDomainRepository;
-import com.springddd.domain.role.WipeSysRoleMenuByIdsDomainService;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.role.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LinkRoleAndMenusDomainServiceImplTest {
@@ -36,26 +32,48 @@ class LinkRoleAndMenusDomainServiceImplTest {
     @Mock
     private SysRoleMenuDomainFactory sysRoleMenuDomainFactory;
 
-    @InjectMocks
-    private LinkRoleAndMenusDomainServiceImpl service;
+    private LinkRoleAndMenusDomainServiceImpl linkRoleAndMenusDomainService;
+
+    @BeforeEach
+    void setUp() {
+        linkRoleAndMenusDomainService = new LinkRoleAndMenusDomainServiceImpl(
+                sysRoleMenuQueryService,
+                wipeSysRoleMenuByIdsDomainService,
+                sysRoleMenuDomainRepository,
+                sysRoleMenuDomainFactory
+        );
+    }
 
     @Test
-    @DisplayName("link 应为指定角色和菜单创建关联")
-    void link_shouldCreateAssociations() {
-        SysRoleMenuView existing = new SysRoleMenuView();
-        existing.setId(100L);
+    void link_shouldComplete_whenValidInput() {
+        Long roleId = 1L;
+        List<Long> menuIds = Arrays.asList(1L, 2L);
 
-        when(sysRoleMenuQueryService.queryLinkRoleAndMenus(1L)).thenReturn(Mono.just(List.of(existing)));
-        when(wipeSysRoleMenuByIdsDomainService.deleteByIds(anyList())).thenReturn(Mono.empty());
-
-        SysRoleMenuDomain domain = mock(SysRoleMenuDomain.class);
-        when(sysRoleMenuDomainFactory.newInstance(any(RoleId.class), any(MenuId.class), any())).thenReturn(domain);
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId)).thenReturn(Mono.just(Collections.emptyList()));
+        when(wipeSysRoleMenuByIdsDomainService.deleteByIds(any())).thenReturn(Mono.empty());
+        when(sysRoleMenuDomainFactory.newInstance(any(), any(), any())).thenReturn(new SysRoleMenuDomain());
         when(sysRoleMenuDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.link(1L, List.of(10L, 20L)))
+        StepVerifier.create(linkRoleAndMenusDomainService.link(roleId, menuIds))
                 .verifyComplete();
+    }
 
-        verify(sysRoleMenuDomainFactory, times(2)).newInstance(any(RoleId.class), any(MenuId.class), any());
-        verify(sysRoleMenuDomainRepository, times(2)).save(any());
+    @Test
+    void link_shouldWipeExistingMenus_whenMenusExist() {
+        Long roleId = 1L;
+        List<Long> menuIds = Arrays.asList(2L);
+
+        SysRoleMenuView view = new SysRoleMenuView();
+        view.setId(1L);
+        view.setRoleId(roleId);
+        view.setMenuId(1L);
+
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId)).thenReturn(Mono.just(Collections.singletonList(view)));
+        when(wipeSysRoleMenuByIdsDomainService.deleteByIds(any())).thenReturn(Mono.empty());
+        when(sysRoleMenuDomainFactory.newInstance(any(), any(), any())).thenReturn(new SysRoleMenuDomain());
+        when(sysRoleMenuDomainRepository.save(any())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(linkRoleAndMenusDomainService.link(roleId, menuIds))
+                .verifyComplete();
     }
 }

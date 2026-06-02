@@ -1,9 +1,7 @@
 package com.springddd.application.service.dept;
 
 import com.springddd.application.service.dept.dto.SysDeptCommand;
-import com.springddd.application.service.permission.DataScopeCriteriaBuilder;
 import com.springddd.domain.dept.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -14,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysDeptCommandService {
 
-    private final RepositoryFactory repositoryFactory;
+    private final SysDeptDomainRepository sysDeptDomainRepository;
 
     private final SysDeptDomainFactory sysDeptDomainFactory;
 
@@ -24,8 +22,6 @@ public class SysDeptCommandService {
 
     private final RestoreSysDeptByIdDomainService restoreSysDeptByIdDomainService;
 
-    private final DataScopeCriteriaBuilder dataScopeCriteriaBuilder;
-
     public Mono<Long> create(SysDeptCommand command) {
         DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
         DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
@@ -33,84 +29,28 @@ public class SysDeptCommandService {
         SysDeptDomain sysDeptDomain = sysDeptDomainFactory.newInstance(new DeptId(command.getParentId()), basicInfo, extendInfo);
         sysDeptDomain.create();
 
-        return repositoryFactory.getSysDeptDomainRepository().save(sysDeptDomain)
-                .flatMap(id -> dataScopeCriteriaBuilder.evictDeptTreeCache().thenReturn(id));
+        return sysDeptDomainRepository.save(sysDeptDomain);
     }
 
     public Mono<Void> update(SysDeptCommand command) {
-        return repositoryFactory.getSysDeptDomainRepository().load(new DeptId(command.getId())).flatMap(domain -> {
+        return sysDeptDomainRepository.load(new DeptId(command.getId())).flatMap(domain -> {
             DeptBasicInfo basicInfo = new DeptBasicInfo(command.getDeptName());
             DeptExtendInfo extendInfo = new DeptExtendInfo(command.getSortOrder(), command.getDeptStatus());
 
             domain.update(new DeptId(command.getParentId()), basicInfo, extendInfo);
-            return repositoryFactory.getSysDeptDomainRepository().save(domain);
-        }).flatMap(id -> dataScopeCriteriaBuilder.evictDeptTreeCache().then());
+            return sysDeptDomainRepository.save(domain);
+        }).then();
     }
 
     public Mono<Void> delete(List<Long> ids) {
-        return deleteSysDeptByIdDomainService.deleteByIds(ids)
-                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
+        return deleteSysDeptByIdDomainService.deleteByIds(ids);
     }
 
     public Mono<Void> wipe(List<Long> ids) {
-        return wipeSysDeptByIdsDomainService.deleteByIds(ids)
-                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
+        return wipeSysDeptByIdsDomainService.deleteByIds(ids);
     }
 
     public Mono<Void> restore(List<Long> ids) {
-        return restoreSysDeptByIdDomainService.restoreByIds(ids)
-                .then(dataScopeCriteriaBuilder.evictDeptTreeCache());
+        return restoreSysDeptByIdDomainService.restoreByIds(ids);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

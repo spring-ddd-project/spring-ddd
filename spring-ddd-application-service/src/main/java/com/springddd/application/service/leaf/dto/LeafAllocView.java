@@ -2,11 +2,10 @@ package com.springddd.application.service.leaf.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-public class LeafAllocView implements Serializable {
+public class LeafAllocView {
 
     private Long id;
 

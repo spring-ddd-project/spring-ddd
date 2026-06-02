@@ -2,53 +2,55 @@ package com.springddd.application.service.leaf;
 
 import com.springddd.application.service.leaf.dto.LeafAllocCommand;
 import com.springddd.domain.leaf.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
+import com.springddd.domain.leaf.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class LeafAllocCommandService {
 
-    private final RepositoryFactory repositoryFactory;
+    private final LeafAllocDomainRepository leafAllocDomainRepository;
+    private final LeafAllocDomainFactory leafAllocDomainFactory;
+    private final CreateLeafAllocDomainService createLeafAllocDomainService;
+    private final UpdateLeafAllocDomainService updateLeafAllocDomainService;
+    private final DeleteLeafAllocByIdDomainService deleteLeafAllocByIdDomainService;
+    private final RestoreLeafAllocByIdDomainService restoreLeafAllocByIdDomainService;
+    private final WipeLeafAllocByIdDomainService wipeLeafAllocByIdDomainService;
 
     public Mono<Long> create(LeafAllocCommand command) {
-        LeafAllocBasicInfo basicInfo = new LeafAllocBasicInfo(command.getDescription());
-        LeafAllocExtendInfo extendInfo = new LeafAllocExtendInfo(
-                command.getMaxId() != null ? command.getMaxId() : 1L,
-                command.getStep() != null ? command.getStep() : 100);
-
-        LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setLeafAllocId(new LeafAllocId(command.getBizTag()));
-        domain.setId(command.getId());
-        domain.setBasicInfo(basicInfo);
-        domain.setExtendInfo(extendInfo);
-        domain.create();
-
-        return repositoryFactory.getLeafAllocDomainRepository().save(domain);
+        LeafAllocDomain domain = leafAllocDomainFactory.newInstance(
+                new BizTag(command.getBizTag()),
+                new MaxId(command.getMaxId()),
+                new Step(command.getStep()),
+                new Description(command.getDescription()),
+                command.getDeptId()
+        );
+        return createLeafAllocDomainService.create(domain).map(d -> d.getLeafAllocId().value());
     }
 
     public Mono<Void> update(LeafAllocCommand command) {
-        return repositoryFactory.getLeafAllocDomainRepository().load(new LeafAllocId(command.getBizTag())).flatMap(domain -> {
-            LeafAllocBasicInfo basicInfo = new LeafAllocBasicInfo(command.getDescription());
-            LeafAllocExtendInfo extendInfo = new LeafAllocExtendInfo(command.getMaxId(), command.getStep());
-            domain.update(basicInfo, extendInfo);
-            return repositoryFactory.getLeafAllocDomainRepository().save(domain);
-        }).then();
+        return leafAllocDomainRepository.load(new LeafAllocId(command.getId()))
+                .flatMap(domain -> updateLeafAllocDomainService.update(
+                        domain,
+                        new BizTag(command.getBizTag()),
+                        new MaxId(command.getMaxId()),
+                        new Step(command.getStep()),
+                        new Description(command.getDescription()),
+                        command.getDeptId()
+                )).then();
     }
 
-    public Mono<Void> delete(List<Long> ids) {
-        return Mono.empty();
+    public Mono<Void> delete(Long id) {
+        return deleteLeafAllocByIdDomainService.delete(new LeafAllocId(id));
     }
 
-    public Mono<Void> wipe(List<Long> ids) {
-        return Mono.empty();
+    public Mono<Void> restore(Long id) {
+        return restoreLeafAllocByIdDomainService.restore(new LeafAllocId(id));
     }
 
-    public Mono<Void> restore(List<Long> ids) {
-        return Mono.empty();
+    public Mono<Void> wipe(Long id) {
+        return wipeLeafAllocByIdDomainService.wipe(new LeafAllocId(id));
     }
 }

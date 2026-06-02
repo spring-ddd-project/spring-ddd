@@ -1,117 +1,157 @@
 package com.springddd.domain.auth;
 
-import com.springddd.domain.role.ColumnRule;
-import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.user.UserId;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.security.core.GrantedAuthority;
 
 class AuthUserTest {
 
     @Test
-    void testGetAuthoritiesWithPermissions() {
-        AuthUser user = new AuthUser();
-        user.setPermissions(List.of("sys:user:list", "sys:dept:list"));
-        var authorities = user.getAuthorities();
-        assertThat(authorities).hasSize(2);
-        assertThat(authorities).extracting("authority").containsExactlyInAnyOrder("sys:user:list", "sys:dept:list");
+    void shouldCreateAuthUserWithDefaultConstructor() {
+        AuthUser authUser = new AuthUser();
+        assertNull(authUser.getUserId());
+        assertNull(authUser.getUsername());
+        assertNull(authUser.getPassword());
     }
 
     @Test
-    void testGetAuthoritiesEmpty() {
-        AuthUser user = new AuthUser();
-        user.setPermissions(List.of());
-        var authorities = user.getAuthorities();
-        assertThat(authorities).isEmpty();
+    void shouldSetAndGetUserId() {
+        AuthUser authUser = new AuthUser();
+        UserId userId = new UserId(1L);
+        authUser.setUserId(userId);
+        assertEquals(userId, authUser.getUserId());
     }
 
     @Test
-    void testGetAuthoritiesNull() {
-        AuthUser user = new AuthUser();
-        user.setPermissions(null);
-        var authorities = user.getAuthorities();
-        assertThat(authorities).isEmpty();
+    void shouldSetAndGetUsername() {
+        AuthUser authUser = new AuthUser();
+        authUser.setUsername("testuser");
+        assertEquals("testuser", authUser.getUsername());
     }
 
     @Test
-    void testGetAuthoritiesFiltersBlank() {
-        AuthUser user = new AuthUser();
-        user.setPermissions(List.of("sys:user:list", "", "   "));
-        var authorities = user.getAuthorities();
-        assertThat(authorities).hasSize(1);
-        assertThat(authorities.iterator().next()).isInstanceOf(SimpleGrantedAuthority.class);
+    void shouldSetAndGetPassword() {
+        AuthUser authUser = new AuthUser();
+        authUser.setPassword("password123");
+        assertEquals("password123", authUser.getPassword());
     }
 
     @Test
-    void testIsAccountNonLocked() {
-        AuthUser user = new AuthUser();
-        user.setLockStatus(false);
-        assertThat(user.isAccountNonLocked()).isTrue();
-        user.setLockStatus(true);
-        assertThat(user.isAccountNonLocked()).isFalse();
-        user.setLockStatus(null);
-        assertThat(user.isAccountNonLocked()).isTrue();
+    void shouldSetAndGetRoles() {
+        AuthUser authUser = new AuthUser();
+        List<String> roles = Arrays.asList("ADMIN", "USER");
+        authUser.setRoles(roles);
+        assertEquals(roles, authUser.getRoles());
     }
 
     @Test
-    void testIsEnabled() {
-        AuthUser user = new AuthUser();
-        user.setLockStatus(false);
-        assertThat(user.isEnabled()).isTrue();
-        user.setLockStatus(true);
-        assertThat(user.isEnabled()).isFalse();
-        user.setLockStatus(null);
-        assertThat(user.isEnabled()).isTrue();
+    void shouldSetAndGetPermissions() {
+        AuthUser authUser = new AuthUser();
+        List<String> permissions = Arrays.asList("READ", "WRITE");
+        authUser.setPermissions(permissions);
+        assertEquals(permissions, authUser.getPermissions());
     }
 
     @Test
-    void testIsAccountNonExpired() {
-        AuthUser user = new AuthUser();
-        assertThat(user.isAccountNonExpired()).isTrue();
+    void shouldSetAndGetMenuIds() {
+        AuthUser authUser = new AuthUser();
+        List<Long> menuIds = Arrays.asList(1L, 2L, 3L);
+        authUser.setMenuIds(menuIds);
+        assertEquals(menuIds, authUser.getMenuIds());
     }
 
     @Test
-    void testIsCredentialsNonExpired() {
-        AuthUser user = new AuthUser();
-        assertThat(user.isCredentialsNonExpired()).isTrue();
+    void isAccountNonLocked_shouldReturnTrueWhenLockStatusIsNull() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(null);
+        assertTrue(authUser.isAccountNonLocked());
     }
 
     @Test
-    void testGetPasswordAndUsername() {
-        AuthUser user = new AuthUser();
-        user.setPassword("secret");
-        user.setUsername("admin");
-        assertThat(user.getPassword()).isEqualTo("secret");
-        assertThat(user.getUsername()).isEqualTo("admin");
+    void isAccountNonLocked_shouldReturnTrueWhenLockStatusIsFalse() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(false);
+        assertTrue(authUser.isAccountNonLocked());
     }
 
     @Test
-    void testDataPermissionField() {
-        AuthUser user = new AuthUser();
-        DataPermission dp = new DataPermission(null, null, 2, null);
-        user.setDataPermission(dp);
-        assertThat(user.getDataPermission().dataScope()).isEqualTo(2);
+    void isAccountNonLocked_shouldReturnFalseWhenLockStatusIsTrue() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(true);
+        assertFalse(authUser.isAccountNonLocked());
     }
 
     @Test
-    void testColumnPermissions() {
-        AuthUser user = new AuthUser();
-        user.setColumnPermissions(Map.of("sys_user", Set.of("username", "email")));
-        assertThat(user.getColumnPermissions()).containsKey("sys_user");
+    void isEnabled_shouldReturnTrueWhenLockStatusIsNull() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(null);
+        assertTrue(authUser.isEnabled());
     }
 
     @Test
-    void testColumnRules() {
-        AuthUser user = new AuthUser();
-        ColumnRule rule = new ColumnRule();
-        rule.setEntityCode("sys_user");
-        user.setColumnRules(List.of(rule));
-        assertThat(user.getColumnRules()).hasSize(1);
+    void isEnabled_shouldReturnTrueWhenLockStatusIsFalse() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(false);
+        assertTrue(authUser.isEnabled());
+    }
+
+    @Test
+    void isEnabled_shouldReturnFalseWhenLockStatusIsTrue() {
+        AuthUser authUser = new AuthUser();
+        authUser.setLockStatus(true);
+        assertFalse(authUser.isEnabled());
+    }
+
+    @Test
+    void getAuthorities_shouldReturnEmptyListWhenPermissionsIsNull() {
+        AuthUser authUser = new AuthUser();
+        authUser.setPermissions(null);
+        Collection<? extends GrantedAuthority> authorities = authUser.getAuthorities();
+        assertNotNull(authorities);
+        assertTrue(authorities.isEmpty());
+    }
+
+    @Test
+    void getAuthorities_shouldReturnEmptyListWhenPermissionsIsEmpty() {
+        AuthUser authUser = new AuthUser();
+        authUser.setPermissions(Arrays.asList());
+        Collection<? extends GrantedAuthority> authorities = authUser.getAuthorities();
+        assertNotNull(authorities);
+        assertTrue(authorities.isEmpty());
+    }
+
+    @Test
+    void getAuthorities_shouldReturnAuthorities() {
+        AuthUser authUser = new AuthUser();
+        authUser.setPermissions(Arrays.asList("READ", "WRITE"));
+        Collection<? extends GrantedAuthority> authorities = authUser.getAuthorities();
+        assertNotNull(authorities);
+        assertEquals(2, authorities.size());
+    }
+
+    @Test
+    void getAuthorities_shouldFilterOutEmptyStrings() {
+        AuthUser authUser = new AuthUser();
+        authUser.setPermissions(Arrays.asList("READ", "", "WRITE", "  "));
+        Collection<? extends GrantedAuthority> authorities = authUser.getAuthorities();
+        assertNotNull(authorities);
+        assertEquals(2, authorities.size());
+    }
+
+    @Test
+    void isAccountNonExpired_shouldReturnTrue() {
+        AuthUser authUser = new AuthUser();
+        assertTrue(authUser.isAccountNonExpired());
+    }
+
+    @Test
+    void isCredentialsNonExpired_shouldReturnTrue() {
+        AuthUser authUser = new AuthUser();
+        assertTrue(authUser.isCredentialsNonExpired());
     }
 }

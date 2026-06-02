@@ -1,43 +1,56 @@
 package com.springddd.domain.leaf;
 
 import com.springddd.domain.AbstractDomainMask;
+import com.springddd.domain.leaf.state.ActiveLeafAllocState;
+import com.springddd.domain.leaf.state.DeletedLeafAllocState;
+import com.springddd.domain.leaf.state.LeafAllocState;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class LeafAllocDomain extends AbstractDomainMask implements Cloneable {
+public class LeafAllocDomain extends AbstractDomainMask {
 
     private LeafAllocId leafAllocId;
 
-    private Long id;
+    private BizTag bizTag;
 
-    private LeafAllocBasicInfo basicInfo;
+    private MaxId maxId;
 
-    private LeafAllocExtendInfo extendInfo;
+    private Step step;
+
+    private Description description;
 
     private LeafAllocState state;
 
-    public void setState(LeafAllocState state) {
-        this.state = state;
-    }
-
     public void create() {
-        this.state = new com.springddd.domain.leaf.state.ActiveLeafAllocState();
+        this.state = new ActiveLeafAllocState();
+        super.setDeleteStatus(false);
     }
 
-    public void update(LeafAllocBasicInfo basicInfo, LeafAllocExtendInfo extendInfo) {
-        this.basicInfo = basicInfo;
-        this.extendInfo = extendInfo;
+    public void update(BizTag newBizTag, MaxId newMaxId, Step newStep, Description newDescription, Long deptId) {
+        this.bizTag = newBizTag;
+        this.maxId = newMaxId;
+        this.step = newStep;
+        this.description = newDescription;
+        super.setDeptId(deptId);
+    }
+
+    public void updateMaxId(MaxId newMaxId) {
+        this.maxId = newMaxId;
+    }
+
+    public void updateStep(Step newStep) {
+        this.step = newStep;
     }
 
     public void delete() {
-        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.leaf.state.DeletedLeafAllocState() : new com.springddd.domain.leaf.state.ActiveLeafAllocState();
-        state.delete(this);
+        super.setDeleteStatus(true);
+        this.state = new DeletedLeafAllocState();
     }
 
     public void restore() {
-        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.leaf.state.DeletedLeafAllocState() : new com.springddd.domain.leaf.state.ActiveLeafAllocState();
-        state.restore(this);
+        super.setDeleteStatus(false);
+        this.state = new ActiveLeafAllocState();
     }
 }

@@ -2,7 +2,6 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenColumnBindCommand;
 import com.springddd.domain.gen.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenColumnBindCommandService {
 
-    private final RepositoryFactory repositoryFactory;
+    private final GenColumnBindDomainRepository genColumnBindDomainRepository;
 
     private final GenColumnBindDomainFactory genColumnBindDomainFactory;
 
@@ -27,14 +26,14 @@ public class GenColumnBindCommandService {
         GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(command.getColumnType(), command.getEntityType(), command.getComponentType(), command.getTypescriptType());
         GenColumnBindDomain genColumnBindDomain = genColumnBindDomainFactory.newInstance(basicInfo);
         genColumnBindDomain.create();
-        return repositoryFactory.getGenColumnBindDomainRepository().save(genColumnBindDomain);
+        return genColumnBindDomainRepository.save(genColumnBindDomain);
     }
 
     public Mono<Void> update(GenColumnBindCommand command) {
-        return repositoryFactory.getGenColumnBindDomainRepository().load(new ColumnBindId(command.getId())).flatMap(domain -> {
+        return genColumnBindDomainRepository.load(new ColumnBindId(command.getId())).flatMap(domain -> {
             GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo(command.getColumnType(), command.getEntityType(), command.getComponentType(), command.getTypescriptType());
             domain.update(basicInfo);
-            return repositoryFactory.getGenColumnBindDomainRepository().save(domain);
+            return genColumnBindDomainRepository.save(domain);
         }).then();
     }
 
@@ -50,42 +49,3 @@ public class GenColumnBindCommandService {
         return restoreGenColumnBindDomainService.restoreByIds(ids);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

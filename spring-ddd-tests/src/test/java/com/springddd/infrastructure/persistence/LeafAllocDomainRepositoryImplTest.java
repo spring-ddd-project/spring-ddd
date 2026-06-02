@@ -1,11 +1,8 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.leaf.LeafAllocDomain;
-import com.springddd.domain.leaf.LeafAllocId;
+import com.springddd.domain.leaf.*;
 import com.springddd.infrastructure.persistence.entity.LeafAllocEntity;
-import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.LeafAllocRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class LeafAllocDomainRepositoryImplTest {
@@ -23,66 +23,114 @@ class LeafAllocDomainRepositoryImplTest {
     @Mock
     private LeafAllocRepository leafAllocRepository;
 
-    @Mock
-    private EntityFactory entityFactory;
-
     @InjectMocks
     private LeafAllocDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findByBizTag 和 entityFactory 返回 domain")
-    void load_shouldReturnDomain() {
-        LeafAllocId leafAllocId = new LeafAllocId("test_biz");
+    void load_shouldReturnDomain_whenEntityExists() {
         LeafAllocEntity entity = new LeafAllocEntity();
-        LeafAllocDomain domain = new LeafAllocDomain();
+        entity.setId(1L);
+        entity.setBizTag("test");
+        entity.setMaxId(1000L);
+        entity.setStep(100);
+        entity.setDescription("desc");
+        entity.setDeptId(1L);
+        entity.setDeleteStatus(false);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
+        entity.setVersion(0);
 
-        given(leafAllocRepository.findByBizTag("test_biz")).willReturn(Mono.just(entity));
-        given(entityFactory.createLeafAllocDomain(entity)).willReturn(domain);
+        when(leafAllocRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(leafAllocId))
-                .expectNext(domain)
+        StepVerifier.create(repository.load(new LeafAllocId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getLeafAllocId().value());
+                    assertEquals("test", domain.getBizTag().value());
+                    assertEquals(1000L, domain.getMaxId().value());
+                    assertEquals(100, domain.getStep().value());
+                    assertEquals("desc", domain.getDescription().value());
+                    assertEquals(1L, domain.getDeptId());
+                    assertFalse(domain.getDeleteStatus());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        LeafAllocId leafAllocId = new LeafAllocId("test_biz");
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(leafAllocRepository.findById(1L)).thenReturn(Mono.empty());
 
-        given(leafAllocRepository.findByBizTag("test_biz")).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(leafAllocId))
+        StepVerifier.create(repository.load(new LeafAllocId(1L)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应通过 entityFactory 转换并返回 id")
-    void save_shouldReturnId() {
+    void save_shouldReturnId_whenSavingNewAggregate() {
         LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setId(1L);
-        LeafAllocEntity entity = new LeafAllocEntity();
+        domain.setBizTag(new BizTag("test"));
+        domain.setMaxId(new MaxId(1000L));
+        domain.setStep(new Step(100));
+        domain.setDescription(new Description("desc"));
+        domain.setDeptId(1L);
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
         LeafAllocEntity savedEntity = new LeafAllocEntity();
         savedEntity.setId(1L);
 
-        given(entityFactory.createLeafAllocEntity(domain)).willReturn(entity);
-        given(leafAllocRepository.save(entity)).willReturn(Mono.just(savedEntity));
+        when(leafAllocRepository.save(any(LeafAllocEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() {
         LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setId(1L);
+        domain.setLeafAllocId(new LeafAllocId(1L));
+        domain.setBizTag(new BizTag("test"));
+        domain.setMaxId(new MaxId(1000L));
+        domain.setStep(new Step(100));
+        domain.setDescription(new Description("desc"));
+        domain.setDeptId(1L);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        given(leafAllocRepository.deleteById(1L)).willReturn(Mono.empty());
+        LeafAllocEntity savedEntity = new LeafAllocEntity();
+        savedEntity.setId(1L);
 
-        StepVerifier.create(repository.delete(domain))
+        when(leafAllocRepository.save(any(LeafAllocEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
+    }
 
-        verify(leafAllocRepository).deleteById(1L);
+    @Test
+    void loadByBizTag_shouldReturnDomain_whenEntityExists() {
+        LeafAllocEntity entity = new LeafAllocEntity();
+        entity.setId(1L);
+        entity.setBizTag("test");
+        entity.setMaxId(1000L);
+        entity.setStep(100);
+
+        when(leafAllocRepository.findByBizTag("test")).thenReturn(Mono.just(entity));
+
+        StepVerifier.create(repository.loadByBizTag("test"))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getLeafAllocId().value());
+                    assertEquals("test", domain.getBizTag().value());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void loadByBizTag_shouldReturnEmpty_whenEntityNotFound() {
+        when(leafAllocRepository.findByBizTag("test")).thenReturn(Mono.empty());
+
+        StepVerifier.create(repository.loadByBizTag("test"))
+                .verifyComplete();
     }
 }

@@ -2,34 +2,57 @@ package com.springddd.domain.dict;
 
 import com.springddd.domain.dict.exception.DictCodeNullException;
 import com.springddd.domain.dict.exception.DictNameNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictBasicInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        DictBasicInfo obj = new DictBasicInfo("test", "test");
-        assertThat(obj.dictName()).isEqualTo("test");
-        assertThat(obj.dictCode()).isEqualTo("test");
+    void shouldCreateWithValidNameAndCode() {
+        DictBasicInfo info = new DictBasicInfo("字典A", "DICT_A");
+        assertEquals("字典A", info.dictName());
+        assertEquals("DICT_A", info.dictCode());
     }
 
     @Test
-    @DisplayName("dictName 为 null 应抛异常")
-    void constructor_withNullDictname_shouldThrowException() {
-        assertThatThrownBy(() -> new DictBasicInfo(null, "test"))
-                .isInstanceOf(DictNameNullException.class);
+    void shouldThrowWhenNameIsNull() {
+        assertThrows(DictNameNullException.class, () -> new DictBasicInfo(null, "DICT_A"));
     }
 
     @Test
-    @DisplayName("dictCode 为 null 应抛异常")
-    void constructor_withNullDictcode_shouldThrowException() {
-        assertThatThrownBy(() -> new DictBasicInfo("test", null))
-                .isInstanceOf(DictCodeNullException.class);
+    void shouldThrowWhenNameIsEmpty() {
+        assertThrows(DictNameNullException.class, () -> new DictBasicInfo("", "DICT_A"));
     }
 
+    @Test
+    void shouldThrowWhenCodeIsNull() {
+        assertThrows(DictCodeNullException.class, () -> new DictBasicInfo("字典A", null));
+    }
+
+    @Test
+    void shouldThrowWhenCodeIsEmpty() {
+        assertThrows(DictCodeNullException.class, () -> new DictBasicInfo("字典A", ""));
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        DictBasicInfo info1 = new DictBasicInfo("字典A", "DICT_A");
+        DictBasicInfo info2 = new DictBasicInfo("字典A", "DICT_A");
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValues() {
+        DictBasicInfo info1 = new DictBasicInfo("字典A", "DICT_A");
+        DictBasicInfo info2 = new DictBasicInfo("字典B", "DICT_B");
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        DictBasicInfo info = new DictBasicInfo("测试字典", "TEST_DICT");
+        String result = info.toString();
+        assertTrue(result.contains("测试字典"));
+        assertTrue(result.contains("TEST_DICT"));
+    }
 }

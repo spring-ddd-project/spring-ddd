@@ -1,11 +1,10 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.role.RoleId;
-import com.springddd.domain.role.SysRoleDomain;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.springddd.domain.role.*;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
-import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +13,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+import java.util.Collections;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SysRoleDomainRepositoryImplTest {
@@ -24,65 +27,175 @@ class SysRoleDomainRepositoryImplTest {
     private SysRoleRepository sysRoleRepository;
 
     @Mock
-    private EntityFactory entityFactory;
+    private ObjectMapper objectMapper;
 
     @InjectMocks
     private SysRoleDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findById 和 entityFactory 返回 domain")
-    void load_shouldReturnDomain() {
-        RoleId roleId = new RoleId(1L);
+    void load_shouldReturnDomain_whenEntityExists() throws JsonProcessingException {
         SysRoleEntity entity = new SysRoleEntity();
-        SysRoleDomain domain = new SysRoleDomain();
+        entity.setId(1L);
+        entity.setRoleName("管理员");
+        entity.setRoleCode("admin");
+        entity.setRoleDesc("系统管理员");
+        entity.setDataScope(1);
+        entity.setDataPermission("{\"rowScope\":{\"deptIds\":[1],\"self\":false}}");
+        entity.setRoleStatus(true);
+        entity.setOwnerStatus(true);
+        entity.setDeptId(1L);
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(sysRoleRepository.findById(1L)).willReturn(Mono.just(entity));
-        given(entityFactory.createSysRoleDomain(entity)).willReturn(domain);
+        DataPermission dataPermission = new DataPermission();
+        dataPermission.setRowScope(new RowScope(Collections.singletonList(1L), null, null, false));
+        dataPermission.setColumnRules(Collections.emptyList());
 
-        StepVerifier.create(repository.load(roleId))
-                .expectNext(domain)
+        when(sysRoleRepository.findById(1L)).thenReturn(Mono.just(entity));
+        when(objectMapper.readValue(eq("{\"rowScope\":{\"deptIds\":[1],\"self\":false}}"), eq(DataPermission.class)))
+                .thenReturn(dataPermission);
+
+        StepVerifier.create(repository.load(new RoleId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getRoleId().value());
+                    assertEquals("管理员", domain.getRoleBasicInfo().roleName());
+                    assertNotNull(domain.getDataPermission());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        RoleId roleId = new RoleId(1L);
+    void load_shouldReturnDomain_withoutDataPermission_whenEntityDataPermissionIsNull() {
+        SysRoleEntity entity = new SysRoleEntity();
+        entity.setId(1L);
+        entity.setRoleName("管理员");
+        entity.setRoleCode("admin");
+        entity.setRoleDesc("系统管理员");
+        entity.setDataScope(1);
+        entity.setDataPermission(null);
+        entity.setRoleStatus(true);
+        entity.setOwnerStatus(true);
+        entity.setDeptId(1L);
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(sysRoleRepository.findById(1L)).willReturn(Mono.empty());
+        when(sysRoleRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(roleId))
+        StepVerifier.create(repository.load(new RoleId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getRoleId().value());
+                    assertNull(domain.getDataPermission());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应通过 entityFactory 转换并返回 id")
-    void save_shouldReturnId() {
-        SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleId(new RoleId(1L));
+    void load_shouldThrowRuntimeException_whenJsonProcessingFails() throws JsonProcessingException {
         SysRoleEntity entity = new SysRoleEntity();
+        entity.setId(1L);
+        entity.setRoleName("管理员");
+        entity.setRoleCode("admin");
+        entity.setRoleDesc("系统管理员");
+        entity.setDataScope(1);
+        entity.setDataPermission("invalid-json");
+        entity.setRoleStatus(true);
+        entity.setOwnerStatus(true);
+        entity.setDeptId(1L);
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
+
+        when(sysRoleRepository.findById(1L)).thenReturn(Mono.just(entity));
+        when(objectMapper.readValue(eq("invalid-json"), eq(DataPermission.class)))
+                .thenThrow(new JsonProcessingException("parse error") {});
+
+        StepVerifier.create(repository.load(new RoleId(1L)))
+                .expectError(RuntimeException.class)
+                .verify();
+    }
+
+    @Test
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(sysRoleRepository.findById(1L)).thenReturn(Mono.empty());
+
+        StepVerifier.create(repository.load(new RoleId(1L)))
+                .verifyComplete();
+    }
+
+    @Test
+    void save_shouldReturnId_whenSavingNewAggregate() throws JsonProcessingException {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleId(null);
+        domain.setRoleBasicInfo(new RoleBasicInfo("管理员", "admin", 1, true));
+        domain.setRoleExtendInfo(new RoleExtendInfo("系统管理员", true));
+        domain.setDeptId(1L);
+        DataPermission dataPermission = new DataPermission();
+        dataPermission.setRowScope(new RowScope(Collections.singletonList(1L), null, null, false));
+        domain.setDataPermission(dataPermission);
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
+        when(objectMapper.writeValueAsString(any(DataPermission.class)))
+                .thenReturn("{\"rowScope\":{\"deptIds\":[1],\"self\":false}}");
+
         SysRoleEntity savedEntity = new SysRoleEntity();
         savedEntity.setId(1L);
 
-        given(entityFactory.createSysRoleEntity(domain)).willReturn(entity);
-        given(sysRoleRepository.save(entity)).willReturn(Mono.just(savedEntity));
+        when(sysRoleRepository.save(any(SysRoleEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() throws JsonProcessingException {
         SysRoleDomain domain = new SysRoleDomain();
         domain.setRoleId(new RoleId(1L));
+        domain.setRoleBasicInfo(new RoleBasicInfo("管理员", "admin", 1, true));
+        domain.setRoleExtendInfo(new RoleExtendInfo("系统管理员", true));
+        domain.setDeptId(1L);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        given(sysRoleRepository.deleteById(1L)).willReturn(Mono.empty());
+        SysRoleEntity savedEntity = new SysRoleEntity();
+        savedEntity.setId(1L);
 
-        StepVerifier.create(repository.delete(domain))
+        when(sysRoleRepository.save(any(SysRoleEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
+    }
 
-        verify(sysRoleRepository).deleteById(1L);
+    @Test
+    void save_shouldThrowRuntimeException_whenJsonProcessingFails() throws JsonProcessingException {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleId(null);
+        domain.setRoleBasicInfo(new RoleBasicInfo("管理员", "admin", 1, true));
+        domain.setRoleExtendInfo(new RoleExtendInfo("系统管理员", true));
+        domain.setDeptId(1L);
+        DataPermission dataPermission = new DataPermission();
+        dataPermission.setRowScope(new RowScope(Collections.singletonList(1L), null, null, false));
+        domain.setDataPermission(dataPermission);
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
+        when(objectMapper.writeValueAsString(any(DataPermission.class)))
+                .thenThrow(new JsonProcessingException("write error") {});
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> repository.save(domain));
+        assertEquals("Failed to write data permission config", exception.getMessage());
     }
 }

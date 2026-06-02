@@ -5,16 +5,12 @@ import com.springddd.application.service.leaf.dto.LeafAllocView;
 import com.springddd.application.service.leaf.dto.LeafAllocViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.LeafAllocEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.r2dbc.core.ReactiveSelectOperation;
 import org.springframework.data.relational.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,44 +18,33 @@ import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class LeafAllocQueryServiceTest {
 
     @Mock
-    private QueryFactory queryFactory;
-
+    private R2dbcEntityTemplate r2dbcEntityTemplate;
     @Mock
     private LeafAllocViewMapStruct leafAllocViewMapStruct;
 
     @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
+    private org.springframework.data.r2dbc.core.ReactiveSelectOperation.ReactiveSelect<LeafAllocEntity> reactiveSelect;
 
     @Mock
-    private ReactiveSelectOperation.ReactiveSelect<LeafAllocEntity> selectOp;
+    private org.springframework.data.r2dbc.core.ReactiveSelectOperation.TerminatingSelect<LeafAllocEntity> terminatingSelect;
 
-    @Mock
-    private ReactiveSelectOperation.TerminatingSelect<LeafAllocEntity> terminatingSelect;
-
-    @InjectMocks
-    private LeafAllocQueryService service;
+    private LeafAllocQueryService queryService;
 
     @BeforeEach
     void setUp() {
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
+        queryService = new LeafAllocQueryService(r2dbcEntityTemplate, leafAllocViewMapStruct);
     }
 
-    @Test
-    @DisplayName("index 应返回分页结果")
-    void index_shouldReturnPage() {
-        LeafAllocPageQuery query = new LeafAllocPageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-
+    private void mockSelect() {
         LeafAllocEntity entity = new LeafAllocEntity();
         entity.setId(1L);
         entity.setBizTag("test");
@@ -68,43 +53,58 @@ class LeafAllocQueryServiceTest {
         view.setId(1L);
         view.setBizTag("test");
 
-        when(r2dbcEntityTemplate.select(LeafAllocEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
+        when(r2dbcEntityTemplate.select(LeafAllocEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(terminatingSelect);
         when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(leafAllocViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(LeafAllocEntity.class))).thenReturn(Mono.just(1L));
+        when(leafAllocViewMapStruct.toViewList(any())).thenReturn(List.of(view));
+        when(r2dbcEntityTemplate.count(any(), eq(LeafAllocEntity.class))).thenReturn(Mono.just(1L));
+    }
 
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getList().get(0).getBizTag()).isEqualTo("test");
-                    assertThat(page.getPageNum()).isEqualTo(1);
-                    assertThat(page.getPageSize()).isEqualTo(10);
+    @Test
+    void page_shouldReturnPageResponse_whenResultsExist() {
+        LeafAllocPageQuery query = new LeafAllocPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setBizTag("test");
+
+        mockSelect();
+
+        StepVerifier.create(queryService.page(query))
+                .assertNext(response -> {
+                    assertEquals(1, response.getTotal());
+                    assertEquals(1, response.getItems().size());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("recycle 应返回回收站分页结果")
-    void recycle_shouldReturnRecyclePage() {
+    void page_shouldReturnPageResponse_whenBizTagEmpty() {
         LeafAllocPageQuery query = new LeafAllocPageQuery();
         query.setPageNum(1);
         query.setPageSize(10);
 
-        LeafAllocEntity entity = new LeafAllocEntity();
-        entity.setId(1L);
+        mockSelect();
 
-        LeafAllocView view = new LeafAllocView();
-        view.setId(1L);
+        StepVerifier.create(queryService.page(query))
+                .assertNext(response -> {
+                    assertEquals(1, response.getTotal());
+                })
+                .verifyComplete();
+    }
 
-        when(r2dbcEntityTemplate.select(LeafAllocEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(leafAllocViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(LeafAllocEntity.class))).thenReturn(Mono.just(1L));
+    @Test
+    void recycle_shouldReturnPageResponse() {
+        LeafAllocPageQuery query = new LeafAllocPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
 
-        StepVerifier.create(service.recycle(query))
-                .assertNext(page -> assertThat(page.getList()).hasSize(1))
+        mockSelect();
+
+        StepVerifier.create(queryService.recycle(query))
+                .assertNext(response -> {
+                    assertEquals(1, response.getTotal());
+                    assertEquals(1, response.getItems().size());
+                })
                 .verifyComplete();
     }
 }

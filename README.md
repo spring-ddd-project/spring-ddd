@@ -4,7 +4,7 @@ This Spring DDD framework helps you build faster with CQRS and Event Sourcing, i
 
 ## Getting Started
 
-**Not recommended for use during development. The first official release is expected on December 31, 2026.**
+**Not recommended for use during development. The first official release is expected on December 31, 2025.**
 
 ## License
 

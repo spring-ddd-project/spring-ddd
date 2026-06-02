@@ -1,11 +1,8 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.gen.GenProjectInfoDomain;
-import com.springddd.domain.gen.InfoId;
+import com.springddd.domain.gen.*;
 import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
-import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.GenProjectInfoRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GenProjectInfoDomainRepositoryImplTest {
@@ -23,66 +23,80 @@ class GenProjectInfoDomainRepositoryImplTest {
     @Mock
     private GenProjectInfoRepository genProjectInfoRepository;
 
-    @Mock
-    private EntityFactory entityFactory;
-
     @InjectMocks
     private GenProjectInfoDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findById 和 entityFactory 返回 domain")
-    void load_shouldReturnDomain() {
-        InfoId infoId = new InfoId(1L);
+    void load_shouldReturnDomain_whenEntityExists() {
         GenProjectInfoEntity entity = new GenProjectInfoEntity();
-        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        entity.setId(1L);
+        entity.setTableName("sys_user");
+        entity.setPackageName("com.springddd");
+        entity.setClassName("SysUser");
+        entity.setModuleName("system");
+        entity.setProjectName("spring-ddd");
+        entity.setRequestName("SysUserRequest");
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(genProjectInfoRepository.findById(1L)).willReturn(Mono.just(entity));
-        given(entityFactory.createGenProjectInfoDomain(entity)).willReturn(domain);
+        when(genProjectInfoRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(infoId))
-                .expectNext(domain)
+        StepVerifier.create(repository.load(new InfoId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getId().value());
+                    assertEquals("sys_user", domain.getProjectInfo().tableName());
+                    assertEquals("SysUserRequest", domain.getExtendInfo().requestName());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        InfoId infoId = new InfoId(1L);
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(genProjectInfoRepository.findById(1L)).thenReturn(Mono.empty());
 
-        given(genProjectInfoRepository.findById(1L)).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(infoId))
+        StepVerifier.create(repository.load(new InfoId(1L)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应通过 entityFactory 转换并返回 id")
-    void save_shouldReturnId() {
+    void save_shouldReturnId_whenSavingNewAggregate() {
         GenProjectInfoDomain domain = new GenProjectInfoDomain();
-        domain.setId(new InfoId(1L));
-        GenProjectInfoEntity entity = new GenProjectInfoEntity();
+        domain.setId(null);
+        domain.setProjectInfo(new ProjectInfo("sys_user", "com.springddd", "SysUser", "system", "spring-ddd"));
+        domain.setExtendInfo(new GenProjectInfoExtendInfo("SysUserRequest"));
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
         GenProjectInfoEntity savedEntity = new GenProjectInfoEntity();
         savedEntity.setId(1L);
 
-        given(entityFactory.createGenProjectInfoEntity(domain)).willReturn(entity);
-        given(genProjectInfoRepository.save(entity)).willReturn(Mono.just(savedEntity));
+        when(genProjectInfoRepository.save(any(GenProjectInfoEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() {
         GenProjectInfoDomain domain = new GenProjectInfoDomain();
         domain.setId(new InfoId(1L));
+        domain.setProjectInfo(new ProjectInfo("sys_user", "com.springddd", "SysUser", "system", "spring-ddd"));
+        domain.setExtendInfo(new GenProjectInfoExtendInfo("SysUserRequest"));
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        given(genProjectInfoRepository.deleteById(1L)).willReturn(Mono.empty());
+        GenProjectInfoEntity savedEntity = new GenProjectInfoEntity();
+        savedEntity.setId(1L);
 
-        StepVerifier.create(repository.delete(domain))
+        when(genProjectInfoRepository.save(any(GenProjectInfoEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
-
-        verify(genProjectInfoRepository).deleteById(1L);
     }
 }

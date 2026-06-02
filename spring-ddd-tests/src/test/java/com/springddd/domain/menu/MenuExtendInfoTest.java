@@ -1,39 +1,54 @@
 package com.springddd.domain.menu;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MenuExtendInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        MenuExtendInfo obj = new MenuExtendInfo(1, "test", "test", 1, true, true);
-        assertThat(obj.order()).isEqualTo(1);
-        assertThat(obj.title()).isEqualTo("test");
-        assertThat(obj.icon()).isEqualTo("test");
-        assertThat(obj.menuType()).isEqualTo(1);
-        assertThat(obj.visible()).isEqualTo(true);
-        assertThat(obj.menuStatus()).isEqualTo(true);
+    void shouldCreateMenuExtendInfoWithAllFields() {
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        assertEquals(1, info.order());
+        assertEquals("title", info.title());
+        assertEquals("icon", info.icon());
+        assertEquals(1, info.menuType());
+        assertTrue(info.visible());
+        assertTrue(info.menuStatus());
     }
 
     @Test
-    @DisplayName("Button 便捷构造器")
-    void buttonConstructor_shouldCreate() {
-        MenuExtendInfo obj = new MenuExtendInfo(1, 1, true);
-        assertThat(obj.order()).isEqualTo(1);
-        assertThat(obj.menuType()).isEqualTo(1);
-        assertThat(obj.menuStatus()).isEqualTo(true);
+    void shouldCreateMenuExtendInfoForCatalog() {
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", 1, "icon", true, true);
+        assertEquals(1, info.order());
+        assertEquals("title", info.title());
+        assertEquals("icon", info.icon());
+        assertEquals(1, info.menuType());
+        assertTrue(info.visible());
+        assertTrue(info.menuStatus());
     }
 
     @Test
-    @DisplayName("creatorId 便捷构造器")
-    void creatorIdConstructor_shouldCreate() {
-        MenuExtendInfo obj = new MenuExtendInfo(1L);
-        assertThat(obj).isNotNull();
+    void shouldCreateMenuExtendInfoForButton() {
+        MenuExtendInfo info = new MenuExtendInfo(1, 1, true);
+        assertEquals(1, info.order());
+        assertNull(info.title());
+        assertNull(info.icon());
+        assertEquals(1, info.menuType());
+        assertNull(info.visible());
+        assertTrue(info.menuStatus());
     }
 
+    @Test
+    void equals_shouldWorkForSameValues() {
+        MenuExtendInfo info1 = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        MenuExtendInfo info2 = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        MenuExtendInfo info = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        String str = info.toString();
+        assertTrue(str.contains("MenuExtendInfo"));
+    }
 }

@@ -1,23 +1,27 @@
 package com.springddd.domain.util;
 
-import com.springddd.domain.dept.exception.DeptIdNullException;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.DomainException;
+import com.springddd.domain.util.ErrorCode;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.MessageSource;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.List;
 import java.util.Locale;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GlobalExceptionHandlerTest {
@@ -25,74 +29,140 @@ class GlobalExceptionHandlerTest {
     @Mock
     private MessageSource messageSource;
 
-    @InjectMocks
-    private GlobalExceptionHandler handler;
+    @Mock
+    private ServerWebExchange exchange;
+
+    private GlobalExceptionHandler globalExceptionHandler;
+
+    @BeforeEach
+    void setUp() {
+        globalExceptionHandler = new GlobalExceptionHandler(messageSource);
+    }
 
     @Test
-    @DisplayName("handleDomainException 应返回错误响应")
-    void handleDomainException_shouldReturnErrorResponse() {
-        DeptIdNullException ex = new DeptIdNullException();
-        when(messageSource.getMessage(ex.getMessageKey(), ex.getArgs(), Locale.ENGLISH)).thenReturn("Test error");
+    void shouldHandleDomainException() {
+        DomainException exception = new DomainException(ErrorCode.USER_NAME_NULL) {};
+        when(messageSource.getMessage(eq("error.user.name.null"), any(), any(Locale.class)))
+                .thenReturn("Username cannot be null");
 
-        StepVerifier.create(handler.handleDomainException(ex, Locale.ENGLISH))
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
+
+        StepVerifier.create(result)
                 .assertNext(response -> {
-                    assertThat(response.getCode()).isEqualTo(ex.getCode());
-                    assertThat(response.getMessage()).isEqualTo("Test error");
+                    assertEquals(1000, response.getCode());
+                    assertEquals("Username cannot be null", response.getMessage());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("handleValidationException 应返回验证错误响应")
-    void handleValidationException_shouldReturnValidationError() {
-        WebExchangeBindException ex = mock(WebExchangeBindException.class);
-        when(ex.getFieldErrors()).thenReturn(java.util.List.of());
+    void shouldHandleDomainExceptionWithArgs() {
+        DomainException exception = new DomainException(ErrorCode.USER_NAME_NULL, "testUser") {};
+        when(messageSource.getMessage(eq("error.user.name.null"), eq(new Object[]{"testUser"}), any(Locale.class)))
+                .thenReturn("Username testUser cannot be null");
 
-        StepVerifier.create(handler.handleValidationException(ex))
-                .assertNext(response -> assertThat(response.getCode()).isEqualTo(501))
-                .verifyComplete();
-    }
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
 
-    @Test
-    @DisplayName("handleValidationException 有字段错误时应返回拼接的错误消息")
-    void handleValidationException_withFieldErrors_shouldReturnConcatenatedMessage() {
-        WebExchangeBindException ex = mock(WebExchangeBindException.class);
-        when(ex.getFieldErrors()).thenReturn(java.util.List.of(
-                new FieldError("obj", "name", "must not be null"),
-                new FieldError("obj", "age", "must be positive")
-        ));
-
-        StepVerifier.create(handler.handleValidationException(ex))
+        StepVerifier.create(result)
                 .assertNext(response -> {
-                    assertThat(response.getCode()).isEqualTo(501);
-                    assertThat(response.getMessage()).contains("name: must not be null");
-                    assertThat(response.getMessage()).contains("age: must be positive");
+                    assertEquals(1000, response.getCode());
+                    assertEquals("Username testUser cannot be null", response.getMessage());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("handleGenericException 当 BadCredentialsException 时应返回 302")
-    void handleGenericException_whenBadCredentials_shouldReturn302() {
-        BadCredentialsException ex = new BadCredentialsException("Bad creds");
+    void shouldHandleWebExchangeBindException() {
+        WebExchangeBindException exception = mock(WebExchangeBindException.class);
+        when(exception.getFieldErrors()).thenReturn(List.of());
 
-        StepVerifier.create(handler.handleGenericException(ex))
+        Mono<ApiResponse> result = globalExceptionHandler.handleValidationException(exception);
+
+        StepVerifier.create(result)
                 .assertNext(response -> {
-                    assertThat(response.getCode()).isEqualTo(302);
-                    assertThat(response.getMessage()).isEqualTo("Bad creds");
+                    assertEquals(501, response.getCode());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("handleGenericException 应返回通用错误响应")
-    void handleGenericException_shouldReturnGenericError() {
-        Exception ex = new Exception("Something went wrong");
+    void shouldHandleBadCredentialsException() {
+        BadCredentialsException exception = new BadCredentialsException("Invalid credentials");
 
-        StepVerifier.create(handler.handleGenericException(ex))
+        Mono<ApiResponse> result = globalExceptionHandler.handleGenericException(exception);
+
+        StepVerifier.create(result)
                 .assertNext(response -> {
-                    assertThat(response.getCode()).isEqualTo(500);
-                    assertThat(response.getMessage()).contains("Something went wrong");
+                    assertEquals(302, response.getCode());
+                    assertEquals("Invalid credentials", response.getMessage());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldHandleGenericException() {
+        Exception exception = new RuntimeException("Something went wrong");
+
+        Mono<ApiResponse> result = globalExceptionHandler.handleGenericException(exception);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(500, response.getCode());
+                    assertTrue(response.getMessage().contains("Internal Server Error"));
+                    assertTrue(response.getMessage().contains("Something went wrong"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldHandleAnotherDomainException() {
+        DomainException exception = new DomainException(ErrorCode.ROLE_NAME_NULL) {};
+        when(messageSource.getMessage(eq("error.role.name.null"), any(), any(Locale.class)))
+                .thenReturn("Role name cannot be null");
+
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1101, response.getCode());
+                    assertEquals("Role name cannot be null", response.getMessage());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldHandleMenuPermissionDeniedException() {
+        DomainException exception = new DomainException(ErrorCode.MENU_PERMISSION_DENIED) {};
+        when(messageSource.getMessage(eq("error.menu.permission.denied"), any(), any(Locale.class)))
+                .thenReturn("Menu permission denied");
+
+        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(1207, response.getCode());
+                    assertEquals("Menu permission denied", response.getMessage());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldHandleValidationExceptionWithFieldErrors() {
+        org.springframework.validation.FieldError fieldError1 =
+                new org.springframework.validation.FieldError("object", "field1", "Field1 is invalid");
+        org.springframework.validation.FieldError fieldError2 =
+                new org.springframework.validation.FieldError("object", "field2", "Field2 is required");
+
+        WebExchangeBindException exception = mock(WebExchangeBindException.class);
+        when(exception.getFieldErrors()).thenReturn(List.of(fieldError1, fieldError2));
+
+        Mono<ApiResponse> result = globalExceptionHandler.handleValidationException(exception);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertEquals(501, response.getCode());
+                    assertTrue(response.getMessage().contains("field1"));
+                    assertTrue(response.getMessage().contains("field2"));
                 })
                 .verifyComplete();
     }

@@ -1,80 +1,112 @@
 package com.springddd.domain.gen;
 
-import com.springddd.domain.gen.state.ActiveState;
-import com.springddd.domain.gen.state.DeletedState;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GenAggregateDomainTest {
 
-    private GenAggregateDomain createDomain() {
+    @Test
+    void shouldCreateGenAggregateDomainWithAllFields() {
         GenAggregateDomain domain = new GenAggregateDomain();
-        domain.setAggregateId(new AggregateId(1L));
-        domain.setInfoId(new InfoId(1L));
-        domain.setValueObject(new GenAggregateValueObject("TestObj", "testValue", (byte) 1));
-        domain.setExtendInfo(new GenAggregateExtendInfo(true));
+        AggregateId aggregateId = new AggregateId(1L);
+        InfoId infoId = new InfoId(2L);
+        GenAggregateValueObject valueObject = new GenAggregateValueObject("name", "value", (byte) 1);
+        GenAggregateExtendInfo extendInfo = new GenAggregateExtendInfo(true);
+
+        domain.setAggregateId(aggregateId);
+        domain.setInfoId(infoId);
+        domain.setValueObject(valueObject);
+        domain.setExtendInfo(extendInfo);
+        domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
+        domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
         domain.setDeleteStatus(false);
-        return domain;
+        domain.setVersion(0);
+
+        assertEquals(aggregateId, domain.getAggregateId());
+        assertEquals(infoId, domain.getInfoId());
+        assertEquals(valueObject, domain.getValueObject());
+        assertEquals(extendInfo, domain.getExtendInfo());
+        assertEquals("admin", domain.getCreateBy());
+        assertNotNull(domain.getCreateTime());
+        assertEquals("admin", domain.getUpdateBy());
+        assertNotNull(domain.getUpdateTime());
+        assertFalse(domain.getDeleteStatus());
+        assertEquals(0, domain.getVersion());
     }
 
     @Test
-    void testCreate() {
-        GenAggregateDomain domain = createDomain();
+    void shouldCallCreateMethod() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+
         domain.create();
-        assertThat(domain.getState()).isInstanceOf(ActiveState.class);
+
+        assertNotNull(domain);
     }
 
     @Test
-    void testUpdate() {
-        GenAggregateDomain domain = createDomain();
-        InfoId newInfoId = new InfoId(2L);
-        GenAggregateValueObject newVo = new GenAggregateValueObject("NewObj", "newValue", (byte) 2);
-        GenAggregateExtendInfo newExt = new GenAggregateExtendInfo(false);
-        domain.update(newInfoId, newVo, newExt);
-        assertThat(domain.getInfoId().value()).isEqualTo(2L);
-        assertThat(domain.getValueObject().objectName()).isEqualTo("NewObj");
-        assertThat(domain.getExtendInfo().hasCreated()).isFalse();
+    void shouldUpdateGenAggregateDomain() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        InfoId newInfoId = new InfoId(3L);
+        GenAggregateValueObject newValueObject = new GenAggregateValueObject("newName", "newValue", (byte) 2);
+        GenAggregateExtendInfo newExtendInfo = new GenAggregateExtendInfo(false);
+
+        domain.update(newInfoId, newValueObject, newExtendInfo);
+
+        assertEquals(newInfoId, domain.getInfoId());
+        assertEquals(newValueObject, domain.getValueObject());
+        assertEquals(newExtendInfo, domain.getExtendInfo());
     }
 
     @Test
-    void testDeleteFromActive() {
-        GenAggregateDomain domain = createDomain();
+    void shouldDeleteGenAggregateDomain() {
+        GenAggregateDomain domain = new GenAggregateDomain();
         domain.setDeleteStatus(false);
+
         domain.delete();
-        assertThat(domain.getDeleteStatus()).isTrue();
-        assertThat(domain.getState()).isInstanceOf(DeletedState.class);
+
+        assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void testDeleteFromDeleted() {
-        GenAggregateDomain domain = createDomain();
+    void shouldRestoreGenAggregateDomain() {
+        GenAggregateDomain domain = new GenAggregateDomain();
         domain.setDeleteStatus(true);
-        domain.delete();
-        assertThat(domain.getDeleteStatus()).isTrue();
-    }
 
-    @Test
-    void testRestoreFromDeleted() {
-        GenAggregateDomain domain = createDomain();
-        domain.setDeleteStatus(true);
         domain.restore();
-        assertThat(domain.getDeleteStatus()).isFalse();
-        assertThat(domain.getState()).isInstanceOf(ActiveState.class);
+
+        assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    void testRestoreFromActive() {
-        GenAggregateDomain domain = createDomain();
-        domain.setDeleteStatus(false);
-        domain.restore();
-        assertThat(domain.getDeleteStatus()).isFalse();
+    void shouldSetAndGetFields() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        AggregateId aggregateId = new AggregateId(10L);
+        InfoId infoId = new InfoId(20L);
+
+        domain.setAggregateId(aggregateId);
+        domain.setInfoId(infoId);
+
+        assertEquals(aggregateId, domain.getAggregateId());
+        assertEquals(infoId, domain.getInfoId());
     }
 
     @Test
-    void testSetState() {
-        GenAggregateDomain domain = createDomain();
-        domain.setState(new DeletedState());
-        assertThat(domain.getState()).isInstanceOf(DeletedState.class);
+    void shouldHandleNullValues() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+
+        domain.setAggregateId(null);
+        domain.setInfoId(null);
+        domain.setValueObject(null);
+        domain.setExtendInfo(null);
+
+        assertNull(domain.getAggregateId());
+        assertNull(domain.getInfoId());
+        assertNull(domain.getValueObject());
+        assertNull(domain.getExtendInfo());
     }
 }

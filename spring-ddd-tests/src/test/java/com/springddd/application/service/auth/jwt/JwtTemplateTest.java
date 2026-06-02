@@ -3,12 +3,11 @@ package com.springddd.application.service.auth.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class JwtTemplateTest {
 
@@ -17,26 +16,24 @@ class JwtTemplateTest {
     @BeforeEach
     void setUp() {
         JwtSecret jwtSecret = new JwtSecret();
-        jwtSecret.setKey("my-secret-key-my-secret-key-my-secret-key");
+        jwtSecret.setKey("mySecretKey123456789012345678901234");
         jwtSecret.setTtl(7);
         jwtTemplate = new JwtTemplate(jwtSecret);
     }
 
     @Test
-    @DisplayName("generateToken 应生成非空 token")
-    void generateToken_shouldGenerateNonNullToken() {
+    void generateToken_shouldReturnNonNullToken() {
         String token = jwtTemplate.generateToken(Map.of("userId", 1L));
-
-        assertThat(token).isNotBlank();
+        assertNotNull(token);
+        assertFalse(token.isEmpty());
     }
 
     @Test
-    @DisplayName("parseToken 应正确解析 token")
-    void parseToken_shouldParseTokenCorrectly() {
+    void parseToken_shouldReturnCorrectClaims() {
         String token = jwtTemplate.generateToken(Map.of("userId", 1L));
-
-        Jws<Claims> claims = jwtTemplate.parseToken(token);
-
-        assertThat(claims.getPayload().get("userId", Long.class)).isEqualTo(1L);
+        Jws<Claims> jws = jwtTemplate.parseToken(token);
+        assertNotNull(jws);
+        assertNotNull(jws.getPayload());
+        assertEquals(1L, jws.getPayload().get("userId", Long.class));
     }
 }

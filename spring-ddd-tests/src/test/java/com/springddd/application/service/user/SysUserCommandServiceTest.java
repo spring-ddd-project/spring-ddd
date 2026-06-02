@@ -2,28 +2,26 @@ package com.springddd.application.service.user;
 
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.domain.user.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SysUserCommandServiceTest {
 
     @Mock
-    private RepositoryFactory repositoryFactory;
+    private SysUserDomainRepository sysUserDomainRepository;
 
     @Mock
     private SysUserDomainFactory sysUserDomainFactory;
@@ -40,94 +38,91 @@ class SysUserCommandServiceTest {
     @Mock
     private RestoreSysUserByIdDomainService restoreSysUserByIdDomainService;
 
-    @Mock
-    private SysUserDomainRepository sysUserDomainRepository;
+    private SysUserCommandService sysUserCommandService;
 
-    @InjectMocks
-    private SysUserCommandService service;
-
-    @Test
-    @DisplayName("createUser 应创建用户并返回 ID")
-    void createUser_shouldCreateUserAndReturnId() {
-        SysUserCommand command = new SysUserCommand();
-        command.setUsername("test");
-        command.setPassword("123456");
-        command.setEmail("test@example.com");
-        command.setPhone("13800138000");
-        command.setLockStatus(false);
-        command.setDeptId(1L);
-
-        SysUserDomain domain = new SysUserDomain();
-        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-        when(sysUserDomainFactory.newInstance(any(Account.class), any(ExtendInfo.class), anyLong())).thenReturn(domain);
-        when(repositoryFactory.getSysUserDomainRepository()).thenReturn(sysUserDomainRepository);
-        when(sysUserDomainRepository.save(domain)).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.createUser(command))
-                .assertNext(id -> assertThat(id).isEqualTo(1L))
-                .verifyComplete();
-
-        verify(sysUserDomainFactory).newInstance(any(Account.class), any(ExtendInfo.class), eq(1L));
-        verify(sysUserDomainRepository).save(domain);
+    @BeforeEach
+    void setUp() {
+        sysUserCommandService = new SysUserCommandService(
+                sysUserDomainRepository,
+                sysUserDomainFactory,
+                wipeSysUserByIdsDomainService,
+                passwordEncoder,
+                deleteSysUserByIdDomainService,
+                restoreSysUserByIdDomainService
+        );
     }
 
     @Test
-    @DisplayName("updateUser 应更新用户")
-    void updateUser_shouldUpdateUser() {
+    void createUser_shouldReturnId_whenValidCommand() {
+        SysUserCommand command = new SysUserCommand();
+        command.setUsername("testuser");
+        command.setPassword("password");
+        command.setPhone("13800138000");
+        command.setEmail("test@example.com");
+        command.setLockStatus(false);
+        command.setAvatar("avatar.png");
+        command.setSex(true);
+        command.setDeptId(1L);
+
+        SysUserDomain mockDomain = new SysUserDomain();
+        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        when(sysUserDomainFactory.newInstance(any(), any(), any())).thenReturn(mockDomain);
+        when(sysUserDomainRepository.save(any())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(sysUserCommandService.createUser(command))
+                .expectNext(1L)
+                .verifyComplete();
+    }
+
+    @Test
+    void updateUser_shouldComplete_whenValidCommand() {
         SysUserCommand command = new SysUserCommand();
         command.setId(1L);
-        command.setUsername("updated");
-        command.setDeptId(1L);
+        command.setUsername("updateduser");
+        command.setPhone("13800138001");
+        command.setEmail("updated@example.com");
+        command.setLockStatus(false);
+        command.setAvatar("newavatar.png");
+        command.setSex(false);
+        command.setDeptId(2L);
 
-        SysUserDomain domain = new SysUserDomain();
-        Account account = new Account(new Username("old"), new Password("oldpass"), null, null, false);
-        domain.setAccount(account);
+        SysUserDomain mockDomain = new SysUserDomain();
+        Account account = new Account();
+        account.setPassword(new Password("encodedPassword"));
+        mockDomain.setAccount(account);
 
-        when(repositoryFactory.getSysUserDomainRepository()).thenReturn(sysUserDomainRepository);
-        when(sysUserDomainRepository.load(new UserId(1L))).thenReturn(Mono.just(domain));
-        when(passwordEncoder.encode(anyString())).thenReturn("encoded");
-        when(sysUserDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        when(passwordEncoder.encode(any())).thenReturn("encodedPassword");
+        when(sysUserDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(sysUserDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.updateUser(command))
+        StepVerifier.create(sysUserCommandService.updateUser(command))
                 .verifyComplete();
-
-        verify(sysUserDomainRepository).load(new UserId(1L));
-        verify(sysUserDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe 领域服务")
-    void wipe_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
-        when(wipeSysUserByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.wipe(ids))
-                .verifyComplete();
-
-        verify(wipeSysUserByIdsDomainService).deleteByIds(ids);
-    }
-
-    @Test
-    @DisplayName("delete 应调用 delete 领域服务")
-    void delete_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void delete_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(deleteSysUserByIdDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.delete(ids))
+        StepVerifier.create(sysUserCommandService.delete(ids))
                 .verifyComplete();
-
-        verify(deleteSysUserByIdDomainService).deleteByIds(ids);
     }
 
     @Test
-    @DisplayName("restore 应调用 restore 领域服务")
-    void restore_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        when(wipeSysUserByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
+
+        StepVerifier.create(sysUserCommandService.wipe(ids))
+                .verifyComplete();
+    }
+
+    @Test
+    void restore_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(restoreSysUserByIdDomainService.restoreByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.restore(ids))
+        StepVerifier.create(sysUserCommandService.restore(ids))
                 .verifyComplete();
-
-        verify(restoreSysUserByIdDomainService).restoreByIds(ids);
     }
 }

@@ -2,11 +2,11 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.dict.SysDictQueryService;
 import com.springddd.application.service.gen.dto.*;
-import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
 import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.r2dbc.core.DatabaseClient;
@@ -21,11 +21,15 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
+public class GenColumnsQueryService {
+
+    private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final GenColumnsViewMapStruct genColumnsViewMapStruct;
 
     private final GenProjectInfoViewMapStruct genProjectInfoViewMapStruct;
+
+    private final DatabaseClient databaseClient;
 
     private final GenColumnBindQueryService genColumnBindQueryService;
 
@@ -52,18 +56,18 @@ public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
                   ordinal_position
                 """;
 
-        Mono<List<GenColumnsView>> coreColumns = queryFactory.getR2dbcEntityTemplate().select(GenProjectInfoEntity.class).matching(Query.query(Criteria.where("id").is(infoId))).one().map(genProjectInfoViewMapStruct::toView)
+        Mono<List<GenColumnsView>> coreColumns = r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(Query.query(Criteria.where("id").is(infoId))).one().map(genProjectInfoViewMapStruct::toView)
                 .flatMap(genInfo -> {
-                    DatabaseClient.GenericExecuteSpec dataSpec = queryFactory.getDatabaseClient().sql(sql)
+                    DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(sql)
                             .bind("tn", genInfo.getTableName())
                             .bind("db", databaseName);
 
                     return dataSpec
                             .map((row, meta) -> new GenColumnsView(
-                                     row.get("propColumnKey", String.class),
-                                     row.get("propColumnName", String.class),
-                                     row.get("propColumnType", String.class),
-                                     row.get("propColumnComment", String.class)
+                                    row.get("propColumnKey", String.class),
+                                    row.get("propColumnName", String.class),
+                                    row.get("propColumnType", String.class),
+                                    row.get("propColumnComment", String.class)
                             ))
                             .all()
                             .collectList();
@@ -73,7 +77,7 @@ public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
                 .where(GenColumnsQuery.Fields.deleteStatus).is(false)
                 .and(GenColumnsQuery.Fields.infoId).is(infoId);
         Query qry = Query.query(criteria);
-        Mono<List<GenColumnsView>> columns = queryFactory.getR2dbcEntityTemplate().select(GenColumnsEntity.class).matching(qry).all().collectList().map(genColumnsViewMapStruct::toViews).defaultIfEmpty(new ArrayList<>());
+        Mono<List<GenColumnsView>> columns = r2dbcEntityTemplate.select(GenColumnsEntity.class).matching(qry).all().collectList().map(genColumnsViewMapStruct::toViews).defaultIfEmpty(new ArrayList<>());
 
         return Mono.zip(columns, coreColumns)
                 .flatMap(tuple -> {
@@ -121,13 +125,13 @@ public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
                                             })
                             )
                             .collectList()
-                            .map(list -> new PageResponse<GenColumnsView>(list, 0L, 0, 0));
+                            .map(list -> new PageResponse<>(list, 0, 0, 0));
                 });
 
     }
 
     public Mono<List<GenColumnsView>> queryJavaEntityInfoByInfoId(Long infoId) {
-        return queryFactory.getR2dbcEntityTemplate().select(GenColumnsEntity.class)
+        return r2dbcEntityTemplate.select(GenColumnsEntity.class)
                 .matching(Query.query(Criteria.where(GenColumnsQuery.Fields.infoId).is(infoId)))
                 .all()
                 .collectList()
@@ -154,4 +158,5 @@ public class GenColumnsQueryService extends BaseQueryService<GenColumnsEntity> {
                         .collectList()
                 );
     }
+
 }

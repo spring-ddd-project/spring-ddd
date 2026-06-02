@@ -1,7 +1,5 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
-
 import lombok.Data;
 
 import java.time.LocalDateTime;

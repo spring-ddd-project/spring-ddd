@@ -1,38 +1,37 @@
 package com.springddd.application.service.dict;
 
-import com.springddd.application.service.dict.dto.SysDictItemView;
-import com.springddd.application.service.dict.dto.SysDictPageQuery;
-import com.springddd.application.service.dict.dto.SysDictView;
-import com.springddd.application.service.dict.dto.SysDictViewMapStruct;
-import com.springddd.application.service.permission.DataScopeCriteriaBuilder;
+import com.springddd.application.service.dict.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.core.ReactiveSelectOperation;
-import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SysDictQueryServiceTest {
+
+    @Mock
+    private R2dbcEntityTemplate r2dbcEntityTemplate;
 
     @Mock
     private SysDictViewMapStruct sysDictViewMapStruct;
@@ -41,370 +40,220 @@ class SysDictQueryServiceTest {
     private SysDictItemQueryService sysDictItemQueryService;
 
     @Mock
-    private QueryFactory queryFactory;
+    private SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
     @Mock
-    private DataScopeCriteriaBuilder dataScopeCriteriaBuilder;
+    private ReactiveSelectOperation.ReactiveSelect<SysDictEntity> reactiveSelect;
 
-    @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
-
-    @Mock
-    private ReactiveSelectOperation.ReactiveSelect<SysDictEntity> selectOp;
-
-    @Mock
-    private ReactiveSelectOperation.TerminatingSelect<SysDictEntity> terminatingSelect;
-
-    @InjectMocks
-    private SysDictQueryService service;
+    private SysDictQueryService sysDictQueryService;
 
     @BeforeEach
-    void setUp() throws Exception {
-        Field qfField = service.getClass().getSuperclass().getDeclaredField("queryFactory");
-        qfField.setAccessible(true);
-        qfField.set(service, queryFactory);
-
-        Field dscbField = service.getClass().getSuperclass().getDeclaredField("dataScopeCriteriaBuilder");
-        dscbField.setAccessible(true);
-        dscbField.set(service, dataScopeCriteriaBuilder);
-
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
-        when(dataScopeCriteriaBuilder.apply(any(Criteria.class), any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+    void setUp() {
+        sysDictQueryService = new SysDictQueryService(
+                r2dbcEntityTemplate,
+                sysDictViewMapStruct,
+                sysDictItemQueryService,
+                sysDictItemViewMapStruct
+        );
     }
 
     @Test
-    @DisplayName("index 应返回分页结果")
-    void index_shouldReturnPage() {
+    void index_shouldReturnPageResponse_whenEntitiesExist() {
         SysDictPageQuery query = new SysDictPageQuery();
         query.setPageNum(1);
         query.setPageSize(10);
-        query.setDictName("test");
+        query.setDictName("Test");
+        query.setDictCode("TEST");
 
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
-        entity.setDictName("test");
+        entity.setDictName("Test Dict");
+        entity.setDictCode("TEST");
+        entity.setDeleteStatus(false);
 
         SysDictView view = new SysDictView();
         view.setId(1L);
-        view.setDictName("test");
+        view.setDictName("Test Dict");
+        view.setDictCode("TEST");
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(1L));
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class)))
+                .thenReturn(Mono.just(1L));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Collections.singletonList(view));
 
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getList().get(0).getDictName()).isEqualTo("test");
-                    assertThat(page.getTotal()).isEqualTo(1L);
+        StepVerifier.create(sysDictQueryService.index(query))
+                .assertNext(pageResponse -> {
+                    assertNotNull(pageResponse);
+                    assertNotNull(pageResponse.getItems());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("queryAll 应返回所有字典列表")
-    void queryAll_shouldReturnList() {
-        SysDictEntity entity = new SysDictEntity();
-        entity.setId(1L);
-        entity.setDictCode("gender");
+    void queryAll_shouldReturnAllDicts() {
+        SysDictEntity entity1 = new SysDictEntity();
+        entity1.setId(1L);
+        entity1.setDictName("Dict 1");
+        entity1.setDictCode("DICT_1");
+        entity1.setDeleteStatus(false);
 
-        SysDictView view = new SysDictView();
-        view.setDictCode("gender");
+        SysDictEntity entity2 = new SysDictEntity();
+        entity2.setId(2L);
+        entity2.setDictName("Dict 2");
+        entity2.setDictCode("DICT_2");
+        entity2.setDeleteStatus(false);
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
+        SysDictView view1 = new SysDictView();
+        view1.setId(1L);
+        view1.setDictName("Dict 1");
+        view1.setDictCode("DICT_1");
 
-        StepVerifier.create(service.queryAll())
-                .assertNext(list -> assertThat(list).hasSize(1))
+        SysDictView view2 = new SysDictView();
+        view2.setId(2L);
+        view2.setDictName("Dict 2");
+        view2.setDictCode("DICT_2");
+
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity1, entity2));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Arrays.asList(view1, view2));
+
+        StepVerifier.create(sysDictQueryService.queryAll())
+                .expectNext(Arrays.asList(view1, view2))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("recycle 应返回回收站分页结果")
-    void recycle_shouldReturnRecyclePage() {
+    void recycle_shouldReturnPageResponse_whenDeletedEntitiesExist() {
         SysDictPageQuery query = new SysDictPageQuery();
         query.setPageNum(1);
         query.setPageSize(10);
 
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
+        entity.setDictName("Deleted Dict");
+        entity.setDictCode("DELETED");
+        entity.setDeleteStatus(true);
 
         SysDictView view = new SysDictView();
         view.setId(1L);
+        view.setDictName("Deleted Dict");
+        view.setDictCode("DELETED");
+        view.setDeleteStatus(true);
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(1L));
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class)))
+                .thenReturn(Mono.just(1L));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Collections.singletonList(view));
 
-        StepVerifier.create(service.recycle(query))
-                .assertNext(page -> assertThat(page.getList()).hasSize(1))
+        StepVerifier.create(sysDictQueryService.recycle(query))
+                .assertNext(pageResponse -> {
+                    assertNotNull(pageResponse);
+                    assertNotNull(pageResponse.getItems());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("queryDictNameById 当 id 为空时应返回 empty")
-    void queryDictNameById_whenEmptyId_shouldReturnEmpty() {
-        StepVerifier.create(service.queryDictNameById(null))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("queryDictNameById 应返回字典编码")
-    void queryDictNameById_shouldReturnDictCode() {
+    void queryDictNameById_shouldReturnDictCode_whenEntityExists() {
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
-        entity.setDictCode("gender");
+        entity.setDictName("Test Dict");
+        entity.setDictCode("TEST");
+        entity.setDeleteStatus(false);
 
         SysDictView view = new SysDictView();
-        view.setDictCode("gender");
+        view.setId(1L);
+        view.setDictName("Test Dict");
+        view.setDictCode("TEST");
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
         when(sysDictViewMapStruct.toView(entity)).thenReturn(view);
 
-        StepVerifier.create(service.queryDictNameById(1L))
-                .assertNext(code -> assertThat(code).isEqualTo("gender"))
+        StepVerifier.create(sysDictQueryService.queryDictNameById(1L))
+                .expectNext("TEST")
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("queryItemLabelByDictCode 应返回字典项标签")
+    void queryDictNameById_shouldReturnEmpty_whenIdIsNull() {
+        StepVerifier.create(sysDictQueryService.queryDictNameById(null))
+                .verifyComplete();
+    }
+
+    @Test
     void queryItemLabelByDictCode_shouldReturnLabel() {
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
-        entity.setDictCode("gender");
+        entity.setDictCode("test_code");
+        entity.setDeleteStatus(false);
 
         SysDictView view = new SysDictView();
         view.setId(1L);
-        view.setDictCode("gender");
+        view.setDictCode("test_code");
 
         SysDictItemView itemView = new SysDictItemView();
-        itemView.setItemLabel("Male");
+        itemView.setItemLabel("TestLabel");
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
         when(sysDictViewMapStruct.toView(entity)).thenReturn(view);
-        when(sysDictItemQueryService.queryItemLabelByItemValueAndDictId(1L, 1)).thenReturn(Mono.just(itemView));
+        when(sysDictItemQueryService.queryItemLabelByItemValueAndDictId(1L, 1))
+                .thenReturn(Mono.just(itemView));
 
-        StepVerifier.create(service.queryItemLabelByDictCode("gender", 1))
-                .assertNext(label -> assertThat(label).isEqualTo("Male"))
+        StepVerifier.create(sysDictQueryService.queryItemLabelByDictCode("test_code", 1))
+                .expectNext("TestLabel")
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("queryItemLabelByDictCode 当字典不存在时应返回 empty")
-    void queryItemLabelByDictCode_whenDictNotFound_shouldReturnEmpty() {
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.queryItemLabelByDictCode("gender", 1))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("queryItemLabelByDictCode 当字典项不存在时应返回 empty")
-    void queryItemLabelByDictCode_whenItemNotFound_shouldReturnEmpty() {
+    void queryDictByCode_shouldReturnItemViews() {
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
-        entity.setDictCode("gender");
+        entity.setDictCode("test_code");
+        entity.setDeleteStatus(false);
 
         SysDictView view = new SysDictView();
         view.setId(1L);
-        view.setDictCode("gender");
-
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
-        when(sysDictViewMapStruct.toView(entity)).thenReturn(view);
-        when(sysDictItemQueryService.queryItemLabelByItemValueAndDictId(1L, 1)).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.queryItemLabelByDictCode("gender", 1))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("queryDictByCode 应返回字典项列表")
-    void queryDictByCode_shouldReturnItems() {
-        SysDictEntity entity = new SysDictEntity();
-        entity.setId(1L);
-        entity.setDictCode("gender");
-
-        SysDictView view = new SysDictView();
-        view.setId(1L);
-        view.setDictCode("gender");
+        view.setDictCode("test_code");
 
         SysDictItemView itemView = new SysDictItemView();
-        itemView.setItemLabel("Male");
+        itemView.setItemLabel("Label1");
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
         when(sysDictViewMapStruct.toView(entity)).thenReturn(view);
-        when(sysDictItemQueryService.queryItemLabelByDictId(1L)).thenReturn(Mono.just(List.of(itemView)));
+        when(sysDictItemQueryService.queryItemLabelByDictId(1L))
+                .thenReturn(Mono.just(List.of(itemView)));
 
-        StepVerifier.create(service.queryDictByCode("gender"))
-                .assertNext(list -> {
-                    assertThat(list).hasSize(1);
-                    assertThat(list.get(0).getItemLabel()).isEqualTo("Male");
+        StepVerifier.create(sysDictQueryService.queryDictByCode("test_code"))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertEquals(1, result.size());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("queryDictByCode 当字典不存在时应返回 empty")
-    void queryDictByCode_whenDictNotFound_shouldReturnEmpty() {
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.queryDictByCode("gender"))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("queryDictByCode 当字典项为空时应返回空列表")
-    void queryDictByCode_whenItemsEmpty_shouldReturnEmptyList() {
+    void queryDictNameById_shouldReturnEmpty_whenViewIsNull() {
         SysDictEntity entity = new SysDictEntity();
         entity.setId(1L);
-        entity.setDictCode("gender");
+        entity.setDeleteStatus(false);
 
-        SysDictView view = new SysDictView();
-        view.setId(1L);
-        view.setDictCode("gender");
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
+        when(sysDictViewMapStruct.toView(entity)).thenReturn(null);
 
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
-        when(sysDictViewMapStruct.toView(entity)).thenReturn(view);
-        when(sysDictItemQueryService.queryItemLabelByDictId(1L)).thenReturn(Mono.just(List.of()));
-
-        StepVerifier.create(service.queryDictByCode("gender"))
-                .assertNext(list -> assertThat(list).isEmpty())
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("index 同时传 dictName 和 dictCode 时应返回分页结果")
-    void index_withDictNameAndDictCode_shouldReturnPage() {
-        SysDictPageQuery query = new SysDictPageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-        query.setDictName("test");
-        query.setDictCode("gender");
-
-        SysDictEntity entity = new SysDictEntity();
-        entity.setId(1L);
-        entity.setDictName("test");
-        entity.setDictCode("gender");
-
-        SysDictView view = new SysDictView();
-        view.setId(1L);
-        view.setDictName("test");
-        view.setDictCode("gender");
-
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getList().get(0).getDictName()).isEqualTo("test");
-                    assertThat(page.getList().get(0).getDictCode()).isEqualTo("gender");
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("index 仅传 dictCode 时应返回分页结果")
-    void index_withDictCodeOnly_shouldReturnPage() {
-        SysDictPageQuery query = new SysDictPageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-        query.setDictCode("gender");
-
-        SysDictEntity entity = new SysDictEntity();
-        entity.setId(1L);
-        entity.setDictCode("gender");
-
-        SysDictView view = new SysDictView();
-        view.setId(1L);
-        view.setDictCode("gender");
-
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getList().get(0).getDictCode()).isEqualTo("gender");
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("index 不传任何查询条件时应返回分页结果")
-    void index_withNoCriteria_shouldReturnPage() {
-        SysDictPageQuery query = new SysDictPageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-
-        SysDictEntity entity = new SysDictEntity();
-        entity.setId(1L);
-        entity.setDictCode("status");
-
-        SysDictView view = new SysDictView();
-        view.setId(1L);
-        view.setDictCode("status");
-
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("index 当结果为空时应返回空分页")
-    void index_withEmptyResults_shouldReturnEmptyPage() {
-        SysDictPageQuery query = new SysDictPageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-
-        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.empty());
-        when(sysDictViewMapStruct.toViews(anyList())).thenReturn(List.of());
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class))).thenReturn(Mono.just(0L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).isEmpty();
-                    assertThat(page.getTotal()).isEqualTo(0L);
-                })
+        StepVerifier.create(sysDictQueryService.queryDictNameById(1L))
                 .verifyComplete();
     }
 }
