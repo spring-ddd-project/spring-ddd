@@ -23,15 +23,6 @@ import java.util.UUID;
  *
  */
 public class ProjectTreeBuilder {
-    private static class Holder {
-        private static final ProjectTreeBuilder INSTANCE = new ProjectTreeBuilder();
-    }
-
-    private ProjectTreeBuilder() {}
-
-    public static ProjectTreeBuilder getInstance() {
-        return Holder.INSTANCE;
-    }
 
     /**
      * Build or update the tree from a file path and its content.
@@ -54,21 +45,15 @@ public class ProjectTreeBuilder {
         ProjectTreeView currentNode = root;
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
-            
-            // Fast lookup without streams
-            ProjectTreeView child = null;
-            if (currentNode.getChildren() != null) {
-                for (ProjectTreeView c : currentNode.getChildren()) {
-                    if (c.getLabel().equals(part)) {
-                        child = c;
-                        break;
-                    }
-                }
-            } else {
-                currentNode.setChildren(new ArrayList<>());
-            }
+            Optional<ProjectTreeView> opt = currentNode.getChildren()
+                    .stream()
+                    .filter(c -> c.getLabel().equals(part))
+                    .findFirst();
 
-            if (child == null) {
+            ProjectTreeView child;
+            if (opt.isPresent()) {
+                child = opt.get();
+            } else {
                 child = new ProjectTreeView();
                 child.setLabel(part);
                 child.setChildren(new ArrayList<>());
@@ -90,50 +75,3 @@ public class ProjectTreeBuilder {
         return part.contains(".");
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

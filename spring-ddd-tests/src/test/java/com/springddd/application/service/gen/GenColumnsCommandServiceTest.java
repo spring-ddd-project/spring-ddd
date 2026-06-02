@@ -3,27 +3,26 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.GenColumnsCommand;
 import com.springddd.domain.gen.*;
 import com.springddd.domain.gen.exception.I18nLocaleNullException;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GenColumnsCommandServiceTest {
 
     @Mock
-    private RepositoryFactory repositoryFactory;
+    private GenColumnsDomainRepository genColumnsDomainRepository;
 
     @Mock
     private GenColumnsDomainFactory genColumnsDomainFactory;
@@ -34,174 +33,184 @@ class GenColumnsCommandServiceTest {
     @Mock
     private GenColumnsBatchSaveDomainService genColumnsBatchSaveDomainService;
 
-    @Mock
-    private GenColumnsDomainRepository genColumnsDomainRepository;
+    private GenColumnsCommandService genColumnsCommandService;
 
-    @InjectMocks
-    private GenColumnsCommandService service;
+    @BeforeEach
+    void setUp() {
+        genColumnsCommandService = new GenColumnsCommandService(
+                genColumnsDomainRepository,
+                genColumnsDomainFactory,
+                wipeGenColumnsByIdsDomainService,
+                genColumnsBatchSaveDomainService
+        );
+    }
 
-    private GenColumnsCommand sampleCommand() {
+    private GenColumnsCommand buildCommand() {
         GenColumnsCommand command = new GenColumnsCommand();
         command.setInfoId(1L);
         command.setPropColumnKey("id");
         command.setPropColumnName("ID");
         command.setPropColumnType("bigint");
-        command.setPropColumnComment("主键");
+        command.setPropColumnComment("Primary Key");
+        command.setPropJavaEntity("Long");
         command.setPropJavaType("Long");
-        command.setPropJavaEntity("id");
+        command.setPropDictId(1L);
         command.setTableVisible(true);
         command.setTableOrder(true);
-        command.setTableFilter(false);
+        command.setTableFilter(true);
+        command.setTableFilterComponent((byte) 1);
+        command.setTableFilterType((byte) 1);
+        command.setTypescriptType((byte) 1);
         command.setFormComponent((byte) 1);
         command.setFormVisible(true);
         command.setFormRequired(true);
         command.setEn("Id");
-        command.setLocale("主键");
         return command;
     }
 
+    private GenColumnsDomain buildMockDomain(String en, String locale) {
+        GenColumnsDomain mockDomain = new GenColumnsDomain();
+        mockDomain.setI18n(new I18n(en, locale));
+        return mockDomain;
+    }
+
     @Test
-    @DisplayName("create 应创建列并返回 ID")
-    void create_shouldCreateAndReturnId() {
-        GenColumnsCommand command = sampleCommand();
+    void create_shouldReturnId_whenValidCommand() {
+        GenColumnsCommand command = buildCommand();
+        command.setLocale("Primary Key");
 
-        GenColumnsDomain domain = new GenColumnsDomain();
-        domain.setI18n(new I18n("en", null));
-        when(genColumnsDomainFactory.newInstance(any(InfoId.class), any(Prop.class), any(Table.class), any(Form.class), any(I18n.class), any(GenColumnsExtendInfo.class))).thenReturn(domain);
-        when(repositoryFactory.getGenColumnsDomainRepository()).thenReturn(genColumnsDomainRepository);
-        when(genColumnsDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "Primary Key");
+        when(genColumnsDomainFactory.newInstance(any(), any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(genColumnsDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.create(command))
-                .assertNext(id -> assertThat(id).isEqualTo(1L))
+        StepVerifier.create(genColumnsCommandService.create(command))
+                .expectNext(1L)
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("update 应更新列")
-    void update_shouldUpdate() {
-        GenColumnsCommand command = sampleCommand();
+    void update_shouldComplete_whenValidCommand() {
+        GenColumnsCommand command = buildCommand();
+        command.setId(1L);
+        command.setLocale("Updated");
+
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "Updated");
+        when(genColumnsDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genColumnsDomainRepository.save(any())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(genColumnsCommandService.update(command))
+                .verifyComplete();
+    }
+
+    @Test
+    void delete_shouldComplete_whenValidCommand() {
+        GenColumnsCommand command = new GenColumnsCommand();
         command.setId(1L);
 
-        GenColumnsDomain domain = new GenColumnsDomain();
-        when(repositoryFactory.getGenColumnsDomainRepository()).thenReturn(genColumnsDomainRepository);
-        when(genColumnsDomainRepository.load(new ColumnsId(1L))).thenReturn(Mono.just(domain));
-        when(genColumnsDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        GenColumnsDomain mockDomain = new GenColumnsDomain();
+        when(genColumnsDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genColumnsDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.update(command))
+        StepVerifier.create(genColumnsCommandService.delete(command))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应软删除列")
-    void delete_shouldSoftDelete() {
-        GenColumnsCommand command = sampleCommand();
-        command.setId(1L);
-
-        GenColumnsDomain domain = new GenColumnsDomain();
-        when(repositoryFactory.getGenColumnsDomainRepository()).thenReturn(genColumnsDomainRepository);
-        when(genColumnsDomainRepository.load(new ColumnsId(1L))).thenReturn(Mono.just(domain));
-        when(genColumnsDomainRepository.save(domain)).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.delete(command))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("wipe 应调用 wipe 领域服务")
-    void wipe_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(wipeGenColumnsByIdsDomainService.wipeByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.wipe(ids))
+        StepVerifier.create(genColumnsCommandService.wipe(ids))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("batchSave 当 locale 全为空时应保存成功")
-    void batchSave_whenAllLocaleEmpty_shouldSave() {
-        GenColumnsCommand command = sampleCommand();
+    void batchSave_shouldComplete_whenAllLocalesEmpty() {
+        GenColumnsCommand command = buildCommand();
         command.setLocale(null);
 
-        GenColumnsDomain domain = new GenColumnsDomain();
-        domain.setI18n(new I18n("en", null));
-        when(genColumnsDomainFactory.newInstance(any(InfoId.class), any(Prop.class), any(Table.class), any(Form.class), any(I18n.class), any(GenColumnsExtendInfo.class))).thenReturn(domain);
-        when(genColumnsBatchSaveDomainService.batchSave(anyList())).thenReturn(Mono.empty());
+        GenColumnsDomain mockDomain = buildMockDomain("Id", null);
+        when(genColumnsDomainFactory.newInstance(any(), any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.batchSave(List.of(command)))
+        StepVerifier.create(genColumnsCommandService.batchSave(Collections.singletonList(command)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("batchSave 当 locale 不一致时应报错")
-    void batchSave_whenLocaleMixed_shouldError() {
-        GenColumnsCommand cmd1 = sampleCommand();
-        cmd1.setLocale("主键");
-        GenColumnsCommand cmd2 = sampleCommand();
+    void batchSave_shouldComplete_whenAllLocalesNonEmpty() {
+        GenColumnsCommand command = buildCommand();
+        command.setLocale("Primary Key");
+
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "Primary Key");
+        when(genColumnsDomainFactory.newInstance(any(), any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(genColumnsCommandService.batchSave(Collections.singletonList(command)))
+                .verifyComplete();
+    }
+
+    @Test
+    void batchSave_shouldError_whenLocalesMixed() {
+        GenColumnsCommand cmd1 = buildCommand();
+        cmd1.setLocale("Primary Key");
+
+        GenColumnsCommand cmd2 = buildCommand();
+        cmd2.setPropColumnKey("name");
+        cmd2.setPropColumnName("Name");
+        cmd2.setPropColumnType("varchar");
+        cmd2.setPropColumnComment("Name");
+        cmd2.setPropJavaEntity("String");
+        cmd2.setPropJavaType("String");
+        cmd2.setEn("Name");
         cmd2.setLocale(null);
 
-        GenColumnsDomain domain1 = new GenColumnsDomain();
-        domain1.setI18n(new I18n("en", "主键"));
-        GenColumnsDomain domain2 = new GenColumnsDomain();
-        domain2.setI18n(new I18n("en", null));
-        when(genColumnsDomainFactory.newInstance(any(InfoId.class), any(Prop.class), any(Table.class), any(Form.class), any(I18n.class), any(GenColumnsExtendInfo.class)))
-                .thenReturn(domain1, domain2);
+        when(genColumnsDomainFactory.newInstance(any(), any(), any(), any(), any(), any()))
+                .thenAnswer(invocation -> {
+                    I18n i18n = invocation.getArgument(4);
+                    return buildMockDomain(i18n.en(), i18n.locale());
+                });
 
-        StepVerifier.create(service.batchSave(List.of(cmd1, cmd2)))
+        StepVerifier.create(genColumnsCommandService.batchSave(Arrays.asList(cmd1, cmd2)))
                 .expectError(I18nLocaleNullException.class)
                 .verify();
     }
 
     @Test
-    @DisplayName("batchUpdate 应更新列列表")
-    void batchUpdate_shouldUpdateWithValidCommands() {
-        GenColumnsCommand cmd1 = sampleCommand();
-        cmd1.setId(1L);
-        GenColumnsCommand cmd2 = sampleCommand();
-        cmd2.setId(2L);
+    void batchUpdate_shouldComplete_whenAllLocalesEmpty() {
+        GenColumnsCommand command = buildCommand();
+        command.setId(1L);
+        command.setLocale(null);
 
-        GenColumnsDomain domain1 = new GenColumnsDomain();
-        domain1.setI18n(new I18n("en", "主键"));
-        GenColumnsDomain domain2 = new GenColumnsDomain();
-        domain2.setI18n(new I18n("en", "主键"));
+        GenColumnsDomain mockDomain = buildMockDomain("Id", null);
+        when(genColumnsDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
 
-        when(repositoryFactory.getGenColumnsDomainRepository()).thenReturn(genColumnsDomainRepository);
-        when(genColumnsDomainRepository.load(new ColumnsId(1L))).thenReturn(Mono.just(domain1));
-        when(genColumnsDomainRepository.load(new ColumnsId(2L))).thenReturn(Mono.just(domain2));
-        when(genColumnsBatchSaveDomainService.batchSave(anyList())).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.batchUpdate(List.of(cmd1, cmd2)))
+        StepVerifier.create(genColumnsCommandService.batchUpdate(Collections.singletonList(command)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("batchUpdate 当命令列表为空时应完成")
-    void batchUpdate_shouldCompleteWithEmptyList() {
-        when(genColumnsBatchSaveDomainService.batchSave(anyList())).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.batchUpdate(List.of()))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("batchUpdate 当 locale 不一致时应报错")
-    void batchUpdate_whenLocaleMixed_shouldError() {
-        GenColumnsCommand cmd1 = sampleCommand();
+    void batchUpdate_shouldError_whenLocalesMixed() {
+        GenColumnsCommand cmd1 = buildCommand();
         cmd1.setId(1L);
-        cmd1.setLocale("主键");
-        GenColumnsCommand cmd2 = sampleCommand();
+        cmd1.setLocale("Primary Key");
+
+        GenColumnsCommand cmd2 = buildCommand();
         cmd2.setId(2L);
+        cmd2.setPropColumnKey("name");
+        cmd2.setPropColumnName("Name");
+        cmd2.setPropColumnType("varchar");
+        cmd2.setPropColumnComment("Name");
+        cmd2.setPropJavaEntity("String");
+        cmd2.setPropJavaType("String");
+        cmd2.setEn("Name");
         cmd2.setLocale(null);
 
-        GenColumnsDomain domain1 = new GenColumnsDomain();
-        domain1.setI18n(new I18n("en", "主键"));
-        GenColumnsDomain domain2 = new GenColumnsDomain();
-        domain2.setI18n(new I18n("en", null));
+        when(genColumnsDomainRepository.load(any()))
+                .thenAnswer(invocation -> Mono.just(buildMockDomain("en", null)));
 
-        when(repositoryFactory.getGenColumnsDomainRepository()).thenReturn(genColumnsDomainRepository);
-        when(genColumnsDomainRepository.load(new ColumnsId(1L))).thenReturn(Mono.just(domain1));
-        when(genColumnsDomainRepository.load(new ColumnsId(2L))).thenReturn(Mono.just(domain2));
-
-        StepVerifier.create(service.batchUpdate(List.of(cmd1, cmd2)))
+        StepVerifier.create(genColumnsCommandService.batchUpdate(Arrays.asList(cmd1, cmd2)))
                 .expectError(I18nLocaleNullException.class)
                 .verify();
     }

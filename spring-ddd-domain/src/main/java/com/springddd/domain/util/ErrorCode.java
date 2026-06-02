@@ -74,74 +74,16 @@ public enum ErrorCode {
     GEN_INFO_MODULE_NAME_NULL(1531, "error.gen.info.module.name.null"),
     GEN_INFO_PROJECT_NAME_NULL(1532, "error.gen.info.project.name.null"),
 
+    LEAF_BIZ_TAG_NULL(1600, "error.leaf.bizTag.null"),
+    LEAF_BIZ_TAG_EMPTY(1601, "error.leaf.bizTag.empty"),
+    LEAF_MAX_ID_NULL(1602, "error.leaf.maxId.null"),
+    LEAF_STEP_NULL(1603, "error.leaf.step.null"),
+    LEAF_STEP_INVALID(1604, "error.leaf.step.invalid"),
+    LEAF_ALLOC_NOT_FOUND(1605, "error.leaf.alloc.notFound"),
+    LEAF_SEGMENT_EXHAUSTED(1606, "error.leaf.segment.exhausted"),
+
     ;
 
     private final int code;
     private final String messageKey;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

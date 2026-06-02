@@ -1,4 +1,18 @@
 package com.springddd.domain.user;
 
-public record Account(Username username, Password password, String email, String phone, Boolean lockStatus) {
+import lombok.Data;
+
+@Data
+public class Account {
+
+    private Username username;
+
+    private Password password;
+
+    private String email;
+
+    private String phone;
+
+    private Boolean lockStatus;
+
 }

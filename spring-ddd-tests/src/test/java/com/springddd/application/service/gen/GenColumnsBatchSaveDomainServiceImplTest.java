@@ -2,79 +2,72 @@ package com.springddd.application.service.gen;
 
 import com.springddd.domain.gen.*;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GenColumnsBatchSaveDomainServiceImplTest {
 
     @Mock
-    private QueryFactory queryFactory;
+    private GenColumnsRepository genColumnsRepository;
 
-    @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
-
-    @InjectMocks
     private GenColumnsBatchSaveDomainServiceImpl service;
 
-    @Test
-    @DisplayName("batchSave 应插入新实体")
-    void batchSave_shouldInsertNew() {
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
-        when(r2dbcEntityTemplate.insert(any(GenColumnsEntity.class))).thenReturn(Mono.just(new GenColumnsEntity()));
-
-        GenColumnsDomain domain = new GenColumnsDomain();
-        domain.setProp(new Prop("id", "id", "bigint", "主键", "Long", "Id"));
-        domain.setTable(new Table(true, true, true, (byte) 1, (byte) 2));
-        domain.setForm(new Form((byte) 1, true, true));
-        domain.setI18n(new I18n("Id", "主键"));
-        domain.setExtendInfo(new GenColumnsExtendInfo(1L, (byte) 1));
-        domain.setDeleteStatus(false);
-        domain.setCreateBy("admin");
-        domain.setUpdateBy("admin");
-        domain.setVersion(1);
-
-        StepVerifier.create(service.batchSave(List.of(domain)))
-                .verifyComplete();
-
-        verify(r2dbcEntityTemplate).insert(any(GenColumnsEntity.class));
+    @BeforeEach
+    void setUp() {
+        service = new GenColumnsBatchSaveDomainServiceImpl(genColumnsRepository);
     }
 
     @Test
-    @DisplayName("batchSave 应更新已有实体")
-    void batchSave_shouldUpdateExisting() {
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
-        when(r2dbcEntityTemplate.update(any(GenColumnsEntity.class))).thenReturn(Mono.just(new GenColumnsEntity()));
-
+    void batchSave_shouldSaveAllEntities() {
         GenColumnsDomain domain = new GenColumnsDomain();
         domain.setId(new ColumnsId(1L));
-        domain.setInfoId(new InfoId(2L));
-        domain.setProp(new Prop("id", "id", "bigint", "主键", "Long", "Id"));
-        domain.setTable(new Table(true, true, true, (byte) 1, (byte) 2));
+        domain.setInfoId(new InfoId(1L));
+        domain.setProp(new Prop("id", "ID", "bigint", "Primary Key", "Long", "Long"));
+        domain.setTable(new Table(true, true, true, (byte) 1, (byte) 1));
         domain.setForm(new Form((byte) 1, true, true));
-        domain.setI18n(new I18n("Id", "主键"));
+        domain.setI18n(new I18n("Id", "Primary Key"));
         domain.setExtendInfo(new GenColumnsExtendInfo(1L, (byte) 1));
         domain.setDeleteStatus(false);
         domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
         domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
         domain.setVersion(1);
+
+        when(genColumnsRepository.saveAll(anyList())).thenReturn(Flux.just(new GenColumnsEntity()));
 
         StepVerifier.create(service.batchSave(List.of(domain)))
                 .verifyComplete();
+    }
 
-        verify(r2dbcEntityTemplate).update(any(GenColumnsEntity.class));
+    @Test
+    void batchSave_shouldHandleNullIds() {
+        GenColumnsDomain domain = new GenColumnsDomain();
+        domain.setId(null);
+        domain.setInfoId(null);
+        domain.setProp(new Prop("name", "Name", "varchar", "Name", "String", "String"));
+        domain.setTable(new Table(true, false, false, (byte) 1, (byte) 1));
+        domain.setForm(new Form((byte) 2, true, false));
+        domain.setI18n(new I18n("Name", null));
+        domain.setExtendInfo(new GenColumnsExtendInfo(null, (byte) 2));
+        domain.setDeleteStatus(false);
+
+        when(genColumnsRepository.saveAll(anyList())).thenReturn(Flux.just(new GenColumnsEntity()));
+
+        StepVerifier.create(service.batchSave(List.of(domain)))
+                .verifyComplete();
     }
 }

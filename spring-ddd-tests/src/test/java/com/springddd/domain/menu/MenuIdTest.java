@@ -1,17 +1,39 @@
 package com.springddd.domain.menu;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MenuIdTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        MenuId obj = new MenuId(1L);
-        assertThat(obj.value()).isEqualTo(1L);
+    void shouldCreateMenuIdWithValidValue() {
+        MenuId menuId = new MenuId(1L);
+        assertEquals(1L, menuId.value());
     }
 
+    @Test
+    void shouldCreateMenuIdWithZero() {
+        MenuId menuId = new MenuId(0L);
+        assertEquals(0L, menuId.value());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValue() {
+        MenuId id1 = new MenuId(1L);
+        MenuId id2 = new MenuId(1L);
+        assertEquals(id1, id2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        MenuId id1 = new MenuId(1L);
+        MenuId id2 = new MenuId(2L);
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        MenuId menuId = new MenuId(123L);
+        assertEquals("MenuId[value=123]", menuId.toString());
+    }
 }

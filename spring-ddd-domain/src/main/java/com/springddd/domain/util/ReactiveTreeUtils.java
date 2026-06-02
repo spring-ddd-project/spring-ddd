@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 public class ReactiveTreeUtils {
 
+    private ReactiveTreeUtils() {
+    }
+
     /**
      * Builds a hierarchical tree structure from a flat list of nodes.
      *
@@ -363,45 +366,3 @@ public class ReactiveTreeUtils {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

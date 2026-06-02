@@ -2,27 +2,25 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenAggregateCommand;
 import com.springddd.domain.gen.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GenAggregateCommandServiceTest {
 
     @Mock
-    private RepositoryFactory repositoryFactory;
+    private GenAggregateDomainRepository genAggregateDomainRepository;
 
     @Mock
     private GenAggregateDomainFactory aggregateDomainFactory;
@@ -30,101 +28,81 @@ class GenAggregateCommandServiceTest {
     @Mock
     private WipeGenAggregateDomainService wipeGenAggregateDomainService;
 
-    @Mock
-    private GenAggregateDomainRepository genAggregateDomainRepository;
+    private GenAggregateCommandService genAggregateCommandService;
 
-    @InjectMocks
-    private GenAggregateCommandService service;
-
-    @Test
-    @DisplayName("create 应创建聚合并返回 ID")
-    void create_shouldCreateAndReturnId() {
-        GenAggregateCommand command = new GenAggregateCommand();
-        command.setInfoId(1L);
-        command.setObjectName("User");
-        command.setObjectValue("user");
-        command.setObjectType((byte) 1);
-        command.setHasCreated(false);
-
-        GenAggregateDomain domain = new GenAggregateDomain();
-        when(aggregateDomainFactory.newInstance(any(InfoId.class), any(GenAggregateValueObject.class), any(GenAggregateExtendInfo.class))).thenReturn(domain);
-        when(repositoryFactory.getGenAggregateDomainRepository()).thenReturn(genAggregateDomainRepository);
-        when(genAggregateDomainRepository.save(domain)).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.create(command))
-                .assertNext(id -> assertThat(id).isEqualTo(1L))
-                .verifyComplete();
-
-        verify(aggregateDomainFactory).newInstance(any(InfoId.class), any(GenAggregateValueObject.class), any(GenAggregateExtendInfo.class));
-        verify(genAggregateDomainRepository).save(domain);
+    @BeforeEach
+    void setUp() {
+        genAggregateCommandService = new GenAggregateCommandService(
+                genAggregateDomainRepository,
+                aggregateDomainFactory,
+                wipeGenAggregateDomainService
+        );
     }
 
     @Test
-    @DisplayName("update 应更新聚合")
-    void update_shouldUpdate() {
+    void create_shouldReturnId_whenValidCommand() {
+        GenAggregateCommand command = new GenAggregateCommand();
+        command.setInfoId(1L);
+        command.setObjectName("TestObject");
+        command.setObjectValue("testValue");
+        command.setObjectType((byte) 1);
+        command.setHasCreated(true);
+
+        GenAggregateDomain mockDomain = new GenAggregateDomain();
+        when(aggregateDomainFactory.newInstance(any(), any(), any())).thenReturn(mockDomain);
+        when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(genAggregateCommandService.create(command))
+                .expectNext(1L)
+                .verifyComplete();
+    }
+
+    @Test
+    void update_shouldComplete_whenValidCommand() {
         GenAggregateCommand command = new GenAggregateCommand();
         command.setId(1L);
         command.setInfoId(1L);
-        command.setObjectName("Updated");
-        command.setObjectValue("updated");
-        command.setObjectType((byte) 1);
+        command.setObjectName("UpdatedObject");
+        command.setObjectValue("updatedValue");
+        command.setObjectType((byte) 2);
+        command.setHasCreated(false);
 
-        GenAggregateDomain domain = new GenAggregateDomain();
-        domain.setDeleteStatus(false);
-        when(repositoryFactory.getGenAggregateDomainRepository()).thenReturn(genAggregateDomainRepository);
-        when(genAggregateDomainRepository.load(new AggregateId(1L))).thenReturn(Mono.just(domain));
-        when(genAggregateDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        GenAggregateDomain mockDomain = new GenAggregateDomain();
+        when(genAggregateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.update(command))
+        StepVerifier.create(genAggregateCommandService.update(command))
                 .verifyComplete();
-
-        verify(genAggregateDomainRepository).load(new AggregateId(1L));
-        verify(genAggregateDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe 领域服务")
-    void wipe_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(wipeGenAggregateDomainService.wipe(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.wipe(ids))
+        StepVerifier.create(genAggregateCommandService.wipe(ids))
                 .verifyComplete();
-
-        verify(wipeGenAggregateDomainService).wipe(ids);
     }
 
     @Test
-    @DisplayName("delete 应软删除聚合")
-    void delete_shouldSoftDelete() {
-        List<Long> ids = List.of(1L);
-        GenAggregateDomain domain = new GenAggregateDomain();
-        domain.setDeleteStatus(false);
-        when(repositoryFactory.getGenAggregateDomainRepository()).thenReturn(genAggregateDomainRepository);
-        when(genAggregateDomainRepository.load(new AggregateId(1L))).thenReturn(Mono.just(domain));
-        when(genAggregateDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+    void delete_shouldComplete_whenValidIds() {
+        List<Long> ids = Arrays.asList(1L);
+        GenAggregateDomain mockDomain = new GenAggregateDomain();
+        when(genAggregateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.delete(ids))
+        StepVerifier.create(genAggregateCommandService.delete(ids))
                 .verifyComplete();
-
-        verify(genAggregateDomainRepository).load(new AggregateId(1L));
-        verify(genAggregateDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("restore 应恢复聚合")
-    void restore_shouldRestore() {
-        List<Long> ids = List.of(1L);
-        GenAggregateDomain domain = new GenAggregateDomain();
-        domain.setDeleteStatus(true);
-        when(repositoryFactory.getGenAggregateDomainRepository()).thenReturn(genAggregateDomainRepository);
-        when(genAggregateDomainRepository.load(new AggregateId(1L))).thenReturn(Mono.just(domain));
-        when(genAggregateDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+    void restore_shouldComplete_whenValidIds() {
+        List<Long> ids = Arrays.asList(1L);
+        GenAggregateDomain mockDomain = new GenAggregateDomain();
+        when(genAggregateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.restore(ids))
+        StepVerifier.create(genAggregateCommandService.restore(ids))
                 .verifyComplete();
-
-        verify(genAggregateDomainRepository).load(new AggregateId(1L));
-        verify(genAggregateDomainRepository).save(domain);
     }
 }

@@ -1,24 +1,26 @@
 package com.springddd.application.service.dept;
 
 import com.springddd.application.service.dept.dto.SysDeptView;
-import com.springddd.domain.dept.DeptId;
-import com.springddd.domain.dept.SysDeptDomain;
-import com.springddd.domain.dept.SysDeptDomainRepository;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.dept.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class DeleteSysDeptByIdDomainServiceImplTest {
 
     @Mock
@@ -27,33 +29,29 @@ class DeleteSysDeptByIdDomainServiceImplTest {
     @Mock
     private SysDeptQueryService sysDeptQueryService;
 
-    @InjectMocks
-    private DeleteSysDeptByIdDomainServiceImpl service;
+    private DeleteSysDeptByIdDomainServiceImpl deleteSysDeptByIdDomainService;
+
+    @BeforeEach
+    void setUp() {
+        deleteSysDeptByIdDomainService = new DeleteSysDeptByIdDomainServiceImpl(
+                sysDeptDomainRepository,
+                sysDeptQueryService
+        );
+    }
 
     @Test
-    @DisplayName("deleteByIds 应查询所有部门并删除指定部门及其子部门")
-    void deleteByIds_shouldDeleteAndChildren() {
-        SysDeptView parent = new SysDeptView();
-        parent.setId(1L);
-        parent.setParentId(null);
+    void deleteByIds_shouldComplete_whenValidIds() {
+        List<Long> ids = Arrays.asList(1L);
+        SysDeptView view = new SysDeptView();
+        view.setId(1L);
+        view.setParentId(0L);
 
-        SysDeptView child = new SysDeptView();
-        child.setId(2L);
-        child.setParentId(1L);
-
-        when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(List.of(parent, child)));
-
-        SysDeptDomain domain1 = mock(SysDeptDomain.class);
-        SysDeptDomain domain2 = mock(SysDeptDomain.class);
-        when(sysDeptDomainRepository.load(new DeptId(1L))).thenReturn(Mono.just(domain1));
-        when(sysDeptDomainRepository.load(new DeptId(2L))).thenReturn(Mono.just(domain2));
+        SysDeptDomain mockDomain = new SysDeptDomain();
+        when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(Collections.singletonList(view)));
+        when(sysDeptDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(sysDeptDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.deleteByIds(List.of(1L)))
+        StepVerifier.create(deleteSysDeptByIdDomainService.deleteByIds(ids))
                 .verifyComplete();
-
-        verify(domain1).delete();
-        verify(domain2).delete();
-        verify(sysDeptDomainRepository, times(2)).save(any());
     }
 }

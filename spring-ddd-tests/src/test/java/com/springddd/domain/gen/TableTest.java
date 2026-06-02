@@ -1,61 +1,64 @@
 package com.springddd.domain.gen;
 
-import com.springddd.domain.gen.exception.FilterComponentNullException;
-import com.springddd.domain.gen.exception.FilterNullException;
-import com.springddd.domain.gen.exception.OrderNullException;
-import com.springddd.domain.gen.exception.VisibleNullException;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.gen.exception.*;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TableTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        Table table = new Table(true, true, true, (byte) 1, (byte) 1);
-        assertThat(table.tableVisible()).isTrue();
-        assertThat(table.tableOrder()).isTrue();
-        assertThat(table.tableFilter()).isTrue();
-        assertThat(table.tableFilterComponent()).isEqualTo((byte) 1);
-        assertThat(table.tableFilterType()).isEqualTo((byte) 1);
+    void shouldCreateTableWithValidValues() {
+        Table table = new Table(true, false, true, (byte) 1, (byte) 0);
+        assertTrue(table.tableVisible());
+        assertFalse(table.tableOrder());
+        assertTrue(table.tableFilter());
+        assertEquals((byte) 1, table.tableFilterComponent());
+        assertEquals((byte) 0, table.tableFilterType());
     }
 
     @Test
-    @DisplayName("tableVisible 为 null 应抛 VisibleNullException")
-    void constructor_withNullTableVisible_shouldThrowException() {
-        assertThatThrownBy(() -> new Table(null, true, true, (byte) 1, (byte) 1))
-                .isInstanceOf(VisibleNullException.class);
+    void shouldCreateTableWithoutFilterComponent() {
+        Table table = new Table(true, false, false, (byte) 0, (byte) 0);
+        assertTrue(table.tableVisible());
+        assertFalse(table.tableOrder());
+        assertFalse(table.tableFilter());
     }
 
     @Test
-    @DisplayName("tableOrder 为 null 应抛 OrderNullException")
-    void constructor_withNullTableOrder_shouldThrowException() {
-        assertThatThrownBy(() -> new Table(true, null, true, (byte) 1, (byte) 1))
-                .isInstanceOf(OrderNullException.class);
+    void equals_shouldWorkForSameValues() {
+        Table table1 = new Table(true, false, true, (byte) 1, (byte) 0);
+        Table table2 = new Table(true, false, true, (byte) 1, (byte) 0);
+        assertEquals(table1, table2);
     }
 
     @Test
-    @DisplayName("tableFilter 为 null 应抛 FilterNullException")
-    void constructor_withNullTableFilter_shouldThrowException() {
-        assertThatThrownBy(() -> new Table(true, true, null, (byte) 1, (byte) 1))
-                .isInstanceOf(FilterNullException.class);
+    void toString_shouldReturnValueAsString() {
+        Table table = new Table(true, false, true, (byte) 1, (byte) 0);
+        String str = table.toString();
+        assertTrue(str.contains("Table"));
     }
 
     @Test
-    @DisplayName("tableFilter 为 true 且 tableFilterComponent 为 null 应抛 FilterComponentNullException")
-    void constructor_withFilterTrueAndNullComponent_shouldThrowException() {
-        assertThatThrownBy(() -> new Table(true, true, true, null, (byte) 1))
-                .isInstanceOf(FilterComponentNullException.class);
+    void shouldThrowWhenVisibleIsNull() {
+        assertThrows(VisibleNullException.class, () ->
+            new Table(null, false, false, (byte) 0, (byte) 0));
     }
 
     @Test
-    @DisplayName("tableFilter 为 false 且 tableFilterComponent 为 null 不应抛异常")
-    void constructor_withFilterFalseAndNullComponent_shouldNotThrowException() {
-        Table table = new Table(true, true, false, null, (byte) 1);
-        assertThat(table.tableFilter()).isFalse();
-        assertThat(table.tableFilterComponent()).isNull();
+    void shouldThrowWhenOrderIsNull() {
+        assertThrows(OrderNullException.class, () ->
+            new Table(true, null, false, (byte) 0, (byte) 0));
+    }
+
+    @Test
+    void shouldThrowWhenFilterIsNull() {
+        assertThrows(FilterNullException.class, () ->
+            new Table(true, false, null, (byte) 0, (byte) 0));
+    }
+
+    @Test
+    void shouldThrowWhenFilterIsTrueButComponentIsNull() {
+        assertThrows(FilterComponentNullException.class, () ->
+            new Table(true, false, true, null, (byte) 0));
     }
 }

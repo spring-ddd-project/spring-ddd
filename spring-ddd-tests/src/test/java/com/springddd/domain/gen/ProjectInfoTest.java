@@ -1,62 +1,62 @@
 package com.springddd.domain.gen;
 
-import com.springddd.domain.gen.exception.ClassNameNullException;
-import com.springddd.domain.gen.exception.ModuleNameNullException;
-import com.springddd.domain.gen.exception.PackageNameNullException;
-import com.springddd.domain.gen.exception.ProjectNameNullException;
-import com.springddd.domain.gen.exception.TableNameNullException;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.gen.exception.*;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ProjectInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        ProjectInfo obj = new ProjectInfo("test", "test", "test", "test", "test");
-        assertThat(obj.tableName()).isEqualTo("test");
-        assertThat(obj.packageName()).isEqualTo("test");
-        assertThat(obj.className()).isEqualTo("test");
-        assertThat(obj.moduleName()).isEqualTo("test");
-        assertThat(obj.projectName()).isEqualTo("test");
+    void shouldCreateProjectInfoWithValidValues() {
+        ProjectInfo info = new ProjectInfo("table_a", "com.example", "ClassA", "module_a", "project_a");
+        assertEquals("table_a", info.tableName());
+        assertEquals("com.example", info.packageName());
+        assertEquals("ClassA", info.className());
+        assertEquals("module_a", info.moduleName());
+        assertEquals("project_a", info.projectName());
     }
 
     @Test
-    @DisplayName("tableName 为 null 应抛异常")
-    void constructor_withNullTablename_shouldThrowException() {
-        assertThatThrownBy(() -> new ProjectInfo(null, "test", "test", "test", "test"))
-                .isInstanceOf(TableNameNullException.class);
+    void equals_shouldWorkForSameValues() {
+        ProjectInfo info1 = new ProjectInfo("table_a", "com.example", "ClassA", "module_a", "project_a");
+        ProjectInfo info2 = new ProjectInfo("table_a", "com.example", "ClassA", "module_a", "project_a");
+        assertEquals(info1, info2);
     }
 
     @Test
-    @DisplayName("packageName 为 null 应抛异常")
-    void constructor_withNullPackagename_shouldThrowException() {
-        assertThatThrownBy(() -> new ProjectInfo("test", null, "test", "test", "test"))
-                .isInstanceOf(PackageNameNullException.class);
+    void toString_shouldReturnValueAsString() {
+        ProjectInfo info = new ProjectInfo("table_a", "com.example", "ClassA", "module_a", "project_a");
+        String str = info.toString();
+        assertTrue(str.contains("ProjectInfo"));
     }
 
     @Test
-    @DisplayName("className 为 null 应抛异常")
-    void constructor_withNullClassname_shouldThrowException() {
-        assertThatThrownBy(() -> new ProjectInfo("test", "test", null, "test", "test"))
-                .isInstanceOf(ClassNameNullException.class);
+    void shouldThrowWhenTableNameIsNull() {
+        assertThrows(TableNameNullException.class, () ->
+            new ProjectInfo(null, "com.example", "ClassA", "module_a", "project_a"));
     }
 
     @Test
-    @DisplayName("moduleName 为 null 应抛异常")
-    void constructor_withNullModulename_shouldThrowException() {
-        assertThatThrownBy(() -> new ProjectInfo("test", "test", "test", null, "test"))
-                .isInstanceOf(ModuleNameNullException.class);
+    void shouldThrowWhenPackageNameIsNull() {
+        assertThrows(PackageNameNullException.class, () ->
+            new ProjectInfo("table_a", null, "ClassA", "module_a", "project_a"));
     }
 
     @Test
-    @DisplayName("projectName 为 null 应抛异常")
-    void constructor_withNullProjectname_shouldThrowException() {
-        assertThatThrownBy(() -> new ProjectInfo("test", "test", "test", "test", null))
-                .isInstanceOf(ProjectNameNullException.class);
+    void shouldThrowWhenClassNameIsNull() {
+        assertThrows(ClassNameNullException.class, () ->
+            new ProjectInfo("table_a", "com.example", null, "module_a", "project_a"));
     }
 
+    @Test
+    void shouldThrowWhenModuleNameIsNull() {
+        assertThrows(ModuleNameNullException.class, () ->
+            new ProjectInfo("table_a", "com.example", "ClassA", null, "project_a"));
+    }
+
+    @Test
+    void shouldThrowWhenProjectNameIsNull() {
+        assertThrows(ProjectNameNullException.class, () ->
+            new ProjectInfo("table_a", "com.example", "ClassA", "module_a", null));
+    }
 }

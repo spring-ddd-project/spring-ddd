@@ -1,9 +1,7 @@
 package com.springddd.domain.util;
 
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.leaf.LeafSegmentDomainService;
-import com.springddd.domain.leaf.SnowflakeDomainService;
-import lombok.RequiredArgsConstructor;
+import com.springddd.domain.leaf.service.LeafSegmentIdGenerateDomainService;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -18,101 +16,156 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class IdGenerator implements BeforeConvertCallback<Object> {
 
-    private final LeafSegmentDomainService leafSegmentDomainService;
-    private final SnowflakeDomainService snowflakeDomainService;
+    private final LeafSegmentIdGenerateDomainService leafSegmentIdGenerateDomainService;
+
+    public IdGenerator(LeafSegmentIdGenerateDomainService leafSegmentIdGenerateDomainService) {
+        this.leafSegmentIdGenerateDomainService = leafSegmentIdGenerateDomainService;
+    }
 
     @Override
     public @NonNull Mono<Object> onBeforeConvert(@NonNull Object entity, @NonNull SqlIdentifier table) {
-        List<Field> idFields = Arrays.stream(entity.getClass().getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(Id.class) && f.isAnnotationPresent(LeafId.class))
-                .toList();
+        return resolveIdGenerate(entity).flatMap(strategy -> {
+            boolean classLevelIdGenerate = entity.getClass().isAnnotationPresent(IdGenerate.class);
 
-        List<Field> createdByFields = Arrays.stream(entity.getClass().getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(CreatedBy.class))
-                .toList();
+            List<Field> idFields = Arrays.stream(entity.getClass().getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(Id.class) && (classLevelIdGenerate || f.isAnnotationPresent(IdGenerate.class)))
+                    .toList();
 
-        List<Field> lastModifiedByFields = Arrays.stream(entity.getClass().getDeclaredFields())
-                .filter(f -> f.isAnnotationPresent(LastModifiedBy.class))
-                .toList();
+            List<Field> createdByFields = Arrays.stream(entity.getClass().getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(CreatedBy.class))
+                    .toList();
 
-        if (idFields.size() > 1) {
-            throw new IllegalStateException("Entity " + entity.getClass().getName() +
-                    " has more than one field annotated with both @Id and @LeafId.");
-        }
+            List<Field> lastModifiedByFields = Arrays.stream(entity.getClass().getDeclaredFields())
+                    .filter(f -> f.isAnnotationPresent(LastModifiedBy.class))
+                    .toList();
 
-        if (idFields.isEmpty()) {
-            return Mono.just(entity);
-        }
-
-        Field field = idFields.getFirst();
-        field.setAccessible(true);
-
-        Field createdByField = !createdByFields.isEmpty() ? createdByFields.getFirst() : null;
-        if (createdByField != null) {
-            createdByField.setAccessible(true);
-        }
-
-        Field lastModifiedByField = !lastModifiedByFields.isEmpty() ? lastModifiedByFields.getFirst() : null;
-        if (lastModifiedByField != null) {
-            lastModifiedByField.setAccessible(true);
-        }
-
-        try {
-            Object currentValue = field.get(entity);
-            if (currentValue == null) {
-                LeafId idGenerate = field.getAnnotation(LeafId.class);
-                String bizTag = idGenerate.value();
-
-                if (!bizTag.isEmpty()) {
-                    // Segment mode: use bizTag-based ID allocation
-                    return leafSegmentDomainService.getId(bizTag)
-                            .doOnNext(id -> {
-                                try {
-                                    field.set(entity, id);
-                                    setAuditFields(entity, createdByField, lastModifiedByField);
-                                } catch (IllegalAccessException e) {
-                                    throw new RuntimeException("Failed to set ID for field: " + field.getName(), e);
-                                }
-                            })
-                            .then(Mono.just(entity));
-                }
-
-                // Snowflake mode: use distributed snowflake ID
-                return snowflakeDomainService.getId()
-                        .doOnNext(id -> {
-                            try {
-                                field.set(entity, id);
-                                setAuditFields(entity, createdByField, lastModifiedByField);
-                            } catch (IllegalAccessException e) {
-                                throw new RuntimeException("Failed to set ID for field: " + field.getName(), e);
-                            }
-                        })
-                        .then(Mono.just(entity));
-            } else {
-                setLastModifiedBy(entity, lastModifiedByField);
+            if (idFields.size() > 1) {
+                return Mono.error(new IllegalStateException("Entity " + entity.getClass().getName() +
+                        " has more than one field annotated with @Id."));
             }
+
+            if (idFields.isEmpty()) {
+                return Mono.just(entity);
+            }
+
+            Field field = idFields.getFirst();
+            field.setAccessible(true);
+
+            Field createdByField = !createdByFields.isEmpty() ? createdByFields.getFirst() : null;
+            if (createdByField != null) {
+                createdByField.setAccessible(true);
+            }
+
+            Field lastModifiedByField = !lastModifiedByFields.isEmpty() ? lastModifiedByFields.getFirst() : null;
+            if (lastModifiedByField != null) {
+                lastModifiedByField.setAccessible(true);
+            }
+
+            Object currentValue = getFieldValue(field, entity);
+            if (currentValue == null) {
+                return generateId(strategy, entity).map(id -> {
+                    setFieldValue(field, entity, id);
+                    if (createdByField != null) {
+                        setFieldValue(createdByField, entity, SecurityUtils.getUsername());
+                    }
+                    if (lastModifiedByField != null) {
+                        setFieldValue(lastModifiedByField, entity, SecurityUtils.getUsername());
+                    }
+                    return entity;
+                });
+            } else {
+                if (lastModifiedByField != null) {
+                    setFieldValue(lastModifiedByField, entity, SecurityUtils.getUsername());
+                }
+                return Mono.just(entity);
+            }
+        }).switchIfEmpty(Mono.just(entity));
+    }
+
+    private Mono<IdGenerateStrategy> resolveIdGenerate(Object entity) {
+        // Class-level annotation
+        IdGenerate classAnno = entity.getClass().getAnnotation(IdGenerate.class);
+        if (classAnno != null) {
+            return Mono.just(classAnno.strategy());
+        }
+
+        // Field-level annotation
+        for (Field field : entity.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(IdGenerate.class)) {
+                IdGenerate fieldAnno = field.getAnnotation(IdGenerate.class);
+                return Mono.just(fieldAnno.strategy());
+            }
+        }
+
+        return Mono.empty();
+    }
+
+    private Mono<Long> generateId(IdGenerateStrategy strategy, Object entity) {
+        if (strategy == IdGenerateStrategy.LEAF_SEGMENT) {
+            String key = resolveKey(entity);
+            if (key.isEmpty()) {
+                return Mono.error(new IllegalStateException("IdGenerate strategy LEAF_SEGMENT requires a non-empty key."));
+            }
+            return leafSegmentIdGenerateDomainService.nextId(key);
+        }
+        return Mono.just(IdTemp.generateId());
+    }
+
+    private String resolveKey(Object entity) {
+        IdGenerate classAnno = entity.getClass().getAnnotation(IdGenerate.class);
+        if (classAnno != null && !classAnno.key().isEmpty()) {
+            return classAnno.key();
+        }
+
+        for (Field field : entity.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Id.class) && field.isAnnotationPresent(IdGenerate.class)) {
+                IdGenerate fieldAnno = field.getAnnotation(IdGenerate.class);
+                if (!fieldAnno.key().isEmpty()) {
+                    return fieldAnno.key();
+                }
+            }
+        }
+
+        // Auto derive from class name: SysUserEntity -> sys_user
+        String className = entity.getClass().getSimpleName();
+        if (className.endsWith("Entity")) {
+            className = className.substring(0, className.length() - 6);
+        }
+        return camelToSnake(className);
+    }
+
+    private static String camelToSnake(String str) {
+        if (str == null || str.isEmpty()) {
+            return "";
+        }
+        StringBuilder result = new StringBuilder();
+        result.append(Character.toLowerCase(str.charAt(0)));
+        for (int i = 1; i < str.length(); i++) {
+            char ch = str.charAt(i);
+            if (Character.isUpperCase(ch)) {
+                result.append('_').append(Character.toLowerCase(ch));
+            } else {
+                result.append(ch);
+            }
+        }
+        return result.toString();
+    }
+
+    Object getFieldValue(Field field, Object entity) {
+        try {
+            return field.get(entity);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to generate ID for field: " + field.getName(), e);
-        }
-
-        return Mono.just(entity);
-    }
-
-    private void setAuditFields(Object entity, Field createdByField, Field lastModifiedByField) throws IllegalAccessException {
-        if (createdByField != null) {
-            createdByField.set(entity, SecurityUtils.getUsername());
-        }
-        if (lastModifiedByField != null) {
-            lastModifiedByField.set(entity, SecurityUtils.getUsername());
+            throw new RuntimeException("Failed to access field: " + field.getName(), e);
         }
     }
 
-    private void setLastModifiedBy(Object entity, Field lastModifiedByField) throws IllegalAccessException {
-        if (lastModifiedByField != null) {
-            lastModifiedByField.set(entity, SecurityUtils.getUsername());
+    void setFieldValue(Field field, Object entity, Object value) {
+        try {
+            field.set(entity, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Failed to set field: " + field.getName(), e);
         }
     }
 }

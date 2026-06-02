@@ -1,10 +1,9 @@
 package com.springddd.application.service.gen;
 
 import com.springddd.domain.gen.WipeGenDataDomainService;
-import com.springddd.infrastructure.persistence.entity.GenAggregateEntity;
-import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
+import com.springddd.infrastructure.persistence.r2dbc.GenAggregateRepository;
+import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
+import com.springddd.infrastructure.persistence.r2dbc.GenProjectInfoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,67 +13,19 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class WipeGenDataDomainServiceImpl implements WipeGenDataDomainService {
 
-    private final QueryFactory queryFactory;
+    private final GenProjectInfoRepository infoProjectRepository;
+
+    private final GenColumnsRepository columnsRepository;
+
+    private final GenAggregateRepository aggregateRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Mono<Void> wipe() {
         return Mono.when(
-                queryFactory.getR2dbcEntityTemplate().delete(GenProjectInfoEntity.class).all(),
-                queryFactory.getR2dbcEntityTemplate().delete(GenColumnsEntity.class).all(),
-                queryFactory.getR2dbcEntityTemplate().delete(GenAggregateEntity.class).all()
-        ).then();
+                infoProjectRepository.deleteAll(),
+                columnsRepository.deleteAll(),
+                aggregateRepository.deleteAll()
+        );
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

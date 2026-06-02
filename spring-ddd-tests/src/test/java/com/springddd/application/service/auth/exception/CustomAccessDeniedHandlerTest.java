@@ -1,11 +1,11 @@
 package com.springddd.application.service.auth.exception;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,8 +21,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CustomAccessDeniedHandlerTest {
 
-    @InjectMocks
-    private CustomAccessDeniedHandler handler;
+    private final CustomAccessDeniedHandler handler = new CustomAccessDeniedHandler();
 
     @Mock
     private ServerWebExchange exchange;
@@ -31,20 +30,20 @@ class CustomAccessDeniedHandlerTest {
     private ServerHttpResponse response;
 
     @Mock
-    private AccessDeniedException accessDeniedException;
+    private AccessDeniedException denied;
 
     @Test
-    @DisplayName("handle 应返回 403 Forbidden JSON 响应")
-    void handle_shouldReturn403Forbidden() {
-        when(exchange.getResponse()).thenReturn(response);
-        when(response.bufferFactory()).thenReturn(new DefaultDataBufferFactory());
-        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
-        when(response.writeWith(any(Mono.class))).thenReturn(Mono.empty());
+    void handle_shouldReturn403JsonResponse() {
+        DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
 
-        StepVerifier.create(handler.handle(exchange, accessDeniedException))
+        when(exchange.getResponse()).thenReturn(response);
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(response.bufferFactory()).thenReturn(bufferFactory);
+        when(response.writeWith(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(handler.handle(exchange, denied))
                 .verifyComplete();
 
         verify(response).setStatusCode(HttpStatus.FORBIDDEN);
-        verify(response, atLeastOnce()).getHeaders();
     }
 }

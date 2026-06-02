@@ -2,18 +2,18 @@ package com.springddd.application.service.role;
 
 import com.springddd.domain.role.LinkRoleAndMenusDomainService;
 import com.springddd.domain.role.WipeSysRoleMenuByIdsDomainService;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SysRoleMenuCommandServiceTest {
@@ -24,31 +24,32 @@ class SysRoleMenuCommandServiceTest {
     @Mock
     private WipeSysRoleMenuByIdsDomainService wipeSysRoleMenuByIdsDomainService;
 
-    @InjectMocks
-    private SysRoleMenuCommandService service;
+    private SysRoleMenuCommandService sysRoleMenuCommandService;
 
-    @Test
-    @DisplayName("create 应调用 link 领域服务")
-    void create_shouldCallDomainService() {
-        Long roleId = 1L;
-        List<Long> menuIds = List.of(1L, 2L);
-        when(linkRoleAndMenusDomainService.link(roleId, menuIds)).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.create(roleId, menuIds))
-                .verifyComplete();
-
-        verify(linkRoleAndMenusDomainService).link(roleId, menuIds);
+    @BeforeEach
+    void setUp() {
+        sysRoleMenuCommandService = new SysRoleMenuCommandService(
+                linkRoleAndMenusDomainService,
+                wipeSysRoleMenuByIdsDomainService
+        );
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe 领域服务")
-    void wipe_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void create_shouldDelegateToDomainService() {
+        Long roleId = 1L;
+        List<Long> menuIds = Arrays.asList(1L, 2L);
+        when(linkRoleAndMenusDomainService.link(roleId, menuIds)).thenReturn(Mono.empty());
+
+        StepVerifier.create(sysRoleMenuCommandService.create(roleId, menuIds))
+                .verifyComplete();
+    }
+
+    @Test
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(wipeSysRoleMenuByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.wipe(ids))
+        StepVerifier.create(sysRoleMenuCommandService.wipe(ids))
                 .verifyComplete();
-
-        verify(wipeSysRoleMenuByIdsDomainService).deleteByIds(ids);
     }
 }

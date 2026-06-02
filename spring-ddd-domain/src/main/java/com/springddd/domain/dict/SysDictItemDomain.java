@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
+public class SysDictItemDomain extends AbstractDomainMask {
 
     private DictItemId itemId;
 
@@ -15,42 +15,6 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
     private DictItemBasicInfo itemBasicInfo;
 
     private DictItemExtendInfo itemExtendInfo;
-
-    @Override
-    public SysDictItemDomain clone() {
-        try {
-            SysDictItemDomain clone = (SysDictItemDomain) super.clone();
-            if (this.itemId != null) clone.setItemId(new DictItemId(this.itemId.value()));
-            if (this.dictId != null) clone.setDictId(new DictId(this.dictId.value()));
-            if (this.itemBasicInfo != null) {
-                DictItemBasicInfo basic = new DictItemBasicInfo(this.itemBasicInfo.itemLabel(), this.itemBasicInfo.itemValue());
-                clone.setItemBasicInfo(basic);
-            }
-            if (this.itemExtendInfo != null) {
-                DictItemExtendInfo ext = new DictItemExtendInfo(this.itemExtendInfo.sortOrder(), this.itemExtendInfo.itemStatus());
-                clone.setItemExtendInfo(ext);
-            }
-            return clone;
-        } catch (CloneNotSupportedException e) {
-            throw new AssertionError();
-        }
-    }
-
-    private com.springddd.domain.dict.state.DictItemState state;
-
-    public void setState(com.springddd.domain.dict.state.DictItemState state) {
-        this.state = state;
-    }
-
-    public void enable() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
-        state.enable(this);
-    }
-
-    public void disable() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
-        state.disable(this);
-    }
 
     public void create() {}
 
@@ -64,16 +28,6 @@ public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
     }
 
     public void restore() {
-        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
-        state.restore(this);
-    }
-
-    public com.springddd.domain.dict.memento.SysDictItemMemento saveToMemento() {
-        return new com.springddd.domain.dict.memento.SysDictItemMemento(this.itemBasicInfo, this.itemExtendInfo);
-    }
-
-    public void restoreFromMemento(com.springddd.domain.dict.memento.SysDictItemMemento memento) {
-        this.itemBasicInfo = memento.getItemBasicInfo();
-        this.itemExtendInfo = memento.getItemExtendInfo();
+        super.setDeleteStatus(false);
     }
 }

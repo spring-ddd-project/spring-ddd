@@ -1,67 +1,94 @@
 package com.springddd.application.service.menu;
 
 import com.springddd.domain.menu.*;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Collections;
 import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class SysMenuDomainFactoryImplTest {
 
     @Test
-    @DisplayName("should create SysMenuDomain with correct fields set when no strategy matches")
-    void createWithNoMatchingStrategy() {
-        List<SysMenuDomainStrategy> strategies = Collections.emptyList();
+    void create_shouldUseCatalogStrategy_whenMenuTypeIs1() {
+        SysMenuDomainCatalogStrategy catalogStrategy = new SysMenuDomainCatalogStrategy();
+        SysMenuDomainMenuStrategy menuStrategy = new SysMenuDomainMenuStrategy();
+        SysMenuDomainButtonStrategy buttonStrategy = new SysMenuDomainButtonStrategy();
+
+        List<SysMenuDomainStrategy> strategies = List.of(catalogStrategy, menuStrategy, buttonStrategy);
         SysMenuDomainFactoryImpl factory = new SysMenuDomainFactoryImpl(strategies);
 
-        MenuId parentId = new MenuId(1L);
-        Catalog catalog = new Catalog("/path", "component", "/redirect");
-        Menu menu = new Menu("/menu", "MenuComponent", false, false, false);
-        Button button = new Button("perm:read");
-        MenuExtendInfo menuExtendInfo = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        MenuId parentId = new MenuId(0L);
+        String name = "TestMenu";
+        Catalog catalog = new Catalog("redirect/path");
+        Menu menu = new Menu("/path", "component", true, false, false);
+        Button button = new Button("perm", "/api");
+        MenuExtendInfo extendInfo = new MenuExtendInfo(1, "Title", 1, "icon", true, true);
         Long deptId = 1L;
 
-        SysMenuDomain domain = factory.create(parentId, "TestMenu", catalog, menu, button, menuExtendInfo, deptId);
+        SysMenuDomain domain = factory.create(parentId, name, catalog, menu, button, extendInfo, deptId);
 
         assertNotNull(domain);
+        assertEquals(name, domain.getName());
+        assertNotNull(domain.getCatalog());
+        assertEquals("redirect/path", domain.getCatalog().menuRedirect());
         assertEquals(parentId, domain.getParentId());
         assertEquals(deptId, domain.getDeptId());
         assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    @DisplayName("should delegate to matching strategy")
-    void createWithMatchingStrategy() {
-        SysMenuDomainStrategy strategy = mock(SysMenuDomainStrategy.class);
-        SysMenuDomain expectedDomain = new SysMenuDomain();
-        expectedDomain.setName("HandledMenu");
+    void create_shouldUseMenuStrategy_whenMenuTypeIs2() {
+        SysMenuDomainCatalogStrategy catalogStrategy = new SysMenuDomainCatalogStrategy();
+        SysMenuDomainMenuStrategy menuStrategy = new SysMenuDomainMenuStrategy();
+        SysMenuDomainButtonStrategy buttonStrategy = new SysMenuDomainButtonStrategy();
 
-        when(strategy.check(1)).thenReturn(true);
-        when(strategy.handle(any(), any(), any(), any(), any())).thenReturn(expectedDomain);
-
-        List<SysMenuDomainStrategy> strategies = List.of(strategy);
+        List<SysMenuDomainStrategy> strategies = List.of(catalogStrategy, menuStrategy, buttonStrategy);
         SysMenuDomainFactoryImpl factory = new SysMenuDomainFactoryImpl(strategies);
 
-        MenuId parentId = new MenuId(1L);
-        Catalog catalog = new Catalog("/path", "component", "/redirect");
-        Menu menu = new Menu("/menu", "MenuComponent", false, false, false);
-        Button button = new Button("perm:read");
-        MenuExtendInfo menuExtendInfo = new MenuExtendInfo(1, "title", "icon", 1, true, true);
+        MenuId parentId = new MenuId(0L);
+        String name = "TestMenu";
+        Catalog catalog = new Catalog("redirect/path");
+        Menu menu = new Menu("/path", "component", true, false, false);
+        Button button = new Button("perm", "/api");
+        MenuExtendInfo extendInfo = new MenuExtendInfo(1, "Title", 2, "icon", true, true);
         Long deptId = 1L;
 
-        SysMenuDomain domain = factory.create(parentId, "TestMenu", catalog, menu, button, menuExtendInfo, deptId);
+        SysMenuDomain domain = factory.create(parentId, name, catalog, menu, button, extendInfo, deptId);
 
         assertNotNull(domain);
-        assertEquals("HandledMenu", domain.getName());
+        assertEquals(name, domain.getName());
+        assertNotNull(domain.getMenu());
+        assertEquals("/path", domain.getMenu().menuPath());
         assertEquals(parentId, domain.getParentId());
         assertEquals(deptId, domain.getDeptId());
         assertFalse(domain.getDeleteStatus());
+    }
 
-        verify(strategy).check(1);
-        verify(strategy).handle("TestMenu", catalog, menu, button, menuExtendInfo);
+    @Test
+    void create_shouldUseButtonStrategy_whenMenuTypeIs3() {
+        SysMenuDomainCatalogStrategy catalogStrategy = new SysMenuDomainCatalogStrategy();
+        SysMenuDomainMenuStrategy menuStrategy = new SysMenuDomainMenuStrategy();
+        SysMenuDomainButtonStrategy buttonStrategy = new SysMenuDomainButtonStrategy();
+
+        List<SysMenuDomainStrategy> strategies = List.of(catalogStrategy, menuStrategy, buttonStrategy);
+        SysMenuDomainFactoryImpl factory = new SysMenuDomainFactoryImpl(strategies);
+
+        MenuId parentId = new MenuId(0L);
+        String name = "TestMenu";
+        Catalog catalog = new Catalog("redirect/path");
+        Menu menu = new Menu("/path", "component", true, false, false);
+        Button button = new Button("perm", "/api");
+        MenuExtendInfo extendInfo = new MenuExtendInfo(1, 3, true);
+        Long deptId = 1L;
+
+        SysMenuDomain domain = factory.create(parentId, name, catalog, menu, button, extendInfo, deptId);
+
+        assertNotNull(domain);
+        assertEquals(name, domain.getName());
+        assertNotNull(domain.getButton());
+        assertEquals("perm", domain.getButton().permission());
+        assertEquals(parentId, domain.getParentId());
+        assertEquals(deptId, domain.getDeptId());
+        assertFalse(domain.getDeleteStatus());
     }
 }

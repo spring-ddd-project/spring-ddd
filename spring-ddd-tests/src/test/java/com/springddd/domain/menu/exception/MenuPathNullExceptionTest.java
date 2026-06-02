@@ -1,17 +1,31 @@
 package com.springddd.domain.menu.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.DomainException;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MenuPathNullExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldCreateExceptionWithDefaultMessage() {
         MenuPathNullException exception = new MenuPathNullException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MENU_PATH_NULL);
+        assertNotNull(exception);
+        assertEquals("error.menu.path.null", exception.getMessageKey());
+    }
+
+    @Test
+    void shouldExtendDomainException() {
+        assertTrue(DomainException.class.isAssignableFrom(MenuPathNullException.class));
+    }
+
+    @Test
+    void exception_shouldBeRuntimeException() {
+        assertTrue(RuntimeException.class.isAssignableFrom(MenuPathNullException.class));
+    }
+
+    @Test
+    void shouldHaveCorrectErrorCode() {
+        MenuPathNullException exception = new MenuPathNullException();
+        assertEquals(1204, exception.getCode());
     }
 }

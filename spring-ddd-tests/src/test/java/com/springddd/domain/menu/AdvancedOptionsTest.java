@@ -1,53 +1,51 @@
 package com.springddd.domain.menu;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class AdvancedOptionsTest {
 
     @Test
-    @DisplayName("默认构造应正确赋值")
-    void constructor_withDefault_shouldCreate() {
+    void shouldCreateAdvancedOptionsWithAllFields() {
         AdvancedOptions options = new AdvancedOptions(1, "icon", 1, true, true);
-        assertThat(options.order()).isEqualTo(1);
-        assertThat(options.icon()).isEqualTo("icon");
-        assertThat(options.menuType()).isEqualTo(1);
-        assertThat(options.visible()).isTrue();
-        assertThat(options.menuStatus()).isTrue();
+        assertEquals(1, options.order());
+        assertEquals("icon", options.icon());
+        assertEquals(1, options.menuType());
+        assertTrue(options.visible());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    @DisplayName("Catalog 构造应正确赋值")
-    void constructor_withCatalog_shouldCreate() {
+    void shouldCreateAdvancedOptionsForCatalog() {
         AdvancedOptions options = new AdvancedOptions(1, 1, "icon", true, true);
-        assertThat(options.order()).isEqualTo(1);
-        assertThat(options.icon()).isEqualTo("icon");
-        assertThat(options.menuType()).isEqualTo(1);
-        assertThat(options.visible()).isTrue();
-        assertThat(options.menuStatus()).isTrue();
+        assertEquals(1, options.order());
+        assertEquals("icon", options.icon());
+        assertEquals(1, options.menuType());
+        assertTrue(options.visible());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    @DisplayName("Button 构造应正确赋值")
-    void constructor_withButton_shouldCreate() {
-        AdvancedOptions options = new AdvancedOptions(1, 2, true);
-        assertThat(options.order()).isEqualTo(1);
-        assertThat(options.icon()).isNull();
-        assertThat(options.menuType()).isEqualTo(2);
-        assertThat(options.visible()).isNull();
-        assertThat(options.menuStatus()).isTrue();
+    void shouldCreateAdvancedOptionsForButton() {
+        AdvancedOptions options = new AdvancedOptions(1, 1, true);
+        assertEquals(1, options.order());
+        assertNull(options.icon());
+        assertEquals(1, options.menuType());
+        assertNull(options.visible());
+        assertTrue(options.menuStatus());
     }
 
     @Test
-    @DisplayName("Button 构造 visible 可为 false")
-    void constructor_withButtonAndFalseStatus_shouldCreate() {
-        AdvancedOptions options = new AdvancedOptions(1, 2, false);
-        assertThat(options.order()).isEqualTo(1);
-        assertThat(options.icon()).isNull();
-        assertThat(options.menuType()).isEqualTo(2);
-        assertThat(options.visible()).isNull();
-        assertThat(options.menuStatus()).isFalse();
+    void equals_shouldWorkForSameValues() {
+        AdvancedOptions opt1 = new AdvancedOptions(1, "icon", 1, true, true);
+        AdvancedOptions opt2 = new AdvancedOptions(1, "icon", 1, true, true);
+        assertEquals(opt1, opt2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        AdvancedOptions options = new AdvancedOptions(1, "icon", 1, true, true);
+        String str = options.toString();
+        assertTrue(str.contains("AdvancedOptions"));
     }
 }

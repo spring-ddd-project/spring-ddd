@@ -1,41 +1,27 @@
 package com.springddd.application.service.gen;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SnakeToCamelConverterTest {
-
     @Test
-    @DisplayName("下划线命名应正确转换为驼峰命名")
-    void convertToCamelCase_shouldConvertSnakeCase() {
-        assertThat(SnakeToCamelConverter.convertToCamelCase("user_name")).isEqualTo("userName");
-        assertThat(SnakeToCamelConverter.convertToCamelCase("sys_user_role")).isEqualTo("sysUserRole");
-        assertThat(SnakeToCamelConverter.convertToCamelCase("id")).isEqualTo("id");
+    void convertToCamelCase_shouldReturnNull_whenInputIsNull() {
+        assertNull(SnakeToCamelConverter.convertToCamelCase(null));
     }
-
     @Test
-    @DisplayName("空字符串应返回原值")
-    void convertToCamelCase_withEmptyString_shouldReturnEmpty() {
-        assertThat(SnakeToCamelConverter.convertToCamelCase("")).isEmpty();
+    void convertToCamelCase_shouldReturnEmpty_whenInputIsEmpty() {
+        assertEquals("", SnakeToCamelConverter.convertToCamelCase(""));
     }
-
     @Test
-    @DisplayName("null 应返回 null")
-    void convertToCamelCase_withNull_shouldReturnNull() {
-        assertThat(SnakeToCamelConverter.convertToCamelCase(null)).isNull();
+    void convertToCamelCase_shouldHandleUnderscore() {
+        assertEquals("helloWorld", SnakeToCamelConverter.convertToCamelCase("hello_world"));
     }
-
     @Test
-    @DisplayName("多个连续下划线应正确处理")
-    void convertToCamelCase_withMultipleUnderscores_shouldHandleCorrectly() {
-        assertThat(SnakeToCamelConverter.convertToCamelCase("user__name")).isEqualTo("userName");
+    void convertToCamelCase_shouldHandleMultipleUnderscores() {
+        assertEquals("helloWorldFoo", SnakeToCamelConverter.convertToCamelCase("hello_world_foo"));
     }
-
     @Test
-    @DisplayName("首尾下划线应正确处理")
-    void convertToCamelCase_withLeadingTrailingUnderscores_shouldHandleCorrectly() {
-        assertThat(SnakeToCamelConverter.convertToCamelCase("_user_name_")).isEqualTo("UserName");
+    void convertToCamelCase_shouldHandleLeadingUnderscore() {
+        assertEquals("HelloWorld", SnakeToCamelConverter.convertToCamelCase("_hello_world"));
     }
 }

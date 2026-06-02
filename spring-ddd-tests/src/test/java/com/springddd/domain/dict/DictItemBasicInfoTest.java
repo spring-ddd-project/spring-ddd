@@ -2,42 +2,55 @@ package com.springddd.domain.dict;
 
 import com.springddd.domain.dict.exception.DictItemLabelNullException;
 import com.springddd.domain.dict.exception.DictItemValueNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictItemBasicInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        DictItemBasicInfo obj = new DictItemBasicInfo("test", 1, true);
-        assertThat(obj.itemLabel()).isEqualTo("test");
-        assertThat(obj.itemValue()).isEqualTo(1);
-        assertThat(obj.itemStatus()).isEqualTo(true);
+    void shouldCreateWithValidValues() {
+        DictItemBasicInfo info = new DictItemBasicInfo("Label1", 1);
+        assertEquals("Label1", info.itemLabel());
+        assertEquals(1, info.itemValue());
     }
 
     @Test
-    @DisplayName("自定义构造器正常构造")
-    void customConstructor0_withValidValue_shouldCreate() {
-        DictItemBasicInfo obj = new DictItemBasicInfo("test", 1);
-        assertThat(obj).isNotNull();
+    void shouldThrowWhenLabelIsNull() {
+        assertThrows(DictItemLabelNullException.class, () ->
+            new DictItemBasicInfo(null, 1));
     }
 
     @Test
-    @DisplayName("自定义构造器 itemLabel 为 null 应抛异常")
-    void customConstructor0_withNullItemlabel_shouldThrowException() {
-        assertThatThrownBy(() -> new DictItemBasicInfo(null, 1))
-                .isInstanceOf(DictItemLabelNullException.class);
+    void shouldThrowWhenLabelIsEmpty() {
+        assertThrows(DictItemLabelNullException.class, () ->
+            new DictItemBasicInfo("", 1));
     }
 
     @Test
-    @DisplayName("自定义构造器 itemValue 为 null 应抛异常")
-    void customConstructor0_withNullItemvalue_shouldThrowException() {
-        assertThatThrownBy(() -> new DictItemBasicInfo("test", null))
-                .isInstanceOf(DictItemValueNullException.class);
+    void shouldThrowWhenValueIsNull() {
+        assertThrows(DictItemValueNullException.class, () ->
+            new DictItemBasicInfo("Label1", null));
     }
 
+    @Test
+    void equals_shouldWorkForSameValues() {
+        DictItemBasicInfo info1 = new DictItemBasicInfo("Label1", 1);
+        DictItemBasicInfo info2 = new DictItemBasicInfo("Label1", 1);
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValues() {
+        DictItemBasicInfo info1 = new DictItemBasicInfo("Label1", 1);
+        DictItemBasicInfo info2 = new DictItemBasicInfo("Label2", 2);
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        DictItemBasicInfo info = new DictItemBasicInfo("Test", 123);
+        String result = info.toString();
+        assertTrue(result.contains("Test"));
+        assertTrue(result.contains("123"));
+    }
 }

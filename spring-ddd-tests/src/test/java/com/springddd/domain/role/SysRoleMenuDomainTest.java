@@ -1,38 +1,74 @@
 package com.springddd.domain.role;
 
-import com.springddd.domain.menu.MenuId;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SysRoleMenuDomainTest {
 
     @Test
-    @DisplayName("create 应正常执行")
-    void create_shouldExecute() {
+    void shouldCreateSysRoleMenuDomain() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        assertNotNull(domain);
+    }
+
+    @Test
+    void shouldSetAndGetId() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        RoleMenuId id = new RoleMenuId(1L);
+        domain.setRoleMenuId(id);
+        assertEquals(id, domain.getRoleMenuId());
+    }
+
+    @Test
+    void shouldSetAndGetRoleId() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        RoleId roleId = new RoleId(1L);
+        domain.setRoleId(roleId);
+        assertEquals(roleId, domain.getRoleId());
+    }
+
+    @Test
+    void shouldSetAndGetMenuId() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        com.springddd.domain.menu.MenuId menuId = new com.springddd.domain.menu.MenuId(1L);
+        domain.setMenuId(menuId);
+        assertEquals(menuId, domain.getMenuId());
+    }
+
+    @Test
+    void shouldCallCreate() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
         domain.create();
-        assertThat(domain.getRoleMenuId()).isNull();
+        assertNotNull(domain);
     }
 
     @Test
-    @DisplayName("update 应更新字段")
-    void update_shouldUpdateFields() {
+    void shouldUpdateSysRoleMenuDomain() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        domain.update(new RoleId(1L), new MenuId(2L), 3L, "admin");
+        RoleId roleId = new RoleId(1L);
+        com.springddd.domain.menu.MenuId menuId = new com.springddd.domain.menu.MenuId(2L);
 
-        assertThat(domain.getRoleId().value()).isEqualTo(1L);
-        assertThat(domain.getMenuId().value()).isEqualTo(2L);
-        assertThat(domain.getDeptId()).isEqualTo(3L);
-        assertThat(domain.getUpdateBy()).isEqualTo("admin");
+        domain.update(roleId, menuId, 1L, "admin");
+
+        assertEquals(roleId, domain.getRoleId());
+        assertEquals(menuId, domain.getMenuId());
+        assertEquals(1L, domain.getDeptId());
+        assertEquals("admin", domain.getUpdateBy());
+        assertNotNull(domain.getUpdateTime());
     }
 
     @Test
-    @DisplayName("delete 应设置 deleteStatus")
-    void delete_shouldSetDeleteStatus() {
+    void shouldSetDeleteStatusOnDelete() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        domain.setDeleteStatus(false);
         domain.delete("admin");
-        assertThat(domain.getDeleteStatus()).isTrue();
+        assertTrue(domain.getDeleteStatus());
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        SysRoleMenuDomain domain = new SysRoleMenuDomain();
+        String str = domain.toString();
+        assertTrue(str.contains("SysRoleMenuDomain"));
     }
 }

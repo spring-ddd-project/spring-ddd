@@ -53,15 +53,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
-                <configuration>
-                    <dataFile>${jacoco.destFile}</dataFile>
-                    <excludes>
-                        <exclude>**/*MapStructImpl*</exclude>
-                        <exclude>**/dto/*MapStruct*</exclude>
-                        <exclude>**/SpringDDDLauncherApplication*</exclude>
-                    </excludes>
-                </configuration>
+                <version>0.8.11</version>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -71,19 +63,10 @@
                         <configuration>
                             <propertyName>jacoco.agent.arg</propertyName>
                             <append>true</append>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                        <configuration>
-                            <dataFile>${jacoco.destFile}</dataFile>
                             <excludes>
-                                <exclude>**/*MapStructImpl*</exclude>
-                                <exclude>**/dto/*MapStruct*</exclude>
+                                <exclude>**/*MapStructImpl</exclude>
+                                <exclude>**/SpringDDDTestsApplication*</exclude>
+                                <exclude>**/SpringDDDLauncherApplication*</exclude>
                             </excludes>
                         </configuration>
                     </execution>

@@ -1,19 +1,18 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
-
+import com.springddd.domain.util.IdGenerate;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.*;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.LocalDateTime;
 
 @Data
 @Table("leaf_alloc")
-@DataPermissionEntity(name = "号段分配")
 public class LeafAllocEntity {
 
     @Id
+    @IdGenerate
     private Long id;
 
     private String bizTag;
@@ -24,16 +23,21 @@ public class LeafAllocEntity {
 
     private String description;
 
+    @LastModifiedDate
     private LocalDateTime updateTime;
 
+    @Version
     private Integer version;
 
     private Boolean deleteStatus;
 
+    @CreatedBy
     private String createBy;
 
+    @CreatedDate
     private LocalDateTime createTime;
 
+    @LastModifiedBy
     private String updateBy;
 
     private Long deptId;

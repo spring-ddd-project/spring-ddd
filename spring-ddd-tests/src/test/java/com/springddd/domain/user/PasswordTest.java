@@ -1,32 +1,44 @@
 package com.springddd.domain.user;
 
 import com.springddd.domain.user.exception.PasswordNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PasswordTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        Password password = new Password("secret123");
-        assertThat(password.value()).isEqualTo("secret123");
+    void shouldCreatePasswordWithValidValue() {
+        Password password = new Password("pass123");
+        assertEquals("pass123", password.value());
     }
 
     @Test
-    @DisplayName("value 为 null 应抛 PasswordNullException")
-    void constructor_withNullValue_shouldThrowException() {
-        assertThatThrownBy(() -> new Password(null))
-                .isInstanceOf(PasswordNullException.class);
+    void shouldThrowWhenPasswordIsNull() {
+        assertThrows(PasswordNullException.class, () -> new Password(null));
     }
 
     @Test
-    @DisplayName("value 为空字符串应抛 PasswordNullException")
-    void constructor_withEmptyValue_shouldThrowException() {
-        assertThatThrownBy(() -> new Password(""))
-                .isInstanceOf(PasswordNullException.class);
+    void shouldThrowWhenPasswordIsEmpty() {
+        assertThrows(PasswordNullException.class, () -> new Password(""));
+    }
+
+    @Test
+    void equals_shouldWorkForSameValue() {
+        Password password1 = new Password("pass123");
+        Password password2 = new Password("pass123");
+        assertEquals(password1, password2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        Password password1 = new Password("pass123");
+        Password password2 = new Password("pass456");
+        assertNotEquals(password1, password2);
+    }
+
+    @Test
+    void toString_shouldReturnValue() {
+        Password password = new Password("secret");
+        assertEquals("Password[value=secret]", password.toString());
     }
 }

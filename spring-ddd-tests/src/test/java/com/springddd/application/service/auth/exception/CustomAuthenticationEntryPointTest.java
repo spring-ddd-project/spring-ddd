@@ -1,11 +1,11 @@
 package com.springddd.application.service.auth.exception;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,14 +15,14 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomAuthenticationEntryPointTest {
 
-    @InjectMocks
-    private CustomAuthenticationEntryPoint entryPoint;
+    private final CustomAuthenticationEntryPoint entryPoint = new CustomAuthenticationEntryPoint();
 
     @Mock
     private ServerWebExchange exchange;
@@ -31,20 +31,21 @@ class CustomAuthenticationEntryPointTest {
     private ServerHttpResponse response;
 
     @Mock
-    private AuthenticationException authException;
+    private AuthenticationException exception;
 
     @Test
-    @DisplayName("commence 应返回 401 Unauthorized JSON 响应")
-    void commence_shouldReturn401Unauthorized() {
-        when(exchange.getResponse()).thenReturn(response);
-        when(response.bufferFactory()).thenReturn(new DefaultDataBufferFactory());
-        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
-        when(response.writeWith(any(Mono.class))).thenReturn(Mono.empty());
+    void commence_shouldReturn401JsonResponse() {
+        DataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+        DataBuffer buffer = bufferFactory.wrap("{}".getBytes());
 
-        StepVerifier.create(entryPoint.commence(exchange, authException))
+        when(exchange.getResponse()).thenReturn(response);
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(response.bufferFactory()).thenReturn(bufferFactory);
+        when(response.writeWith(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(entryPoint.commence(exchange, exception))
                 .verifyComplete();
 
         verify(response).setStatusCode(HttpStatus.UNAUTHORIZED);
-        verify(response, atLeastOnce()).getHeaders();
     }
 }

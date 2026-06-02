@@ -5,57 +5,9 @@ import org.springframework.util.ObjectUtils;
 
 public record Button(String permission, String api) {
 
-    public Button(String permission) {
-        this(permission, null);
-    }
-
     public Button {
         if (ObjectUtils.isEmpty(permission)) {
             throw new MenuPermissionNullException();
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

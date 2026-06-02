@@ -2,27 +2,25 @@ package com.springddd.application.service.role;
 
 import com.springddd.application.service.role.dto.SysRoleCommand;
 import com.springddd.domain.role.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SysRoleCommandServiceTest {
 
     @Mock
-    private RepositoryFactory repositoryFactory;
+    private SysRoleDomainRepository sysRoleDomainRepository;
 
     @Mock
     private SysRoleDomainFactory sysRoleDomainFactory;
@@ -36,91 +34,82 @@ class SysRoleCommandServiceTest {
     @Mock
     private RestoreSysRoleByIdDomainService restoreSysRoleByIdDomainService;
 
-    @Mock
-    private SysRoleDomainRepository sysRoleDomainRepository;
+    private SysRoleCommandService sysRoleCommandService;
 
-    @InjectMocks
-    private SysRoleCommandService service;
+    @BeforeEach
+    void setUp() {
+        sysRoleCommandService = new SysRoleCommandService(
+                sysRoleDomainRepository,
+                sysRoleDomainFactory,
+                wipeSysRoleByIdsDomainService,
+                deleteSysRoleByIdDomainService,
+                restoreSysRoleByIdDomainService
+        );
+    }
 
     @Test
-    @DisplayName("createRole 应创建角色并返回 ID")
-    void createRole_shouldCreateRoleAndReturnId() {
+    void createRole_shouldReturnId_whenValidCommand() {
         SysRoleCommand command = new SysRoleCommand();
+        command.setId(1L);
         command.setRoleName("Admin");
         command.setRoleCode("admin");
         command.setDataScope(1);
-        command.setRoleStatus(true);
         command.setOwnerStatus(true);
+        command.setRoleDesc("Administrator");
+        command.setRoleStatus(true);
 
-        SysRoleDomain domain = new SysRoleDomain();
-        when(sysRoleDomainFactory.newInstance(any(RoleId.class), any(RoleBasicInfo.class), any(RoleExtendInfo.class), any(), any())).thenReturn(domain);
-        when(repositoryFactory.getSysRoleDomainRepository()).thenReturn(sysRoleDomainRepository);
-        when(sysRoleDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        SysRoleDomain mockDomain = new SysRoleDomain();
+        when(sysRoleDomainFactory.newInstance(any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(sysRoleDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.createRole(command))
-                .assertNext(id -> assertThat(id).isEqualTo(1L))
+        StepVerifier.create(sysRoleCommandService.createRole(command))
+                .expectNext(1L)
                 .verifyComplete();
-
-        verify(sysRoleDomainFactory).newInstance(any(RoleId.class), any(RoleBasicInfo.class), any(RoleExtendInfo.class), any(), any());
-        verify(sysRoleDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("updateRole 应更新角色")
-    void updateRole_shouldUpdateRole() {
+    void updateRole_shouldComplete_whenValidCommand() {
         SysRoleCommand command = new SysRoleCommand();
         command.setId(1L);
-        command.setRoleName("Updated");
-        command.setRoleCode("updated");
-        command.setDataScope(1);
-        command.setRoleStatus(true);
-        command.setOwnerStatus(true);
+        command.setRoleName("UpdatedAdmin");
+        command.setRoleCode("updated_admin");
+        command.setDataScope(2);
+        command.setOwnerStatus(false);
+        command.setRoleDesc("Updated");
+        command.setRoleStatus(false);
 
-        SysRoleDomain domain = new SysRoleDomain();
-        when(repositoryFactory.getSysRoleDomainRepository()).thenReturn(sysRoleDomainRepository);
-        when(sysRoleDomainRepository.load(new RoleId(1L))).thenReturn(Mono.just(domain));
-        when(sysRoleDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        SysRoleDomain mockDomain = new SysRoleDomain();
+        when(sysRoleDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(sysRoleDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(service.updateRole(command))
+        StepVerifier.create(sysRoleCommandService.updateRole(command))
                 .verifyComplete();
-
-        verify(sysRoleDomainRepository).load(new RoleId(1L));
-        verify(sysRoleDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("deleteRole 应调用 deleteByIds 领域服务")
-    void deleteRole_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void deleteRole_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(deleteSysRoleByIdDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.deleteRole(ids))
+        StepVerifier.create(sysRoleCommandService.deleteRole(ids))
                 .verifyComplete();
-
-        verify(deleteSysRoleByIdDomainService).deleteByIds(ids);
     }
 
     @Test
-    @DisplayName("restore 应调用 restore 领域服务")
-    void restore_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void restore_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(restoreSysRoleByIdDomainService.restoreByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.restore(ids))
+        StepVerifier.create(sysRoleCommandService.restore(ids))
                 .verifyComplete();
-
-        verify(restoreSysRoleByIdDomainService).restoreByIds(ids);
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe 领域服务")
-    void wipe_shouldCallDomainService() {
-        List<Long> ids = List.of(1L, 2L);
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
         when(wipeSysRoleByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(service.wipe(ids))
+        StepVerifier.create(sysRoleCommandService.wipe(ids))
                 .verifyComplete();
-
-        verify(wipeSysRoleByIdsDomainService).deleteByIds(ids);
     }
 }

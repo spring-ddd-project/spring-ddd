@@ -2,9 +2,18 @@ package com.springddd.domain.util;
 
 public class IdTemp {
 
-    private static long lastTimestamp = -1L;
-    private static int sequence = 0;
-    private static final int MAX_SEQUENCE = 999;
+    private static long lastTimestamp;
+    private static int sequence;
+    private static final int MAX_SEQUENCE;
+
+    static {
+        lastTimestamp = -1L;
+        sequence = 0;
+        MAX_SEQUENCE = 999;
+    }
+
+    private IdTemp() {
+    }
 
     public static synchronized long generateId() {
         long timestamp = System.currentTimeMillis();
@@ -25,65 +34,4 @@ public class IdTemp {
         return timestamp * 1000 + sequence;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

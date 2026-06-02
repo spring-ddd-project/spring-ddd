@@ -1,11 +1,8 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.gen.ColumnsId;
-import com.springddd.domain.gen.GenColumnsDomain;
+import com.springddd.domain.gen.*;
 import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GenColumnsDomainRepositoryImplTest {
@@ -23,66 +23,101 @@ class GenColumnsDomainRepositoryImplTest {
     @Mock
     private GenColumnsRepository genColumnsRepository;
 
-    @Mock
-    private EntityFactory entityFactory;
-
     @InjectMocks
     private GenColumnsDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findById 和 entityFactory 返回 domain")
-    void load_shouldReturnDomain() {
-        ColumnsId columnsId = new ColumnsId(1L);
+    void load_shouldReturnDomain_whenEntityExists() {
         GenColumnsEntity entity = new GenColumnsEntity();
-        GenColumnsDomain domain = new GenColumnsDomain();
+        entity.setId(1L);
+        entity.setInfoId(1L);
+        entity.setPropColumnKey("id");
+        entity.setPropColumnName("主键");
+        entity.setPropColumnType("bigint");
+        entity.setPropColumnComment("主键ID");
+        entity.setPropJavaType("Long");
+        entity.setPropJavaEntity("Long");
+        entity.setTableVisible(true);
+        entity.setTableOrder(true);
+        entity.setTableFilter(false);
+        entity.setTableFilterComponent((byte) 0);
+        entity.setTableFilterType((byte) 0);
+        entity.setFormComponent((byte) 1);
+        entity.setFormVisible(true);
+        entity.setFormRequired(true);
+        entity.setEn("id");
+        entity.setLocale("zh-CN");
+        entity.setPropDictId(1L);
+        entity.setTypescriptType((byte) 1);
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(genColumnsRepository.findById(1L)).willReturn(Mono.just(entity));
-        given(entityFactory.createGenColumnsDomain(entity)).willReturn(domain);
+        when(genColumnsRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(columnsId))
-                .expectNext(domain)
+        StepVerifier.create(repository.load(new ColumnsId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getId().value());
+                    assertEquals("id", domain.getProp().propColumnKey());
+                    assertEquals("主键", domain.getProp().propColumnName());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        ColumnsId columnsId = new ColumnsId(1L);
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(genColumnsRepository.findById(1L)).thenReturn(Mono.empty());
 
-        given(genColumnsRepository.findById(1L)).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(columnsId))
+        StepVerifier.create(repository.load(new ColumnsId(1L)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应通过 entityFactory 转换并返回 id")
-    void save_shouldReturnId() {
+    void save_shouldReturnId_whenSavingNewAggregate() {
         GenColumnsDomain domain = new GenColumnsDomain();
-        domain.setId(new ColumnsId(1L));
-        GenColumnsEntity entity = new GenColumnsEntity();
+        domain.setId(null);
+        domain.setInfoId(new InfoId(1L));
+        domain.setProp(new Prop("id", "主键", "bigint", "主键ID", "Long", "Long"));
+        domain.setTable(new Table(true, true, false, (byte) 0, (byte) 0));
+        domain.setForm(new Form((byte) 1, true, true));
+        domain.setI18n(new I18n("id", "zh-CN"));
+        domain.setExtendInfo(new GenColumnsExtendInfo(1L, (byte) 1));
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
         GenColumnsEntity savedEntity = new GenColumnsEntity();
         savedEntity.setId(1L);
 
-        given(entityFactory.createGenColumnsEntity(domain)).willReturn(entity);
-        given(genColumnsRepository.save(entity)).willReturn(Mono.just(savedEntity));
+        when(genColumnsRepository.save(any(GenColumnsEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() {
         GenColumnsDomain domain = new GenColumnsDomain();
         domain.setId(new ColumnsId(1L));
+        domain.setInfoId(new InfoId(1L));
+        domain.setProp(new Prop("id", "主键", "bigint", "主键ID", "Long", "Long"));
+        domain.setTable(new Table(true, true, false, (byte) 0, (byte) 0));
+        domain.setForm(new Form((byte) 1, true, true));
+        domain.setI18n(new I18n("id", "zh-CN"));
+        domain.setExtendInfo(new GenColumnsExtendInfo(1L, (byte) 1));
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        given(genColumnsRepository.deleteById(1L)).willReturn(Mono.empty());
+        GenColumnsEntity savedEntity = new GenColumnsEntity();
+        savedEntity.setId(1L);
 
-        StepVerifier.create(repository.delete(domain))
+        when(genColumnsRepository.save(any(GenColumnsEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
-
-        verify(genColumnsRepository).deleteById(1L);
     }
 }

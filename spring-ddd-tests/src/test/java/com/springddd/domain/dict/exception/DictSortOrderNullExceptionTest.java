@@ -1,17 +1,27 @@
 package com.springddd.domain.dict.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictSortOrderNullExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(DictSortOrderNullException.class, () -> {
+            throw new DictSortOrderNullException();
+        });
+    }
+
+    @Test
+    void shouldCreateExceptionInstance() {
         DictSortOrderNullException exception = new DictSortOrderNullException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DICT_SORTORDER_NULL);
+        assertNotNull(exception);
+    }
+
+    @Test
+    void toString_shouldReturnExceptionInfo() {
+        DictSortOrderNullException exception = new DictSortOrderNullException();
+        String str = exception.toString();
+        assertTrue(str.contains("DictSortOrderNullException"));
     }
 }

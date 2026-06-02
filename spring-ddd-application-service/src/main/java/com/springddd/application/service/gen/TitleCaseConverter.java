@@ -2,6 +2,9 @@ package com.springddd.application.service.gen;
 
 public class TitleCaseConverter {
 
+    private TitleCaseConverter() {
+    }
+
     public static String toTitleCase(String input) {
         if (input == null || input.isEmpty()) {
             return input;
@@ -28,64 +31,3 @@ public class TitleCaseConverter {
         return sb.toString();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

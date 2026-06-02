@@ -1,32 +1,44 @@
 package com.springddd.domain.user;
 
 import com.springddd.domain.user.exception.UsernameException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UsernameTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        Username username = new Username("admin");
-        assertThat(username.value()).isEqualTo("admin");
+    void shouldCreateUsernameWithValidValue() {
+        Username username = new Username("user1");
+        assertEquals("user1", username.value());
     }
 
     @Test
-    @DisplayName("value 为 null 应抛 UsernameException")
-    void constructor_withNullValue_shouldThrowException() {
-        assertThatThrownBy(() -> new Username(null))
-                .isInstanceOf(UsernameException.class);
+    void shouldThrowWhenUsernameIsNull() {
+        assertThrows(UsernameException.class, () -> new Username(null));
     }
 
     @Test
-    @DisplayName("value 为空字符串应抛 UsernameException")
-    void constructor_withEmptyValue_shouldThrowException() {
-        assertThatThrownBy(() -> new Username(""))
-                .isInstanceOf(UsernameException.class);
+    void shouldThrowWhenUsernameIsEmpty() {
+        assertThrows(UsernameException.class, () -> new Username(""));
+    }
+
+    @Test
+    void equals_shouldWorkForSameValue() {
+        Username username1 = new Username("user1");
+        Username username2 = new Username("user1");
+        assertEquals(username1, username2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        Username username1 = new Username("user1");
+        Username username2 = new Username("user2");
+        assertNotEquals(username1, username2);
+    }
+
+    @Test
+    void toString_shouldReturnValue() {
+        Username username = new Username("testuser");
+        assertEquals("Username[value=testuser]", username.toString());
     }
 }
