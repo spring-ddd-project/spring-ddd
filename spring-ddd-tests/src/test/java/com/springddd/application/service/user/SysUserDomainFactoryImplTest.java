@@ -1,38 +1,50 @@
 package com.springddd.application.service.user;
 
 import com.springddd.domain.dept.exception.DeptIdNullException;
-import com.springddd.domain.user.*;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.domain.user.Account;
+import com.springddd.domain.user.ExtendInfo;
+import com.springddd.domain.user.Password;
+import com.springddd.domain.user.SysUserDomain;
+import com.springddd.domain.user.Username;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SysUserDomainFactoryImplTest {
 
-    private final SysUserDomainFactoryImpl factory = new SysUserDomainFactoryImpl();
-
     @Test
-    @DisplayName("should create SysUserDomain with correct fields set")
-    void newInstance() {
-        Account account = new Account(new Username("testuser"), new Password("password123"), "test@example.com", "1234567890", false);
-        ExtendInfo extendInfo = new ExtendInfo("avatar.png", true);
-        Long deptId = 1L;
+    void shouldCreateNewInstance() {
+        SysUserDomainFactoryImpl factory = new SysUserDomainFactoryImpl();
 
-        SysUserDomain domain = factory.newInstance(account, extendInfo, deptId);
+        Account account = new Account();
+        account.setUsername(new Username("testuser"));
+        account.setPassword(new Password("password123"));
+        account.setEmail("test@example.com");
+        account.setLockStatus(false);
+
+        ExtendInfo extendInfo = new ExtendInfo();
+        extendInfo.setAvatar("avatar_url");
+        extendInfo.setSex(true);
+
+        SysUserDomain domain = factory.newInstance(account, extendInfo, 1L);
 
         assertNotNull(domain);
         assertEquals(account, domain.getAccount());
         assertEquals(extendInfo, domain.getExtendInfo());
-        assertEquals(deptId, domain.getDeptId());
+        assertEquals(1L, domain.getDeptId());
         assertFalse(domain.getDeleteStatus());
     }
 
     @Test
-    @DisplayName("should throw DeptIdNullException when deptId is null")
-    void newInstanceWithNullDeptId() {
-        Account account = new Account(new Username("testuser"), new Password("password123"), "test@example.com", "1234567890", false);
-        ExtendInfo extendInfo = new ExtendInfo("avatar.png", true);
+    void shouldThrowWhenDeptIdIsNull() {
+        SysUserDomainFactoryImpl factory = new SysUserDomainFactoryImpl();
 
-        assertThrows(DeptIdNullException.class, () -> factory.newInstance(account, extendInfo, null));
+        Account account = new Account();
+        account.setUsername(new Username("testuser"));
+        account.setPassword(new Password("password123"));
+
+        ExtendInfo extendInfo = new ExtendInfo();
+
+        assertThrows(DeptIdNullException.class, () ->
+            factory.newInstance(account, extendInfo, null));
     }
 }

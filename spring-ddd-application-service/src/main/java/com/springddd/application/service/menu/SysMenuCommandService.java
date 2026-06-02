@@ -2,7 +2,6 @@ package com.springddd.application.service.menu;
 
 import com.springddd.application.service.menu.dto.SysMenuCommand;
 import com.springddd.domain.menu.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -15,7 +14,7 @@ public class SysMenuCommandService {
 
     private final SysMenuDomainFactory sysMenuDomainFactory;
 
-    private final RepositoryFactory repositoryFactory;
+    private final SysMenuDomainRepository sysMenuDomainRepository;
 
     private final WipeSysMenuByIdsDomainService wipeSysMenuByIdsDomainService;
 
@@ -26,7 +25,7 @@ public class SysMenuCommandService {
     private final RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
 
     public Mono<Long> create(SysMenuCommand command) {
-        Catalog catalog = new Catalog(null, null, command.getRedirect());
+        Catalog catalog = new Catalog(command.getRedirect());
         Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
         Button button = new Button(command.getPermission(), command.getApi());
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
@@ -41,12 +40,12 @@ public class SysMenuCommandService {
                 new MenuId(command.getParentId()), command.getName(), catalog, menu, button, menuExtendInfo, command.getDeptId());
         sysMenuDomain.create();
 
-        return repositoryFactory.getSysMenuDomainRepository().save(sysMenuDomain);
+        return sysMenuDomainRepository.save(sysMenuDomain);
     }
 
     public Mono<Void> update(SysMenuCommand command) {
-        return repositoryFactory.getSysMenuDomainRepository().load(new MenuId(command.getId())).flatMap(domain -> {
-            Catalog catalog = new Catalog(null, null, command.getRedirect());
+        return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
+            Catalog catalog = new Catalog(command.getRedirect());
             Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
             Button button = new Button(command.getPermission(), command.getApi());
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
@@ -62,7 +61,7 @@ public class SysMenuCommandService {
 
             domain.update(new MenuId(command.getParentId()), dummy.getName(), dummy.getCatalog(), dummy.getMenu(), dummy.getButton(), dummy.getMenuExtendInfo(), command.getDeptId());
 
-            return repositoryFactory.getSysMenuDomainRepository().save(domain);
+            return sysMenuDomainRepository.save(domain);
         }).then();
     }
 
@@ -78,66 +77,3 @@ public class SysMenuCommandService {
         return restoreSysMenuByIdDomainService.restoreByIds(ids);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

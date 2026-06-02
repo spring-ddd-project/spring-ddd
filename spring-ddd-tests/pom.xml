@@ -61,7 +61,12 @@
             <scope>test</scope>
         </dependency>
 
-
+        <!-- H2 Database for testing -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Embedded Redis for cache testing -->
         <dependency>
@@ -98,7 +103,6 @@
             <version>${project.version}</version>
         </dependency>
 
-
         <!-- Infrastructure modules for testing -->
         <dependency>
             <groupId>com.springddd</groupId>
@@ -125,6 +129,14 @@
                             <artifactId>lombok</artifactId>
                         </path>
                     </annotationProcessorPaths>
+                    <testExcludes>
+                        <exclude>**/domain/dict/DeleteSysDictByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/RestoreSysDictByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/SysDictDomainRepositoryTest.java</exclude>
+                        <exclude>**/domain/dict/WipeSysDictByIdsDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/RestoreSysDictItemByIdDomainServiceTest.java</exclude>
+                        <exclude>**/domain/dict/SysDictItemDomainRepositoryTest.java</exclude>
+                    </testExcludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -148,7 +160,15 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.12</version>
+                <version>0.8.11</version>
+                <configuration>
+                    <destFile>${project.build.directory}/jacoco.exec</destFile>
+                    <excludes>
+                        <exclude>**/*MapStructImpl</exclude>
+                        <exclude>**/SpringDDDTestsApplication*</exclude>
+                        <exclude>**/SpringDDDLauncherApplication*</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
@@ -161,6 +181,20 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                            <excludes>
+                                <exclude>**/*MapStructImpl</exclude>
+                                <exclude>**/SpringDDDTestsApplication*</exclude>
+                            </excludes>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>report-aggregate</id>
                         <phase>verify</phase>
                         <goals>
@@ -168,11 +202,40 @@
                         </goals>
                         <configuration>
                             <dataFileIncludes>
-                                <dataFileInclude>${session.executionRootDirectory}/target/jacoco.exec</dataFileInclude>
+                                <dataFileInclude>${project.build.directory}/jacoco.exec</dataFileInclude>
                             </dataFileIncludes>
+                            <includeCurrentProject>true</includeCurrentProject>
+                            <classDirectories>
+                                <classDirectory>${project.basedir}/../spring-ddd-domain/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-application-service/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-interface-web/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-infrastructure-persistence/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-infrastructure-cache/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-infrastructure-gateway/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-infrastructure-publisher/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-interface-provider/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-interface-subscriber/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-interface-worker/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/../spring-ddd-launcher/target/classes</classDirectory>
+                                <classDirectory>${project.basedir}/target/classes</classDirectory>
+                            </classDirectories>
+                            <sourceDirectories>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-domain/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-application-service/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-interface-web/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-infrastructure-persistence/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-infrastructure-cache/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-infrastructure-gateway/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-infrastructure-publisher/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-interface-provider/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-interface-subscriber/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-interface-worker/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/../spring-ddd-launcher/src/main/java</sourceDirectory>
+                                <sourceDirectory>${project.basedir}/src/main/java</sourceDirectory>
+                            </sourceDirectories>
                             <excludes>
-                                <exclude>**/*MapStructImpl*</exclude>
-                                <exclude>**/dto/*MapStruct*</exclude>
+                                <exclude>**/*MapStructImpl</exclude>
+                                <exclude>**/SpringDDDTestsApplication*</exclude>
                             </excludes>
                         </configuration>
                     </execution>

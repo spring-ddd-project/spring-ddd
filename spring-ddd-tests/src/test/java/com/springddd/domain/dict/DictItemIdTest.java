@@ -1,17 +1,39 @@
 package com.springddd.domain.dict;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictItemIdTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        DictItemId obj = new DictItemId(1L);
-        assertThat(obj.value()).isEqualTo(1L);
+    void shouldCreateDictItemIdWithValidValue() {
+        DictItemId dictItemId = new DictItemId(1L);
+        assertEquals(1L, dictItemId.value());
     }
 
+    @Test
+    void shouldCreateDictItemIdWithZero() {
+        DictItemId dictItemId = new DictItemId(0L);
+        assertEquals(0L, dictItemId.value());
+    }
+
+    @Test
+    void equals_shouldWorkForSameValue() {
+        DictItemId id1 = new DictItemId(1L);
+        DictItemId id2 = new DictItemId(1L);
+        assertEquals(id1, id2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentValue() {
+        DictItemId id1 = new DictItemId(1L);
+        DictItemId id2 = new DictItemId(2L);
+        assertNotEquals(id1, id2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        DictItemId dictItemId = new DictItemId(456L);
+        assertEquals("DictItemId[value=456]", dictItemId.toString());
+    }
 }

@@ -2,6 +2,9 @@ package com.springddd.application.service.gen;
 
 public class SnakeToCamelConverter {
 
+    private SnakeToCamelConverter() {
+    }
+
     public static String convertToCamelCase(String snakeCase) {
         if (snakeCase == null || snakeCase.isEmpty()) {
             return snakeCase;
@@ -26,47 +29,3 @@ public class SnakeToCamelConverter {
         return camelCaseString.toString();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

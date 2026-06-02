@@ -1,4 +1,11 @@
 package com.springddd.domain.user;
 
-public record ExtendInfo(String avatar, Boolean sex) {
+import lombok.Data;
+
+@Data
+public class ExtendInfo {
+
+    private String avatar;
+
+    private Boolean sex;
 }

@@ -1,30 +1,57 @@
 package com.springddd.infrastructure.cache.util;
 
 import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CacheDefinitionTest {
 
     @Test
-    void testBuildKey() {
-        CacheDefinition def = new CacheDefinition("user:%s:%d", Duration.ofMinutes(5));
-        assertThat(def.buildKey("admin", 1)).isEqualTo("user:admin:1");
+    void shouldCreateCacheDefinitionWithPatternOnly() {
+        CacheDefinition def = CacheDefinition.of("user:%s:id");
+        assertEquals("user:%s:id", def.pattern());
+        assertNull(def.ttl());
     }
 
     @Test
-    void testOfWithTtl() {
-        CacheDefinition def = CacheDefinition.of("test:%s", Duration.ofHours(1));
-        assertThat(def.pattern()).isEqualTo("test:%s");
-        assertThat(def.ttl()).isEqualTo(Duration.ofHours(1));
+    void shouldCreateCacheDefinitionWithPatternAndTtl() {
+        CacheDefinition def = CacheDefinition.of("user:%s:token", Duration.ofMinutes(30));
+        assertEquals("user:%s:token", def.pattern());
+        assertEquals(Duration.ofMinutes(30), def.ttl());
     }
 
     @Test
-    void testOfWithoutTtl() {
-        CacheDefinition def = CacheDefinition.of("test:%s");
-        assertThat(def.pattern()).isEqualTo("test:%s");
-        assertThat(def.ttl()).isNull();
+    void shouldBuildKeyWithArguments() {
+        CacheDefinition def = CacheDefinition.of("user:%s:detail");
+        String key = def.buildKey("123");
+        assertEquals("user:123:detail", key);
+    }
+
+    @Test
+    void shouldBuildKeyWithMultipleArguments() {
+        CacheDefinition def = CacheDefinition.of("user:%s:files:%s");
+        String key = def.buildKey("123", "456");
+        assertEquals("user:123:files:456", key);
+    }
+
+    @Test
+    void shouldBuildKeyWithNoArguments() {
+        CacheDefinition def = CacheDefinition.of("all:users");
+        String key = def.buildKey();
+        assertEquals("all:users", key);
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        CacheDefinition def1 = CacheDefinition.of("user:%s:id", Duration.ofHours(1));
+        CacheDefinition def2 = CacheDefinition.of("user:%s:id", Duration.ofHours(1));
+        assertEquals(def1, def2);
+    }
+
+    @Test
+    void toString_shouldReturnValueAsString() {
+        CacheDefinition def = CacheDefinition.of("user:%s:token");
+        String str = def.toString();
+        assertTrue(str.contains("CacheDefinition"));
     }
 }

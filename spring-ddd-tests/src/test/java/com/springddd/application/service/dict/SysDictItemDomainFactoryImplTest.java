@@ -4,20 +4,17 @@ import com.springddd.domain.dict.DictId;
 import com.springddd.domain.dict.DictItemBasicInfo;
 import com.springddd.domain.dict.DictItemExtendInfo;
 import com.springddd.domain.dict.SysDictItemDomain;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 class SysDictItemDomainFactoryImplTest {
 
-    private final SysDictItemDomainFactoryImpl factory = new SysDictItemDomainFactoryImpl();
-
     @Test
-    @DisplayName("should create SysDictItemDomain with correct fields set")
-    void newInstance() {
+    void shouldCreateNewInstance() {
+        SysDictItemDomainFactoryImpl factory = new SysDictItemDomainFactoryImpl();
+
         DictId dictId = new DictId(1L);
-        DictItemBasicInfo basicInfo = new DictItemBasicInfo("Label", 1, true);
+        DictItemBasicInfo basicInfo = new DictItemBasicInfo("Label", 1);
         DictItemExtendInfo extendInfo = new DictItemExtendInfo(1, true);
 
         SysDictItemDomain domain = factory.newInstance(dictId, basicInfo, extendInfo);
@@ -27,5 +24,18 @@ class SysDictItemDomainFactoryImplTest {
         assertEquals(basicInfo, domain.getItemBasicInfo());
         assertEquals(extendInfo, domain.getItemExtendInfo());
         assertFalse(domain.getDeleteStatus());
+    }
+
+    @Test
+    void shouldCreateDomainWithNullDictId() {
+        SysDictItemDomainFactoryImpl factory = new SysDictItemDomainFactoryImpl();
+
+        DictItemBasicInfo basicInfo = new DictItemBasicInfo("Label", 1);
+        DictItemExtendInfo extendInfo = new DictItemExtendInfo(1, true);
+
+        SysDictItemDomain domain = factory.newInstance(null, basicInfo, extendInfo);
+
+        assertNotNull(domain);
+        assertNull(domain.getDictId());
     }
 }

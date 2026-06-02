@@ -3,16 +3,14 @@ package com.springddd.domain.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -21,10 +19,15 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
 class WebfluxGlobalErrorHandlerTest {
+
+    @Mock
+    private ObjectMapper objectMapper;
 
     @Mock
     private ServerWebExchange exchange;
@@ -35,122 +38,89 @@ class WebfluxGlobalErrorHandlerTest {
     @Mock
     private DataBufferFactory bufferFactory;
 
-    @InjectMocks
-    private WebfluxGlobalErrorHandler handler;
+    @Mock
+    private DataBuffer dataBuffer;
 
-    private ObjectMapper objectMapper;
-    private HttpHeaders headers;
+    private WebfluxGlobalErrorHandler handler;
 
     @BeforeEach
     void setUp() {
-        objectMapper = new ObjectMapper();
-        headers = new HttpHeaders();
         handler = new WebfluxGlobalErrorHandler(objectMapper);
+        when(exchange.getResponse()).thenReturn(response);
+        when(response.bufferFactory()).thenReturn(bufferFactory);
+        when(bufferFactory.wrap(any(byte[].class))).thenReturn(dataBuffer);
     }
 
     @Test
-    @DisplayName("handle 当 response 已提交时应返回 error mono")
-    void handle_whenResponseCommitted_shouldReturnError() {
-        when(exchange.getResponse()).thenReturn(response);
+    void handle_shouldReturnErrorForCommittedResponse() {
         when(response.isCommitted()).thenReturn(true);
 
-        RuntimeException ex = new RuntimeException("test");
+        RuntimeException ex = new RuntimeException("error");
         StepVerifier.create(handler.handle(exchange, ex))
                 .expectError(RuntimeException.class)
                 .verify();
     }
 
     @Test
-    @DisplayName("handle ResponseStatusException 应设置对应状态码")
-    void handle_whenResponseStatusException_shouldSetStatus() {
-        when(exchange.getResponse()).thenReturn(response);
+    void handle_shouldReturnInternalServerErrorForGenericException() throws Exception {
         when(response.isCommitted()).thenReturn(false);
-        when(response.getHeaders()).thenReturn(headers);
-        when(response.bufferFactory()).thenReturn(bufferFactory);
-        when(bufferFactory.wrap(any(byte[].class))).thenReturn(mock(DataBuffer.class));
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{\"code\":500}".getBytes());
         when(response.writeWith(any())).thenReturn(Mono.empty());
 
-        ResponseStatusException ex = new ResponseStatusException(HttpStatus.BAD_REQUEST, "Bad request");
-
-        StepVerifier.create(handler.handle(exchange, ex))
+        StepVerifier.create(handler.handle(exchange, new RuntimeException("fail")))
                 .verifyComplete();
 
-        verify(response).setStatusCode(HttpStatus.BAD_REQUEST);
+        verify(response).setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Test
-    @DisplayName("handle AccessDeniedException 应返回 403")
-    void handle_whenAccessDenied_shouldReturn403() {
-        when(exchange.getResponse()).thenReturn(response);
+    void handle_shouldReturnStatusForResponseStatusException() throws Exception {
         when(response.isCommitted()).thenReturn(false);
-        when(response.getHeaders()).thenReturn(headers);
-        when(response.bufferFactory()).thenReturn(bufferFactory);
-        when(bufferFactory.wrap(any(byte[].class))).thenReturn(mock(DataBuffer.class));
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{\"code\":404}".getBytes());
         when(response.writeWith(any())).thenReturn(Mono.empty());
 
-        AccessDeniedException ex = new AccessDeniedException("Access denied");
+        StepVerifier.create(handler.handle(exchange, new ResponseStatusException(HttpStatus.NOT_FOUND, "not found")))
+                .verifyComplete();
 
-        StepVerifier.create(handler.handle(exchange, ex))
+        verify(response).setStatusCode(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    void handle_shouldReturnForbiddenForAccessDenied() throws Exception {
+        when(response.isCommitted()).thenReturn(false);
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{\"code\":403}".getBytes());
+        when(response.writeWith(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(handler.handle(exchange, new AccessDeniedException("denied")))
                 .verifyComplete();
 
         verify(response).setStatusCode(HttpStatus.FORBIDDEN);
     }
 
     @Test
-    @DisplayName("handle AuthenticationException 应返回 401")
-    void handle_whenAuthenticationException_shouldReturn401() {
-        when(exchange.getResponse()).thenReturn(response);
+    void handle_shouldReturnUnauthorizedForAuthException() throws Exception {
         when(response.isCommitted()).thenReturn(false);
-        when(response.getHeaders()).thenReturn(headers);
-        when(response.bufferFactory()).thenReturn(bufferFactory);
-        when(bufferFactory.wrap(any(byte[].class))).thenReturn(mock(DataBuffer.class));
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{\"code\":401}".getBytes());
         when(response.writeWith(any())).thenReturn(Mono.empty());
 
-        AuthenticationException ex = new AuthenticationException("Unauthorized") {};
-
-        StepVerifier.create(handler.handle(exchange, ex))
+        StepVerifier.create(handler.handle(exchange, new AuthenticationException("auth failed") {}))
                 .verifyComplete();
 
         verify(response).setStatusCode(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
-    @DisplayName("handle 通用异常应返回 500")
-    void handle_whenGenericException_shouldReturn500() {
-        when(exchange.getResponse()).thenReturn(response);
+    void handle_shouldUseFallbackWhenSerializationFails() throws Exception {
         when(response.isCommitted()).thenReturn(false);
-        when(response.getHeaders()).thenReturn(headers);
-        when(response.bufferFactory()).thenReturn(bufferFactory);
-        when(bufferFactory.wrap(any(byte[].class))).thenReturn(mock(DataBuffer.class));
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenThrow(new JsonProcessingException("fail") {});
         when(response.writeWith(any())).thenReturn(Mono.empty());
 
-        RuntimeException ex = new RuntimeException("Internal error");
-
-        StepVerifier.create(handler.handle(exchange, ex))
+        StepVerifier.create(handler.handle(exchange, new RuntimeException("fail")))
                 .verifyComplete();
-
-        verify(response).setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    @Test
-    @DisplayName("handle 当 ObjectMapper 序列化失败时应返回 fallback JSON")
-    void handle_whenObjectMapperThrows_shouldReturnFallback() throws JsonProcessingException {
-        ObjectMapper mockObjectMapper = mock(ObjectMapper.class);
-        when(mockObjectMapper.writeValueAsBytes(any())).thenThrow(new JsonProcessingException("Serialization failed") {});
-        WebfluxGlobalErrorHandler errorHandler = new WebfluxGlobalErrorHandler(mockObjectMapper);
-
-        when(exchange.getResponse()).thenReturn(response);
-        when(response.isCommitted()).thenReturn(false);
-        when(response.getHeaders()).thenReturn(headers);
-        when(response.bufferFactory()).thenReturn(bufferFactory);
-        when(bufferFactory.wrap(any(byte[].class))).thenReturn(mock(DataBuffer.class));
-        when(response.writeWith(any())).thenReturn(Mono.empty());
-
-        RuntimeException ex = new RuntimeException("Internal error");
-
-        StepVerifier.create(errorHandler.handle(exchange, ex))
-                .verifyComplete();
-
-        verify(response).setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

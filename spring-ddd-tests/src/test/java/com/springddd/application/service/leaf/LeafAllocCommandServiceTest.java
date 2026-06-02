@@ -1,102 +1,117 @@
 package com.springddd.application.service.leaf;
 
 import com.springddd.application.service.leaf.dto.LeafAllocCommand;
-import com.springddd.domain.leaf.LeafAllocDomain;
-import com.springddd.domain.leaf.LeafAllocDomainRepository;
-import com.springddd.domain.leaf.LeafAllocId;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
+import com.springddd.domain.leaf.*;
+import com.springddd.domain.leaf.service.*;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.List;
-
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@MockitoSettings(strictness = Strictness.LENIENT)
 class LeafAllocCommandServiceTest {
-
-    @Mock
-    private RepositoryFactory repositoryFactory;
 
     @Mock
     private LeafAllocDomainRepository leafAllocDomainRepository;
 
-    @InjectMocks
+    @Mock
+    private LeafAllocDomainFactory leafAllocDomainFactory;
+
+    @Mock
+    private CreateLeafAllocDomainService createLeafAllocDomainService;
+
+    @Mock
+    private UpdateLeafAllocDomainService updateLeafAllocDomainService;
+
+    @Mock
+    private DeleteLeafAllocByIdDomainService deleteLeafAllocByIdDomainService;
+
+    @Mock
+    private RestoreLeafAllocByIdDomainService restoreLeafAllocByIdDomainService;
+
+    @Mock
+    private WipeLeafAllocByIdDomainService wipeLeafAllocByIdDomainService;
+
     private LeafAllocCommandService service;
 
     @BeforeEach
     void setUp() {
-        when(repositoryFactory.getLeafAllocDomainRepository()).thenReturn(leafAllocDomainRepository);
+        service = new LeafAllocCommandService(
+                leafAllocDomainRepository,
+                leafAllocDomainFactory,
+                createLeafAllocDomainService,
+                updateLeafAllocDomainService,
+                deleteLeafAllocByIdDomainService,
+                restoreLeafAllocByIdDomainService,
+                wipeLeafAllocByIdDomainService
+        );
     }
 
     @Test
-    @DisplayName("create 应保存新 domain")
-    void create_shouldSaveDomain() {
+    void create_shouldReturnId_whenValidCommand() {
         LeafAllocCommand command = new LeafAllocCommand();
-        command.setId(1L);
         command.setBizTag("test");
-        command.setMaxId(100L);
-        command.setStep(10);
+        command.setMaxId(1000L);
+        command.setStep(100);
         command.setDescription("desc");
+        command.setDeptId(1L);
 
-        when(leafAllocDomainRepository.save(any(LeafAllocDomain.class))).thenReturn(Mono.just(1L));
+        LeafAllocDomain domain = new LeafAllocDomain();
+        domain.setLeafAllocId(new LeafAllocId(1L));
+        when(leafAllocDomainFactory.newInstance(any(), any(), any(), any(), any())).thenReturn(domain);
+        when(createLeafAllocDomainService.create(any(LeafAllocDomain.class))).thenReturn(Mono.just(domain));
 
         StepVerifier.create(service.create(command))
                 .expectNext(1L)
                 .verifyComplete();
-
-        verify(leafAllocDomainRepository).save(any(LeafAllocDomain.class));
     }
 
     @Test
-    @DisplayName("update 应加载并更新 domain")
-    void update_shouldLoadAndUpdate() {
+    void update_shouldComplete_whenValidCommand() {
         LeafAllocCommand command = new LeafAllocCommand();
+        command.setId(1L);
         command.setBizTag("test");
-        command.setMaxId(200L);
-        command.setStep(20);
-        command.setDescription("updated");
+        command.setMaxId(1000L);
+        command.setStep(100);
+        command.setDescription("desc");
+        command.setDeptId(1L);
 
-        LeafAllocDomain domain = mock(LeafAllocDomain.class);
-        when(leafAllocDomainRepository.load(new LeafAllocId("test"))).thenReturn(Mono.just(domain));
-        when(leafAllocDomainRepository.save(domain)).thenReturn(Mono.just(1L));
+        LeafAllocDomain domain = new LeafAllocDomain();
+        when(leafAllocDomainRepository.load(any(LeafAllocId.class))).thenReturn(Mono.just(domain));
+        when(updateLeafAllocDomainService.update(any(), any(), any(), any(), any(), any())).thenReturn(Mono.just(domain));
 
         StepVerifier.create(service.update(command))
                 .verifyComplete();
-
-        verify(domain).update(any(), any());
-        verify(leafAllocDomainRepository).save(domain);
     }
 
     @Test
-    @DisplayName("delete 应返回 empty")
-    void delete_shouldReturnEmpty() {
-        StepVerifier.create(service.delete(List.of(1L)))
+    void delete_shouldDelegateToDomainService() {
+        when(deleteLeafAllocByIdDomainService.delete(any(LeafAllocId.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.delete(1L))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("wipe 应返回 empty")
-    void wipe_shouldReturnEmpty() {
-        StepVerifier.create(service.wipe(List.of(1L)))
+    void restore_shouldDelegateToDomainService() {
+        when(restoreLeafAllocByIdDomainService.restore(any(LeafAllocId.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.restore(1L))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("restore 应返回 empty")
-    void restore_shouldReturnEmpty() {
-        StepVerifier.create(service.restore(List.of(1L)))
+    void wipe_shouldDelegateToDomainService() {
+        when(wipeLeafAllocByIdDomainService.wipe(any(LeafAllocId.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.wipe(1L))
                 .verifyComplete();
     }
 }

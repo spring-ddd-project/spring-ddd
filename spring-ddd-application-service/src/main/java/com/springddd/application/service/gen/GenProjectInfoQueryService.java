@@ -4,11 +4,11 @@ import com.springddd.application.service.gen.dto.GenProjectInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenProjectInfoQuery;
 import com.springddd.application.service.gen.dto.GenProjectInfoView;
 import com.springddd.application.service.gen.dto.GenProjectInfoViewMapStruct;
-import com.springddd.application.service.permission.BaseQueryService;
 import com.springddd.domain.gen.exception.TableNameNullException;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,9 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class GenProjectInfoQueryService extends BaseQueryService<GenProjectInfoEntity> {
+public class GenProjectInfoQueryService {
+
+    private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
     private final GenProjectInfoViewMapStruct genProjectInfoViewMapStruct;
 
@@ -28,14 +30,12 @@ public class GenProjectInfoQueryService extends BaseQueryService<GenProjectInfoE
         if (!ObjectUtils.isEmpty(query.getTableName())) {
             criteria = criteria.and(GenProjectInfoPageQuery.Fields.tableName).is(query.getTableName());
         }
-        return applyDataScope(criteria, GenProjectInfoEntity.class).flatMap(scopedCriteria -> {
-            Query qry = Query.query(scopedCriteria)
-                    .limit(Integer.MAX_VALUE)
-                    .offset(0);
-            Mono<List<GenProjectInfoView>> list = queryFactory.getR2dbcEntityTemplate().select(GenProjectInfoEntity.class).matching(qry).all().collectList().map(genProjectInfoViewMapStruct::toViews);
-            Mono<Long> count = queryFactory.getR2dbcEntityTemplate().count(Query.query(scopedCriteria), GenProjectInfoEntity.class);
-            return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
-        });
+        Query qry = Query.query(criteria)
+                .limit(Integer.MAX_VALUE)
+                .offset(0);
+        Mono<List<GenProjectInfoView>> list = r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(qry).all().collectList().map(genProjectInfoViewMapStruct::toViews);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenProjectInfoEntity.class);
+        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
     public Mono<GenProjectInfoView> queryGenInfoByTableName(String tableName) {
@@ -48,6 +48,6 @@ public class GenProjectInfoQueryService extends BaseQueryService<GenProjectInfoE
                 .where(GenProjectInfoQuery.Fields.deleteStatus).is(false)
                 .and(GenProjectInfoQuery.Fields.tableName).is(tableName);
         Query qry = Query.query(criteria);
-        return queryFactory.getR2dbcEntityTemplate().select(GenProjectInfoEntity.class).matching(qry).one().map(genProjectInfoViewMapStruct::toView);
+        return r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(qry).one().map(genProjectInfoViewMapStruct::toView);
     }
 }

@@ -2,7 +2,6 @@ package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenProjectInfoCommand;
 import com.springddd.domain.gen.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class GenProjectInfoCommandService {
 
-    private final RepositoryFactory repositoryFactory;
+    private final GenProjectInfoDomainRepository genProjectInfoDomainRepository;
 
     private final GenProjectInfoDomainFactory genProjectInfoDomainFactory;
 
@@ -21,25 +20,25 @@ public class GenProjectInfoCommandService {
 
     public Mono<Long> create(GenProjectInfoCommand command) {
         ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
-        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName(), null);
+        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
         GenProjectInfoDomain genInfoDomain = genProjectInfoDomainFactory.newInstance(projectInfo, extendInfo);
         genInfoDomain.create();
-        return repositoryFactory.getGenProjectInfoDomainRepository().save(genInfoDomain);
+        return genProjectInfoDomainRepository.save(genInfoDomain);
     }
 
     public Mono<Void> update(GenProjectInfoCommand command) {
-        return repositoryFactory.getGenProjectInfoDomainRepository().load(new InfoId(command.getId())).flatMap(domain -> {
+        return genProjectInfoDomainRepository.load(new InfoId(command.getId())).flatMap(domain -> {
             ProjectInfo projectInfo = new ProjectInfo(command.getTableName(), command.getPackageName(), command.getClassName(), command.getModuleName(), command.getProjectName());
-            GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName(), null);
+            GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo(command.getRequestName());
             domain.update(projectInfo, extendInfo);
-            return repositoryFactory.getGenProjectInfoDomainRepository().save(domain);
+            return genProjectInfoDomainRepository.save(domain);
         }).then();
     }
 
     public Mono<Void> delete(GenProjectInfoCommand command) {
-        return repositoryFactory.getGenProjectInfoDomainRepository().load(new InfoId(command.getId())).flatMap(domain -> {
+        return genProjectInfoDomainRepository.load(new InfoId(command.getId())).flatMap(domain -> {
             domain.delete();
-            return repositoryFactory.getGenProjectInfoDomainRepository().save(domain);
+            return genProjectInfoDomainRepository.save(domain);
         }).then();
     }
 
@@ -47,66 +46,3 @@ public class GenProjectInfoCommandService {
         return wipeGenInfoByIdsDomainService.wipeByIds(ids);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

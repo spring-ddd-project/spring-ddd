@@ -2,59 +2,92 @@ package com.springddd.domain.menu;
 
 import com.springddd.domain.menu.exception.MenuComponentNullException;
 import com.springddd.domain.menu.exception.MenuPathNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MenuTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        Menu menu = new Menu("/sys/user", "system/user/index", true, false, false);
-        assertThat(menu.menuPath()).isEqualTo("/sys/user");
-        assertThat(menu.component()).isEqualTo("system/user/index");
-        assertThat(menu.affixTab()).isTrue();
-        assertThat(menu.noBasicLayout()).isFalse();
-        assertThat(menu.embedded()).isFalse();
+    void shouldCreateMenuWithValidValues() {
+        Menu menu = new Menu("/path", "/component.vue", false, false, false);
+        assertEquals("/path", menu.menuPath());
+        assertEquals("/component.vue", menu.component());
+        assertFalse(menu.affixTab());
+        assertFalse(menu.noBasicLayout());
+        assertFalse(menu.embedded());
     }
 
     @Test
-    @DisplayName("menuPath 为 null 应抛 MenuPathNullException")
-    void constructor_withNullMenuPath_shouldThrowException() {
-        assertThatThrownBy(() -> new Menu(null, "system/user/index", true, false, false))
-                .isInstanceOf(MenuPathNullException.class);
+    void shouldCreateMenuWithTrueFlags() {
+        Menu menu = new Menu("/path", "/component.vue", true, true, true);
+        assertEquals("/path", menu.menuPath());
+        assertEquals("/component.vue", menu.component());
+        assertTrue(menu.affixTab());
+        assertTrue(menu.noBasicLayout());
+        assertTrue(menu.embedded());
     }
 
     @Test
-    @DisplayName("menuPath 为空字符串应抛 MenuPathNullException")
-    void constructor_withEmptyMenuPath_shouldThrowException() {
-        assertThatThrownBy(() -> new Menu("", "system/user/index", true, false, false))
-                .isInstanceOf(MenuPathNullException.class);
+    void shouldThrowMenuPathNullExceptionWhenPathIsNull() {
+        assertThrows(MenuPathNullException.class, () -> {
+            new Menu(null, "/component.vue", false, false, false);
+        });
     }
 
     @Test
-    @DisplayName("component 为 null 应抛 MenuComponentNullException")
-    void constructor_withNullComponent_shouldThrowException() {
-        assertThatThrownBy(() -> new Menu("/sys/user", null, true, false, false))
-                .isInstanceOf(MenuComponentNullException.class);
+    void shouldThrowMenuPathNullExceptionWhenPathIsEmpty() {
+        assertThrows(MenuPathNullException.class, () -> {
+            new Menu("", "/component.vue", false, false, false);
+        });
     }
 
     @Test
-    @DisplayName("component 为空字符串应抛 MenuComponentNullException")
-    void constructor_withEmptyComponent_shouldThrowException() {
-        assertThatThrownBy(() -> new Menu("/sys/user", "", true, false, false))
-                .isInstanceOf(MenuComponentNullException.class);
+    void shouldThrowMenuComponentNullExceptionWhenComponentIsNull() {
+        assertThrows(MenuComponentNullException.class, () -> {
+            new Menu("/path", null, false, false, false);
+        });
     }
 
     @Test
-    @DisplayName("可选字段可为 null")
-    void constructor_withNullOptionalFields_shouldCreate() {
-        Menu menu = new Menu("/sys/user", "system/user/index", null, null, null);
-        assertThat(menu.affixTab()).isNull();
-        assertThat(menu.noBasicLayout()).isNull();
-        assertThat(menu.embedded()).isNull();
+    void shouldThrowMenuComponentNullExceptionWhenComponentIsEmpty() {
+        assertThrows(MenuComponentNullException.class, () -> {
+            new Menu("/path", "", false, false, false);
+        });
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        Menu menu1 = new Menu("/path", "/component.vue", false, false, false);
+        Menu menu2 = new Menu("/path", "/component.vue", false, false, false);
+        assertEquals(menu1, menu2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentPath() {
+        Menu menu1 = new Menu("/path1", "/component.vue", false, false, false);
+        Menu menu2 = new Menu("/path2", "/component.vue", false, false, false);
+        assertNotEquals(menu1, menu2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentComponent() {
+        Menu menu1 = new Menu("/path", "/component1.vue", false, false, false);
+        Menu menu2 = new Menu("/path", "/component2.vue", false, false, false);
+        assertNotEquals(menu1, menu2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        Menu menu1 = new Menu("/path", "/component.vue", false, false, false);
+        Menu menu2 = new Menu("/path", "/component.vue", false, false, false);
+        assertEquals(menu1.hashCode(), menu2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        Menu menu = new Menu("/path", "/component.vue", false, false, false);
+        String str = menu.toString();
+        assertTrue(str.contains("/path"));
+        assertTrue(str.contains("/component.vue"));
     }
 }

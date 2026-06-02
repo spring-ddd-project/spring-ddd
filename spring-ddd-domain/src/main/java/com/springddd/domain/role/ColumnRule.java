@@ -13,6 +13,4 @@ public class ColumnRule {
     private String entityCode;
     private String entityName;
     private List<String> columns;
-    private String dimensionType;
-    private List<Long> dimensionIds;
 }

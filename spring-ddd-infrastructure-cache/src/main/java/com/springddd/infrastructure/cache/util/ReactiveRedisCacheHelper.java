@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 @Component
 @RequiredArgsConstructor
-public class ReactiveRedisCacheHelper implements CacheProcessor {
+public class ReactiveRedisCacheHelper {
 
     private static final String NULL_MARK = "__NULL__";
 
@@ -32,7 +32,7 @@ public class ReactiveRedisCacheHelper implements CacheProcessor {
                                 .flatMap(value -> serialize(value)
                                         .flatMap(json -> redisTemplate.opsForValue()
                                                 .set(key, json, ttl)
-                                                .then(Mono.justOrEmpty(value))))
+                                                .thenReturn(value)))
                 )
                 .publishOn(Schedulers.boundedElastic())
                 .onErrorResume(e -> dbLoader.get());

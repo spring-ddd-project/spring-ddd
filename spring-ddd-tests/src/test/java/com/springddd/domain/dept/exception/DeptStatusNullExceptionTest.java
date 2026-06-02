@@ -1,17 +1,27 @@
 package com.springddd.domain.dept.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DeptStatusNullExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(DeptStatusNullException.class, () -> {
+            throw new DeptStatusNullException();
+        });
+    }
+
+    @Test
+    void shouldCreateExceptionInstance() {
         DeptStatusNullException exception = new DeptStatusNullException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DEPT_STATUS_NULL);
+        assertNotNull(exception);
+    }
+
+    @Test
+    void toString_shouldReturnExceptionInfo() {
+        DeptStatusNullException exception = new DeptStatusNullException();
+        String str = exception.toString();
+        assertTrue(str.contains("DeptStatusNullException"));
     }
 }

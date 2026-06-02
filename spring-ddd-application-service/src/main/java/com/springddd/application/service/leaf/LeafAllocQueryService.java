@@ -5,11 +5,12 @@ import com.springddd.application.service.leaf.dto.LeafAllocView;
 import com.springddd.application.service.leaf.dto.LeafAllocViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.LeafAllocEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -18,25 +19,21 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LeafAllocQueryService {
 
-    private final QueryFactory queryFactory;
+    private final R2dbcEntityTemplate r2dbcEntityTemplate;
     private final LeafAllocViewMapStruct leafAllocViewMapStruct;
 
-    public Mono<PageResponse<LeafAllocView>> index(LeafAllocPageQuery query) {
+    public Mono<PageResponse<LeafAllocView>> page(LeafAllocPageQuery query) {
         Criteria criteria = Criteria.where(LeafAllocPageQuery.Fields.deleteStatus).is(false);
+        if (!ObjectUtils.isEmpty(query.getBizTag())) {
+            criteria = criteria.and(LeafAllocPageQuery.Fields.bizTag).like("%" + query.getBizTag() + "%");
+        }
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
 
-        Mono<List<LeafAllocView>> list = queryFactory.getR2dbcEntityTemplate()
-                .select(LeafAllocEntity.class)
-                .matching(qry)
-                .all()
-                .collectList()
-                .map(leafAllocViewMapStruct::toViews);
-
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate()
-                .count(Query.query(criteria), LeafAllocEntity.class);
-
+        Mono<List<LeafAllocView>> list = r2dbcEntityTemplate.select(LeafAllocEntity.class).matching(qry).all()
+                .collectList().map(leafAllocViewMapStruct::toViewList);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), LeafAllocEntity.class);
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }
@@ -46,17 +43,9 @@ public class LeafAllocQueryService {
         Query qry = Query.query(criteria)
                 .limit(query.getPageSize())
                 .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-
-        Mono<List<LeafAllocView>> list = queryFactory.getR2dbcEntityTemplate()
-                .select(LeafAllocEntity.class)
-                .matching(qry)
-                .all()
-                .collectList()
-                .map(leafAllocViewMapStruct::toViews);
-
-        Mono<Long> count = queryFactory.getR2dbcEntityTemplate()
-                .count(Query.query(criteria), LeafAllocEntity.class);
-
+        Mono<List<LeafAllocView>> list = r2dbcEntityTemplate.select(LeafAllocEntity.class).matching(qry).all()
+                .collectList().map(leafAllocViewMapStruct::toViewList);
+        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), LeafAllocEntity.class);
         return Mono.zip(list, count)
                 .map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
     }

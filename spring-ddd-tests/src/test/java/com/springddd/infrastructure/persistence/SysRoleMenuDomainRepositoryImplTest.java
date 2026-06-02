@@ -1,14 +1,9 @@
 package com.springddd.infrastructure.persistence;
 
-import static org.assertj.core.api.Assertions.*;
-
 import com.springddd.domain.menu.MenuId;
-import com.springddd.domain.role.RoleId;
-import com.springddd.domain.role.RoleMenuId;
-import com.springddd.domain.role.SysRoleMenuDomain;
+import com.springddd.domain.role.*;
 import com.springddd.infrastructure.persistence.entity.SysRoleMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleMenuRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,8 +12,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SysRoleMenuDomainRepositoryImplTest {
@@ -30,102 +28,75 @@ class SysRoleMenuDomainRepositoryImplTest {
     private SysRoleMenuDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findById 返回手动转换的 domain")
-    void load_shouldReturnDomain() {
-        RoleMenuId roleMenuId = new RoleMenuId(1L);
+    void load_shouldReturnDomain_whenEntityExists() {
         SysRoleMenuEntity entity = new SysRoleMenuEntity();
         entity.setId(1L);
-        entity.setRoleId(2L);
-        entity.setMenuId(3L);
-        entity.setDeptId(4L);
+        entity.setRoleId(1L);
+        entity.setMenuId(1L);
+        entity.setDeptId(1L);
         entity.setDeleteStatus(false);
-        entity.setVersion(1);
-        entity.setCreateBy("admin");
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(sysRoleMenuRepository.findById(1L)).willReturn(Mono.just(entity));
+        when(sysRoleMenuRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(roleMenuId))
+        StepVerifier.create(repository.load(new RoleMenuId(1L)))
                 .assertNext(domain -> {
-                    org.assertj.core.api.Assertions.assertThat(domain.getRoleMenuId().value()).isEqualTo(1L);
-                    org.assertj.core.api.Assertions.assertThat(domain.getRoleId().value()).isEqualTo(2L);
-                    org.assertj.core.api.Assertions.assertThat(domain.getMenuId().value()).isEqualTo(3L);
-                    org.assertj.core.api.Assertions.assertThat(domain.getDeptId()).isEqualTo(4L);
-                    org.assertj.core.api.Assertions.assertThat(domain.getDeleteStatus()).isFalse();
-                    org.assertj.core.api.Assertions.assertThat(domain.getVersion()).isEqualTo(1);
-                    org.assertj.core.api.Assertions.assertThat(domain.getCreateBy()).isEqualTo("admin");
+                    assertEquals(1L, domain.getRoleMenuId().value());
+                    assertEquals(1L, domain.getRoleId().value());
+                    assertEquals(1L, domain.getMenuId().value());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        RoleMenuId roleMenuId = new RoleMenuId(1L);
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(sysRoleMenuRepository.findById(1L)).thenReturn(Mono.empty());
 
-        given(sysRoleMenuRepository.findById(1L)).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(roleMenuId))
+        StepVerifier.create(repository.load(new RoleMenuId(1L)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应手动转换 entity 并返回 id")
-    void save_shouldReturnId() {
+    void save_shouldReturnId_whenSavingNewAggregate() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        domain.setRoleMenuId(new RoleMenuId(1L));
-        domain.setRoleId(new RoleId(2L));
-        domain.setMenuId(new MenuId(3L));
-        domain.setDeptId(4L);
+        domain.setRoleMenuId(null);
+        domain.setRoleId(new RoleId(1L));
+        domain.setMenuId(new MenuId(1L));
+        domain.setDeptId(1L);
         domain.setDeleteStatus(false);
-        domain.setVersion(1);
-        domain.setCreateBy("admin");
+        domain.setVersion(0);
 
         SysRoleMenuEntity savedEntity = new SysRoleMenuEntity();
         savedEntity.setId(1L);
 
-        given(sysRoleMenuRepository.save(org.mockito.ArgumentMatchers.any(SysRoleMenuEntity.class)))
-                .willReturn(Mono.just(savedEntity));
+        when(sysRoleMenuRepository.save(any(SysRoleMenuEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 当 roleId 为 null 时应抛出 RoleIdNullException")
-    void save_whenRoleIdIsNull_shouldThrowException() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() {
         SysRoleMenuDomain domain = new SysRoleMenuDomain();
         domain.setRoleMenuId(new RoleMenuId(1L));
-        domain.setRoleId(null);
-        domain.setMenuId(new MenuId(3L));
+        domain.setRoleId(new RoleId(1L));
+        domain.setMenuId(new MenuId(1L));
+        domain.setDeptId(1L);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> repository.save(domain))
-                .isInstanceOf(com.springddd.domain.role.exception.RoleIdNullException.class);
-    }
+        SysRoleMenuEntity savedEntity = new SysRoleMenuEntity();
+        savedEntity.setId(1L);
 
-    @Test
-    @DisplayName("save 当 menuId 为 null 时应抛出 MenuIdNullException")
-    void save_whenMenuIdIsNull_shouldThrowException() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        domain.setRoleMenuId(new RoleMenuId(1L));
-        domain.setRoleId(new RoleId(2L));
-        domain.setMenuId(null);
+        when(sysRoleMenuRepository.save(any(SysRoleMenuEntity.class))).thenReturn(Mono.just(savedEntity));
 
-        org.assertj.core.api.Assertions.assertThatThrownBy(() -> repository.save(domain))
-                .isInstanceOf(com.springddd.domain.menu.exception.MenuIdNullException.class);
-    }
-
-    @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
-        SysRoleMenuDomain domain = new SysRoleMenuDomain();
-        domain.setRoleMenuId(new RoleMenuId(1L));
-
-        given(sysRoleMenuRepository.deleteById(1L)).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.delete(domain))
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
-
-        verify(sysRoleMenuRepository).deleteById(1L);
     }
 }

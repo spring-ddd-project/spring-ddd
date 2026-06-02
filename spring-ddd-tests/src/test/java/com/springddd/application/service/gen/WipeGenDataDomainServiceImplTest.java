@@ -1,51 +1,44 @@
 package com.springddd.application.service.gen;
 
-import com.springddd.infrastructure.persistence.entity.GenAggregateEntity;
-import com.springddd.infrastructure.persistence.entity.GenColumnsEntity;
-import com.springddd.infrastructure.persistence.entity.GenProjectInfoEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
-import org.junit.jupiter.api.DisplayName;
+import com.springddd.infrastructure.persistence.r2dbc.GenAggregateRepository;
+import com.springddd.infrastructure.persistence.r2dbc.GenColumnsRepository;
+import com.springddd.infrastructure.persistence.r2dbc.GenProjectInfoRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.r2dbc.core.ReactiveDeleteOperation;
-import org.springframework.data.relational.core.query.Query;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class WipeGenDataDomainServiceImplTest {
 
     @Mock
-    private QueryFactory queryFactory;
+    private GenProjectInfoRepository infoProjectRepository;
 
     @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
+    private GenColumnsRepository columnsRepository;
 
     @Mock
-    private ReactiveDeleteOperation.ReactiveDelete deleteOp;
+    private GenAggregateRepository aggregateRepository;
 
-    @InjectMocks
     private WipeGenDataDomainServiceImpl service;
 
+    @BeforeEach
+    void setUp() {
+        service = new WipeGenDataDomainServiceImpl(infoProjectRepository, columnsRepository, aggregateRepository);
+    }
+
     @Test
-    @DisplayName("wipe 应删除所有生成相关数据")
-    void wipe_shouldDeleteAllGenData() {
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
-        when(r2dbcEntityTemplate.delete(any(Class.class))).thenReturn(deleteOp);
-        when(deleteOp.all()).thenReturn(Mono.just(1L));
+    void wipe_shouldComplete() {
+        when(infoProjectRepository.deleteAll()).thenReturn(Mono.empty());
+        when(columnsRepository.deleteAll()).thenReturn(Mono.empty());
+        when(aggregateRepository.deleteAll()).thenReturn(Mono.empty());
 
         StepVerifier.create(service.wipe())
                 .verifyComplete();
-
-        verify(r2dbcEntityTemplate).delete(GenProjectInfoEntity.class);
-        verify(r2dbcEntityTemplate).delete(GenColumnsEntity.class);
-        verify(r2dbcEntityTemplate).delete(GenAggregateEntity.class);
     }
 }

@@ -16,15 +16,7 @@ public class GenAggregateDomain extends AbstractDomainMask {
 
     private GenAggregateExtendInfo extendInfo;
 
-    private com.springddd.domain.gen.state.AggregateState state;
-
-    public void setState(com.springddd.domain.gen.state.AggregateState state) {
-        this.state = state;
-    }
-
-    public void create() {
-        this.state = new com.springddd.domain.gen.state.ActiveState();
-    }
+    public void create() {}
 
     public void update(InfoId infoId, GenAggregateValueObject valueObject, GenAggregateExtendInfo extendInfo) {
         this.infoId = infoId;
@@ -33,72 +25,10 @@ public class GenAggregateDomain extends AbstractDomainMask {
     }
 
     public void delete() {
-        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.gen.state.DeletedState() : new com.springddd.domain.gen.state.ActiveState();
-        state.delete(this);
+        super.setDeleteStatus(true);
     }
 
     public void restore() {
-        if (state == null) state = getDeleteStatus() ? new com.springddd.domain.gen.state.DeletedState() : new com.springddd.domain.gen.state.ActiveState();
-        state.restore(this);
+        super.setDeleteStatus(false);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

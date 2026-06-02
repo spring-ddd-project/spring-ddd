@@ -2,7 +2,6 @@ package com.springddd.application.service.dict;
 
 import com.springddd.application.service.dict.dto.SysDictCommand;
 import com.springddd.domain.dict.*;
-import com.springddd.infrastructure.persistence.factory.RepositoryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,7 +12,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SysDictCommandService {
 
-    private final RepositoryFactory repositoryFactory;
+    private final SysDictDomainRepository sysDictDomainRepository;
 
     private final SysDictDomainFactory sysDictDomainFactory;
 
@@ -28,16 +27,16 @@ public class SysDictCommandService {
         DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
         SysDictDomain sysDictDomain = sysDictDomainFactory.newInstance(basicInfo, extendInfo);
         sysDictDomain.create();
-        return repositoryFactory.getSysDictDomainRepository().save(sysDictDomain);
+        return sysDictDomainRepository.save(sysDictDomain);
     }
 
     public Mono<Void> update(SysDictCommand command) {
-        return repositoryFactory.getSysDictDomainRepository().load(new DictId(command.getId())).flatMap(domain -> {
+        return sysDictDomainRepository.load(new DictId(command.getId())).flatMap(domain -> {
             DictBasicInfo basicInfo = new DictBasicInfo(command.getDictName(), command.getDictCode());
             DictExtendInfo extendInfo = new DictExtendInfo(command.getSortOrder(), command.getDictStatus());
 
             domain.update(basicInfo, extendInfo);
-            return repositoryFactory.getSysDictDomainRepository().save(domain);
+            return sysDictDomainRepository.save(domain);
         }).then();
     }
 
@@ -53,61 +52,3 @@ public class SysDictCommandService {
         return restoreSysDictByIdDomainService.restoreByIds(ids);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

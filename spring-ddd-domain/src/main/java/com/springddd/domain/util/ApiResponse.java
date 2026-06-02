@@ -42,11 +42,10 @@ public class ApiResponse {
     public static Mono<ApiResponse> ok(Mono<?> mono) {
         return mono.map(data -> {
             if (data instanceof PageResponse<?> page) {
-                return page(page.getList(), page.getTotal(), page.getPageNum(), page.getPageSize());
+                return page(page.getItems(), page.getTotal(), page.getPageNum(), page.getPageSize());
             }
             return success(data);
-        }).onErrorResume(e -> Mono.just(error(e.getMessage())))
-         .defaultIfEmpty(empty());
+        }).defaultIfEmpty(empty());
     }
 
     // Reactive return with Validated parameter support for regular and paginated requests
@@ -73,64 +72,4 @@ public class ApiResponse {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

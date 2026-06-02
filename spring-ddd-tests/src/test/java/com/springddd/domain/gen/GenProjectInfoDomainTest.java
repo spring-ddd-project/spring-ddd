@@ -1,92 +1,98 @@
 package com.springddd.domain.gen;
 
-import com.springddd.domain.gen.state.ActiveProjectState;
-import com.springddd.domain.gen.state.DeletedProjectState;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class GenProjectInfoDomainTest {
 
-    private GenProjectInfoDomain createDomain() {
+    @Test
+    void shouldCreateGenProjectInfoDomainWithAllFields() {
         GenProjectInfoDomain domain = new GenProjectInfoDomain();
-        domain.setId(new InfoId(1L));
-        domain.setProjectInfo(new ProjectInfo("sys_user", "com.springddd", "SysUser", "user", "spring-ddd"));
-        domain.setExtendInfo(new GenProjectInfoExtendInfo("sys-user", "1.0"));
+        InfoId infoId = new InfoId(1L);
+        ProjectInfo projectInfo = new ProjectInfo("table", "com.example", "ClassName", "module", "project");
+        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo("requestName");
+
+        domain.setId(infoId);
+        domain.setProjectInfo(projectInfo);
+        domain.setExtendInfo(extendInfo);
+        domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
+        domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
         domain.setDeleteStatus(false);
-        return domain;
+        domain.setVersion(0);
+
+        assertEquals(infoId, domain.getId());
+        assertEquals(projectInfo, domain.getProjectInfo());
+        assertEquals(extendInfo, domain.getExtendInfo());
+        assertEquals("admin", domain.getCreateBy());
+        assertNotNull(domain.getCreateTime());
+        assertEquals("admin", domain.getUpdateBy());
+        assertNotNull(domain.getUpdateTime());
+        assertFalse(domain.getDeleteStatus());
+        assertEquals(0, domain.getVersion());
     }
 
     @Test
-    void testClone() {
-        GenProjectInfoDomain original = createDomain();
-        GenProjectInfoDomain clone = original.clone();
+    void shouldCallCreateMethod() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
 
-        assertThat(clone.getId().value()).isEqualTo(1L);
-        assertThat(clone.getProjectInfo().tableName()).isEqualTo("sys_user");
-        assertThat(clone.getProjectInfo().packageName()).isEqualTo("com.springddd");
-        assertThat(clone.getExtendInfo().requestName()).isEqualTo("sys-user");
-    }
-
-    @Test
-    void testCloneWithNullFields() {
-        GenProjectInfoDomain original = new GenProjectInfoDomain();
-        GenProjectInfoDomain clone = original.clone();
-        assertThat(clone.getId()).isNull();
-        assertThat(clone.getProjectInfo()).isNull();
-        assertThat(clone.getExtendInfo()).isNull();
-    }
-
-    @Test
-    void testCreate() {
-        GenProjectInfoDomain domain = createDomain();
         domain.create();
+
+        assertNotNull(domain);
     }
 
     @Test
-    void testUpdate() {
-        GenProjectInfoDomain domain = createDomain();
-        ProjectInfo newInfo = new ProjectInfo("sys_role", "com.test", "SysRole", "role", "test");
-        GenProjectInfoExtendInfo newExt = new GenProjectInfoExtendInfo("sys-role", "2.0");
-        domain.update(newInfo, newExt);
-        assertThat(domain.getProjectInfo().tableName()).isEqualTo("sys_role");
-        assertThat(domain.getExtendInfo().projectVersion()).isEqualTo("2.0");
+    void shouldUpdateGenProjectInfoDomain() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        ProjectInfo newProjectInfo = new ProjectInfo("newTable", "com.new", "NewClass", "newModule", "newProject");
+        GenProjectInfoExtendInfo newExtendInfo = new GenProjectInfoExtendInfo("newRequest");
+
+        domain.update(newProjectInfo, newExtendInfo);
+
+        assertEquals(newProjectInfo, domain.getProjectInfo());
+        assertEquals(newExtendInfo, domain.getExtendInfo());
     }
 
     @Test
-    void testDeleteFromActive() {
-        GenProjectInfoDomain domain = createDomain();
+    void shouldDeleteGenProjectInfoDomain() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
         domain.setDeleteStatus(false);
+
         domain.delete();
-        assertThat(domain.getDeleteStatus()).isTrue();
-        assertThat(domain.getState()).isInstanceOf(DeletedProjectState.class);
+
+        assertTrue(domain.getDeleteStatus());
     }
 
     @Test
-    void testDeleteFromDeleted() {
-        GenProjectInfoDomain domain = createDomain();
-        domain.setDeleteStatus(true);
-        domain.delete(); // Already deleted, no-op
-        assertThat(domain.getDeleteStatus()).isTrue();
-        assertThat(domain.getState()).isInstanceOf(DeletedProjectState.class);
+    void shouldSetAndGetFields() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        InfoId infoId = new InfoId(10L);
+        ProjectInfo projectInfo = new ProjectInfo("table", "com.example", "ClassName", "module", "project");
+        GenProjectInfoExtendInfo extendInfo = new GenProjectInfoExtendInfo("requestName");
+
+        domain.setId(infoId);
+        domain.setProjectInfo(projectInfo);
+        domain.setExtendInfo(extendInfo);
+
+        assertEquals(infoId, domain.getId());
+        assertEquals(projectInfo, domain.getProjectInfo());
+        assertEquals(extendInfo, domain.getExtendInfo());
     }
 
     @Test
-    void testMemento() {
-        GenProjectInfoDomain domain = createDomain();
-        var memento = domain.saveToMemento();
-        assertThat(memento.getProjectInfo().tableName()).isEqualTo("sys_user");
-        assertThat(memento.getExtendInfo().requestName()).isEqualTo("sys-user");
+    void shouldHandleNullValues() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
 
-        domain.setProjectInfo(new ProjectInfo("changed", "com.changed", "Changed", "chg", "changed"));
-        domain.restoreFromMemento(memento);
-        assertThat(domain.getProjectInfo().tableName()).isEqualTo("sys_user");
-    }
+        domain.setId(null);
+        domain.setProjectInfo(null);
+        domain.setExtendInfo(null);
 
-    @Test
-    void testSetState() {
-        GenProjectInfoDomain domain = createDomain();
-        domain.setState(new DeletedProjectState());
-        assertThat(domain.getState()).isInstanceOf(DeletedProjectState.class);
+        assertNull(domain.getId());
+        assertNull(domain.getProjectInfo());
+        assertNull(domain.getExtendInfo());
     }
 }

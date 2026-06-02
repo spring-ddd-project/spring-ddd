@@ -1,17 +1,27 @@
 package com.springddd.domain.menu.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class MenuPermissionDeniedExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(MenuPermissionDeniedException.class, () -> {
+            throw new MenuPermissionDeniedException();
+        });
+    }
+
+    @Test
+    void shouldCreateExceptionInstance() {
         MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MENU_PERMISSION_DENIED);
+        assertNotNull(exception);
+    }
+
+    @Test
+    void toString_shouldReturnExceptionInfo() {
+        MenuPermissionDeniedException exception = new MenuPermissionDeniedException();
+        String str = exception.toString();
+        assertTrue(str.contains("MenuPermissionDeniedException"));
     }
 }

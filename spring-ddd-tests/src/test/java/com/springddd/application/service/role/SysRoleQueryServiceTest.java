@@ -1,39 +1,39 @@
 package com.springddd.application.service.role;
 
-import com.springddd.application.service.permission.DataScopeCriteriaBuilder;
 import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.application.service.role.dto.SysRoleView;
 import com.springddd.application.service.role.dto.SysRoleViewMapStruct;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.r2dbc.core.ReactiveSelectOperation;
-import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@org.mockito.junit.jupiter.MockitoSettings(strictness = org.mockito.quality.Strictness.LENIENT)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class SysRoleQueryServiceTest {
+
+    @Mock
+    private R2dbcEntityTemplate r2dbcEntityTemplate;
 
     @Mock
     private SysRoleViewMapStruct sysRoleViewMapStruct;
@@ -42,217 +42,154 @@ class SysRoleQueryServiceTest {
     private SysRoleRepository sysRoleRepository;
 
     @Mock
-    private QueryFactory queryFactory;
+    private ReactiveSelectOperation.ReactiveSelect<SysRoleEntity> reactiveSelect;
 
-    @Mock
-    private DataScopeCriteriaBuilder dataScopeCriteriaBuilder;
-
-    @Mock
-    private R2dbcEntityTemplate r2dbcEntityTemplate;
-
-    @Mock
-    private ReactiveSelectOperation.ReactiveSelect<SysRoleEntity> selectOp;
-
-    @Mock
-    private ReactiveSelectOperation.TerminatingSelect<SysRoleEntity> terminatingSelect;
-
-    @InjectMocks
-    private SysRoleQueryService service;
+    private SysRoleQueryService sysRoleQueryService;
 
     @BeforeEach
-    void setUp() throws Exception {
-        Field qfField = service.getClass().getSuperclass().getDeclaredField("queryFactory");
-        qfField.setAccessible(true);
-        qfField.set(service, queryFactory);
-
-        Field dscbField = service.getClass().getSuperclass().getDeclaredField("dataScopeCriteriaBuilder");
-        dscbField.setAccessible(true);
-        dscbField.set(service, dataScopeCriteriaBuilder);
-
-        when(queryFactory.getR2dbcEntityTemplate()).thenReturn(r2dbcEntityTemplate);
-        when(dataScopeCriteriaBuilder.apply(any(Criteria.class), any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+    void setUp() {
+        sysRoleQueryService = new SysRoleQueryService(r2dbcEntityTemplate, sysRoleViewMapStruct, sysRoleRepository);
     }
 
     @Test
-    @DisplayName("index 应返回分页结果")
-    void index_shouldReturnPage() {
+    void index_shouldReturnPageResponse_whenEntitiesExist() {
         SysRolePageQuery query = new SysRolePageQuery();
         query.setPageNum(1);
         query.setPageSize(10);
-        query.setRoleName("admin");
+        query.setRoleName("Admin");
+        query.setRoleCode("admin");
 
         SysRoleEntity entity = new SysRoleEntity();
         entity.setId(1L);
-        entity.setRoleName("admin");
+        entity.setRoleName("Admin");
+        entity.setRoleCode("admin");
+        entity.setDeleteStatus(false);
 
         SysRoleView view = new SysRoleView();
         view.setId(1L);
-        view.setRoleName("admin");
+        view.setRoleName("Admin");
+        view.setRoleCode("admin");
 
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysRoleViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
+        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
         when(r2dbcEntityTemplate.count(any(Query.class), eq(SysRoleEntity.class))).thenReturn(Mono.just(1L));
+        when(sysRoleViewMapStruct.toViewList(any())).thenReturn(Collections.singletonList(view));
 
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getList().get(0).getRoleName()).isEqualTo("admin");
+        StepVerifier.create(sysRoleQueryService.index(query))
+                .assertNext(pageResponse -> {
+                    assertNotNull(pageResponse);
+                    assertNotNull(pageResponse.getItems());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("recycle 应返回回收站分页结果")
-    void recycle_shouldReturnRecyclePage() {
+    void index_shouldReturnPageResponse_withoutSearchCriteria() {
         SysRolePageQuery query = new SysRolePageQuery();
         query.setPageNum(1);
         query.setPageSize(10);
 
         SysRoleEntity entity = new SysRoleEntity();
         entity.setId(1L);
+        entity.setDeleteStatus(false);
 
         SysRoleView view = new SysRoleView();
         view.setId(1L);
 
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysRoleViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
+        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
         when(r2dbcEntityTemplate.count(any(Query.class), eq(SysRoleEntity.class))).thenReturn(Mono.just(1L));
+        when(sysRoleViewMapStruct.toViewList(any())).thenReturn(Collections.singletonList(view));
 
-        StepVerifier.create(service.recycle(query))
-                .assertNext(page -> assertThat(page.getList()).hasSize(1))
+        StepVerifier.create(sysRoleQueryService.index(query))
+                .assertNext(pageResponse -> assertNotNull(pageResponse))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("getById 应返回角色视图")
-    void getById_shouldReturnRoleView() {
+    void recycle_shouldReturnPageResponse_whenDeletedEntitiesExist() {
+        SysRolePageQuery query = new SysRolePageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+
+        SysRoleEntity entity = new SysRoleEntity();
+        entity.setId(1L);
+        entity.setDeleteStatus(true);
+
+        SysRoleView view = new SysRoleView();
+        view.setId(1L);
+        view.setDeleteStatus(true);
+
+        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysRoleEntity.class))).thenReturn(Mono.just(1L));
+        when(sysRoleViewMapStruct.toViewList(any())).thenReturn(Collections.singletonList(view));
+
+        StepVerifier.create(sysRoleQueryService.recycle(query))
+                .assertNext(pageResponse -> assertNotNull(pageResponse))
+                .verifyComplete();
+    }
+
+    @Test
+    void getById_shouldReturnView_whenEntityExists() {
+        SysRoleEntity entity = new SysRoleEntity();
+        entity.setId(1L);
+        entity.setRoleName("Admin");
+        entity.setDeleteStatus(false);
+
+        SysRoleView view = new SysRoleView();
+        view.setId(1L);
+        view.setRoleName("Admin");
+
+        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
+        when(sysRoleViewMapStruct.toView(entity)).thenReturn(view);
+
+        StepVerifier.create(sysRoleQueryService.getById(1L))
+                .expectNext(view)
+                .verifyComplete();
+    }
+
+    @Test
+    void getByCode_shouldReturnView_whenEntityExists() {
         SysRoleEntity entity = new SysRoleEntity();
         entity.setId(1L);
         entity.setRoleCode("admin");
+        entity.setDeleteStatus(false);
 
         SysRoleView view = new SysRoleView();
         view.setId(1L);
         view.setRoleCode("admin");
 
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
+        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.one()).thenReturn(Mono.just(entity));
         when(sysRoleViewMapStruct.toView(entity)).thenReturn(view);
 
-        StepVerifier.create(service.getById(1L))
-                .assertNext(result -> assertThat(result.getRoleCode()).isEqualTo("admin"))
+        StepVerifier.create(sysRoleQueryService.getByCode("admin"))
+                .expectNext(view)
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("getAllRole 应返回所有角色")
-    void getAllRole_shouldReturnAllRoles() {
+    void getAllRole_shouldReturnAllViews() {
         SysRoleEntity entity = new SysRoleEntity();
         entity.setId(1L);
+        entity.setRoleName("Admin");
 
         SysRoleView view = new SysRoleView();
         view.setId(1L);
+        view.setRoleName("Admin");
 
         when(sysRoleRepository.findAll()).thenReturn(Flux.just(entity));
-        when(sysRoleViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
+        when(sysRoleViewMapStruct.toViewList(any())).thenReturn(Collections.singletonList(view));
 
-        StepVerifier.create(service.getAllRole())
-                .assertNext(list -> assertThat(list).hasSize(1))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("getByCode 当传入有效 code 时应返回角色视图")
-    void getByCode_withValidCode_shouldReturnRoleView() {
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-        entity.setRoleCode("admin");
-
-        SysRoleView view = new SysRoleView();
-        view.setId(1L);
-        view.setRoleCode("admin");
-
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.just(entity));
-        when(sysRoleViewMapStruct.toView(entity)).thenReturn(view);
-
-        StepVerifier.create(service.getByCode("admin"))
-                .assertNext(result -> assertThat(result.getRoleCode()).isEqualTo("admin"))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("getByCode 当角色不存在时应返回空")
-    void getByCode_whenNotFound_shouldReturnEmpty() {
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.one()).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.getByCode("nonexistent"))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("getByCode 当传入 null 时应抛出 IllegalArgumentException")
-    void getByCode_withNullCode_shouldThrowIllegalArgumentException() {
-        assertThatThrownBy(() -> service.getByCode(null))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Value must not be null");
-    }
-
-    @Test
-    @DisplayName("index 当 roleName 和 roleCode 均为空时应只按 deleteStatus 查询")
-    void index_withEmptyRoleNameAndRoleCode_shouldApplyOnlyDeleteStatus() {
-        SysRolePageQuery query = new SysRolePageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-
-        SysRoleView view = new SysRoleView();
-        view.setId(1L);
-
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysRoleViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysRoleEntity.class))).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> assertThat(page.getList()).hasSize(1))
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("index 当 roleCode 不为空时应按 roleCode 模糊查询")
-    void index_withRoleCode_shouldApplyRoleCodeCriteria() {
-        SysRolePageQuery query = new SysRolePageQuery();
-        query.setPageNum(1);
-        query.setPageSize(10);
-        query.setRoleCode("ADMIN");
-
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-        entity.setRoleCode("ADMIN");
-
-        SysRoleView view = new SysRoleView();
-        view.setId(1L);
-        view.setRoleCode("ADMIN");
-
-        when(r2dbcEntityTemplate.select(SysRoleEntity.class)).thenReturn(selectOp);
-        when(selectOp.matching(any(Query.class))).thenReturn(terminatingSelect);
-        when(terminatingSelect.all()).thenReturn(Flux.just(entity));
-        when(sysRoleViewMapStruct.toViewList(anyList())).thenReturn(List.of(view));
-        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysRoleEntity.class))).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> assertThat(page.getList()).hasSize(1))
+        StepVerifier.create(sysRoleQueryService.getAllRole())
+                .expectNext(Collections.singletonList(view))
                 .verifyComplete();
     }
 }

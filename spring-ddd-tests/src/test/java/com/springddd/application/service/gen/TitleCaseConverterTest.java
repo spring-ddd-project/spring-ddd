@@ -1,35 +1,27 @@
 package com.springddd.application.service.gen;
 
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class TitleCaseConverterTest {
-
     @Test
-    @DisplayName("下划线命名应正确转换为标题格式")
-    void toTitleCase_shouldConvertSnakeCase() {
-        assertThat(TitleCaseConverter.toTitleCase("user_name")).isEqualTo("User Name");
-        assertThat(TitleCaseConverter.toTitleCase("sys_user_role")).isEqualTo("Sys User Role");
-        assertThat(TitleCaseConverter.toTitleCase("id")).isEqualTo("Id");
+    void toTitleCase_shouldReturnNull_whenInputIsNull() {
+        assertNull(TitleCaseConverter.toTitleCase(null));
     }
-
     @Test
-    @DisplayName("空字符串应返回原值")
-    void toTitleCase_withEmptyString_shouldReturnEmpty() {
-        assertThat(TitleCaseConverter.toTitleCase("")).isEmpty();
+    void toTitleCase_shouldReturnEmpty_whenInputIsEmpty() {
+        assertEquals("", TitleCaseConverter.toTitleCase(""));
     }
-
     @Test
-    @DisplayName("null 应返回 null")
-    void toTitleCase_withNull_shouldReturnNull() {
-        assertThat(TitleCaseConverter.toTitleCase(null)).isNull();
+    void toTitleCase_shouldHandleUnderscore() {
+        assertEquals("Hello World", TitleCaseConverter.toTitleCase("hello_world"));
     }
-
     @Test
-    @DisplayName("连续下划线应跳过空部分")
-    void toTitleCase_withMultipleUnderscores_shouldSkipEmptyParts() {
-        assertThat(TitleCaseConverter.toTitleCase("user__name")).isEqualTo("User Name");
+    void toTitleCase_shouldHandleMultipleUnderscores() {
+        assertEquals("Hello World Foo", TitleCaseConverter.toTitleCase("hello_world_foo"));
+    }
+    @Test
+    void toTitleCase_shouldHandleEmptyParts() {
+        assertEquals("Hello World", TitleCaseConverter.toTitleCase("hello__world"));
     }
 }

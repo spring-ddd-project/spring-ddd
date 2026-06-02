@@ -16,69 +16,11 @@ public class SysMenuDomainCatalogStrategy implements SysMenuDomainStrategy {
         SysMenuDomain domain = new SysMenuDomain();
         domain.setName(name);
 
-        Catalog ca = new Catalog(catalog.routePath(), catalog.component(), catalog.redirect());
+        Catalog ca = new Catalog(catalog.menuRedirect());
         domain.setCatalog(ca);
 
-        MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.icon(), menuExtendInfo.menuType(), menuExtendInfo.menuStatus(), menuExtendInfo.visible());
+        MenuExtendInfo extendInfo = new MenuExtendInfo(menuExtendInfo.order(), menuExtendInfo.title(), menuExtendInfo.menuType(), menuExtendInfo.icon(), menuExtendInfo.menuStatus(), menuExtendInfo.visible());
         domain.setMenuExtendInfo(extendInfo);
         return domain;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

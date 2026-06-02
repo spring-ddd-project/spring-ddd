@@ -1,41 +1,39 @@
 package com.springddd.domain.gen;
 
 import com.springddd.domain.gen.exception.I18nEnNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class I18nTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        I18n i18n = new I18n("test", "en_US");
-        assertThat(i18n.en()).isEqualTo("test");
-        assertThat(i18n.locale()).isEqualTo("en_US");
+    void shouldCreateI18nWithValidValues() {
+        I18n i18n = new I18n("hello", "en_US");
+        assertEquals("hello", i18n.en());
+        assertEquals("en_US", i18n.locale());
     }
 
     @Test
-    @DisplayName("en 为 null 应抛 I18nEnNullException")
-    void constructor_withNullEn_shouldThrowException() {
-        assertThatThrownBy(() -> new I18n(null, "en_US"))
-                .isInstanceOf(I18nEnNullException.class);
+    void equals_shouldWorkForSameValues() {
+        I18n i18n1 = new I18n("hello", "en_US");
+        I18n i18n2 = new I18n("hello", "en_US");
+        assertEquals(i18n1, i18n2);
     }
 
     @Test
-    @DisplayName("en 为空字符串应抛 I18nEnNullException")
-    void constructor_withEmptyEn_shouldThrowException() {
-        assertThatThrownBy(() -> new I18n("", "en_US"))
-                .isInstanceOf(I18nEnNullException.class);
+    void toString_shouldReturnValueAsString() {
+        I18n i18n = new I18n("hello", "en_US");
+        String str = i18n.toString();
+        assertTrue(str.contains("I18n"));
     }
 
     @Test
-    @DisplayName("locale 为 null 不应抛异常")
-    void constructor_withNullLocale_shouldNotThrowException() {
-        I18n i18n = new I18n("test", null);
-        assertThat(i18n.en()).isEqualTo("test");
-        assertThat(i18n.locale()).isNull();
+    void shouldThrowWhenEnIsNull() {
+        assertThrows(I18nEnNullException.class, () -> new I18n(null, "en_US"));
+    }
+
+    @Test
+    void shouldThrowWhenEnIsEmpty() {
+        assertThrows(I18nEnNullException.class, () -> new I18n("", "en_US"));
     }
 }

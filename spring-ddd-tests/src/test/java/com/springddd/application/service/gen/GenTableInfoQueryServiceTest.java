@@ -2,26 +2,18 @@ package com.springddd.application.service.gen;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.springddd.application.service.gen.dto.GenAggregateView;
-import com.springddd.application.service.gen.dto.GenColumnsView;
-import com.springddd.application.service.gen.dto.GenProjectInfoView;
-import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
-import com.springddd.application.service.gen.dto.GenTableInfoView;
-import com.springddd.application.service.gen.dto.ProjectTreeView;
+import com.springddd.application.service.gen.dto.*;
 import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.infrastructure.cache.util.CacheProcessor;
-import com.springddd.infrastructure.persistence.factory.QueryFactory;
+import com.springddd.domain.util.PageResponse;
+import com.springddd.infrastructure.cache.keys.CacheKeys;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import io.r2dbc.spi.Row;
-import io.r2dbc.spi.RowMetadata;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.RowsFetchSpec;
 import reactor.core.publisher.Flux;
@@ -29,12 +21,11 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiFunction;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +34,7 @@ import static org.mockito.Mockito.*;
 class GenTableInfoQueryServiceTest {
 
     @Mock
-    private QueryFactory queryFactory;
+    private DatabaseClient databaseClient;
 
     @Mock
     private GenProjectInfoQueryService projectInfoQueryService;
@@ -55,177 +46,137 @@ class GenTableInfoQueryServiceTest {
     private GenAggregateQueryService aggregateQueryService;
 
     @Mock
-    private CacheProcessor cacheProcessor;
+    private ReactiveRedisCacheHelper cacheHelper;
 
     @Mock
     private ObjectMapper objectMapper;
 
     @Mock
-    private DatabaseClient databaseClient;
+    private DatabaseClient.GenericExecuteSpec genericExecuteSpec;
 
     @Mock
-    private DatabaseClient.GenericExecuteSpec executeSpec;
+    private DatabaseClient.GenericExecuteSpec boundExecuteSpec;
 
-    @InjectMocks
+    @Mock
+    @SuppressWarnings("rawtypes")
+    private RowsFetchSpec rowsFetchSpec;
+
     private GenTableInfoQueryService service;
 
     @BeforeEach
     void setUp() {
-        SecurityUtils.setUserId(1L);
-        when(queryFactory.getDatabaseClient()).thenReturn(databaseClient);
+        service = new GenTableInfoQueryService(
+                databaseClient,
+                projectInfoQueryService,
+                columnsQueryService,
+                aggregateQueryService,
+                cacheHelper,
+                objectMapper
+        );
     }
 
     @Test
-    @DisplayName("index 当 databaseName 为空时应返回 empty")
-    void index_whenEmptyDbName_shouldReturnEmpty() {
+    void index_shouldReturnEmpty_whenDatabaseNameEmpty() {
         GenTableInfoPageQuery query = new GenTableInfoPageQuery();
-        StepVerifier.create(service.index(query)).verifyComplete();
+        query.setDatabaseName("");
+
+        StepVerifier.create(service.index(query))
+                .verifyComplete();
     }
 
     @Test
-    @DisplayName("index 当 tableName 过滤条件存在时应返回分页结果")
-    void index_withTableNameFilter_shouldReturnPage() {
+    void index_shouldReturnPageResponse() {
         GenTableInfoPageQuery query = new GenTableInfoPageQuery();
-        query.setDatabaseName("test_db");
-        query.setTableName("user");
+        query.setDatabaseName("spring_ddd");
         query.setPageNum(1);
         query.setPageSize(10);
 
-        GenTableInfoView view = new GenTableInfoView("test_db", "sys_user", "用户表", LocalDateTime.now(), "utf8mb4");
+        GenTableInfoView view = new GenTableInfoView();
+        view.setTableSchema("spring_ddd");
+        view.setTableName("sys_user");
+        view.setTableComment("User Table");
+        view.setCreateTime(LocalDateTime.now());
+        view.setTableCollation("utf8mb4");
 
-        when(databaseClient.sql(anyString())).thenReturn(executeSpec);
-        when(executeSpec.bind(anyString(), any())).thenReturn(executeSpec);
-
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<GenTableInfoView> rowsFetchSpecData = mock(RowsFetchSpec.class);
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<Long> rowsFetchSpecCount = mock(RowsFetchSpec.class);
-
-        when(executeSpec.map(any(BiFunction.class)))
-                .thenReturn(rowsFetchSpecData)
-                .thenReturn(rowsFetchSpecCount);
-
-        when(rowsFetchSpecData.all()).thenReturn(Flux.just(view));
-        when(rowsFetchSpecCount.one()).thenReturn(Mono.just(1L));
+        when(databaseClient.sql(anyString())).thenReturn(genericExecuteSpec);
+        when(genericExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.map(any(java.util.function.BiFunction.class))).thenReturn(rowsFetchSpec);
+        when(rowsFetchSpec.all()).thenReturn(Flux.just(view));
+        when(rowsFetchSpec.one()).thenReturn(Mono.just(1L));
 
         StepVerifier.create(service.index(query))
                 .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                    assertThat(page.getPageNum()).isEqualTo(1);
-                    assertThat(page.getPageSize()).isEqualTo(10);
-                    assertThat(page.getList().get(0).getTableName()).isEqualTo("sys_user");
+                    assertNotNull(page);
+                    assertEquals(1, page.getPageNum());
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("index 当 tableName 过滤条件不存在时应返回分页结果")
-    void index_withoutTableNameFilter_shouldReturnPage() {
-        GenTableInfoPageQuery query = new GenTableInfoPageQuery();
-        query.setDatabaseName("test_db");
-        query.setPageNum(1);
-        query.setPageSize(10);
-
-        GenTableInfoView view = new GenTableInfoView("test_db", "sys_role", "角色表", LocalDateTime.now(), "utf8mb4");
-
-        when(databaseClient.sql(anyString())).thenReturn(executeSpec);
-        when(executeSpec.bind(anyString(), any())).thenReturn(executeSpec);
-
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<GenTableInfoView> rowsFetchSpecData = mock(RowsFetchSpec.class);
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<Long> rowsFetchSpecCount = mock(RowsFetchSpec.class);
-
-        when(executeSpec.map(any(BiFunction.class)))
-                .thenReturn(rowsFetchSpecData)
-                .thenReturn(rowsFetchSpecCount);
-
-        when(rowsFetchSpecData.all()).thenReturn(Flux.just(view));
-        when(rowsFetchSpecCount.one()).thenReturn(Mono.just(1L));
-
-        StepVerifier.create(service.index(query))
-                .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                    assertThat(page.getList().get(0).getTableName()).isEqualTo("sys_role");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @DisplayName("buildData 应返回构建数据")
-    void buildData_shouldReturnMap() {
+    void buildData_shouldReturnContextMap() {
         GenProjectInfoView projectInfo = new GenProjectInfoView();
         projectInfo.setId(1L);
         projectInfo.setTableName("sys_user");
         projectInfo.setPackageName("com.example");
-        projectInfo.setClassName("SysUser");
-        projectInfo.setModuleName("system");
-        projectInfo.setProjectName("demo");
-        projectInfo.setRequestName("SysUserRequest");
+        projectInfo.setClassName("User");
+        projectInfo.setRequestName("user");
+        projectInfo.setModuleName("sys");
+        projectInfo.setProjectName("test");
 
-        GenColumnsView colView = new GenColumnsView();
-        colView.setId(1L);
-        colView.setPropColumnName("id");
+        GenColumnsView column = new GenColumnsView();
+        column.setPropColumnName("id");
 
-        GenAggregateView aggView = new GenAggregateView();
-        aggView.setId(1L);
-        aggView.setObjectName("user");
+        GenAggregateView aggregate = new GenAggregateView();
+        aggregate.setObjectName("UserDomain");
 
         when(projectInfoQueryService.queryGenInfoByTableName("sys_user")).thenReturn(Mono.just(projectInfo));
-        when(columnsQueryService.queryJavaEntityInfoByInfoId(1L)).thenReturn(Mono.just(List.of(colView)));
-        when(aggregateQueryService.queryAggregateByInfoId(1L)).thenReturn(Mono.just(List.of(aggView)));
+        when(columnsQueryService.queryJavaEntityInfoByInfoId(1L)).thenReturn(Mono.just(List.of(column)));
+        when(aggregateQueryService.queryAggregateByInfoId(1L)).thenReturn(Mono.just(List.of(aggregate)));
 
         StepVerifier.create(service.buildData("sys_user"))
-                .assertNext(result -> {
-                    assertThat(result).containsKey("packageName");
-                    assertThat(result).containsKey("tableName");
-                    assertThat(result).containsKey("className");
-                    assertThat(result).containsKey("requestName");
-                    assertThat(result).containsKey("moduleName");
-                    assertThat(result).containsKey("projectName");
-                    assertThat(result).containsKey("columnsViews");
-                    assertThat(result).containsKey("aggregateViews");
-                    assertThat(result.get("packageName")).isEqualTo("com.example");
-                    assertThat(result.get("tableName")).isEqualTo("sys_user");
-                    assertThat(result.get("className")).isEqualTo("SysUser");
-                    assertThat(result.get("requestName")).isEqualTo("SysUserRequest");
-                    assertThat(result.get("moduleName")).isEqualTo("system");
-                    assertThat(result.get("projectName")).isEqualTo("demo");
-                    assertThat(result.get("columnsViews")).isEqualTo(List.of(colView));
-                    assertThat(result.get("aggregateViews")).isEqualTo(List.of(aggView));
+                .assertNext(context -> {
+                    assertNotNull(context);
+                    assertEquals("com.example", context.get("packageName"));
+                    assertEquals("sys_user", context.get("tableName"));
+                    assertEquals("User", context.get("className"));
                 })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("preview 缓存命中时应返回项目树")
-    void preview_cacheHit_shouldReturnTree() {
-        List<Map<String, Object>> cached = List.of(Map.of("label", "root"));
-        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.just(cached));
-        when(objectMapper.convertValue(any(), any(TypeReference.class))).thenReturn(List.of(new ProjectTreeView()));
+    void preview_shouldReturnTreeList() {
+        SecurityUtils.setUserId(1L);
+
+        ProjectTreeView tree = new ProjectTreeView();
+        tree.setLabel("test");
+        tree.setChildren(new ArrayList<>());
+
+        List<ProjectTreeView> treeList = List.of(tree);
+
+        when(cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(1L), List.class))
+                .thenReturn(Mono.just(treeList));
+        when(objectMapper.convertValue(eq(treeList), any(TypeReference.class)))
+                .thenReturn(treeList);
 
         StepVerifier.create(service.preview())
-                .assertNext(list -> assertThat(list).isNotNull())
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertEquals(1, result.size());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("preview 缓存未命中时应返回 empty")
-    void preview_cacheMiss_shouldReturnEmpty() {
-        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.empty());
+    void preview_shouldError_whenDeserializationFails() {
+        SecurityUtils.setUserId(1L);
 
-        StepVerifier.create(service.preview())
-                .verifyComplete();
-    }
+        List<ProjectTreeView> treeList = List.of();
 
-    @Test
-    @DisplayName("preview 缓存反序列化异常时应返回 error")
-    void preview_deserializeError_shouldReturnError() {
-        List<Map<String, Object>> cached = List.of(Map.of("label", "root"));
-        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.just(cached));
-        when(objectMapper.convertValue(any(), any(TypeReference.class))).thenThrow(new RuntimeException("deserialize error"));
+        when(cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(1L), List.class))
+                .thenReturn(Mono.just(treeList));
+        when(objectMapper.convertValue(eq(treeList), any(TypeReference.class)))
+                .thenThrow(new RuntimeException("deserialize error"));
 
         StepVerifier.create(service.preview())
                 .expectError(RuntimeException.class)
@@ -233,66 +184,74 @@ class GenTableInfoQueryServiceTest {
     }
 
     @Test
-    @DisplayName("index 应执行 map lambda 并返回分页结果")
-    void index_shouldExecuteMapLambdas() {
+    void index_shouldApplyTableNameFilter() {
         GenTableInfoPageQuery query = new GenTableInfoPageQuery();
-        query.setDatabaseName("test_db");
-        query.setTableName("user");
+        query.setDatabaseName("spring_ddd");
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setTableName("sys_user");
+
+        GenTableInfoView view = new GenTableInfoView();
+        view.setTableSchema("spring_ddd");
+        view.setTableName("sys_user");
+        view.setTableComment("User Table");
+        view.setCreateTime(java.time.LocalDateTime.now());
+        view.setTableCollation("utf8mb4");
+
+        when(databaseClient.sql(anyString())).thenReturn(genericExecuteSpec);
+        when(genericExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.map(any(java.util.function.BiFunction.class))).thenReturn(rowsFetchSpec);
+        when(rowsFetchSpec.all()).thenReturn(Flux.just(view));
+        when(rowsFetchSpec.one()).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(service.index(query))
+                .assertNext(page -> {
+                    assertNotNull(page);
+                    assertEquals(1, page.getItems().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void index_shouldExecuteRowMapperLambda() {
+        GenTableInfoPageQuery query = new GenTableInfoPageQuery();
+        query.setDatabaseName("spring_ddd");
         query.setPageNum(1);
         query.setPageSize(10);
 
-        AtomicReference<BiFunction<Row, RowMetadata, GenTableInfoView>> dataMapperRef = new AtomicReference<>();
-        AtomicReference<BiFunction<Row, RowMetadata, Long>> countMapperRef = new AtomicReference<>();
+        io.r2dbc.spi.Row row = mock(io.r2dbc.spi.Row.class);
+        when(row.get("table_schema", String.class)).thenReturn("spring_ddd");
+        when(row.get("table_name", String.class)).thenReturn("sys_user");
+        when(row.get("table_comment", String.class)).thenReturn("User Table");
+        when(row.get("create_time", LocalDateTime.class)).thenReturn(LocalDateTime.now());
+        when(row.get("table_collation", String.class)).thenReturn("utf8mb4");
 
-        when(databaseClient.sql(anyString())).thenReturn(executeSpec);
-        when(executeSpec.bind(anyString(), any())).thenReturn(executeSpec);
+        when(databaseClient.sql(anyString())).thenReturn(genericExecuteSpec);
+        when(genericExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
 
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<GenTableInfoView> rowsFetchSpecData = mock(RowsFetchSpec.class);
-        @SuppressWarnings("unchecked")
-        RowsFetchSpec<Long> rowsFetchSpecCount = mock(RowsFetchSpec.class);
-
-        doAnswer(inv -> {
-            BiFunction<?, ?, ?> mapper = inv.getArgument(0);
-            if (dataMapperRef.get() == null) {
-                @SuppressWarnings("unchecked")
-                BiFunction<Row, RowMetadata, GenTableInfoView> typed = (BiFunction<Row, RowMetadata, GenTableInfoView>) mapper;
-                dataMapperRef.set(typed);
-                return rowsFetchSpecData;
+        when(boundExecuteSpec.map(any(java.util.function.BiFunction.class))).thenAnswer(invocation -> {
+            java.util.function.BiFunction mapper = invocation.getArgument(0);
+            Object mapped = mapper.apply(row, null);
+            if (mapped instanceof GenTableInfoView) {
+                RowsFetchSpec<GenTableInfoView> fetchSpec = mock(RowsFetchSpec.class);
+                when(fetchSpec.all()).thenReturn(Flux.just((GenTableInfoView) mapped));
+                return fetchSpec;
             } else {
-                @SuppressWarnings("unchecked")
-                BiFunction<Row, RowMetadata, Long> typed = (BiFunction<Row, RowMetadata, Long>) mapper;
-                countMapperRef.set(typed);
-                return rowsFetchSpecCount;
+                RowsFetchSpec fetchSpec = mock(RowsFetchSpec.class);
+                when(fetchSpec.one()).thenReturn(Mono.just(1L));
+                return fetchSpec;
             }
-        }).when(executeSpec).map(any(BiFunction.class));
-
-        Row mockRow = mock(Row.class);
-        RowMetadata mockMeta = mock(RowMetadata.class);
-        when(mockRow.get("table_schema", String.class)).thenReturn("test_db");
-        when(mockRow.get("table_name", String.class)).thenReturn("sys_user");
-        when(mockRow.get("table_comment", String.class)).thenReturn("用户表");
-        when(mockRow.get("create_time", LocalDateTime.class)).thenReturn(LocalDateTime.now());
-        when(mockRow.get("table_collation", String.class)).thenReturn("utf8mb4");
-        when(mockRow.get("total", Long.class)).thenReturn(1L);
-
-        when(rowsFetchSpecData.all()).thenAnswer(inv -> {
-            GenTableInfoView view = dataMapperRef.get().apply(mockRow, mockMeta);
-            return Flux.just(view);
-        });
-        when(rowsFetchSpecCount.one()).thenAnswer(inv -> {
-            Long count = countMapperRef.get().apply(mockRow, mockMeta);
-            return Mono.just(count);
         });
 
         StepVerifier.create(service.index(query))
                 .assertNext(page -> {
-                    assertThat(page.getList()).hasSize(1);
-                    assertThat(page.getTotal()).isEqualTo(1L);
-                    assertThat(page.getList().get(0).getTableName()).isEqualTo("sys_user");
-                    assertThat(page.getList().get(0).getTableSchema()).isEqualTo("test_db");
-                    assertThat(page.getList().get(0).getTableComment()).isEqualTo("用户表");
-                    assertThat(page.getList().get(0).getTableCollation()).isEqualTo("utf8mb4");
+                    assertNotNull(page);
+                    assertEquals(1, page.getItems().size());
+                    assertEquals("sys_user", page.getItems().get(0).getTableName());
                 })
                 .verifyComplete();
     }

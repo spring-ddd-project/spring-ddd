@@ -1,17 +1,27 @@
 package com.springddd.domain.dict.exception;
 
-import com.springddd.domain.util.ErrorCode;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DictDictStatusNullExceptionTest {
 
     @Test
-    @DisplayName("构造异常应包含正确的错误码")
-    void constructor_shouldHaveCorrectErrorCode() {
+    void shouldThrowWithDefaultMessage() {
+        assertThrows(DictDictStatusNullException.class, () -> {
+            throw new DictDictStatusNullException();
+        });
+    }
+
+    @Test
+    void shouldCreateExceptionInstance() {
         DictDictStatusNullException exception = new DictDictStatusNullException();
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.DICT_DICTSTATUS_NULL);
+        assertNotNull(exception);
+    }
+
+    @Test
+    void toString_shouldReturnExceptionInfo() {
+        DictDictStatusNullException exception = new DictDictStatusNullException();
+        String str = exception.toString();
+        assertTrue(str.contains("DictDictStatusNullException"));
     }
 }

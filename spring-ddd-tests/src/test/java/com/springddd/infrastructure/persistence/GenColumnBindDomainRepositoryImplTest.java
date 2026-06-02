@@ -1,11 +1,8 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.gen.ColumnBindId;
-import com.springddd.domain.gen.GenColumnBindDomain;
+import com.springddd.domain.gen.*;
 import com.springddd.infrastructure.persistence.entity.GenColumnBindEntity;
-import com.springddd.infrastructure.persistence.factory.EntityFactory;
 import com.springddd.infrastructure.persistence.r2dbc.GenColumnBindRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -14,8 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GenColumnBindDomainRepositoryImplTest {
@@ -23,66 +23,76 @@ class GenColumnBindDomainRepositoryImplTest {
     @Mock
     private GenColumnBindRepository genColumnBindRepository;
 
-    @Mock
-    private EntityFactory entityFactory;
-
     @InjectMocks
     private GenColumnBindDomainRepositoryImpl repository;
 
     @Test
-    @DisplayName("load 应通过 findById 和 entityFactory 返回 domain")
-    void load_shouldReturnDomain() {
-        ColumnBindId bindId = new ColumnBindId(1L);
+    void load_shouldReturnDomain_whenEntityExists() {
         GenColumnBindEntity entity = new GenColumnBindEntity();
-        GenColumnBindDomain domain = new GenColumnBindDomain();
+        entity.setId(1L);
+        entity.setColumnType("varchar");
+        entity.setEntityType("String");
+        entity.setComponentType((byte) 1);
+        entity.setTypescriptType((byte) 1);
+        entity.setDeleteStatus(false);
+        entity.setVersion(0);
+        entity.setCreateBy("system");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("system");
+        entity.setUpdateTime(LocalDateTime.now());
 
-        given(genColumnBindRepository.findById(1L)).willReturn(Mono.just(entity));
-        given(entityFactory.createGenColumnBindDomain(entity)).willReturn(domain);
+        when(genColumnBindRepository.findById(1L)).thenReturn(Mono.just(entity));
 
-        StepVerifier.create(repository.load(bindId))
-                .expectNext(domain)
+        StepVerifier.create(repository.load(new ColumnBindId(1L)))
+                .assertNext(domain -> {
+                    assertEquals(1L, domain.getBindId().value());
+                    assertEquals("varchar", domain.getBasicInfo().columnType());
+                    assertEquals("String", domain.getBasicInfo().entityType());
+                })
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("load 当记录不存在时应返回空 Mono")
-    void load_whenNotFound_shouldReturnEmpty() {
-        ColumnBindId bindId = new ColumnBindId(1L);
+    void load_shouldReturnEmpty_whenEntityNotFound() {
+        when(genColumnBindRepository.findById(1L)).thenReturn(Mono.empty());
 
-        given(genColumnBindRepository.findById(1L)).willReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(bindId))
+        StepVerifier.create(repository.load(new ColumnBindId(1L)))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("save 应通过 entityFactory 转换并返回 id")
-    void save_shouldReturnId() {
+    void save_shouldReturnId_whenSavingNewAggregate() {
         GenColumnBindDomain domain = new GenColumnBindDomain();
-        domain.setBindId(new ColumnBindId(1L));
-        GenColumnBindEntity entity = new GenColumnBindEntity();
+        domain.setBindId(null);
+        domain.setBasicInfo(new GenColumnBindBasicInfo("varchar", "String", (byte) 1, (byte) 1));
+        domain.setDeleteStatus(false);
+        domain.setVersion(0);
+
         GenColumnBindEntity savedEntity = new GenColumnBindEntity();
         savedEntity.setId(1L);
 
-        given(entityFactory.createGenColumnBindEntity(domain)).willReturn(entity);
-        given(genColumnBindRepository.save(entity)).willReturn(Mono.just(savedEntity));
+        when(genColumnBindRepository.save(any(GenColumnBindEntity.class))).thenReturn(Mono.just(savedEntity));
 
         StepVerifier.create(repository.save(domain))
-                .expectNext(1L)
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
 
     @Test
-    @DisplayName("delete 应调用 deleteById 并返回 Mono<Void>")
-    void delete_shouldCallDeleteById() {
+    void save_shouldReturnId_whenUpdatingExistingAggregate() {
         GenColumnBindDomain domain = new GenColumnBindDomain();
         domain.setBindId(new ColumnBindId(1L));
+        domain.setBasicInfo(new GenColumnBindBasicInfo("varchar", "String", (byte) 1, (byte) 1));
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
 
-        given(genColumnBindRepository.deleteById(1L)).willReturn(Mono.empty());
+        GenColumnBindEntity savedEntity = new GenColumnBindEntity();
+        savedEntity.setId(1L);
 
-        StepVerifier.create(repository.delete(domain))
+        when(genColumnBindRepository.save(any(GenColumnBindEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
-
-        verify(genColumnBindRepository).deleteById(1L);
     }
 }

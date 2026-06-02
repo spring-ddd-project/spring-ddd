@@ -2,10 +2,8 @@ package com.springddd.application.service.leaf.dto;
 
 import lombok.Data;
 
-import java.io.Serializable;
-
 @Data
-public class LeafAllocCommand implements Serializable {
+public class LeafAllocCommand {
 
     private Long id;
 
@@ -17,5 +15,5 @@ public class LeafAllocCommand implements Serializable {
 
     private String description;
 
-    private Boolean deleteStatus;
+    private Long deptId;
 }

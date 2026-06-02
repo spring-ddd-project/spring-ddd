@@ -1,36 +1,76 @@
 package com.springddd.domain.role;
 
 import com.springddd.domain.role.exception.RoleStatusNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class RoleExtendInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        RoleExtendInfo obj = new RoleExtendInfo("test", true, "test", true);
-        assertThat(obj.roleRemark()).isEqualTo("test");
-        assertThat(obj.ownerStatus()).isEqualTo(true);
-        assertThat(obj.roleDesc()).isEqualTo("test");
-        assertThat(obj.roleStatus()).isEqualTo(true);
+    void shouldCreateWithValidValues() {
+        RoleExtendInfo info = new RoleExtendInfo("角色描述A", true);
+        assertEquals("角色描述A", info.roleDesc());
+        assertTrue(info.roleStatus());
     }
 
     @Test
-    @DisplayName("自定义构造器正常构造")
-    void customConstructor0_withValidValue_shouldCreate() {
-        RoleExtendInfo obj = new RoleExtendInfo("test", true);
-        assertThat(obj).isNotNull();
+    void shouldCreateWithNullDesc() {
+        RoleExtendInfo info = new RoleExtendInfo(null, true);
+        assertNull(info.roleDesc());
+        assertTrue(info.roleStatus());
     }
 
     @Test
-    @DisplayName("自定义构造器 roleStatus 为 null 应抛异常")
-    void customConstructor0_withNullRolestatus_shouldThrowException() {
-        assertThatThrownBy(() -> new RoleExtendInfo("test", null))
-                .isInstanceOf(RoleStatusNullException.class);
+    void shouldCreateWithEmptyDesc() {
+        RoleExtendInfo info = new RoleExtendInfo("", true);
+        assertEquals("", info.roleDesc());
+        assertTrue(info.roleStatus());
     }
 
+    @Test
+    void shouldCreateWithFalseStatus() {
+        RoleExtendInfo info = new RoleExtendInfo("角色描述", false);
+        assertEquals("角色描述", info.roleDesc());
+        assertFalse(info.roleStatus());
+    }
+
+    @Test
+    void shouldThrowWhenStatusIsNull() {
+        assertThrows(RoleStatusNullException.class, () -> new RoleExtendInfo("描述", null));
+    }
+
+    @Test
+    void equals_shouldWorkForSameValues() {
+        RoleExtendInfo info1 = new RoleExtendInfo("描述", true);
+        RoleExtendInfo info2 = new RoleExtendInfo("描述", true);
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentDesc() {
+        RoleExtendInfo info1 = new RoleExtendInfo("描述A", true);
+        RoleExtendInfo info2 = new RoleExtendInfo("描述B", true);
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentStatus() {
+        RoleExtendInfo info1 = new RoleExtendInfo("描述", true);
+        RoleExtendInfo info2 = new RoleExtendInfo("描述", false);
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        RoleExtendInfo info1 = new RoleExtendInfo("描述", true);
+        RoleExtendInfo info2 = new RoleExtendInfo("描述", true);
+        assertEquals(info1.hashCode(), info2.hashCode());
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        RoleExtendInfo info = new RoleExtendInfo("测试描述", false);
+        String str = info.toString();
+        assertTrue(str.contains("测试描述"));
+    }
 }

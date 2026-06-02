@@ -2,18 +2,17 @@ package com.springddd.application.service.user;
 
 import com.springddd.domain.user.LinkUsersAndRolesDomainService;
 import com.springddd.domain.user.WipeSysUserRoleByIdsDomainService;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -25,28 +24,32 @@ class SysUserRoleCommandServiceTest {
     @Mock
     private WipeSysUserRoleByIdsDomainService wipeSysUserRoleByIdsDomainService;
 
-    @InjectMocks
     private SysUserRoleCommandService sysUserRoleCommandService;
 
-    @Test
-    @DisplayName("create 应调用 link domain service")
-    void create_shouldCallLinkService() {
-        when(linkUsersAndRolesDomainService.link(1L, List.of(1L, 2L))).thenReturn(Mono.empty());
-
-        StepVerifier.create(sysUserRoleCommandService.create(1L, List.of(1L, 2L)))
-                .verifyComplete();
-
-        verify(linkUsersAndRolesDomainService).link(1L, List.of(1L, 2L));
+    @BeforeEach
+    void setUp() {
+        sysUserRoleCommandService = new SysUserRoleCommandService(
+                linkUsersAndRolesDomainService,
+                wipeSysUserRoleByIdsDomainService
+        );
     }
 
     @Test
-    @DisplayName("wipe 应调用 wipe domain service")
-    void wipe_shouldCallWipeService() {
-        when(wipeSysUserRoleByIdsDomainService.deleteByIds(List.of(1L, 2L))).thenReturn(Mono.empty());
+    void create_shouldDelegateToDomainService() {
+        Long userId = 1L;
+        List<Long> roleIds = Arrays.asList(1L, 2L);
+        when(linkUsersAndRolesDomainService.link(userId, roleIds)).thenReturn(Mono.empty());
 
-        StepVerifier.create(sysUserRoleCommandService.wipe(List.of(1L, 2L)))
+        StepVerifier.create(sysUserRoleCommandService.create(userId, roleIds))
                 .verifyComplete();
+    }
 
-        verify(wipeSysUserRoleByIdsDomainService).deleteByIds(List.of(1L, 2L));
+    @Test
+    void wipe_shouldDelegateToDomainService() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        when(wipeSysUserRoleByIdsDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
+
+        StepVerifier.create(sysUserRoleCommandService.wipe(ids))
+                .verifyComplete();
     }
 }

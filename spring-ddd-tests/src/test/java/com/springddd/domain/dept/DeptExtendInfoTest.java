@@ -2,34 +2,74 @@ package com.springddd.domain.dept;
 
 import com.springddd.domain.dept.exception.DeptStatusNullException;
 import com.springddd.domain.dept.exception.SortOrderNullException;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DeptExtendInfoTest {
 
     @Test
-    @DisplayName("正常构造")
-    void constructor_withValidValue_shouldCreate() {
-        DeptExtendInfo obj = new DeptExtendInfo(1, true);
-        assertThat(obj.sortOrder()).isEqualTo(1);
-        assertThat(obj.deptStatus()).isEqualTo(true);
+    void shouldCreateWithValidValues() {
+        DeptExtendInfo info = new DeptExtendInfo(1, true);
+        assertEquals(1, info.sortOrder());
+        assertTrue(info.deptStatus());
     }
 
     @Test
-    @DisplayName("sortOrder 为 null 应抛异常")
-    void constructor_withNullSortorder_shouldThrowException() {
-        assertThatThrownBy(() -> new DeptExtendInfo(null, true))
-                .isInstanceOf(SortOrderNullException.class);
+    void shouldCreateWithZeroValues() {
+        DeptExtendInfo info = new DeptExtendInfo(0, false);
+        assertEquals(0, info.sortOrder());
+        assertFalse(info.deptStatus());
     }
 
     @Test
-    @DisplayName("deptStatus 为 null 应抛异常")
-    void constructor_withNullDeptstatus_shouldThrowException() {
-        assertThatThrownBy(() -> new DeptExtendInfo(1, null))
-                .isInstanceOf(DeptStatusNullException.class);
+    void shouldCreateWithLargeValues() {
+        DeptExtendInfo info = new DeptExtendInfo(Integer.MAX_VALUE, true);
+        assertEquals(Integer.MAX_VALUE, info.sortOrder());
+        assertTrue(info.deptStatus());
     }
 
+    @Test
+    void equals_shouldWorkForSameValues() {
+        DeptExtendInfo info1 = new DeptExtendInfo(1, true);
+        DeptExtendInfo info2 = new DeptExtendInfo(1, true);
+        assertEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentSortOrder() {
+        DeptExtendInfo info1 = new DeptExtendInfo(1, true);
+        DeptExtendInfo info2 = new DeptExtendInfo(2, true);
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void equals_shouldFailForDifferentDeptStatus() {
+        DeptExtendInfo info1 = new DeptExtendInfo(1, true);
+        DeptExtendInfo info2 = new DeptExtendInfo(1, false);
+        assertNotEquals(info1, info2);
+    }
+
+    @Test
+    void hashCode_shouldBeConsistent() {
+        DeptExtendInfo info1 = new DeptExtendInfo(1, true);
+        DeptExtendInfo info2 = new DeptExtendInfo(1, true);
+        assertEquals(info1.hashCode(), info2.hashCode());
+    }
+
+    @Test
+    void shouldThrowWhenSortOrderIsNull() {
+        assertThrows(SortOrderNullException.class, () -> new DeptExtendInfo(null, true));
+    }
+
+    @Test
+    void shouldThrowWhenDeptStatusIsNull() {
+        assertThrows(DeptStatusNullException.class, () -> new DeptExtendInfo(1, null));
+    }
+
+    @Test
+    void toString_shouldReturnValues() {
+        DeptExtendInfo info = new DeptExtendInfo(5, true);
+        assertTrue(info.toString().contains("5"));
+        assertTrue(info.toString().contains("true"));
+    }
 }
