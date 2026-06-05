@@ -7,7 +7,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
-import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.data.relational.core.query.Update;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
 
@@ -66,7 +66,7 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
                 return value;
             }
 
-            buffer.wLock().lock();
+            buffer.lock();
             try {
                 segment = buffer.getCurrent();
                 value = segment.getValue().getAndIncrement();
@@ -78,13 +78,12 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
                     buffer.switchPos();
                     buffer.setNextReady(false);
                 } else {
-                    // Next buffer not ready, wait for it
-                    long start = System.currentTimeMillis();
+                    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
                     while (!buffer.isNextReady()) {
-                        if (System.currentTimeMillis() - start > 5000) {
+                        if (System.nanoTime() > deadline) {
                             throw new RuntimeException("Leaf segment buffer not ready for bizTag: " + bizTag);
                         }
-                        Thread.sleep(10);
+                        Thread.onSpinWait();
                     }
                     buffer.switchPos();
                     buffer.setNextReady(false);
@@ -92,15 +91,11 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
 
                 segment = buffer.getCurrent();
                 return segment.getValue().getAndIncrement();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new RuntimeException("Interrupted while waiting for segment buffer", e);
             } finally {
-                buffer.wLock().unlock();
+                buffer.unlock();
             }
         }).subscribeOn(Schedulers.boundedElastic())
                 .doOnNext(id -> {
-                    // Async preload next segment if needed
                     if (buffer.getCurrent().getStep() > 0) {
                         long threshold = buffer.getCurrent().getMax() - buffer.getCurrent().getStep() / 2;
                         if (buffer.getCurrent().getValue().get() >= threshold && !buffer.isNextReady() && buffer.getThreadRunning().compareAndSet(false, true)) {
@@ -126,12 +121,11 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
         return r2dbcEntityTemplate.selectOne(
                         Query.query(where("biz_tag").is(bizTag)),
                         LeafAllocEntity.class)
+                .switchIfEmpty(Mono.error(new RuntimeException("Leaf alloc not found for bizTag: " + bizTag)))
                 .flatMap(entity -> {
                     int step = entity.getStep();
                     long oldMaxId = entity.getMaxId();
-                    long newMaxId = oldMaxId + step;
 
-                    // Dynamic step logic
                     if (!isInit && buffer.getStepUpdateTime() > 0) {
                         long duration = System.currentTimeMillis() - buffer.getStepUpdateTime();
                         if (duration < 15 * 60 * 1000L) {
@@ -168,8 +162,7 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
                                         bizTag, oldMaxId, finalNewMaxId, finalStep);
                             })
                             .then();
-                })
-                .switchIfEmpty(Mono.error(new RuntimeException("Leaf alloc not found for bizTag: " + bizTag)));
+                });
     }
 
     public Map<String, LeafSegmentBuffer> getBufferCache() {
