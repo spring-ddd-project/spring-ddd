@@ -30,7 +30,7 @@ class SysMenuDomainFactoryImplTest {
         assertNotNull(domain);
         assertEquals(name, domain.getName());
         assertNotNull(domain.getCatalog());
-        assertEquals("redirect/path", domain.getCatalog().menuRedirect());
+        assertEquals("redirect/path", domain.getCatalog().redirect());
         assertEquals(parentId, domain.getParentId());
         assertEquals(deptId, domain.getDeptId());
         assertFalse(domain.getDeleteStatus());

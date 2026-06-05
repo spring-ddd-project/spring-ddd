@@ -137,4 +137,39 @@ class DefaultEntityPathResolverTest {
         String result = (String) method.invoke(resolver, "");
         assertThat(result).isEqualTo("");
     }
+
+    @Test
+    @DisplayName("init 当 explicitMappings 为 null 时不应抛出异常")
+    void init_withNullExplicitMappings_shouldNotThrow() throws Exception {
+        java.lang.reflect.Field field = DefaultEntityPathResolver.class.getDeclaredField("explicitMappings");
+        field.setAccessible(true);
+        DefaultEntityPathResolver nullMappingResolver = new DefaultEntityPathResolver();
+        field.set(nullMappingResolver, null);
+        nullMappingResolver.init();
+
+        Optional<String> result = nullMappingResolver.resolveEntityCode("/sys/user");
+        assertThat(result).hasValue("sys_user");
+    }
+
+    @Test
+    @DisplayName("resolveEntityCode 当显式映射存在但不匹配时应通过约定推导")
+    void resolveEntityCode_withExplicitMappingNoMatch_shouldDeriveByConvention() throws Exception {
+        java.lang.reflect.Field field = DefaultEntityPathResolver.class.getDeclaredField("explicitMappings");
+        field.setAccessible(true);
+        DefaultEntityPathResolver explicitResolver = new DefaultEntityPathResolver();
+        field.set(explicitResolver, Map.of("/api/other", "other_entity"));
+        explicitResolver.init();
+
+        Optional<String> result = explicitResolver.resolveEntityCode("/sys/user");
+        assertThat(result).hasValue("sys_user");
+    }
+
+    @Test
+    @DisplayName("deriveByConvention 当路径为双斜杠时应返回 null")
+    void deriveByConvention_withDoubleSlash_shouldReturnNull() throws Exception {
+        Method method = DefaultEntityPathResolver.class.getDeclaredMethod("deriveByConvention", String.class);
+        method.setAccessible(true);
+        String result = (String) method.invoke(resolver, "//");
+        assertThat(result).isNull();
+    }
 }

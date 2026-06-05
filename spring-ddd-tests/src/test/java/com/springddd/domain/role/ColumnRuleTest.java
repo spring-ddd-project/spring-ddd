@@ -17,11 +17,12 @@ class ColumnRuleTest {
     void shouldCreateWithAllArgsConstructor() {
         List<String> columns = Arrays.asList("col1", "col2", "col3");
 
-        ColumnRule columnRule = new ColumnRule("user", "用户表", columns);
+        ColumnRule columnRule = new ColumnRule("user", "用户表", columns, "dept", Arrays.asList(1L, 2L));
 
         assertEquals("user", columnRule.getEntityCode());
         assertEquals("用户表", columnRule.getEntityName());
         assertEquals(columns, columnRule.getColumns());
+        assertEquals("dept", columnRule.getDimensionType());
     }
 
     @Test
@@ -70,42 +71,42 @@ class ColumnRuleTest {
 
     @Test
     void equals_shouldWorkForSameValues() {
-        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1", "col2"));
-        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col1", "col2"));
+        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1", "col2"), null, null);
+        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col1", "col2"), null, null);
         assertEquals(cr1, cr2);
     }
 
     @Test
     void equals_shouldFailForDifferentEntityCode() {
-        ColumnRule cr1 = new ColumnRule("entity1", "实体", Arrays.asList("col1"));
-        ColumnRule cr2 = new ColumnRule("entity2", "实体", Arrays.asList("col1"));
+        ColumnRule cr1 = new ColumnRule("entity1", "实体", Arrays.asList("col1"), null, null);
+        ColumnRule cr2 = new ColumnRule("entity2", "实体", Arrays.asList("col1"), null, null);
         assertNotEquals(cr1, cr2);
     }
 
     @Test
     void equals_shouldFailForDifferentEntityName() {
-        ColumnRule cr1 = new ColumnRule("entity", "实体1", Arrays.asList("col1"));
-        ColumnRule cr2 = new ColumnRule("entity", "实体2", Arrays.asList("col1"));
+        ColumnRule cr1 = new ColumnRule("entity", "实体1", Arrays.asList("col1"), null, null);
+        ColumnRule cr2 = new ColumnRule("entity", "实体2", Arrays.asList("col1"), null, null);
         assertNotEquals(cr1, cr2);
     }
 
     @Test
     void equals_shouldFailForDifferentColumns() {
-        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1"));
-        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col2"));
+        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1"), null, null);
+        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col2"), null, null);
         assertNotEquals(cr1, cr2);
     }
 
     @Test
     void hashCode_shouldBeConsistent() {
-        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1"));
-        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col1"));
+        ColumnRule cr1 = new ColumnRule("entity", "实体", Arrays.asList("col1"), null, null);
+        ColumnRule cr2 = new ColumnRule("entity", "实体", Arrays.asList("col1"), null, null);
         assertEquals(cr1.hashCode(), cr2.hashCode());
     }
 
     @Test
     void toString_shouldReturnValues() {
-        ColumnRule columnRule = new ColumnRule("test_entity", "测试实体", Arrays.asList("c1", "c2"));
+        ColumnRule columnRule = new ColumnRule("test_entity", "测试实体", Arrays.asList("c1", "c2"), null, null);
         String str = columnRule.toString();
         assertTrue(str.contains("test_entity"));
         assertTrue(str.contains("测试实体"));

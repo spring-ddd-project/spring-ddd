@@ -4,8 +4,7 @@ import lombok.Data;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Data
 public class LeafSegmentBuffer {
@@ -20,7 +19,7 @@ public class LeafSegmentBuffer {
 
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
 
-    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock lock = new ReentrantLock();
 
     private volatile long stepUpdateTime;
 
@@ -46,12 +45,12 @@ public class LeafSegmentBuffer {
         currentPos = nextPos();
     }
 
-    public Lock rLock() {
-        return lock.readLock();
+    public void lock() {
+        lock.lock();
     }
 
-    public Lock wLock() {
-        return lock.writeLock();
+    public void unlock() {
+        lock.unlock();
     }
 
     public boolean isInitOk() {

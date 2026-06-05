@@ -48,7 +48,7 @@ class SysDeptControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].deptName").isEqualTo("Tech");
+                .jsonPath("$.data.items[0].deptName").isEqualTo("Tech");
     }
 
     @Test

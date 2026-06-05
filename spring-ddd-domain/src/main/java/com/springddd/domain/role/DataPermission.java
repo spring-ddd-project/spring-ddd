@@ -12,4 +12,6 @@ import java.util.List;
 public class DataPermission {
     private RowScope rowScope;
     private List<ColumnRule> columnRules;
+    private Integer dataScope;
+    private List<Long> deptIds;
 }

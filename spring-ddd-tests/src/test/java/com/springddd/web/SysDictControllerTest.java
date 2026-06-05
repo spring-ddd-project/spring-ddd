@@ -49,7 +49,7 @@ class SysDictControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].dictCode").isEqualTo("status");
+                .jsonPath("$.data.items[0].dictCode").isEqualTo("status");
     }
 
     @Test

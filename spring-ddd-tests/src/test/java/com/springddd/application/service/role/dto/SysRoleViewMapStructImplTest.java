@@ -46,7 +46,7 @@ class SysRoleViewMapStructImplTest {
 
     @Test
     @DisplayName("toViewList 应将 Entity 列表映射为 View 列表")
-    void toViewList_shouldMapEntityListToViewList() {
+    void toViewList_shouldMapEntityListToView() {
         SysRoleEntity e1 = new SysRoleEntity();
         e1.setId(1L);
         e1.setRoleName("Role1");
@@ -79,7 +79,7 @@ class SysRoleViewMapStructImplTest {
         String json = "{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"columnRules\":[],\"dataScope\":1,\"deptIds\":[]}";
         DataPermission dp = impl.toDataPermission(json);
         assertThat(dp).isNotNull();
-        assertThat(dp.dataScope()).isEqualTo(1);
+        assertThat(dp.getDataScope()).isEqualTo(1);
     }
 
     @Test

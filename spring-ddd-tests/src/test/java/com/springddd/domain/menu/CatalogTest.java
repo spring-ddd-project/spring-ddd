@@ -6,21 +6,21 @@ import static org.junit.jupiter.api.Assertions.*;
 class CatalogTest {
 
     @Test
-    void shouldCreateCatalogWithValidMenuRedirect() {
+    void shouldCreateCatalogWithValidRedirect() {
         Catalog catalog = new Catalog("/redirect");
-        assertEquals("/redirect", catalog.menuRedirect());
+        assertEquals("/redirect", catalog.redirect());
     }
 
     @Test
     void shouldCreateCatalogWithEmptyString() {
         Catalog catalog = new Catalog("");
-        assertEquals("", catalog.menuRedirect());
+        assertEquals("", catalog.redirect());
     }
 
     @Test
     void shouldCreateCatalogWithNull() {
         Catalog catalog = new Catalog(null);
-        assertNull(catalog.menuRedirect());
+        assertNull(catalog.redirect());
     }
 
     @Test

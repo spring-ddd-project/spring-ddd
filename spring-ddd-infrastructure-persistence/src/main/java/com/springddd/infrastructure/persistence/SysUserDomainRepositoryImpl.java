@@ -23,12 +23,13 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
 
             sysUserDomain.setUserId(new UserId(e.getId()));
 
-            Account account = new Account();
-            account.setUsername(new Username(e.getUsername()));
-            account.setPassword(new Password(e.getPassword()));
-            account.setPhone(e.getPhone());
-            account.setEmail(e.getEmail());
-            account.setLockStatus(e.getLockStatus());
+            Account account = new Account(
+                    new Username(e.getUsername()),
+                    new Password(e.getPassword()),
+                    e.getEmail(),
+                    e.getPhone(),
+                    e.getLockStatus()
+            );
             sysUserDomain.setAccount(account);
 
             ExtendInfo extendInfo = new ExtendInfo();
@@ -55,11 +56,11 @@ public class SysUserDomainRepositoryImpl implements SysUserDomainRepository {
         entity.setId(Optional.ofNullable(aggregateRoot.getUserId()).map(UserId::value).orElse(null));
 
         Account account = aggregateRoot.getAccount();
-        entity.setUsername(account.getUsername().value());
-        entity.setPassword(account.getPassword().value());
-        entity.setPhone(account.getPhone());
-        entity.setEmail(account.getEmail());
-        entity.setLockStatus(account.getLockStatus());
+        entity.setUsername(account.username() != null ? account.username().value() : null);
+        entity.setPassword(account.password() != null ? account.password().value() : null);
+        entity.setPhone(account.phone());
+        entity.setEmail(account.email());
+        entity.setLockStatus(account.lockStatus());
 
         ExtendInfo extendInfo = aggregateRoot.getExtendInfo();
         entity.setAvatar(extendInfo.getAvatar());

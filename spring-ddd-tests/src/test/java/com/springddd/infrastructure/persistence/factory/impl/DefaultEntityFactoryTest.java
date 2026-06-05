@@ -41,10 +41,11 @@ class DefaultEntityFactoryTest {
     @DisplayName("createLeafAllocEntity 应将 domain 正确转换为 entity")
     void createLeafAllocEntity_shouldConvertCorrectly() {
         LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setId(1L);
-        domain.setLeafAllocId(new LeafAllocId("test"));
-        domain.setBasicInfo(new LeafAllocBasicInfo("desc"));
-        domain.setExtendInfo(new LeafAllocExtendInfo(100L, 10));
+        domain.setLeafAllocId(new LeafAllocId(1L));
+        domain.setBizTag(new BizTag("test"));
+        domain.setMaxId(new MaxId(100L));
+        domain.setStep(new Step(10));
+        domain.setDescription(new Description("desc"));
         domain.setDeleteStatus(false);
         domain.setCreateBy("admin");
         domain.setCreateTime(LocalDateTime.now());
@@ -85,11 +86,11 @@ class DefaultEntityFactoryTest {
 
         LeafAllocDomain domain = factory.createLeafAllocDomain(entity);
 
-        assertThat(domain.getId()).isEqualTo(1L);
-        assertThat(domain.getLeafAllocId().value()).isEqualTo("test");
-        assertThat(domain.getBasicInfo().description()).isEqualTo("desc");
-        assertThat(domain.getExtendInfo().maxId()).isEqualTo(100L);
-        assertThat(domain.getExtendInfo().step()).isEqualTo(10);
+        assertThat(domain.getLeafAllocId().value()).isEqualTo(1L);
+        assertThat(domain.getBizTag().value()).isEqualTo("test");
+        assertThat(domain.getMaxId().value()).isEqualTo(100L);
+        assertThat(domain.getStep().value()).isEqualTo(10);
+        assertThat(domain.getDescription().value()).isEqualTo("desc");
         assertThat(domain.getDeleteStatus()).isFalse();
         assertThat(domain.getCreateBy()).isEqualTo("admin");
         assertThat(domain.getVersion()).isEqualTo(1);
@@ -101,11 +102,14 @@ class DefaultEntityFactoryTest {
     void createLeafAllocEntity_withNullValues_shouldHandleGracefully() {
         LeafAllocDomain domain = new LeafAllocDomain();
         domain.setLeafAllocId(null);
-        domain.setBasicInfo(null);
-        domain.setExtendInfo(null);
+        domain.setBizTag(null);
+        domain.setMaxId(null);
+        domain.setStep(null);
+        domain.setDescription(null);
 
         LeafAllocEntity entity = factory.createLeafAllocEntity(domain);
 
+        assertThat(entity.getId()).isNull();
         assertThat(entity.getBizTag()).isNull();
         assertThat(entity.getDescription()).isNull();
         assertThat(entity.getMaxId()).isNull();
@@ -113,8 +117,8 @@ class DefaultEntityFactoryTest {
     }
 
     @Test
-    @DisplayName("createLeafAllocDomain 当 maxId 和 step 为 null 时应使用默认值")
-    void createLeafAllocDomain_withNullMaxIdAndStep_shouldUseDefaults() {
+    @DisplayName("createLeafAllocDomain 当 maxId 和 step 为 null 时应处理为空")
+    void createLeafAllocDomain_withNullMaxIdAndStep_shouldHandleGracefully() {
         LeafAllocEntity entity = new LeafAllocEntity();
         entity.setId(1L);
         entity.setBizTag("test");
@@ -129,9 +133,13 @@ class DefaultEntityFactoryTest {
         entity.setVersion(1);
         entity.setDeptId(1L);
 
-        // The factory defaults step to 0 when null, but LeafAllocExtendInfo rejects step <= 0.
-        // We assert that the branch is hit and the exception propagates.
-        assertThrows(IllegalArgumentException.class, () -> factory.createLeafAllocDomain(entity));
+        LeafAllocDomain domain = factory.createLeafAllocDomain(entity);
+
+        assertThat(domain.getLeafAllocId().value()).isEqualTo(1L);
+        assertThat(domain.getBizTag().value()).isEqualTo("test");
+        assertThat(domain.getMaxId()).isNull();
+        assertThat(domain.getStep()).isNull();
+        assertThat(domain.getDescription().value()).isEqualTo("desc");
     }
 
     // ==================== GenAggregate ====================
@@ -198,7 +206,10 @@ class DefaultEntityFactoryTest {
         SysUserDomain domain = new SysUserDomain();
         domain.setUserId(new UserId(1L));
         domain.setAccount(new Account(new Username("admin"), new Password("123456"), "admin@test.com", "13800138000", false));
-        domain.setExtendInfo(new ExtendInfo("avatar.jpg", true));
+        ExtendInfo extendInfo = new ExtendInfo();
+        extendInfo.setAvatar("avatar.jpg");
+        extendInfo.setSex(true);
+        domain.setExtendInfo(extendInfo);
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setCreateBy("system");
@@ -250,8 +261,8 @@ class DefaultEntityFactoryTest {
         assertThat(domain.getAccount().email()).isEqualTo("admin@test.com");
         assertThat(domain.getAccount().phone()).isEqualTo("13800138000");
         assertThat(domain.getAccount().lockStatus()).isFalse();
-        assertThat(domain.getExtendInfo().avatar()).isEqualTo("avatar.jpg");
-        assertThat(domain.getExtendInfo().sex()).isTrue();
+        assertThat(domain.getExtendInfo().getAvatar()).isEqualTo("avatar.jpg");
+        assertThat(domain.getExtendInfo().getSex()).isTrue();
         assertThat(domain.getDeptId()).isEqualTo(1L);
         assertThat(domain.getDeleteStatus()).isFalse();
         assertThat(domain.getVersion()).isEqualTo(1);
@@ -308,7 +319,7 @@ class DefaultEntityFactoryTest {
     @DisplayName("createSysDeptEntity 应将 domain 正确转换为 entity")
     void createSysDeptEntity_shouldConvertCorrectly() {
         SysDeptDomain domain = new SysDeptDomain();
-        domain.setDeptIdentifier(new com.springddd.domain.dept.DeptId(1L));
+        domain.setId(new com.springddd.domain.dept.DeptId(1L));
         domain.setParentId(new com.springddd.domain.dept.DeptId(2L));
         domain.setDeptBasicInfo(new com.springddd.domain.dept.DeptBasicInfo("tech"));
         domain.setDeptExtendInfo(new com.springddd.domain.dept.DeptExtendInfo(1, true));
@@ -348,7 +359,7 @@ class DefaultEntityFactoryTest {
 
         SysDeptDomain domain = factory.createSysDeptDomain(entity);
 
-        assertThat(domain.getDeptIdentifier().value()).isEqualTo(1L);
+        assertThat(domain.getId().value()).isEqualTo(1L);
         assertThat(domain.getParentId().value()).isEqualTo(2L);
         assertThat(domain.getDeptBasicInfo().deptName()).isEqualTo("tech");
         assertThat(domain.getDeptExtendInfo().sortOrder()).isEqualTo(1);
@@ -361,7 +372,7 @@ class DefaultEntityFactoryTest {
     @DisplayName("createSysDeptEntity 当基本值为 null 时应处理为空")
     void createSysDeptEntity_withNullValues_shouldHandleGracefully() {
         SysDeptDomain domain = new SysDeptDomain();
-        domain.setDeptIdentifier(null);
+        domain.setId(null);
         domain.setParentId(null);
         domain.setDeptBasicInfo(null);
         domain.setDeptExtendInfo(null);
@@ -610,7 +621,7 @@ class DefaultEntityFactoryTest {
         assertThat(domain.getRoleExtendInfo().roleDesc()).isEqualTo("desc");
         assertThat(domain.getRoleExtendInfo().roleStatus()).isTrue();
         assertThat(domain.getDataPermission()).isNotNull();
-        assertThat(domain.getDataPermission().dataScope()).isEqualTo(1);
+        assertThat(domain.getDataPermission().getDataScope()).isEqualTo(1);
     }
 
     @Test
@@ -927,5 +938,159 @@ class DefaultEntityFactoryTest {
         assertThat(domain.getId().value()).isEqualTo(1L);
         assertThat(domain.getTemplateInfo().templateName()).isEqualTo("name");
         assertThat(domain.getTemplateInfo().templateContent()).isEqualTo("content");
+    }
+
+    // ==================== Null Branch Coverage ====================
+
+    @Test
+    @DisplayName("createSysMenuEntity 当所有可选值为 null 时应处理为空")
+    void createSysMenuEntity_withAllNullValues_shouldHandleGracefully() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setMenuId(new com.springddd.domain.menu.MenuId(1L));
+        domain.setParentId(new com.springddd.domain.menu.MenuId(2L));
+        domain.setName("menu");
+        domain.setCatalog(null);
+        domain.setMenu(null);
+        domain.setButton(null);
+        domain.setMenuExtendInfo(null);
+        domain.setDeptId(1L);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        SysMenuEntity entity = factory.createSysMenuEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getRedirect()).isNull();
+        assertThat(entity.getPath()).isNull();
+        assertThat(entity.getComponent()).isNull();
+        assertThat(entity.getPermission()).isNull();
+        assertThat(entity.getApi()).isNull();
+        assertThat(entity.getSortOrder()).isNull();
+        assertThat(entity.getTitle()).isNull();
+        assertThat(entity.getIcon()).isNull();
+        assertThat(entity.getMenuType()).isNull();
+        assertThat(entity.getVisible()).isNull();
+        assertThat(entity.getMenuStatus()).isNull();
+    }
+
+    @Test
+    @DisplayName("createSysDictEntity 当所有可选值为 null 时应处理为空")
+    void createSysDictEntity_withAllNullValues_shouldHandleGracefully() {
+        SysDictDomain domain = new SysDictDomain();
+        domain.setDictId(new com.springddd.domain.dict.DictId(1L));
+        domain.setDictBasicInfo(null);
+        domain.setDictExtendInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        SysDictEntity entity = factory.createSysDictEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getDictName()).isNull();
+        assertThat(entity.getDictCode()).isNull();
+        assertThat(entity.getSortOrder()).isNull();
+        assertThat(entity.getDictStatus()).isNull();
+    }
+
+    @Test
+    @DisplayName("createSysDictItemEntity 当所有可选值为 null 时应处理为空")
+    void createSysDictItemEntity_withAllNullValues_shouldHandleGracefully() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        domain.setItemId(new com.springddd.domain.dict.DictItemId(1L));
+        domain.setDictId(null);
+        domain.setItemBasicInfo(null);
+        domain.setItemExtendInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        SysDictItemEntity entity = factory.createSysDictItemEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getDictId()).isNull();
+        assertThat(entity.getItemLabel()).isNull();
+        assertThat(entity.getItemValue()).isNull();
+        assertThat(entity.getSortOrder()).isNull();
+        assertThat(entity.getItemStatus()).isNull();
+    }
+
+    @Test
+    @DisplayName("createGenColumnBindEntity 当所有可选值为 null 时应处理为空")
+    void createGenColumnBindEntity_withAllNullValues_shouldHandleGracefully() {
+        GenColumnBindDomain domain = new GenColumnBindDomain();
+        domain.setBindId(null);
+        domain.setBasicInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        GenColumnBindEntity entity = factory.createGenColumnBindEntity(domain);
+
+        assertThat(entity.getId()).isNull();
+        assertThat(entity.getColumnType()).isNull();
+        assertThat(entity.getEntityType()).isNull();
+        assertThat(entity.getComponentType()).isNull();
+        assertThat(entity.getTypescriptType()).isNull();
+    }
+
+    @Test
+    @DisplayName("createGenColumnsEntity 当所有可选值为 null 时应处理为空")
+    void createGenColumnsEntity_withAllNullValues_shouldHandleGracefully() {
+        GenColumnsDomain domain = new GenColumnsDomain();
+        domain.setId(new com.springddd.domain.gen.ColumnsId(1L));
+        domain.setInfoId(null);
+        domain.setProp(null);
+        domain.setTable(null);
+        domain.setForm(null);
+        domain.setI18n(null);
+        domain.setExtendInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        GenColumnsEntity entity = factory.createGenColumnsEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getInfoId()).isNull();
+        assertThat(entity.getPropColumnKey()).isNull();
+        assertThat(entity.getTableVisible()).isNull();
+        assertThat(entity.getFormComponent()).isNull();
+        assertThat(entity.getEn()).isNull();
+        assertThat(entity.getPropDictId()).isNull();
+        assertThat(entity.getTypescriptType()).isNull();
+    }
+
+    @Test
+    @DisplayName("createGenProjectInfoEntity 当所有可选值为 null 时应处理为空")
+    void createGenProjectInfoEntity_withAllNullValues_shouldHandleGracefully() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setId(new com.springddd.domain.gen.InfoId(1L));
+        domain.setProjectInfo(null);
+        domain.setExtendInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        GenProjectInfoEntity entity = factory.createGenProjectInfoEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getTableName()).isNull();
+        assertThat(entity.getPackageName()).isNull();
+        assertThat(entity.getClassName()).isNull();
+        assertThat(entity.getModuleName()).isNull();
+        assertThat(entity.getProjectName()).isNull();
+        assertThat(entity.getRequestName()).isNull();
+    }
+
+    @Test
+    @DisplayName("createGenTemplateEntity 当 templateInfo 为 null 时应处理为空")
+    void createGenTemplateEntity_withNullTemplateInfo_shouldHandleGracefully() {
+        GenTemplateDomain domain = new GenTemplateDomain();
+        domain.setId(new com.springddd.domain.gen.TemplateId(1L));
+        domain.setTemplateInfo(null);
+        domain.setDeleteStatus(false);
+        domain.setVersion(1);
+
+        GenTemplateEntity entity = factory.createGenTemplateEntity(domain);
+
+        assertThat(entity.getId()).isEqualTo(1L);
+        assertThat(entity.getTemplateName()).isNull();
+        assertThat(entity.getTemplateContent()).isNull();
     }
 }

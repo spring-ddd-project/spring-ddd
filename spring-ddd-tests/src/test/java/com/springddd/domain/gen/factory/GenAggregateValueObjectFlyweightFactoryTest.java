@@ -28,4 +28,10 @@ class GenAggregateValueObjectFlyweightFactoryTest {
         GenAggregateValueObject vo2 = GenAggregateValueObjectFlyweightFactory.getValueObject("B", "v2", (byte) 1);
         assertThat(vo1).isNotSameAs(vo2);
     }
+
+    @Test
+    void testConstructor_shouldCreateInstance() {
+        GenAggregateValueObjectFlyweightFactory factory = new GenAggregateValueObjectFlyweightFactory();
+        assertThat(factory).isNotNull();
+    }
 }

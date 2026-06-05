@@ -61,7 +61,7 @@ class GenColumnsControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].propColumnName").isEqualTo("username");
+                .jsonPath("$.data.items[0].propColumnName").isEqualTo("username");
     }
 
     @Test

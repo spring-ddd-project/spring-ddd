@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class EntityMetadataScannerTest {
 
@@ -142,5 +143,15 @@ class EntityMetadataScannerTest {
         assertThat(columns)
                 .extracting(EntityColumnMetadata.ColumnInfo::field)
                 .containsExactly("id", "childName", "name");
+    }
+
+    @Test
+    @DisplayName("scanEntities 当 loadEntityClass 抛出 ClassNotFoundException 时应记录警告并跳过")
+    void scanEntities_whenClassNotFound_shouldLogWarning() throws Exception {
+        EntityMetadataScanner spyScanner = spy(new EntityMetadataScanner());
+        doThrow(new ClassNotFoundException("test")).when(spyScanner).loadEntityClass(anyString());
+        spyScanner.init();
+
+        assertThat(spyScanner.getAllMetadata()).isEmpty();
     }
 }

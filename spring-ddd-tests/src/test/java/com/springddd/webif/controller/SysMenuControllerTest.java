@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.menu.SysMenuCommandService;
 import com.springddd.application.service.menu.SysMenuQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.menu.dto.SysMenuCommand;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.web.SysMenuController;
@@ -33,6 +34,9 @@ class SysMenuControllerTest {
 
     @MockBean
     private SysMenuCommandService commandService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

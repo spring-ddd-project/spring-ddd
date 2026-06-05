@@ -14,7 +14,7 @@ class LeafExceptionTest {
 
     @Test
     void testLeafAllocNotFoundException() {
-        LeafAllocNotFoundException ex = new LeafAllocNotFoundException("test-key");
-        assertThat(ex.getMessage()).isEqualTo("LeafAlloc not found for bizTag: test-key");
+        LeafAllocNotFoundException ex = new LeafAllocNotFoundException();
+        assertThat(ex.getMessage()).isEqualTo("error.leaf.alloc.notFound");
     }
 }

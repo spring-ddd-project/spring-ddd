@@ -75,4 +75,129 @@ class SysMenuDomainTest {
         String str = domain.toString();
         assertTrue(str.contains("SysMenuDomain"));
     }
+
+    @Test
+    void shouldShowWhenStateIsNullAndVisibleTrue() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(new AdvancedOptions(1, "icon", 1, true, true));
+
+        domain.show();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldShowWhenStateIsNullAndVisibleFalse() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(new AdvancedOptions(1, "icon", 1, false, true));
+
+        domain.show();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldShowWhenStateExists() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setState(new com.springddd.domain.menu.state.VisibleMenuState());
+
+        domain.show();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldHideWhenStateIsNullAndVisibleTrue() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(new AdvancedOptions(1, "icon", 1, true, true));
+
+        domain.hide();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldHideWhenStateIsNullAndVisibleFalse() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(new AdvancedOptions(1, "icon", 1, false, true));
+
+        domain.hide();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldHideWhenStateExists() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setState(new com.springddd.domain.menu.state.HiddenMenuState());
+
+        domain.hide();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldCloneWithNullFields() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setMenuId(null);
+        domain.setParentId(null);
+        domain.setMenu(null);
+        domain.setAdvancedOptions(null);
+
+        SysMenuDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertNull(clone.getMenuId());
+        assertNull(clone.getParentId());
+        assertNull(clone.getMenu());
+        assertNull(clone.getAdvancedOptions());
+    }
+
+    @Test
+    void shouldCloneWithAllFields() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setMenuId(new MenuId(1L));
+        domain.setParentId(new MenuId(0L));
+        domain.setMenu(new Menu("/path", "component", true, false, false));
+        domain.setAdvancedOptions(new AdvancedOptions(1, "icon", 1, true, true));
+
+        SysMenuDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertEquals(1L, clone.getMenuId().value());
+        assertEquals(0L, clone.getParentId().value());
+        assertEquals("/path", clone.getMenu().menuPath());
+        assertEquals(1, clone.getAdvancedOptions().order());
+    }
+
+    @Test
+    void shouldHandleCloneNotSupportedException() {
+        SysMenuDomain domain = new SysMenuDomain() {
+            @Override
+            protected Object doClone() throws CloneNotSupportedException {
+                throw new CloneNotSupportedException("test");
+            }
+        };
+        assertThrows(AssertionError.class, domain::clone);
+    }
+
+    @Test
+    void shouldShowWhenStateIsNullAndAdvancedOptionsNull() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(null);
+
+        domain.show();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldHideWhenStateIsNullAndAdvancedOptionsNull() {
+        SysMenuDomain domain = new SysMenuDomain();
+        domain.setAdvancedOptions(null);
+
+        domain.hide();
+
+        assertNotNull(domain.getState());
+    }
 }

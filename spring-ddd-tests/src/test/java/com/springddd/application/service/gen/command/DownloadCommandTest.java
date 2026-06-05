@@ -25,14 +25,14 @@ class DownloadCommandTest {
     private DownloadCommand downloadCommand;
 
     @Test
-    @DisplayName("execute 应调用 downloadCode")
-    void execute_shouldCallDownloadCode() {
+    @DisplayName("execute 应调用 download")
+    void execute_shouldCallDownload() {
         GenProjectInfoDTO dto = new GenProjectInfoDTO();
-        when(genDownloadDomainService.downloadCode(any())).thenReturn(Mono.empty());
+        when(genDownloadDomainService.download()).thenReturn(Mono.empty());
 
         StepVerifier.create(downloadCommand.execute(dto))
                 .verifyComplete();
 
-        verify(genDownloadDomainService).downloadCode(dto);
+        verify(genDownloadDomainService).download();
     }
 }

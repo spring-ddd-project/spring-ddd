@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.domain.dept.*;
 import com.springddd.domain.dict.*;
 import com.springddd.domain.gen.*;
-import com.springddd.domain.leaf.LeafAllocDomain;
-import com.springddd.domain.leaf.LeafAllocId;
+import com.springddd.domain.leaf.*;
 import com.springddd.domain.menu.*;
 import com.springddd.domain.role.*;
 import com.springddd.domain.user.*;
@@ -26,11 +25,11 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public LeafAllocEntity createLeafAllocEntity(LeafAllocDomain domain) {
         LeafAllocEntity entity = new LeafAllocEntity();
-        entity.setId(domain.getId());
-        entity.setBizTag(Optional.ofNullable(domain.getLeafAllocId()).map(LeafAllocId::value).orElse(null));
-        entity.setMaxId(domain.getExtendInfo() != null ? domain.getExtendInfo().maxId() : null);
-        entity.setStep(domain.getExtendInfo() != null ? domain.getExtendInfo().step() : null);
-        entity.setDescription(domain.getBasicInfo() != null ? domain.getBasicInfo().description() : null);
+        entity.setId(Optional.ofNullable(domain.getLeafAllocId()).map(LeafAllocId::value).orElse(null));
+        entity.setBizTag(domain.getBizTag() != null ? domain.getBizTag().value() : null);
+        entity.setMaxId(domain.getMaxId() != null ? domain.getMaxId().value() : null);
+        entity.setStep(domain.getStep() != null ? domain.getStep().value() : null);
+        entity.setDescription(domain.getDescription() != null ? domain.getDescription().value() : null);
         entity.setDeleteStatus(domain.getDeleteStatus());
         entity.setCreateBy(domain.getCreateBy());
         entity.setCreateTime(domain.getCreateTime());
@@ -44,12 +43,11 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public LeafAllocDomain createLeafAllocDomain(LeafAllocEntity entity) {
         LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setId(entity.getId());
-        domain.setLeafAllocId(new LeafAllocId(entity.getBizTag()));
-        domain.setBasicInfo(new com.springddd.domain.leaf.LeafAllocBasicInfo(entity.getDescription()));
-        domain.setExtendInfo(new com.springddd.domain.leaf.LeafAllocExtendInfo(
-                entity.getMaxId() != null ? entity.getMaxId() : 0L,
-                entity.getStep() != null ? entity.getStep() : 0));
+        domain.setLeafAllocId(new LeafAllocId(entity.getId()));
+        domain.setBizTag(new BizTag(entity.getBizTag()));
+        domain.setMaxId(entity.getMaxId() != null ? new MaxId(entity.getMaxId()) : null);
+        domain.setStep(entity.getStep() != null ? new Step(entity.getStep()) : null);
+        domain.setDescription(new Description(entity.getDescription()));
         domain.setDeleteStatus(entity.getDeleteStatus());
         domain.setCreateBy(entity.getCreateBy());
         domain.setCreateTime(entity.getCreateTime());
@@ -106,8 +104,8 @@ public class DefaultEntityFactory implements EntityFactory {
         }
         
         if (domain.getExtendInfo() != null) {
-            entity.setAvatar(domain.getExtendInfo().avatar());
-            entity.setSex(domain.getExtendInfo().sex());
+            entity.setAvatar(domain.getExtendInfo().getAvatar());
+            entity.setSex(domain.getExtendInfo().getSex());
         }
 
         entity.setDeptId(domain.getDeptId());
@@ -128,7 +126,9 @@ public class DefaultEntityFactory implements EntityFactory {
         Account account = new Account(new Username(entity.getUsername()), new Password(entity.getPassword()), entity.getEmail(), entity.getPhone(), entity.getLockStatus());
         domain.setAccount(account);
         
-        ExtendInfo extendInfo = new ExtendInfo(entity.getAvatar(), entity.getSex());
+        ExtendInfo extendInfo = new ExtendInfo();
+        extendInfo.setAvatar(entity.getAvatar());
+        extendInfo.setSex(entity.getSex());
         domain.setExtendInfo(extendInfo);
         
         domain.setDeptId(entity.getDeptId());
@@ -144,7 +144,7 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public SysDeptEntity createSysDeptEntity(SysDeptDomain domain) {
         SysDeptEntity entity = new SysDeptEntity();
-        entity.setId(Optional.ofNullable(domain.getDeptIdentifier()).map(DeptId::value).orElse(null));
+        entity.setId(Optional.ofNullable(domain.getId()).map(DeptId::value).orElse(null));
         entity.setParentId(Optional.ofNullable(domain.getParentId()).map(DeptId::value).orElse(null));
         if (domain.getDeptBasicInfo() != null) {
             entity.setDeptName(domain.getDeptBasicInfo().deptName());
@@ -165,7 +165,7 @@ public class DefaultEntityFactory implements EntityFactory {
     @Override
     public SysDeptDomain createSysDeptDomain(SysDeptEntity entity) {
         SysDeptDomain domain = new SysDeptDomain();
-        domain.setDeptIdentifier(new DeptId(entity.getId()));
+        domain.setId(new DeptId(entity.getId()));
         domain.setParentId(new DeptId(entity.getParentId()));
         domain.setDeptBasicInfo(new DeptBasicInfo(entity.getDeptName()));
         domain.setDeptExtendInfo(new DeptExtendInfo(entity.getSortOrder(), entity.getDeptStatus()));

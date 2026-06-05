@@ -37,8 +37,8 @@ class LeafAllocViewMapStructImplTest {
     }
 
     @Test
-    @DisplayName("toViews 应将 Entity 列表映射为 View 列表")
-    void toViews_shouldMapEntityListToViewList() {
+    @DisplayName("toViewList 应将 Entity 列表映射为 View 列表")
+    void toViewList_shouldMapEntityListToViewList() {
         LeafAllocEntity e1 = new LeafAllocEntity();
         e1.setId(1L);
         e1.setBizTag("tag1");
@@ -47,7 +47,7 @@ class LeafAllocViewMapStructImplTest {
         e2.setId(2L);
         e2.setBizTag("tag2");
 
-        List<LeafAllocView> views = impl.toViews(List.of(e1, e2));
+        List<LeafAllocView> views = impl.toViewList(List.of(e1, e2));
 
         assertThat(views).hasSize(2);
         assertThat(views.get(0).getId()).isEqualTo(1L);

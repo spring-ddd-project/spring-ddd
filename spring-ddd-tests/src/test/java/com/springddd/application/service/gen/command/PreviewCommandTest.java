@@ -25,14 +25,15 @@ class PreviewCommandTest {
     private PreviewCommand previewCommand;
 
     @Test
-    @DisplayName("execute 应调用 generateProject")
-    void execute_shouldCallGenerateProject() {
+    @DisplayName("execute 应调用 generate")
+    void execute_shouldCallGenerate() {
         GenProjectInfoDTO dto = new GenProjectInfoDTO();
-        when(generateDomainService.generateProject(any())).thenReturn(Mono.empty());
+        dto.setTableName("test_table");
+        when(generateDomainService.generate(any())).thenReturn(Mono.empty());
 
         StepVerifier.create(previewCommand.execute(dto))
                 .verifyComplete();
 
-        verify(generateDomainService).generateProject(dto);
+        verify(generateDomainService).generate("test_table");
     }
 }

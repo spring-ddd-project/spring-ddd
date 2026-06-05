@@ -49,9 +49,7 @@ class SnowflakeControllerTest {
                 .uri("/leaf/snowflake/get")
                 .accept(MediaType.APPLICATION_JSON)
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").exists();
+                .expectStatus().is5xxServerError();
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenTableInfoCommandService;
 import com.springddd.application.service.gen.GenTableInfoQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
 import com.springddd.web.GenTableController;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class GenTableControllerTest {
 
     @MockBean
     private GenTableInfoCommandService commandService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void tableIndex_shouldReturnOk() {

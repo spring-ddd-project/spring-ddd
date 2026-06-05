@@ -32,6 +32,7 @@ class RestoreSysDictByIdDomainServiceImplTest {
     void restoreByIds_shouldComplete_whenValidIds() {
         List<Long> ids = Arrays.asList(1L);
         SysDictDomain mockDomain = new SysDictDomain();
+        mockDomain.setDeleteStatus(true);
         when(sysDictDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(sysDictDomainRepository.save(any())).thenReturn(Mono.just(1L));
 

@@ -87,8 +87,13 @@ class SysUserCommandServiceTest {
         command.setDeptId(2L);
 
         SysUserDomain mockDomain = new SysUserDomain();
-        Account account = new Account();
-        account.setPassword(new Password("encodedPassword"));
+        Account account = new Account(
+                new Username("test"),
+                new Password("encodedPassword"),
+                null,
+                null,
+                false
+        );
         mockDomain.setAccount(account);
 
         when(passwordEncoder.encode(any())).thenReturn("encodedPassword");

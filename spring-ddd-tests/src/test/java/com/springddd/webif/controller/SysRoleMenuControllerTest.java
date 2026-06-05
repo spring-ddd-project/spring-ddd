@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.role.SysRoleMenuCommandService;
 import com.springddd.application.service.role.SysRoleMenuQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.web.SysRoleMenuController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ class SysRoleMenuControllerTest {
 
     @MockBean
     private SysRoleMenuQueryService queryService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void linkRoleAndMenus_shouldReturnOk() {

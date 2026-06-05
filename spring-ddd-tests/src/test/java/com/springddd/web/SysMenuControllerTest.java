@@ -47,7 +47,7 @@ class SysMenuControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].name").isEqualTo("System");
+                .jsonPath("$.data.items[0].name").isEqualTo("System");
     }
 
     @Test

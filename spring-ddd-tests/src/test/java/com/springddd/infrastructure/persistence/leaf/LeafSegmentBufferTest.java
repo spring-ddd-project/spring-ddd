@@ -49,15 +49,14 @@ class LeafSegmentBufferTest {
     }
 
     @Test
-    void shouldProvideReadLock() {
+    void shouldLockAndUnlockWithoutError() {
         LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
-        assertNotNull(buffer.rLock());
-    }
-
-    @Test
-    void shouldProvideWriteLock() {
-        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
-        assertNotNull(buffer.wLock());
+        buffer.lock();
+        try {
+            assertTrue(true); // locked successfully
+        } finally {
+            buffer.unlock();
+        }
     }
 
     @Test
