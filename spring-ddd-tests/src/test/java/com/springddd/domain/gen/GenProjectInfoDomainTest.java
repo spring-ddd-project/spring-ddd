@@ -95,4 +95,77 @@ class GenProjectInfoDomainTest {
         assertNull(domain.getProjectInfo());
         assertNull(domain.getExtendInfo());
     }
+
+    @Test
+    void shouldDeleteWhenStateIsNullAndDeleteStatusFalse() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setDeleteStatus(false);
+
+        domain.delete();
+
+        assertTrue(domain.getDeleteStatus());
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldDeleteWhenStateIsNullAndDeleteStatusTrue() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setDeleteStatus(true);
+
+        domain.delete();
+
+        assertTrue(domain.getDeleteStatus());
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldDeleteWhenStateExists() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setState(new com.springddd.domain.gen.state.ActiveProjectState());
+
+        domain.delete();
+
+        assertTrue(domain.getDeleteStatus());
+    }
+
+    @Test
+    void shouldCloneWithNullFields() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setId(null);
+        domain.setProjectInfo(null);
+        domain.setExtendInfo(null);
+
+        GenProjectInfoDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertNull(clone.getId());
+        assertNull(clone.getProjectInfo());
+        assertNull(clone.getExtendInfo());
+    }
+
+    @Test
+    void shouldCloneWithAllFields() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain();
+        domain.setId(new InfoId(1L));
+        domain.setProjectInfo(new ProjectInfo("table", "com.example", "ClassName", "module", "project"));
+        domain.setExtendInfo(new GenProjectInfoExtendInfo("requestName", "1.0"));
+
+        GenProjectInfoDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertEquals(1L, clone.getId().value());
+        assertEquals("table", clone.getProjectInfo().tableName());
+        assertEquals("requestName", clone.getExtendInfo().requestName());
+    }
+
+    @Test
+    void shouldHandleCloneNotSupportedException() {
+        GenProjectInfoDomain domain = new GenProjectInfoDomain() {
+            @Override
+            protected Object doClone() throws CloneNotSupportedException {
+                throw new CloneNotSupportedException("test");
+            }
+        };
+        assertThrows(AssertionError.class, domain::clone);
+    }
 }

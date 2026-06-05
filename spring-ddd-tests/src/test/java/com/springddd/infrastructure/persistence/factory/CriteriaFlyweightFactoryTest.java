@@ -37,4 +37,11 @@ class CriteriaFlyweightFactoryTest {
         Criteria criteriaFalse = CriteriaFlyweightFactory.getDeleteStatusCriteria(false);
         assertThat(criteriaTrue).isNotSameAs(criteriaFalse);
     }
+
+    @Test
+    @DisplayName("构造函数应可被调用")
+    void constructor_shouldBeCallable() {
+        CriteriaFlyweightFactory factory = new CriteriaFlyweightFactory();
+        assertThat(factory).isNotNull();
+    }
 }

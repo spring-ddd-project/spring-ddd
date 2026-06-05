@@ -16,9 +16,11 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 class ColumnPermissionEvaluatorImplTest {
@@ -181,6 +183,45 @@ class ColumnPermissionEvaluatorImplTest {
                 )
                 .assertNext(result -> assertThat(result).isEqualTo("test"))
                 .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("filter 当 objectMapper.convertValue 返回 null 时应返回原始对象")
+    void filter_whenObjectMapperReturnsNull_shouldReturnOriginal() {
+        ObjectMapper mockMapper = mock(ObjectMapper.class);
+        when(mockMapper.convertValue(any(), eq(Map.class))).thenReturn(null);
+        ColumnPermissionEvaluatorImpl mockEvaluator = new ColumnPermissionEvaluatorImpl(mockMapper);
+
+        TestUser user = new TestUser("zhangsan", "13800138000", "zhangsan@example.com");
+        Map<String, Set<String>> permissions = Map.of("sys_user", Set.of("username"));
+
+        StepVerifier.create(
+                        mockEvaluator.filter(user, "sys_user", MaskStrategy.NULL)
+                                .contextWrite(withAuthUser(permissions))
+                )
+                .assertNext(result -> {
+                    assertThat(result.getUsername()).isEqualTo("zhangsan");
+                    assertThat(result.getPhone()).isEqualTo("13800138000");
+                    assertThat(result.getEmail()).isEqualTo("zhangsan@example.com");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("filterViaMap 当 strategy 为 null 时应抛出 NullPointerException")
+    void filterViaMap_whenStrategyIsNull_shouldThrowNullPointerException() throws Exception {
+        Method method = ColumnPermissionEvaluatorImpl.class.getDeclaredMethod("filterViaMap",
+                Object.class, Set.class, MaskStrategy.class);
+        method.setAccessible(true);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        ColumnPermissionEvaluatorImpl impl = new ColumnPermissionEvaluatorImpl(objectMapper);
+        TestUser user = new TestUser("zhangsan", "13800138000", "zhangsan@example.com");
+
+        java.lang.reflect.InvocationTargetException ex = assertThrows(java.lang.reflect.InvocationTargetException.class, () ->
+                method.invoke(impl, user, Set.of("username"), (MaskStrategy) null)
+        );
+        assertThat(ex.getCause()).isInstanceOf(NullPointerException.class);
     }
 
     static class TestUser {

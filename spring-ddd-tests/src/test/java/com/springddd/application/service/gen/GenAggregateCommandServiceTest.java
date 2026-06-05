@@ -88,6 +88,7 @@ class GenAggregateCommandServiceTest {
     void delete_shouldComplete_whenValidIds() {
         List<Long> ids = Arrays.asList(1L);
         GenAggregateDomain mockDomain = new GenAggregateDomain();
+        mockDomain.setDeleteStatus(false);
         when(genAggregateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
@@ -99,6 +100,7 @@ class GenAggregateCommandServiceTest {
     void restore_shouldComplete_whenValidIds() {
         List<Long> ids = Arrays.asList(1L);
         GenAggregateDomain mockDomain = new GenAggregateDomain();
+        mockDomain.setDeleteStatus(true);
         when(genAggregateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(genAggregateDomainRepository.save(any())).thenReturn(Mono.just(1L));
 

@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenColumnBindCommandService;
 import com.springddd.application.service.gen.GenColumnBindQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenColumnBindCommand;
 import com.springddd.application.service.gen.dto.GenColumnBindPageQuery;
 import com.springddd.web.GenColumnBindController;
@@ -34,6 +35,9 @@ class GenColumnBindControllerTest {
 
     @MockBean
     private GenColumnBindQueryService queryService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

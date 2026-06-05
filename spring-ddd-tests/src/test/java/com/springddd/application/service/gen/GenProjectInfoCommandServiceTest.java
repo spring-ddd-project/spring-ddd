@@ -83,6 +83,7 @@ class GenProjectInfoCommandServiceTest {
         command.setId(1L);
 
         GenProjectInfoDomain mockDomain = new GenProjectInfoDomain();
+        mockDomain.setDeleteStatus(false);
         when(genProjectInfoDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(genProjectInfoDomainRepository.save(any())).thenReturn(Mono.just(1L));
 

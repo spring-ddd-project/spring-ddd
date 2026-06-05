@@ -48,7 +48,7 @@ class GenTemplateControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].templateName").isEqualTo("test");
+                .jsonPath("$.data.items[0].templateName").isEqualTo("test");
     }
 
     @Test

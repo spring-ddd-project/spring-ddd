@@ -392,4 +392,24 @@ class ReactiveSecurityUtilsTest {
                 .assertNext(cols -> assertThat(cols).isEmpty())
                 .verifyComplete();
     }
+
+    @Test
+    @DisplayName("构造函数应可被调用")
+    void constructor_shouldBeCallable() {
+        ReactiveSecurityUtils utils = new ReactiveSecurityUtils();
+        assertThat(utils).isNotNull();
+    }
+
+    @Test
+    @DisplayName("getVisibleColumns 使用 columnRules - dept维度dimensionIds为null时应正常处理")
+    void getVisibleColumns_withNullDimensionIds_deptDimension_shouldHandleNull() {
+        List<ColumnRule> rules = List.of(
+                new ColumnRule("sys_user", "用户", List.of("id"), "dept", null)
+        );
+        AuthUser user = createUserWithRules(1L, 10L, rules);
+
+        StepVerifier.create(ReactiveSecurityUtils.getVisibleColumns("sys_user").contextWrite(withAuthUser(user)))
+                .assertNext(cols -> assertThat(cols).isEmpty())
+                .verifyComplete();
+    }
 }

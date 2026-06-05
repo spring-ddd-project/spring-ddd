@@ -37,4 +37,11 @@ class GenProjectInfoExtendInfoTest {
         String result = info.toString();
         assertTrue(result.contains("TestRequest"));
     }
+
+    @Test
+    void shouldCreateWithNoArgsConstructor() {
+        GenProjectInfoExtendInfo info = new GenProjectInfoExtendInfo();
+        assertNull(info.requestName());
+        assertNull(info.projectVersion());
+    }
 }

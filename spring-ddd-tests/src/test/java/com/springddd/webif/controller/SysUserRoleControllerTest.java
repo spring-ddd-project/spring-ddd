@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.user.SysUserRoleCommandService;
 import com.springddd.application.service.user.SysUserRoleQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.web.SysUserRoleController;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ class SysUserRoleControllerTest {
 
     @MockBean
     private SysUserRoleQueryService queryService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void queryRolesByUserId_shouldReturnOk() {

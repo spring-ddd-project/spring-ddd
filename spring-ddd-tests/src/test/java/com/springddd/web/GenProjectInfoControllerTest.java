@@ -48,7 +48,7 @@ class GenProjectInfoControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].tableName").isEqualTo("sys_user");
+                .jsonPath("$.data.items[0].tableName").isEqualTo("sys_user");
     }
 
     @Test

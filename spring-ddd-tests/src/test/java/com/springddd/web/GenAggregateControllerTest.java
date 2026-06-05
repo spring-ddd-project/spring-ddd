@@ -50,7 +50,7 @@ class GenAggregateControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].objectName").isEqualTo("test");
+                .jsonPath("$.data.items[0].objectName").isEqualTo("test");
     }
 
     @Test
@@ -109,8 +109,6 @@ class GenAggregateControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue("{\"objectName\":\"test\"}")
                 .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(500);
+                .expectStatus().is5xxServerError();
     }
 }

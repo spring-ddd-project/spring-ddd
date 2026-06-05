@@ -15,11 +15,13 @@ class SysUserDomainFactoryImplTest {
     void shouldCreateNewInstance() {
         SysUserDomainFactoryImpl factory = new SysUserDomainFactoryImpl();
 
-        Account account = new Account();
-        account.setUsername(new Username("testuser"));
-        account.setPassword(new Password("password123"));
-        account.setEmail("test@example.com");
-        account.setLockStatus(false);
+        Account account = new Account(
+                new Username("testuser"),
+                new Password("password123"),
+                "test@example.com",
+                null,
+                false
+        );
 
         ExtendInfo extendInfo = new ExtendInfo();
         extendInfo.setAvatar("avatar_url");
@@ -38,9 +40,13 @@ class SysUserDomainFactoryImplTest {
     void shouldThrowWhenDeptIdIsNull() {
         SysUserDomainFactoryImpl factory = new SysUserDomainFactoryImpl();
 
-        Account account = new Account();
-        account.setUsername(new Username("testuser"));
-        account.setPassword(new Password("password123"));
+        Account account = new Account(
+                new Username("testuser"),
+                new Password("password123"),
+                null,
+                null,
+                false
+        );
 
         ExtendInfo extendInfo = new ExtendInfo();
 

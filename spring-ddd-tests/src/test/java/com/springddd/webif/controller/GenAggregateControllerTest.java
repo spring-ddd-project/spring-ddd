@@ -2,6 +2,7 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenAggregateCommandService;
 import com.springddd.application.service.gen.GenAggregateQueryService;
+import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenAggregateCommand;
 import com.springddd.application.service.gen.dto.GenAggregatePageQuery;
 import com.springddd.web.GenAggregateController;
@@ -34,6 +35,9 @@ class GenAggregateControllerTest {
 
     @MockBean
     private GenAggregateQueryService queryService;
+
+    @MockBean
+    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

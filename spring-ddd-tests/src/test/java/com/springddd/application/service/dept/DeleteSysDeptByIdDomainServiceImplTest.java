@@ -47,6 +47,7 @@ class DeleteSysDeptByIdDomainServiceImplTest {
         view.setParentId(0L);
 
         SysDeptDomain mockDomain = new SysDeptDomain();
+        mockDomain.setDeleteStatus(false);
         when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(Collections.singletonList(view)));
         when(sysDeptDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(sysDeptDomainRepository.save(any())).thenReturn(Mono.just(1L));

@@ -15,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 class IdGeneratorTest {
 
@@ -89,6 +90,42 @@ class IdGeneratorTest {
     static class Entity {
         @Id
         private Long id;
+    }
+
+    @IdGenerate
+    static class EntityWithIdGenerateButNoIdField {
+        private String name;
+    }
+
+    static class EntityWithExistingIdNoLastModifiedBy {
+        @Id
+        @IdGenerate
+        private Long id = 100L;
+    }
+
+    static class EntityWithEmptyFieldKey {
+        @Id
+        @IdGenerate(strategy = IdGenerateStrategy.LEAF_SEGMENT)
+        private Long id;
+    }
+
+    @IdGenerate(strategy = IdGenerateStrategy.LEAF_SEGMENT)
+    static class EntityWithExtraFieldForResolveKey {
+        @Id
+        private Long id;
+        private String name;
+    }
+
+    static class EntityWithoutIdGenerateAndNoIdField {
+        private String name;
+    }
+
+    static class EntityWithMixedIdGenerate {
+        @Id
+        @IdGenerate
+        private Long id1;
+        @Id
+        private Long id2;
     }
 
     @Test
@@ -228,6 +265,82 @@ class IdGeneratorTest {
                 })
                 .verifyComplete();
         verifyNoInteractions(leafSegmentIdGenerateDomainService);
+    }
+
+    @Test
+    void shouldReturnEntity_whenIdFieldsEmpty() {
+        EntityWithIdGenerateButNoIdField entity = new EntityWithIdGenerateButNoIdField();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    assertSame(entity, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldNotSetLastModifiedBy_whenFieldAbsent_andIdExists() {
+        EntityWithExistingIdNoLastModifiedBy entity = new EntityWithExistingIdNoLastModifiedBy();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    EntityWithExistingIdNoLastModifiedBy e = (EntityWithExistingIdNoLastModifiedBy) result;
+                    assertEquals(100L, e.id);
+                })
+                .verifyComplete();
+        verifyNoInteractions(leafSegmentIdGenerateDomainService);
+    }
+
+    @Test
+    void shouldResolveEmptyKeyFromFieldName() {
+        EntityWithEmptyFieldKey entity = new EntityWithEmptyFieldKey();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    EntityWithEmptyFieldKey e = (EntityWithEmptyFieldKey) result;
+                    assertEquals(999L, e.id);
+                })
+                .verifyComplete();
+        verify(leafSegmentIdGenerateDomainService).nextId("entity_with_empty_field_key");
+    }
+
+    @Test
+    void shouldResolveKeyWithNonIdField() {
+        EntityWithExtraFieldForResolveKey entity = new EntityWithExtraFieldForResolveKey();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    EntityWithExtraFieldForResolveKey e = (EntityWithExtraFieldForResolveKey) result;
+                    assertEquals(999L, e.id);
+                })
+                .verifyComplete();
+        verify(leafSegmentIdGenerateDomainService).nextId("entity_with_extra_field_for_resolve_key");
+    }
+
+    @Test
+    void shouldResolveIdGenerateWithNonIdField() {
+        EntityWithoutIdGenerateAndNoIdField entity = new EntityWithoutIdGenerateAndNoIdField();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    assertSame(entity, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void shouldHandleCamelToSnakeWithNull() throws Exception {
+        Method method = IdGenerator.class.getDeclaredMethod("camelToSnake", String.class);
+        method.setAccessible(true);
+        String result = (String) method.invoke(null, (String) null);
+        assertEquals("", result);
+    }
+
+    @Test
+    void shouldFilterIdFieldsWithMixedAnnotations() {
+        EntityWithMixedIdGenerate entity = new EntityWithMixedIdGenerate();
+        StepVerifier.create(idGenerator.onBeforeConvert(entity, SqlIdentifier.quoted("test")))
+                .assertNext(result -> {
+                    EntityWithMixedIdGenerate e = (EntityWithMixedIdGenerate) result;
+                    assertNotNull(e.id1);
+                    assertNull(e.id2);
+                })
+                .verifyComplete();
     }
 
 }

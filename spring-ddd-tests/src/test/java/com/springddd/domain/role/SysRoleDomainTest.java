@@ -71,4 +71,111 @@ class SysRoleDomainTest {
         String str = domain.toString();
         assertTrue(str.contains("SysRoleDomain"));
     }
+
+    @Test
+    void shouldEnableWhenStateIsNullAndRoleStatusTrue() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+
+        domain.enable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldEnableWhenStateIsNullAndRoleStatusFalse() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, false, 1, true));
+
+        domain.enable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldEnableWhenStateExists() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setState(new com.springddd.domain.role.state.EnabledRoleState());
+
+        domain.enable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldDisableWhenStateIsNullAndRoleStatusTrue() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+
+        domain.disable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldDisableWhenStateIsNullAndRoleStatusFalse() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, false, 1, true));
+
+        domain.disable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldDisableWhenStateExists() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setState(new com.springddd.domain.role.state.DisabledRoleState());
+
+        domain.disable();
+
+        assertNotNull(domain.getState());
+    }
+
+    @Test
+    void shouldCloneWithNullFields() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleId(null);
+        domain.setRoleBasicInfo(null);
+        domain.setRoleExtendInfo(null);
+        domain.setDataPermission(null);
+
+        SysRoleDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertNull(clone.getRoleId());
+        assertNull(clone.getRoleBasicInfo());
+        assertNull(clone.getRoleExtendInfo());
+        assertNull(clone.getDataPermission());
+    }
+
+    @Test
+    void shouldCloneWithAllFields() {
+        SysRoleDomain domain = new SysRoleDomain();
+        domain.setRoleId(new RoleId(1L));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleExtendInfo(new RoleExtendInfo("remark", true, "desc", true));
+        domain.setDataPermission(new DataPermission());
+
+        SysRoleDomain clone = domain.clone();
+
+        assertNotNull(clone);
+        assertEquals(1L, clone.getRoleId().value());
+        assertEquals("admin", clone.getRoleBasicInfo().roleName());
+        assertEquals("remark", clone.getRoleExtendInfo().roleRemark());
+        assertNotNull(clone.getDataPermission());
+    }
+
+    @Test
+    void shouldHandleCloneNotSupportedException() {
+        SysRoleDomain domain = new SysRoleDomain() {
+            @Override
+            protected Object doClone() throws CloneNotSupportedException {
+                throw new CloneNotSupportedException("test");
+            }
+        };
+        assertThrows(AssertionError.class, domain::clone);
+    }
 }

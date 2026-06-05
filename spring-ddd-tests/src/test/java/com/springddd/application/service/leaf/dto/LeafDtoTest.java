@@ -18,14 +18,14 @@ class LeafDtoTest {
         command.setMaxId(100L);
         command.setStep(10);
         command.setDescription("Test description");
-        command.setDeleteStatus(false);
+        command.setDeptId(1L);
 
         assertThat(command.getId()).isEqualTo(1L);
         assertThat(command.getBizTag()).isEqualTo("test_tag");
         assertThat(command.getMaxId()).isEqualTo(100L);
         assertThat(command.getStep()).isEqualTo(10);
         assertThat(command.getDescription()).isEqualTo("Test description");
-        assertThat(command.getDeleteStatus()).isFalse();
+        assertThat(command.getDeptId()).isEqualTo(1L);
     }
 
     @Test
@@ -38,36 +38,24 @@ class LeafDtoTest {
         assertThat(command.getMaxId()).isNull();
         assertThat(command.getStep()).isNull();
         assertThat(command.getDescription()).isNull();
-        assertThat(command.getDeleteStatus()).isNull();
+        assertThat(command.getDeptId()).isNull();
     }
 
     @Test
     @DisplayName("LeafAllocQuery 应支持无参构造和 setter/getter")
     void leafAllocQuery_shouldSupportGetterSetter() {
         LeafAllocQuery query = new LeafAllocQuery();
-        query.setId(1L);
         query.setBizTag("test_tag");
-        query.setMaxId(100L);
-        query.setStep(10);
-        query.setDescription("Test description");
         query.setDeleteStatus(false);
 
-        assertThat(query.getId()).isEqualTo(1L);
         assertThat(query.getBizTag()).isEqualTo("test_tag");
-        assertThat(query.getMaxId()).isEqualTo(100L);
-        assertThat(query.getStep()).isEqualTo(10);
-        assertThat(query.getDescription()).isEqualTo("Test description");
         assertThat(query.getDeleteStatus()).isFalse();
     }
 
     @Test
     @DisplayName("LeafAllocQuery 应支持 FieldNameConstants")
     void leafAllocQuery_shouldSupportFieldNameConstants() {
-        assertThat(LeafAllocQuery.Fields.id).isEqualTo("id");
         assertThat(LeafAllocQuery.Fields.bizTag).isEqualTo("bizTag");
-        assertThat(LeafAllocQuery.Fields.maxId).isEqualTo("maxId");
-        assertThat(LeafAllocQuery.Fields.step).isEqualTo("step");
-        assertThat(LeafAllocQuery.Fields.description).isEqualTo("description");
         assertThat(LeafAllocQuery.Fields.deleteStatus).isEqualTo("deleteStatus");
     }
 
@@ -75,20 +63,12 @@ class LeafDtoTest {
     @DisplayName("LeafAllocPageQuery 应支持无参构造和 setter/getter")
     void leafAllocPageQuery_shouldSupportGetterSetter() {
         LeafAllocPageQuery pageQuery = new LeafAllocPageQuery();
-        pageQuery.setId(1L);
         pageQuery.setBizTag("test_tag");
-        pageQuery.setMaxId(100L);
-        pageQuery.setStep(10);
-        pageQuery.setDescription("Test description");
         pageQuery.setDeleteStatus(false);
         pageQuery.setPageNum(1);
         pageQuery.setPageSize(10);
 
-        assertThat(pageQuery.getId()).isEqualTo(1L);
         assertThat(pageQuery.getBizTag()).isEqualTo("test_tag");
-        assertThat(pageQuery.getMaxId()).isEqualTo(100L);
-        assertThat(pageQuery.getStep()).isEqualTo(10);
-        assertThat(pageQuery.getDescription()).isEqualTo("Test description");
         assertThat(pageQuery.getDeleteStatus()).isFalse();
         assertThat(pageQuery.getPageNum()).isEqualTo(1);
         assertThat(pageQuery.getPageSize()).isEqualTo(10);
@@ -98,12 +78,12 @@ class LeafDtoTest {
     @DisplayName("LeafAllocPageQuery 应支持 equals 和 hashCode")
     void leafAllocPageQuery_shouldSupportEqualsAndHashCode() {
         LeafAllocPageQuery pageQuery1 = new LeafAllocPageQuery();
-        pageQuery1.setId(1L);
+        pageQuery1.setBizTag("test");
         pageQuery1.setPageNum(1);
         pageQuery1.setPageSize(10);
 
         LeafAllocPageQuery pageQuery2 = new LeafAllocPageQuery();
-        pageQuery2.setId(1L);
+        pageQuery2.setBizTag("test");
         pageQuery2.setPageNum(1);
         pageQuery2.setPageSize(10);
 

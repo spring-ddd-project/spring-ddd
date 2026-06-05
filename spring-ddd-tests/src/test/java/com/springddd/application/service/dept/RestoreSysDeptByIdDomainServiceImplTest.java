@@ -32,6 +32,7 @@ class RestoreSysDeptByIdDomainServiceImplTest {
     void restoreByIds_shouldComplete_whenValidIds() {
         List<Long> ids = Arrays.asList(1L);
         SysDeptDomain mockDomain = new SysDeptDomain();
+        mockDomain.setDeleteStatus(true);
         when(sysDeptDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
         when(sysDeptDomainRepository.save(any())).thenReturn(Mono.just(1L));
 

@@ -38,7 +38,7 @@ class SysMenuDomainCatalogStrategyTest {
         assertNotNull(domain);
         assertEquals("TestMenu", domain.getName());
         assertNotNull(domain.getCatalog());
-        assertEquals("redirect/path", domain.getCatalog().menuRedirect());
+        assertEquals("redirect/path", domain.getCatalog().redirect());
         assertNotNull(domain.getMenuExtendInfo());
     }
 

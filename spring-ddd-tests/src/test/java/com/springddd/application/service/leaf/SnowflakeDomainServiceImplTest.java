@@ -15,6 +15,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import org.mockito.MockedStatic;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -273,5 +275,39 @@ class SnowflakeDomainServiceImplTest {
         long result = (long) tilNextMillisMethod.invoke(snowflakeDomainService, pastTimestamp);
 
         assertThat(result).isGreaterThan(pastTimestamp);
+    }
+
+    @Test
+    @DisplayName("nextId 当时钟回拨不超过5ms且sleep后仍然回拨时应抛出异常")
+    void nextId_whenClockMovedBackwardsWithinFiveMs_andStillBackwardsAfterSleep_shouldThrowException() throws Exception {
+        SnowflakeDomainServiceImpl customService = new SnowflakeDomainServiceImpl(properties, snowflakeWorkerService) {
+            private int callCount = 0;
+
+            @Override
+            long timeGen() {
+                callCount++;
+                if (callCount == 1) return 1000L;
+                if (callCount == 2) return 1004L;
+                return super.timeGen();
+            }
+        };
+        customService.init();
+
+        Field lastTimestampField = SnowflakeDomainServiceImpl.class.getDeclaredField("lastTimestamp");
+        lastTimestampField.setAccessible(true);
+        lastTimestampField.setLong(customService, 1005L);
+
+        Method nextIdMethod = SnowflakeDomainServiceImpl.class.getDeclaredMethod("nextId");
+        nextIdMethod.setAccessible(true);
+
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> {
+            try {
+                nextIdMethod.invoke(customService);
+            } catch (java.lang.reflect.InvocationTargetException e) {
+                throw e.getCause();
+            }
+        })
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("Clock moved backwards");
     }
 }

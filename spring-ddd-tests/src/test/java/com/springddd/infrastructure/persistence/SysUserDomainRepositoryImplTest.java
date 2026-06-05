@@ -50,8 +50,8 @@ class SysUserDomainRepositoryImplTest {
         StepVerifier.create(repository.load(new UserId(1L)))
                 .assertNext(domain -> {
                     assert domain.getUserId().value().equals(1L);
-                    assert domain.getAccount().getUsername().value().equals("admin");
-                    assert domain.getAccount().getPassword().value().equals("password");
+                    assert domain.getAccount().username().value().equals("admin");
+                    assert domain.getAccount().password().value().equals("password");
                     assert domain.getDeptId().equals(1L);
                 })
                 .verifyComplete();
@@ -69,12 +69,13 @@ class SysUserDomainRepositoryImplTest {
     void save_shouldReturnId_whenSavingNewAggregate() {
         SysUserDomain domain = new SysUserDomain();
         domain.setUserId(null);
-        Account account = new Account();
-        account.setUsername(new Username("admin"));
-        account.setPassword(new Password("password"));
-        account.setPhone("1234567890");
-        account.setEmail("admin@example.com");
-        account.setLockStatus(false);
+        Account account = new Account(
+                new Username("admin"),
+                new Password("password"),
+                "admin@example.com",
+                "1234567890",
+                false
+        );
         domain.setAccount(account);
         ExtendInfo extendInfo = new ExtendInfo();
         extendInfo.setAvatar("avatar.png");
@@ -98,12 +99,13 @@ class SysUserDomainRepositoryImplTest {
     void save_shouldReturnId_whenUpdatingExistingAggregate() {
         SysUserDomain domain = new SysUserDomain();
         domain.setUserId(new UserId(1L));
-        Account account = new Account();
-        account.setUsername(new Username("admin"));
-        account.setPassword(new Password("password"));
-        account.setPhone("1234567890");
-        account.setEmail("admin@example.com");
-        account.setLockStatus(false);
+        Account account = new Account(
+                new Username("admin"),
+                new Password("password"),
+                "admin@example.com",
+                "1234567890",
+                false
+        );
         domain.setAccount(account);
         ExtendInfo extendInfo = new ExtendInfo();
         extendInfo.setAvatar("avatar.png");

@@ -48,7 +48,7 @@ class SysUserControllerTest {
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.list[0].username").isEqualTo("admin");
+                .jsonPath("$.data.items[0].username").isEqualTo("admin");
     }
 
     @Test
