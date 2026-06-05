@@ -13,7 +13,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @RequiredArgsConstructor
@@ -33,11 +35,10 @@ public class SnowflakeDomainServiceImpl implements SnowflakeDomainService {
     private static final long TIMESTAMP_LEFT_SHIFT = SEQUENCE_BITS + WORKER_ID_BITS + DATACENTER_ID_BITS;
     private static final long SEQUENCE_MASK = ~(-1L << SEQUENCE_BITS);
 
-    private static final Random RANDOM = new Random();
-
     private long twepoch;
     private long sequence = 0L;
     private long lastTimestamp = -1L;
+    private final Lock lock = new ReentrantLock();
 
     @PostConstruct
     public void init() {
@@ -61,44 +62,49 @@ public class SnowflakeDomainServiceImpl implements SnowflakeDomainService {
                 .subscribeOn(Schedulers.single());
     }
 
-    private synchronized long nextId() {
-        long workerId = snowflakeWorkerService.getAssignedWorkerId();
-        long datacenterId = snowflakeWorkerService.getAssignedDatacenterId();
+    private long nextId() {
+        lock.lock();
+        try {
+            long workerId = snowflakeWorkerService.getAssignedWorkerId();
+            long datacenterId = snowflakeWorkerService.getAssignedDatacenterId();
 
-        long timestamp = timeGen();
-        if (timestamp < lastTimestamp) {
-            long offset = lastTimestamp - timestamp;
-            if (offset <= 5) {
-                try {
-                    wait(offset << 1);
-                    timestamp = timeGen();
-                    if (timestamp < lastTimestamp) {
-                        throw new RuntimeException("Clock moved backwards. Refusing to generate id");
+            long timestamp = timeGen();
+            if (timestamp < lastTimestamp) {
+                long offset = lastTimestamp - timestamp;
+                if (offset <= 5) {
+                    try {
+                        Thread.sleep(offset << 1);
+                        timestamp = timeGen();
+                        if (timestamp < lastTimestamp) {
+                            throw new RuntimeException("Clock moved backwards. Refusing to generate id");
+                        }
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Wait interrupted", e);
                     }
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    throw new RuntimeException("Wait interrupted", e);
+                } else {
+                    throw new RuntimeException("Clock moved backwards. Refusing to generate id");
+                }
+            }
+
+            if (lastTimestamp == timestamp) {
+                sequence = (sequence + 1) & SEQUENCE_MASK;
+                if (sequence == 0) {
+                    sequence = ThreadLocalRandom.current().nextInt(100);
+                    timestamp = tilNextMillis(lastTimestamp);
                 }
             } else {
-                throw new RuntimeException("Clock moved backwards. Refusing to generate id");
+                sequence = ThreadLocalRandom.current().nextInt(100);
             }
-        }
 
-        if (lastTimestamp == timestamp) {
-            sequence = (sequence + 1) & SEQUENCE_MASK;
-            if (sequence == 0) {
-                sequence = RANDOM.nextInt(100);
-                timestamp = tilNextMillis(lastTimestamp);
-            }
-        } else {
-            sequence = RANDOM.nextInt(100);
+            lastTimestamp = timestamp;
+            return ((timestamp - twepoch) << TIMESTAMP_LEFT_SHIFT)
+                    | (datacenterId << DATACENTER_ID_SHIFT)
+                    | (workerId << WORKER_ID_SHIFT)
+                    | sequence;
+        } finally {
+            lock.unlock();
         }
-
-        lastTimestamp = timestamp;
-        return ((timestamp - twepoch) << TIMESTAMP_LEFT_SHIFT)
-                | (datacenterId << DATACENTER_ID_SHIFT)
-                | (workerId << WORKER_ID_SHIFT)
-                | sequence;
     }
 
     private long tilNextMillis(long lastTimestamp) {
@@ -109,7 +115,7 @@ public class SnowflakeDomainServiceImpl implements SnowflakeDomainService {
         return timestamp;
     }
 
-    private long timeGen() {
+    long timeGen() {
         return System.currentTimeMillis();
     }
 

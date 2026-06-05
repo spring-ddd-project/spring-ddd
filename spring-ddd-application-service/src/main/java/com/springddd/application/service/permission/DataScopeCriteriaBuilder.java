@@ -4,14 +4,13 @@ import com.springddd.application.service.dept.SysDeptQueryService;
 import com.springddd.application.service.dept.dto.SysDeptView;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
-import com.springddd.domain.permission.DataScopeEnabled;
 import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.role.RowScope;
-import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.CacheDefinition;
 import com.springddd.infrastructure.cache.util.CacheProcessor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -24,12 +23,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class DataScopeCriteriaBuilder {
 
     private final SysDeptQueryService sysDeptQueryService;
     private final EntityMetadataScanner entityMetadataScanner;
     private final CacheProcessor cacheProcessor;
+
+    @Autowired
+    public DataScopeCriteriaBuilder(@Lazy SysDeptQueryService sysDeptQueryService,
+                                    EntityMetadataScanner entityMetadataScanner,
+                                    CacheProcessor cacheProcessor) {
+        this.sysDeptQueryService = sysDeptQueryService;
+        this.entityMetadataScanner = entityMetadataScanner;
+        this.cacheProcessor = cacheProcessor;
+    }
 
     private static final CacheDefinition DEPT_TREE_CACHE = CacheDefinition.of("datascope:dept:tree", Duration.ofMinutes(5));
     private static final String DEPT_ID_FIELD = "deptId";
@@ -57,18 +64,18 @@ public class DataScopeCriteriaBuilder {
         }
 
         DataPermission dataPermission = user.getDataPermission();
-        if (dataPermission == null || dataPermission.dataScope() == null) {
+        if (dataPermission == null || dataPermission.getDataScope() == null) {
             return Mono.just(criteria);
         }
 
-        Integer dataScope = dataPermission.dataScope();
+        Integer dataScope = dataPermission.getDataScope();
 
         return switch (dataScope) {
             case 1 -> Mono.just(criteria); // All data
             case 2 -> applyDeptScope(criteria, entityCode, user.getDeptId(), false);
             case 3 -> applyDeptScope(criteria, entityCode, user.getDeptId(), true);
             case 4 -> applySelfScope(criteria, entityCode, user.getUsername());
-            case 5 -> applyCustomScope(criteria, entityCode, dataPermission.rowScope(), user);
+            case 5 -> applyCustomScope(criteria, entityCode, dataPermission.getRowScope(), user);
             default -> Mono.just(criteria);
         };
     }
@@ -120,14 +127,14 @@ public class DataScopeCriteriaBuilder {
         Criteria result = criteria;
 
         // deptIds condition
-        if (!CollectionUtils.isEmpty(rowScope.deptIds())
+        if (!CollectionUtils.isEmpty(rowScope.getDeptIds())
                 && entityMetadataScanner.hasField(entityCode, DEPT_ID_FIELD)) {
-            result = result.and(DEPT_ID_FIELD).in(rowScope.deptIds());
+            result = result.and(DEPT_ID_FIELD).in(rowScope.getDeptIds());
             hasCondition = true;
         }
 
         // self condition
-        if (Boolean.TRUE.equals(rowScope.self())
+        if (Boolean.TRUE.equals(rowScope.getSelf())
                 && entityMetadataScanner.hasField(entityCode, CREATE_BY_FIELD)
                 && !ObjectUtils.isEmpty(user.getUsername())) {
             result = result.and(CREATE_BY_FIELD).is(user.getUsername());
@@ -135,7 +142,7 @@ public class DataScopeCriteriaBuilder {
         }
 
         // userIds condition - map userIds to usernames, then filter by createBy
-        if (!CollectionUtils.isEmpty(rowScope.userIds())
+        if (!CollectionUtils.isEmpty(rowScope.getUserIds())
                 && entityMetadataScanner.hasField(entityCode, CREATE_BY_FIELD)) {
             // For simplicity, we filter by id if the entity has id field and userIds match ids
             // Otherwise we need a user lookup which is complex in reactive context

@@ -36,7 +36,7 @@ public class EntityMetadataScanner {
 
         for (BeanDefinition candidate : candidates) {
             try {
-                Class<?> clazz = Class.forName(candidate.getBeanClassName());
+                Class<?> clazz = loadEntityClass(candidate.getBeanClassName());
                 Table tableAnnotation = clazz.getAnnotation(Table.class);
                 DataPermissionEntity dpAnnotation = clazz.getAnnotation(DataPermissionEntity.class);
 
@@ -54,6 +54,10 @@ public class EntityMetadataScanner {
         }
 
         log.info("Scanned {} data-permission entities", metadataCache.size());
+    }
+
+    Class<?> loadEntityClass(String className) throws ClassNotFoundException {
+        return Class.forName(className);
     }
 
     private List<EntityColumnMetadata.ColumnInfo> extractColumns(Class<?> clazz) {

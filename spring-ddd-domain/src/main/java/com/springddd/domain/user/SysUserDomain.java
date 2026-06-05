@@ -8,7 +8,7 @@ import org.springframework.util.ObjectUtils;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysUserDomain extends AbstractDomainMask {
+public class SysUserDomain extends AbstractDomainMask implements Cloneable {
 
     private UserId userId;
 
@@ -16,7 +16,36 @@ public class SysUserDomain extends AbstractDomainMask {
 
     private ExtendInfo extendInfo;
 
-    public void create() {}
+    @Override
+    public SysUserDomain clone() {
+        try {
+            SysUserDomain clone = (SysUserDomain) doClone();
+            if (this.userId != null) clone.setUserId(new UserId(this.userId.value()));
+            if (this.account != null) {
+                Account acc = new Account(this.account.username(), this.account.password(), this.account.email(), this.account.phone(), this.account.lockStatus());
+                clone.setAccount(acc);
+            }
+            if (this.extendInfo != null) {
+                ExtendInfo ext = new ExtendInfo();
+                ext.setAvatar(this.extendInfo.getAvatar());
+                ext.setSex(this.extendInfo.getSex());
+                clone.setExtendInfo(ext);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    private com.springddd.domain.user.state.UserState userState;
+
+    public void setState(com.springddd.domain.user.state.UserState state) {
+        this.userState = state;
+    }
+
+    public void create() {
+        this.userState = new com.springddd.domain.user.state.NormalState();
+    }
 
     public void updateUser(Account newAccount, ExtendInfo newExtendInfo, Long deptId) {
         this.account = newAccount;
@@ -35,7 +64,18 @@ public class SysUserDomain extends AbstractDomainMask {
         super.setDeleteStatus(false);
     }
 
+    public void lock() {
+        if (userState == null) userState = account.lockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        userState.lock(this);
+    }
+
+    public void unlock() {
+        if (userState == null) userState = account.lockStatus() ? new com.springddd.domain.user.state.LockedState() : new com.springddd.domain.user.state.NormalState();
+        userState.unlock(this);
+    }
+
     public void updateUserStatus(Boolean status) {
-        this.account.setLockStatus(status);
+        if (status) lock();
+        else unlock();
     }
 }

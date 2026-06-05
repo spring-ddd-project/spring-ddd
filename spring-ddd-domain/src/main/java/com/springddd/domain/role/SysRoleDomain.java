@@ -8,7 +8,7 @@ import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysRoleDomain extends AbstractDomainMask {
+public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
 
     private RoleId roleId;
 
@@ -17,6 +17,45 @@ public class SysRoleDomain extends AbstractDomainMask {
     private RoleExtendInfo roleExtendInfo;
 
     private DataPermission dataPermission;
+
+    @Override
+    public SysRoleDomain clone() {
+        try {
+            SysRoleDomain clone = (SysRoleDomain) doClone();
+            if (this.roleId != null) clone.setRoleId(new RoleId(this.roleId.value()));
+            if (this.roleBasicInfo != null) {
+                RoleBasicInfo basic = new RoleBasicInfo(this.roleBasicInfo.roleName(), this.roleBasicInfo.roleCode(), this.roleBasicInfo.roleSort(), this.roleBasicInfo.roleStatus(), this.roleBasicInfo.roleDataScope(), this.roleBasicInfo.roleOwner());
+                clone.setRoleBasicInfo(basic);
+            }
+            if (this.roleExtendInfo != null) {
+                RoleExtendInfo ext = new RoleExtendInfo(this.roleExtendInfo.roleRemark(), this.roleExtendInfo.ownerStatus(), this.roleExtendInfo.roleDesc(), this.roleExtendInfo.roleStatus());
+                clone.setRoleExtendInfo(ext);
+            }
+            if (this.dataPermission != null) {
+                DataPermission dp = new DataPermission(this.dataPermission.getRowScope(), this.dataPermission.getColumnRules(), this.dataPermission.getDataScope(), this.dataPermission.getDeptIds());
+                clone.setDataPermission(dp);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    private com.springddd.domain.role.state.RoleState state;
+
+    public void setState(com.springddd.domain.role.state.RoleState state) {
+        this.state = state;
+    }
+
+    public void enable() {
+        if (state == null) state = roleBasicInfo.roleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        state.enable(this);
+    }
+
+    public void disable() {
+        if (state == null) state = roleBasicInfo.roleStatus() ? new com.springddd.domain.role.state.EnabledRoleState() : new com.springddd.domain.role.state.DisabledRoleState();
+        state.disable(this);
+    }
 
     public void create() {}
 

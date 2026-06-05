@@ -7,11 +7,13 @@ public class DisabledDictItemState implements DictItemState {
     @Override
     public void enable(SysDictItemDomain domain) {
         DictItemBasicInfo old = domain.getItemBasicInfo();
-        DictItemBasicInfo newItemBasicInfo = new DictItemBasicInfo(
-            old.itemLabel(),
-            old.itemValue()
-        );
-        domain.setItemBasicInfo(newItemBasicInfo);
+        if (old != null) {
+            DictItemBasicInfo newItemBasicInfo = new DictItemBasicInfo(
+                old.itemLabel(),
+                old.itemValue()
+            );
+            domain.setItemBasicInfo(newItemBasicInfo);
+        }
         domain.setState(new EnabledDictItemState());
     }
 

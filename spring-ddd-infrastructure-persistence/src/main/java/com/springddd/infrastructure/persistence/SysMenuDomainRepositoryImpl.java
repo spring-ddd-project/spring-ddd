@@ -59,7 +59,7 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
 
         Catalog catalog = aggregateRoot.getCatalog();
         if (!ObjectUtils.isEmpty(catalog)) {
-            entity.setRedirect(catalog.menuRedirect());
+            entity.setRedirect(catalog.redirect());
         }
 
         entity.setName(aggregateRoot.getName());

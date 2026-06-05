@@ -21,4 +21,8 @@ public abstract class AbstractDomainMask {
     private Boolean deleteStatus;
 
     private Integer version;
+
+    protected Object doClone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 }

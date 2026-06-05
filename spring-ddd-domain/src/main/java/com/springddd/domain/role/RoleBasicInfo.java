@@ -5,9 +5,10 @@ import com.springddd.domain.role.exception.RoleDataScopeNullException;
 import com.springddd.domain.role.exception.RoleNameNullException;
 import org.springframework.util.ObjectUtils;
 
-public record RoleBasicInfo(String roleName, String roleCode, Integer roleDataScope, Boolean roleOwner) {
+public record RoleBasicInfo(String roleName, String roleCode, Integer roleSort, Boolean roleStatus, Integer roleDataScope, Boolean roleOwner) {
 
-    public RoleBasicInfo {
+    public RoleBasicInfo(String roleName, String roleCode, Integer roleDataScope, Boolean roleOwner) {
+        this(roleName, roleCode, null, null, roleDataScope, roleOwner);
         if (ObjectUtils.isEmpty(roleName)) {
             throw new RoleNameNullException();
         }

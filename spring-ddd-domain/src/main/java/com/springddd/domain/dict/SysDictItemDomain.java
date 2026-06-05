@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class SysDictItemDomain extends AbstractDomainMask {
+public class SysDictItemDomain extends AbstractDomainMask implements Cloneable {
 
     private DictItemId itemId;
 
@@ -15,6 +15,42 @@ public class SysDictItemDomain extends AbstractDomainMask {
     private DictItemBasicInfo itemBasicInfo;
 
     private DictItemExtendInfo itemExtendInfo;
+
+    @Override
+    public SysDictItemDomain clone() {
+        try {
+            SysDictItemDomain clone = (SysDictItemDomain) doClone();
+            if (this.itemId != null) clone.setItemId(new DictItemId(this.itemId.value()));
+            if (this.dictId != null) clone.setDictId(new DictId(this.dictId.value()));
+            if (this.itemBasicInfo != null) {
+                DictItemBasicInfo basic = new DictItemBasicInfo(this.itemBasicInfo.itemLabel(), this.itemBasicInfo.itemValue());
+                clone.setItemBasicInfo(basic);
+            }
+            if (this.itemExtendInfo != null) {
+                DictItemExtendInfo ext = new DictItemExtendInfo(this.itemExtendInfo.sortOrder(), this.itemExtendInfo.itemStatus());
+                clone.setItemExtendInfo(ext);
+            }
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
+
+    private com.springddd.domain.dict.state.DictItemState state;
+
+    public void setState(com.springddd.domain.dict.state.DictItemState state) {
+        this.state = state;
+    }
+
+    public void enable() {
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.enable(this);
+    }
+
+    public void disable() {
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.disable(this);
+    }
 
     public void create() {}
 
@@ -28,6 +64,7 @@ public class SysDictItemDomain extends AbstractDomainMask {
     }
 
     public void restore() {
-        super.setDeleteStatus(false);
+        if (state == null) state = itemBasicInfo != null && itemBasicInfo.itemStatus() ? new com.springddd.domain.dict.state.EnabledDictItemState() : new com.springddd.domain.dict.state.DisabledDictItemState();
+        state.restore(this);
     }
 }
