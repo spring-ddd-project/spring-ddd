@@ -271,4 +271,70 @@ class ReactiveTreeUtilsFullTest {
 
         assertEquals(2, result.size());
     }
+
+    @Test
+    void loadParentChain_shouldStopWhenParentNotFound() {
+        Map<Long, TreeNode> nodeMap = new HashMap<>();
+        TreeNode child = new TreeNode(2L, 1L, "child", false, 1);
+        nodeMap.put(2L, child);
+
+        StepVerifier.create(ReactiveTreeUtils.loadParentChain(
+                1L, nodeMap, id -> Mono.empty(), TreeNode::getId, TreeNode::getParentId))
+                .verifyComplete();
+
+        assertFalse(nodeMap.containsKey(1L));
+    }
+
+    @Test
+    void buildTree_shouldReturnEmptyWhenAllNodesDeleted() {
+        TreeNode deletedRoot = new TreeNode(1L, null, "deletedRoot", true, 1);
+        TreeNode deletedChild = new TreeNode(2L, 1L, "deletedChild", true, 1);
+
+        StepVerifier.create(ReactiveTreeUtils.buildTree(
+                List.of(deletedRoot, deletedChild),
+                TreeNode::getId,
+                TreeNode::getParentId,
+                TreeNode::setChildren,
+                n -> n.getParentId() == null,
+                null,
+                null,
+                10,
+                TreeNode::isDeleted))
+                .assertNext(List::isEmpty)
+                .verifyComplete();
+    }
+
+    @Test
+    void buildTree_shouldReturnEmptyWhenNoRootMatches() {
+        TreeNode node = new TreeNode(1L, 2L, "node", false, 1);
+
+        StepVerifier.create(ReactiveTreeUtils.buildTree(
+                List.of(node),
+                TreeNode::getId,
+                TreeNode::getParentId,
+                TreeNode::setChildren,
+                n -> n.getParentId() == null,
+                null,
+                null,
+                10,
+                TreeNode::isDeleted))
+                .assertNext(List::isEmpty)
+                .verifyComplete();
+    }
+
+    @Test
+    void buildTree_shouldApplySorterToEmptyRoots() {
+        StepVerifier.create(ReactiveTreeUtils.buildTree(
+                List.of(),
+                TreeNode::getId,
+                TreeNode::getParentId,
+                TreeNode::setChildren,
+                n -> n.getParentId() == null,
+                Comparator.comparing(TreeNode::getOrder),
+                null,
+                10,
+                TreeNode::isDeleted))
+                .assertNext(List::isEmpty)
+                .verifyComplete();
+    }
 }

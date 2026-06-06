@@ -55,14 +55,39 @@ class BaseQueryServiceTest {
                 .verifyComplete();
     }
 
+    @Test
+    @DisplayName("applyDataScope 通过无 @Table 的 Class 应使用 simpleName")
+    void applyDataScope_byClassWithoutTableAnnotation_shouldUseSimpleName() {
+        Criteria criteria = Criteria.where("id").is(1);
+        Criteria scoped = Criteria.where("id").is(1).and("deptId").is(1);
+
+        when(dataScopeCriteriaBuilder.apply(any(Criteria.class), eq("NoTableEntity"))).thenReturn(Mono.just(scoped));
+
+        TestQueryServiceNoTable noTableService = new TestQueryServiceNoTable();
+        noTableService.queryFactory = queryFactory;
+        noTableService.dataScopeCriteriaBuilder = dataScopeCriteriaBuilder;
+
+        StepVerifier.create(noTableService.applyDataScopePublic(criteria, NoTableEntity.class))
+                .assertNext(result -> assertThat(result.toString()).contains("deptId"))
+                .verifyComplete();
+    }
+
     @Table("test_entity")
     static class TestEntity {}
+
+    static class NoTableEntity {}
 
     static class TestQueryService extends BaseQueryService<TestEntity> {
         public Mono<Criteria> applyDataScopePublic(Criteria criteria, String entityCode) {
             return applyDataScope(criteria, entityCode);
         }
         public Mono<Criteria> applyDataScopePublic(Criteria criteria, Class<TestEntity> entityClass) {
+            return applyDataScope(criteria, entityClass);
+        }
+    }
+
+    static class TestQueryServiceNoTable extends BaseQueryService<NoTableEntity> {
+        public Mono<Criteria> applyDataScopePublic(Criteria criteria, Class<NoTableEntity> entityClass) {
             return applyDataScope(criteria, entityClass);
         }
     }

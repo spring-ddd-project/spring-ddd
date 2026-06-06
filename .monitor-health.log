@@ -1,0 +1,474 @@
+TOTAL: Instructions 92.26% (21216/22995), Branches 85.73% (961/1121)
+
+Zero coverage classes (18):
+Partial coverage classes: ?
+
+===== 2026-06-06 15:46:57 =====
+[COMPILE OK]
+[TEST OK] 
+Exception in thread "main" java.io.FileNotFoundException: spring-ddd-tests/target/jacoco.exec (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+Partial coverage classes: ?
+
+===== 2026-06-06 15:51:17 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+[COVERAGE ERROR]
+Exception in thread "main" java.io.EOFException
+	at java.base/java.io.DataInputStream.readFully(DataInputStream.java:210)
+	at java.base/java.io.DataInputStream.readLong(DataInputStream.java:407)
+	at org.jacoco.core.data.ExecutionDataReader.readExecutionData(ExecutionDataReader.java:148)
+	at org.jacoco.core.data.ExecutionDataReader.readBlock(ExecutionDataReader.java:116)
+
+===== 2026-06-06 15:55:28 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 93.17% (21812/23410), Branches 88.72% (1030/1161)
+
+Zero coverage classes (21):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:01:14 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.14% (21648/22995), Branches 91.17% (1022/1121)
+Partial coverage classes count: 6
+
+===== 2026-06-06 16:05:03 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 93.31% (21812/23377), Branches 88.72% (1030/1161)
+
+Zero coverage classes (19):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:09:36 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 93.31% (21812/23377), Branches 88.72% (1030/1161)
+Partial coverage classes count: 1
+
+===== 2026-06-06 16:15:30 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 93.31% (21812/23377), Branches 88.72% (1030/1161)
+
+Zero coverage classes (19):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:18:38 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 93.31% (21812/23377), Branches 88.72% (1030/1161)
+Partial coverage classes count: 1
+
+===== 2026-06-06 16:24:42 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:27:47 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 16:33:07 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:35:47 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 16:41:32 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:43:51 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 16:48:33 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 16:52:04 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 93.49% (17381/18591), Branches 90.77% (905/997)
+Partial coverage classes count: 0
+
+===== 2026-06-06 16:57:06 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.67% (21769/22995), Branches 91.61% (1027/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 17:00:18 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:06:02 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 17:08:18 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:14:09 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 17:16:11 =====
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:22:17 =====
+[COMPILE OK]
+===== 2026-06-06 17:24:05 =====
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:30:27 =====
+[COMPILE OK]
+===== 2026-06-06 17:32:02 =====
+[TEST OK] 
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.74% (21785/22995), Branches 91.79% (1029/1121)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:38:56 =====
+[COMPILE FAIL]
+[ERROR] COMPILATION ERROR : 
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/DisruptorLock.java:[55,22] cannot find symbol
+  symbol:   method getAndIncrement()
+  location: variable cursor of type com.lmax.disruptor.Sequence
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[63,33] cannot find symbol
+  symbol:   method getValue()
+  location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[69,19] cannot find symbol
+  symbol:   method lock()
+  location: variable buffer of type com.springddd.infrastructure.persistence.leaf.LeafSegmentBuffer
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[72,32] cannot find symbol
+  symbol:   method getValue()
+  location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[93,31] cannot find symbol
+  symbol:   method getValue()
+  location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[95,23] cannot find symbol
+  symbol:   method unlock()
+  location: variable buffer of type com.springddd.infrastructure.persistence.leaf.LeafSegmentBuffer
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[101,48] cannot find symbol
+  symbol:   method getValue()
+  location: class com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[149,39] cannot find symbol
+  symbol:   method getValue()
+  location: variable target of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.0:compile (default-compile) on project spring-ddd-infrastructure-persistence: Compilation failure: Compilation failure: 
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/DisruptorLock.java:[55,22] cannot find symbol
+[ERROR]   symbol:   method getAndIncrement()
+[ERROR]   location: variable cursor of type com.lmax.disruptor.Sequence
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[63,33] cannot find symbol
+[ERROR]   symbol:   method getValue()
+[ERROR]   location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[69,19] cannot find symbol
+[ERROR]   symbol:   method lock()
+[ERROR]   location: variable buffer of type com.springddd.infrastructure.persistence.leaf.LeafSegmentBuffer
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[72,32] cannot find symbol
+[ERROR]   symbol:   method getValue()
+[ERROR]   location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[93,31] cannot find symbol
+[ERROR]   symbol:   method getValue()
+[ERROR]   location: variable segment of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[95,23] cannot find symbol
+[ERROR]   symbol:   method unlock()
+[ERROR]   location: variable buffer of type com.springddd.infrastructure.persistence.leaf.LeafSegmentBuffer
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[101,48] cannot find symbol
+[ERROR]   symbol:   method getValue()
+[ERROR]   location: class com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] /mnt/c/projects/opensources/spring-ddd-project/spring-ddd-new/spring-ddd-infrastructure-persistence/src/main/java/com/springddd/infrastructure/persistence/leaf/LeafSegmentIdGenerateDomainServiceImpl.java:[149,39] cannot find symbol
+[ERROR]   symbol:   method getValue()
+[ERROR]   location: variable target of type com.springddd.infrastructure.persistence.leaf.LeafSegment
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException
+[ERROR] 
+[ERROR] After correcting the problems, you can resume the build with the command
+[ERROR]   mvn <args> -rf :spring-ddd-infrastructure-persistence
+===== 2026-06-06 17:40:04 =====
+[TEST OK] 
+TOTAL: Instructions 94.63% (21328/22538), Branches 91.51% (991/1083)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+[TEST OK] [INFO] Tests run: 2279, Failures: 0, Errors: 0, Skipped: 0 | [INFO] BUILD SUCCESS
+TOTAL: Instructions 94.63% (21328/22538), Branches 91.51% (991/1083)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:47:28 =====
+[COMPILE OK]
+===== 2026-06-06 17:48:16 =====
+[TEST OK] 
+TOTAL: Instructions 92.41% (21328/23081), Branches 87.93% (991/1127)
+
+Zero coverage classes (20):
+Partial coverage classes: ?
+
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 92.41% (21328/23081), Branches 87.93% (991/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 17:54:38 =====
+[COMPILE OK]
+===== 2026-06-06 17:55:09 =====
+[TEST OK] 
+Exception in thread "main" java.io.FileNotFoundException: spring-ddd-tests/target/jacoco.exec (No such file or directory)
+	at java.base/java.io.FileInputStream.open0(Native Method)
+	at java.base/java.io.FileInputStream.open(FileInputStream.java:213)
+Partial coverage classes: ?
+
+[BUILD FAIL] [INFO] BUILD FAILURE
+[COVERAGE SKIP] jacoco.exec not found
+
+===== 2026-06-06 18:01:36 =====
+===== 2026-06-06 18:01:45 =====
+[COMPILE OK]
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.55% (21821/23079), Branches 91.13% (1027/1127)
+Partial coverage classes count: 1
+
+[TEST OK] 
+TOTAL: Instructions 98.34% (11314/11505), Branches 97.19% (554/570)
+
+Zero coverage classes (3):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:08:15 =====
+===== 2026-06-06 18:08:51 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 93.15% (21498/23078), Branches 88.82% (1001/1127)
+Partial coverage classes count: 0
+
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 93.15% (21498/23078), Branches 88.82% (1001/1127)
+
+Zero coverage classes (18):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:15:18 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+[COVERAGE SKIP] jacoco.exec not found
+
+===== 2026-06-06 18:15:56 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2285, Failures: 0, Errors: 25, Skipped: 0
+TOTAL: Instructions 91.38% (21089/23078), Branches 87.93% (991/1127)
+
+Zero coverage classes (21):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:21:52 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.75% (1034/1127)
+Partial coverage classes count: 1
+
+===== 2026-06-06 18:24:20 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2285, Failures: 0, Errors: 25, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.75% (1034/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:29:54 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 18:32:39 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:37:26 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 18:41:06 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:45:32 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 18:49:13 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 18:53:21 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 18:57:16 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:01:12 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 19:05:19 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:08:59 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 19:13:19 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2286, Failures: 0, Errors: 26, Skipped: 0
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+
+Zero coverage classes (17):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:16:48 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.76% (21868/23078), Branches 91.84% (1035/1127)
+Partial coverage classes count: 0
+
+===== 2026-06-06 19:21:30 =====
+[COMPILE OK]
+[TEST OK] 
+TOTAL: Instructions 83.75% (15591/18616), Branches 82.00% (665/811)
+
+Zero coverage classes (19):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:24:46 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+[COVERAGE SKIP] jacoco.exec not found
+
+===== 2026-06-06 19:29:36 =====
+[COMPILE OK]
+[TEST FAIL] [ERROR] Tests run: 2093, Failures: 0, Errors: 39, Skipped: 0
+TOTAL: Instructions 83.28% (17767/21334), Branches 81.61% (843/1033)
+
+Zero coverage classes (22):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:31:24 =====
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.58% (946/1033)
+Partial coverage classes count: 1
+
+===== 2026-06-06 19:37:27 =====
+[COMPILE OK]
+===== 2026-06-06 19:37:49 =====
+[TEST OK] 
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+
+Zero coverage classes (16):
+Partial coverage classes: ?
+
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+Partial coverage classes count: 0
+
+===== 2026-06-06 19:44:28 =====
+===== 2026-06-06 19:44:30 =====
+[COMPILE OK]
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+Partial coverage classes count: 0
+
+[TEST FAIL] [ERROR] Tests run: 2094, Failures: 0, Errors: 40, Skipped: 0
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+
+Zero coverage classes (16):
+Partial coverage classes: ?
+
+===== 2026-06-06 19:52:12 =====
+===== 2026-06-06 19:52:23 =====
+[COMPILE OK]
+[BUILD FAIL] [INFO] BUILD FAILURE
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+Partial coverage classes count: 0
+
+[TEST FAIL] [ERROR] Tests run: 2094, Failures: 0, Errors: 40, Skipped: 0
+TOTAL: Instructions 94.75% (20214/21334), Branches 91.67% (947/1033)
+
+Zero coverage classes (16):
+Partial coverage classes: ?
+

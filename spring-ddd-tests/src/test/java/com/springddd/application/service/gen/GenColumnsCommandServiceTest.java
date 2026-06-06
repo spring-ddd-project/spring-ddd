@@ -214,4 +214,45 @@ class GenColumnsCommandServiceTest {
                 .expectError(I18nLocaleNullException.class)
                 .verify();
     }
+
+    @Test
+    void batchUpdate_shouldComplete_whenAllLocalesNonEmpty() {
+        GenColumnsCommand command = buildCommand();
+        command.setId(1L);
+        command.setLocale("Primary Key");
+
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "Primary Key");
+        when(genColumnsDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(genColumnsCommandService.batchUpdate(Collections.singletonList(command)))
+                .verifyComplete();
+    }
+
+    @Test
+    void batchSave_shouldComplete_whenAllLocalesBlank() {
+        GenColumnsCommand command = buildCommand();
+        command.setLocale("");
+
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "");
+        when(genColumnsDomainFactory.newInstance(any(), any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(genColumnsCommandService.batchSave(Collections.singletonList(command)))
+                .verifyComplete();
+    }
+
+    @Test
+    void batchUpdate_shouldComplete_whenAllLocalesBlank() {
+        GenColumnsCommand command = buildCommand();
+        command.setId(1L);
+        command.setLocale("");
+
+        GenColumnsDomain mockDomain = buildMockDomain("Id", "");
+        when(genColumnsDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
+        when(genColumnsBatchSaveDomainService.batchSave(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(genColumnsCommandService.batchUpdate(Collections.singletonList(command)))
+                .verifyComplete();
+    }
 }

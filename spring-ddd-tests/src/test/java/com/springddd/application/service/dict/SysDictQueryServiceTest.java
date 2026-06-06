@@ -92,6 +92,98 @@ class SysDictQueryServiceTest {
     }
 
     @Test
+    void index_shouldReturnPageResponse_whenDictNameOnly() {
+        SysDictPageQuery query = new SysDictPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setDictName("Test");
+
+        SysDictEntity entity = new SysDictEntity();
+        entity.setId(1L);
+        entity.setDictName("Test Dict");
+        entity.setDictCode("TEST");
+        entity.setDeleteStatus(false);
+
+        SysDictView view = new SysDictView();
+        view.setId(1L);
+        view.setDictName("Test Dict");
+        view.setDictCode("TEST");
+
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class)))
+                .thenReturn(Mono.just(1L));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Collections.singletonList(view));
+
+        StepVerifier.create(sysDictQueryService.index(query))
+                .assertNext(pageResponse -> {
+                    assertNotNull(pageResponse);
+                    assertNotNull(pageResponse.getItems());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void index_shouldReturnPageResponse_whenDictCodeOnly() {
+        SysDictPageQuery query = new SysDictPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setDictCode("TEST");
+
+        SysDictEntity entity = new SysDictEntity();
+        entity.setId(1L);
+        entity.setDictName("Test Dict");
+        entity.setDictCode("TEST");
+        entity.setDeleteStatus(false);
+
+        SysDictView view = new SysDictView();
+        view.setId(1L);
+        view.setDictName("Test Dict");
+        view.setDictCode("TEST");
+
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class)))
+                .thenReturn(Mono.just(1L));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Collections.singletonList(view));
+
+        StepVerifier.create(sysDictQueryService.index(query))
+                .assertNext(pageResponse -> assertNotNull(pageResponse))
+                .verifyComplete();
+    }
+
+    @Test
+    void index_shouldReturnPageResponse_whenNoFilters() {
+        SysDictPageQuery query = new SysDictPageQuery();
+        query.setPageNum(1);
+        query.setPageSize(10);
+
+        SysDictEntity entity = new SysDictEntity();
+        entity.setId(1L);
+        entity.setDictName("Test Dict");
+        entity.setDictCode("TEST");
+        entity.setDeleteStatus(false);
+
+        SysDictView view = new SysDictView();
+        view.setId(1L);
+        view.setDictName("Test Dict");
+        view.setDictCode("TEST");
+
+        when(r2dbcEntityTemplate.select(SysDictEntity.class)).thenReturn(reactiveSelect);
+        when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
+        when(r2dbcEntityTemplate.count(any(Query.class), eq(SysDictEntity.class)))
+                .thenReturn(Mono.just(1L));
+        when(sysDictViewMapStruct.toViews(any())).thenReturn(Collections.singletonList(view));
+
+        StepVerifier.create(sysDictQueryService.index(query))
+                .assertNext(pageResponse -> assertNotNull(pageResponse))
+                .verifyComplete();
+    }
+
+    @Test
     void queryAll_shouldReturnAllDicts() {
         SysDictEntity entity1 = new SysDictEntity();
         entity1.setId(1L);

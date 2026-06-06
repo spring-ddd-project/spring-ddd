@@ -32,7 +32,7 @@ public class SysRoleDomain extends AbstractDomainMask implements Cloneable {
                 clone.setRoleExtendInfo(ext);
             }
             if (this.dataPermission != null) {
-                DataPermission dp = new DataPermission(this.dataPermission.getRowScope(), this.dataPermission.getColumnRules(), this.dataPermission.getDataScope(), this.dataPermission.getDeptIds());
+                DataPermission dp = new DataPermission(this.dataPermission.getRowScope(), this.dataPermission.getDataScope(), this.dataPermission.getDeptIds());
                 clone.setDataPermission(dp);
             }
             return clone;

@@ -253,12 +253,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private void processPath(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {
-        ProjectTreeView updatedRoot = treeBuilder.buildTree(root, filePath, content);
-
-        if (!updatedRoot.equals(root)) {
-            // checking whether the treeList needs to be updated.
-            // In the new implementation this is less critical since we maintain treeList locally
-        }
+        treeBuilder.buildTree(root, filePath, content);
     }
 
     private void processOtherPaths(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {

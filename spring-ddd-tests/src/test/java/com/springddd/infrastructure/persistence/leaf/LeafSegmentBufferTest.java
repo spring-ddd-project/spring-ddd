@@ -17,6 +17,7 @@ class LeafSegmentBufferTest {
         assertFalse(buffer.getThreadRunning().get());
         assertEquals(0L, buffer.getStepUpdateTime());
         assertEquals(0, buffer.getMinStep());
+        assertNotNull(buffer.getDisruptorLock());
     }
 
     @Test
@@ -49,14 +50,14 @@ class LeafSegmentBufferTest {
     }
 
     @Test
-    void shouldLockAndUnlockWithoutError() {
+    void shouldSwitchPosViaCas() {
         LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
-        buffer.lock();
-        try {
-            assertTrue(true); // locked successfully
-        } finally {
-            buffer.unlock();
-        }
+        assertTrue(buffer.casCurrentPos(0, 1));
+        assertEquals(1, buffer.getCurrentPos());
+        assertFalse(buffer.casCurrentPos(0, 1)); // CAS 失败
+        assertEquals(1, buffer.getCurrentPos());
+        assertTrue(buffer.casCurrentPos(1, 0));
+        assertEquals(0, buffer.getCurrentPos());
     }
 
     @Test
@@ -71,5 +72,47 @@ class LeafSegmentBufferTest {
     void shouldReturnInitOkFalse_whenStepIsZero() {
         LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
         assertFalse(buffer.isInitOk());
+    }
+
+    @Test
+    void shouldSetAndGetStepUpdateTime() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        buffer.setStepUpdateTime(12345L);
+        assertEquals(12345L, buffer.getStepUpdateTime());
+    }
+
+    @Test
+    void shouldSetAndGetMinStep() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        buffer.setMinStep(50);
+        assertEquals(50, buffer.getMinStep());
+    }
+
+    @Test
+    void shouldSetAndGetNextReady() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        assertFalse(buffer.isNextReady());
+        buffer.setNextReady(true);
+        assertTrue(buffer.isNextReady());
+    }
+
+    @Test
+    void shouldSetAndGetThreadRunning() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        assertFalse(buffer.getThreadRunning().get());
+        buffer.getThreadRunning().set(true);
+        assertTrue(buffer.getThreadRunning().get());
+    }
+
+    @Test
+    void shouldAccessSegmentsDirectly() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        LeafSegment[] segments = buffer.getSegments();
+        assertNotNull(segments[0]);
+        assertNotNull(segments[1]);
+        segments[0].setStart(1000L);
+        segments[0].setMax(1100L);
+        segments[0].setStep(100);
+        assertEquals(1000L, buffer.getCurrent().getStart());
     }
 }

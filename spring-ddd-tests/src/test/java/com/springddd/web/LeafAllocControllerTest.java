@@ -1,150 +1,85 @@
 package com.springddd.web;
 
-import com.springddd.application.service.leaf.LeafAllocCommandService;
-import com.springddd.application.service.leaf.LeafAllocQueryService;
-import com.springddd.application.service.leaf.dto.LeafAllocView;
-import com.springddd.domain.util.PageResponse;
+import com.springddd.domain.util.ApiResponse;
+import com.springddd.infrastructure.persistence.leaf.LeafSegmentBuffer;
 import com.springddd.infrastructure.persistence.leaf.LeafSegmentIdGenerateDomainServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class LeafAllocControllerTest {
 
-    private WebTestClient webTestClient;
-    private LeafAllocCommandService commandService;
-    private LeafAllocQueryService queryService;
-    private LeafSegmentIdGenerateDomainServiceImpl segmentService;
+    @Mock
+    private LeafSegmentIdGenerateDomainServiceImpl leafSegmentIdGenerateDomainServiceImpl;
+
+    private LeafAllocController controller;
 
     @BeforeEach
     void setUp() {
-        commandService = mock(LeafAllocCommandService.class);
-        queryService = mock(LeafAllocQueryService.class);
-        segmentService = mock(LeafSegmentIdGenerateDomainServiceImpl.class);
-        LeafAllocController controller = new LeafAllocController(commandService, queryService, segmentService);
-        webTestClient = WebTestClient.bindToController(controller).build();
+        controller = new LeafAllocController(leafSegmentIdGenerateDomainServiceImpl);
     }
 
     @Test
-    @DisplayName("POST /sys/leaf/index 应返回分页列表")
-    void index_shouldReturnPage() {
-        LeafAllocView view = new LeafAllocView();
-        view.setId(1L);
-        view.setBizTag("test");
-        PageResponse<LeafAllocView> page = new PageResponse<>(
-                List.of(view), 1L, 1, 10
-        );
-        when(queryService.page(any())).thenReturn(Mono.just(page));
+    void getSegmentId_shouldReturnIdString() {
+        when(leafSegmentIdGenerateDomainServiceImpl.nextId("test")).thenReturn(Mono.just(12345L));
 
-        webTestClient.post()
-                .uri("/sys/leaf/index")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"pageNum\":1,\"pageSize\":10}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.items[0].bizTag").isEqualTo("test");
+        StepVerifier.create(controller.getSegmentId("test"))
+                .expectNext("12345")
+                .verifyComplete();
     }
 
     @Test
-    @DisplayName("POST /sys/leaf/recycle 应返回回收站分页")
-    void recycle_shouldReturnRecyclePage() {
-        LeafAllocView view = new LeafAllocView();
-        view.setBizTag("deleted");
-        PageResponse<LeafAllocView> page = new PageResponse<>(
-                List.of(view), 1L, 1, 10
-        );
-        when(queryService.recycle(any())).thenReturn(Mono.just(page));
+    void getCacheStatus_shouldReturnApiResponse() {
+        LeafSegmentBuffer buffer = new LeafSegmentBuffer("test");
+        buffer.getCurrent().setStep(100);
+        buffer.getCurrent().setMax(200);
+        buffer.getCurrent().setStart(100);
+        buffer.getDisruptorLock().init(100, 200);
+        buffer.setNextReady(true);
+        buffer.getNext().setStep(100);
+        buffer.getNext().setMax(300);
+        buffer.getNext().setStart(200);
 
-        webTestClient.post()
-                .uri("/sys/leaf/recycle")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"pageNum\":1,\"pageSize\":10}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+        java.util.Map<String, LeafSegmentBuffer> cache = new java.util.HashMap<>();
+        cache.put("test", buffer);
+        when(leafSegmentIdGenerateDomainServiceImpl.getBufferCache()).thenReturn(cache);
+
+        StepVerifier.create(controller.getCacheStatus())
+                .assertNext(response -> {
+                    assertEquals(0, response.getCode());
+                    assertNotNull(response.getData());
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String, Object> data = (java.util.Map<String, Object>) response.getData();
+                    @SuppressWarnings("unchecked")
+                    java.util.List<java.util.Map<String, Object>> buffers = (java.util.List<java.util.Map<String, Object>>) data.get("buffers");
+                    assertEquals(1, buffers.size());
+                    assertEquals("test", buffers.get(0).get("bizTag"));
+                    assertEquals(0, buffers.get(0).get("currentPos"));
+                    assertEquals(true, buffers.get(0).get("initOk"));
+                    assertEquals(true, buffers.get(0).get("nextReady"));
+                })
+                .verifyComplete();
     }
 
     @Test
-    @DisplayName("POST /sys/leaf/create 应创建成功")
-    void create_shouldSuccess() {
-        when(commandService.create(any())).thenReturn(Mono.just(1L));
+    void getDbStatus_shouldReturnApiResponse() {
+        when(leafSegmentIdGenerateDomainServiceImpl.findAllAlloc()).thenReturn(Mono.just(List.of()));
 
-        webTestClient.post()
-                .uri("/sys/leaf/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"bizTag\":\"test\",\"maxId\":100,\"step\":10}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data").isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("PUT /sys/leaf/update 应更新成功")
-    void update_shouldSuccess() {
-        when(commandService.update(any())).thenReturn(Mono.empty());
-
-        webTestClient.put()
-                .uri("/sys/leaf/update")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"id\":1,\"bizTag\":\"updated\"}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("POST /sys/leaf/delete 应删除成功")
-    void delete_shouldSuccess() {
-        when(commandService.delete(anyLong())).thenReturn(Mono.empty());
-
-        webTestClient.post()
-                .uri("/sys/leaf/delete?ids=1&ids=2")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("DELETE /sys/leaf/wipe 应彻底删除成功")
-    void wipe_shouldSuccess() {
-        when(commandService.wipe(anyLong())).thenReturn(Mono.empty());
-
-        webTestClient.delete()
-                .uri(uriBuilder -> uriBuilder.path("/sys/leaf/wipe")
-                        .queryParam("ids", 1, 2)
-                        .build())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
-    }
-
-    @Test
-    @DisplayName("POST /sys/leaf/restore 应恢复成功")
-    void restore_shouldSuccess() {
-        when(commandService.restore(anyLong())).thenReturn(Mono.empty());
-
-        webTestClient.post()
-                .uri("/sys/leaf/restore?ids=1&ids=2")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+        StepVerifier.create(controller.getDbStatus())
+                .assertNext(response -> {
+                    assertEquals(0, response.getCode());
+                    assertNotNull(response.getData());
+                })
+                .verifyComplete();
     }
 }

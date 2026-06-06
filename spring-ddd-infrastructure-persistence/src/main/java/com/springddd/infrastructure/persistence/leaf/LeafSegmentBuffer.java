@@ -3,11 +3,20 @@ package com.springddd.infrastructure.persistence.leaf;
 import lombok.Data;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+/**
+ * Leaf 双 Buffer 分段 ID 分配器。
+ *
+ * <p>使用 {@link DisruptorLock}（Disruptor Sequence + LockSupport）
+ * 替代传统的 {@link java.util.concurrent.locks.ReentrantLock}，
+ * 实现无锁、非阻塞的 segment 切换。
+ */
 @Data
 public class LeafSegmentBuffer {
+
+    private static final AtomicIntegerFieldUpdater<LeafSegmentBuffer> CURRENT_POS_UPDATER =
+            AtomicIntegerFieldUpdater.newUpdater(LeafSegmentBuffer.class, "currentPos");
 
     private String bizTag;
 
@@ -19,7 +28,10 @@ public class LeafSegmentBuffer {
 
     private final AtomicBoolean threadRunning = new AtomicBoolean(false);
 
-    private final Lock lock = new ReentrantLock();
+    /**
+     * Disruptor 风格的无锁协调器：替代 ReentrantLock。
+     */
+    private final DisruptorLock disruptorLock = new DisruptorLock();
 
     private volatile long stepUpdateTime;
 
@@ -45,12 +57,15 @@ public class LeafSegmentBuffer {
         currentPos = nextPos();
     }
 
-    public void lock() {
-        lock.lock();
-    }
-
-    public void unlock() {
-        lock.unlock();
+    /**
+     * CAS 切换 currentPos。
+     *
+     * @param expected 期望的当前位置
+     * @param next     目标位置
+     * @return CAS 是否成功
+     */
+    public boolean casCurrentPos(int expected, int next) {
+        return CURRENT_POS_UPDATER.compareAndSet(this, expected, next);
     }
 
     public boolean isInitOk() {

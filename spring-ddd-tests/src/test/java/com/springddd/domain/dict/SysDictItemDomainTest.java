@@ -234,4 +234,26 @@ class SysDictItemDomainTest {
 
         assertNotNull(domain.getState());
     }
+
+    @Test
+    void shouldEnableWhenStateExists() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        domain.setItemBasicInfo(new DictItemBasicInfo("label", 1, true));
+        domain.setState(new com.springddd.domain.dict.state.DisabledDictItemState());
+
+        domain.enable();
+
+        assertTrue(domain.getState() instanceof com.springddd.domain.dict.state.EnabledDictItemState);
+    }
+
+    @Test
+    void shouldRestoreWhenStateIsNullAndItemBasicInfoIsNull() {
+        SysDictItemDomain domain = new SysDictItemDomain();
+        domain.setItemBasicInfo(null);
+        domain.setDeleteStatus(true);
+
+        domain.restore();
+
+        assertFalse(domain.getDeleteStatus());
+    }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.domain.dept.*;
 import com.springddd.domain.dict.*;
 import com.springddd.domain.gen.*;
-import com.springddd.domain.leaf.*;
 import com.springddd.domain.menu.*;
 import com.springddd.domain.role.*;
 import com.springddd.domain.user.*;
@@ -33,113 +32,6 @@ class DefaultEntityFactoryTest {
     void setUp() {
         objectMapper = new ObjectMapper();
         factory = new DefaultEntityFactory(objectMapper);
-    }
-
-    // ==================== LeafAlloc ====================
-
-    @Test
-    @DisplayName("createLeafAllocEntity 应将 domain 正确转换为 entity")
-    void createLeafAllocEntity_shouldConvertCorrectly() {
-        LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setLeafAllocId(new LeafAllocId(1L));
-        domain.setBizTag(new BizTag("test"));
-        domain.setMaxId(new MaxId(100L));
-        domain.setStep(new Step(10));
-        domain.setDescription(new Description("desc"));
-        domain.setDeleteStatus(false);
-        domain.setCreateBy("admin");
-        domain.setCreateTime(LocalDateTime.now());
-        domain.setUpdateBy("admin");
-        domain.setUpdateTime(LocalDateTime.now());
-        domain.setVersion(1);
-        domain.setDeptId(1L);
-
-        LeafAllocEntity entity = factory.createLeafAllocEntity(domain);
-
-        assertThat(entity.getId()).isEqualTo(1L);
-        assertThat(entity.getBizTag()).isEqualTo("test");
-        assertThat(entity.getMaxId()).isEqualTo(100L);
-        assertThat(entity.getStep()).isEqualTo(10);
-        assertThat(entity.getDescription()).isEqualTo("desc");
-        assertThat(entity.getDeleteStatus()).isFalse();
-        assertThat(entity.getCreateBy()).isEqualTo("admin");
-        assertThat(entity.getVersion()).isEqualTo(1);
-        assertThat(entity.getDeptId()).isEqualTo(1L);
-    }
-
-    @Test
-    @DisplayName("createLeafAllocDomain 应将 entity 正确转换为 domain")
-    void createLeafAllocDomain_shouldConvertCorrectly() {
-        LeafAllocEntity entity = new LeafAllocEntity();
-        entity.setId(1L);
-        entity.setBizTag("test");
-        entity.setMaxId(100L);
-        entity.setStep(10);
-        entity.setDescription("desc");
-        entity.setDeleteStatus(false);
-        entity.setCreateBy("admin");
-        entity.setCreateTime(LocalDateTime.now());
-        entity.setUpdateBy("admin");
-        entity.setUpdateTime(LocalDateTime.now());
-        entity.setVersion(1);
-        entity.setDeptId(1L);
-
-        LeafAllocDomain domain = factory.createLeafAllocDomain(entity);
-
-        assertThat(domain.getLeafAllocId().value()).isEqualTo(1L);
-        assertThat(domain.getBizTag().value()).isEqualTo("test");
-        assertThat(domain.getMaxId().value()).isEqualTo(100L);
-        assertThat(domain.getStep().value()).isEqualTo(10);
-        assertThat(domain.getDescription().value()).isEqualTo("desc");
-        assertThat(domain.getDeleteStatus()).isFalse();
-        assertThat(domain.getCreateBy()).isEqualTo("admin");
-        assertThat(domain.getVersion()).isEqualTo(1);
-        assertThat(domain.getDeptId()).isEqualTo(1L);
-    }
-
-    @Test
-    @DisplayName("createLeafAllocEntity 当 domain 值为 null 时应处理为空")
-    void createLeafAllocEntity_withNullValues_shouldHandleGracefully() {
-        LeafAllocDomain domain = new LeafAllocDomain();
-        domain.setLeafAllocId(null);
-        domain.setBizTag(null);
-        domain.setMaxId(null);
-        domain.setStep(null);
-        domain.setDescription(null);
-
-        LeafAllocEntity entity = factory.createLeafAllocEntity(domain);
-
-        assertThat(entity.getId()).isNull();
-        assertThat(entity.getBizTag()).isNull();
-        assertThat(entity.getDescription()).isNull();
-        assertThat(entity.getMaxId()).isNull();
-        assertThat(entity.getStep()).isNull();
-    }
-
-    @Test
-    @DisplayName("createLeafAllocDomain 当 maxId 和 step 为 null 时应处理为空")
-    void createLeafAllocDomain_withNullMaxIdAndStep_shouldHandleGracefully() {
-        LeafAllocEntity entity = new LeafAllocEntity();
-        entity.setId(1L);
-        entity.setBizTag("test");
-        entity.setMaxId(null);
-        entity.setStep(null);
-        entity.setDescription("desc");
-        entity.setDeleteStatus(false);
-        entity.setCreateBy("admin");
-        entity.setCreateTime(LocalDateTime.now());
-        entity.setUpdateBy("admin");
-        entity.setUpdateTime(LocalDateTime.now());
-        entity.setVersion(1);
-        entity.setDeptId(1L);
-
-        LeafAllocDomain domain = factory.createLeafAllocDomain(entity);
-
-        assertThat(domain.getLeafAllocId().value()).isEqualTo(1L);
-        assertThat(domain.getBizTag().value()).isEqualTo("test");
-        assertThat(domain.getMaxId()).isNull();
-        assertThat(domain.getStep()).isNull();
-        assertThat(domain.getDescription().value()).isEqualTo("desc");
     }
 
     // ==================== GenAggregate ====================
@@ -578,7 +470,7 @@ class DefaultEntityFactoryTest {
         domain.setRoleId(new com.springddd.domain.role.RoleId(1L));
         domain.setRoleBasicInfo(new com.springddd.domain.role.RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
         domain.setRoleExtendInfo(new com.springddd.domain.role.RoleExtendInfo("desc", true, "desc", true));
-        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, null, 1, null));
+        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, 1, null));
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setVersion(1);
@@ -740,7 +632,7 @@ class DefaultEntityFactoryTest {
         domain.setRoleId(new com.springddd.domain.role.RoleId(1L));
         domain.setRoleBasicInfo(new com.springddd.domain.role.RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
         domain.setRoleExtendInfo(new com.springddd.domain.role.RoleExtendInfo("desc", true));
-        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, null, 1, null));
+        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, 1, null));
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setVersion(1);

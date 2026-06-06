@@ -2,7 +2,6 @@ package com.springddd.application.service.role;
 
 import com.springddd.domain.role.*;
 import org.junit.jupiter.api.Test;
-import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SysRoleDomainFactoryImplTest {
@@ -16,7 +15,6 @@ class SysRoleDomainFactoryImplTest {
         RoleExtendInfo extendInfo = new RoleExtendInfo("Description", true);
         DataPermission dataPermission = new DataPermission();
         dataPermission.setRowScope(new RowScope());
-        dataPermission.setColumnRules(Arrays.asList());
 
         SysRoleDomain domain = factory.newInstance(roleId, basicInfo, extendInfo, dataPermission, 1L);
 

@@ -46,7 +46,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (ObjectUtils.isEmpty(authHeader) || !authHeader.startsWith("Bearer ")) {
-            log.error("\n#JwtAuthenticationConverter#[Missing or invalid Authorization header]: {}", authHeader);
+            log.warn("\n#JwtAuthenticationConverter#[Missing or invalid Authorization header]: {}", authHeader);
             return Mono.error(new AccessDeniedException("Missing or invalid Authorization header"));
         }
 
@@ -64,7 +64,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
-                        log.error("\n#JwtAuthenticationConverter#[token does not exist]: {}", token);
+                        log.warn("\n#JwtAuthenticationConverter#[token does not exist]: {}", token);
                         return Mono.error(new AccessDeniedException("Invalid Request"));
                     }
 
@@ -79,7 +79,7 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                                 .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
 
                     } catch (Exception e) {
-                        log.error("\n#JwtAuthenticationConverter#[Invalid token]: {}", e.getMessage());
+                        log.warn("\n#JwtAuthenticationConverter#[Invalid token]: {}", e.getMessage());
                         return Mono.error(new AccessDeniedException("Invalid token: " + e.getMessage()));
                     }
                 });

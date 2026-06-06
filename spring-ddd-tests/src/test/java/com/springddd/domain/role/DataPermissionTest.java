@@ -16,13 +16,13 @@ class DataPermissionTest {
     @Test
     void shouldCreateWithAllArgsConstructor() {
         RowScope rowScope = new RowScope();
-        List<ColumnRule> columnRules = Arrays.asList(new ColumnRule("entity1", "实体1", Arrays.asList("col1", "col2"), null, null));
+        List<Long> deptIds = Arrays.asList(1L);
 
-        DataPermission dataPermission = new DataPermission(rowScope, columnRules, 1, Arrays.asList(1L));
+        DataPermission dataPermission = new DataPermission(rowScope, 1, deptIds);
 
         assertEquals(rowScope, dataPermission.getRowScope());
-        assertEquals(columnRules, dataPermission.getColumnRules());
         assertEquals(1, dataPermission.getDataScope());
+        assertEquals(deptIds, dataPermission.getDeptIds());
     }
 
     @Test
@@ -38,19 +38,6 @@ class DataPermissionTest {
     }
 
     @Test
-    void shouldSetAndGetColumnRules() {
-        DataPermission dataPermission = new DataPermission();
-        List<ColumnRule> columnRules = Arrays.asList(
-            new ColumnRule("user", "用户表", Arrays.asList("name", "email"), null, null)
-        );
-
-        dataPermission.setColumnRules(columnRules);
-
-        assertEquals(columnRules, dataPermission.getColumnRules());
-        assertEquals(1, dataPermission.getColumnRules().size());
-    }
-
-    @Test
     void shouldHandleNullRowScope() {
         DataPermission dataPermission = new DataPermission();
         dataPermission.setRowScope(null);
@@ -58,27 +45,18 @@ class DataPermissionTest {
     }
 
     @Test
-    void shouldHandleNullColumnRules() {
-        DataPermission dataPermission = new DataPermission();
-        dataPermission.setColumnRules(null);
-        assertNull(dataPermission.getColumnRules());
-    }
-
-    @Test
     void equals_shouldWorkForSameValues() {
         RowScope rowScope = new RowScope();
-        List<ColumnRule> columnRules = Arrays.asList(new ColumnRule("e", "n", Arrays.asList("c"), null, null));
-        DataPermission dp1 = new DataPermission(rowScope, columnRules, null, null);
-        DataPermission dp2 = new DataPermission(rowScope, columnRules, null, null);
+        DataPermission dp1 = new DataPermission(rowScope, 1, Arrays.asList(1L));
+        DataPermission dp2 = new DataPermission(rowScope, 1, Arrays.asList(1L));
         assertEquals(dp1, dp2);
     }
 
     @Test
     void hashCode_shouldBeConsistent() {
         RowScope rowScope = new RowScope();
-        List<ColumnRule> columnRules = Arrays.asList(new ColumnRule("e", "n", Arrays.asList("c"), null, null));
-        DataPermission dp1 = new DataPermission(rowScope, columnRules, null, null);
-        DataPermission dp2 = new DataPermission(rowScope, columnRules, null, null);
+        DataPermission dp1 = new DataPermission(rowScope, 1, Arrays.asList(1L));
+        DataPermission dp2 = new DataPermission(rowScope, 1, Arrays.asList(1L));
         assertEquals(dp1.hashCode(), dp2.hashCode());
     }
 }

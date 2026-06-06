@@ -171,6 +171,22 @@ class ReactiveRedisCacheHelperTest {
     }
 
     @Test
+    void getOrLoad_shouldLoadFromDb_whenCacheHitBlankValue() throws Exception {
+        String key = "user:1:detail";
+        TestUser dbUser = new TestUser("db");
+        String json = "{\"name\":\"db\"}";
+
+        when(valueOperations.get(key)).thenReturn(Mono.just("   "));
+        when(objectMapper.writeValueAsString(dbUser)).thenReturn(json);
+        when(valueOperations.set(eq(key), eq(json), any(Duration.class))).thenReturn(Mono.just(true));
+
+        StepVerifier.create(cacheHelper.getOrLoad(key, TestUser.class, Duration.ofMinutes(5),
+                () -> Mono.just(dbUser)))
+                .assertNext(result -> assertEquals("db", result.name))
+                .verifyComplete();
+    }
+
+    @Test
     void getOrLoad_shouldReturnEmpty_whenDbEmptyAndSetNullMarkFails() {
         String key = "user:1:detail";
 
@@ -373,6 +389,48 @@ class ReactiveRedisCacheHelperTest {
                 .verifyComplete();
     }
 
+    @Test
+    void deleteCache_shouldScanAndDeletePatternKeys_withQuestionMarkInPattern() {
+        String pattern = "test:?x*";
+        when(redisTemplate.scan()).thenReturn(Flux.just("test:abx", "test:axy", "test:ayy", "other:c"));
+        when(redisTemplate.delete(anyString())).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(cacheHelper.deleteCache(pattern))
+                .verifyComplete();
+
+        verify(redisTemplate, never()).delete("test:abx");
+        verify(redisTemplate).delete("test:axy");
+        verify(redisTemplate, never()).delete("test:ayy");
+        verify(redisTemplate, never()).delete("other:c");
+    }
+
     // Helper record
     record TestUser(String name) {}
+
+    @Test
+    void deserialize_shouldReturnEmpty_whenJsonIsNull() throws Exception {
+        java.lang.reflect.Method method = ReactiveRedisCacheHelper.class.getDeclaredMethod("deserialize", String.class, Class.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Mono<TestUser> result = (Mono<TestUser>) method.invoke(cacheHelper, null, TestUser.class);
+        StepVerifier.create(result).verifyComplete();
+    }
+
+    @Test
+    void deserialize_shouldReturnEmpty_whenJsonIsBlank() throws Exception {
+        java.lang.reflect.Method method = ReactiveRedisCacheHelper.class.getDeclaredMethod("deserialize", String.class, Class.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Mono<TestUser> result = (Mono<TestUser>) method.invoke(cacheHelper, "   ", TestUser.class);
+        StepVerifier.create(result).verifyComplete();
+    }
+
+    @Test
+    void deserialize_shouldReturnEmpty_whenJsonIsNullMark() throws Exception {
+        java.lang.reflect.Method method = ReactiveRedisCacheHelper.class.getDeclaredMethod("deserialize", String.class, Class.class);
+        method.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        Mono<TestUser> result = (Mono<TestUser>) method.invoke(cacheHelper, "__NULL__", TestUser.class);
+        StepVerifier.create(result).verifyComplete();
+    }
 }

@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class LeafSegmentTest {
 
     @Test
-    void shouldGetAndSetValue() {
+    void shouldGetAndSetStart() {
         LeafSegment segment = new LeafSegment();
-        assertEquals(0L, segment.getValue().get());
-        segment.getValue().set(100L);
-        assertEquals(100L, segment.getValue().get());
+        assertEquals(0L, segment.getStart());
+        segment.setStart(1000L);
+        assertEquals(1000L, segment.getStart());
     }
 
     @Test

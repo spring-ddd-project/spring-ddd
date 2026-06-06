@@ -172,6 +172,14 @@ class SysMenuQueryServiceTest {
     }
 
     @Test
+    void queryByApi_shouldReturnEmpty_whenEntityNotFound() {
+        when(r2dbcEntityTemplate.selectOne(any(Query.class), eq(SysMenuEntity.class))).thenReturn(Mono.empty());
+
+        StepVerifier.create(sysMenuQueryService.queryByApi("/api/unknown"))
+                .verifyComplete();
+    }
+
+    @Test
     void queryAllMenu_shouldReturnAllViews() {
         SysMenuEntity entity = new SysMenuEntity();
         entity.setId(1L);
@@ -268,32 +276,52 @@ class SysMenuQueryServiceTest {
         roleView.setRoleCode("ROLE_ADMIN");
         roleView.setOwnerStatus(true);
 
-        SysMenuEntity entity = new SysMenuEntity();
-        entity.setId(1L);
-        entity.setParentId(null);
-        entity.setDeleteStatus(false);
-        entity.setSortOrder(1);
+        SysMenuEntity entity1 = new SysMenuEntity();
+        entity1.setId(1L);
+        entity1.setParentId(0L);
+        entity1.setDeleteStatus(false);
+        entity1.setSortOrder(1);
 
-        SysMenuView view = new SysMenuView();
-        view.setId(1L);
-        view.setParentId(null);
-        view.setDeleteStatus(false);
-        view.setMenuType(1);
-        view.setMenuStatus(true);
-        view.setMenuStatus(true);
-        SysMenuView.Meta meta = new SysMenuView.Meta();
-        meta.setOrder(1);
-        view.setMeta(meta);
-        view.setChildren(new ArrayList<>());
+        SysMenuEntity entity2 = new SysMenuEntity();
+        entity2.setId(2L);
+        entity2.setParentId(0L);
+        entity2.setDeleteStatus(false);
+        entity2.setSortOrder(2);
+
+        SysMenuView view1 = new SysMenuView();
+        view1.setId(1L);
+        view1.setParentId(0L);
+        view1.setDeleteStatus(false);
+        view1.setMenuType(1);
+        view1.setMenuStatus(true);
+        SysMenuView.Meta meta1 = new SysMenuView.Meta();
+        meta1.setOrder(1);
+        view1.setMeta(meta1);
+        view1.setChildren(new ArrayList<>());
+
+        SysMenuView view2 = new SysMenuView();
+        view2.setId(2L);
+        view2.setParentId(0L);
+        view2.setDeleteStatus(false);
+        view2.setMenuType(1);
+        view2.setMenuStatus(true);
+        SysMenuView.Meta meta2 = new SysMenuView.Meta();
+        meta2.setOrder(2);
+        view2.setMeta(meta2);
+        view2.setChildren(new ArrayList<>());
 
         when(sysRoleQueryService.getByCode("ROLE_ADMIN")).thenReturn(Mono.just(roleView));
         when(r2dbcEntityTemplate.select(SysMenuEntity.class)).thenReturn(reactiveSelect);
         when(reactiveSelect.matching(any(Query.class))).thenReturn(reactiveSelect);
-        when(reactiveSelect.all()).thenReturn(Flux.just(entity));
-        when(sysMenuViewMapStruct.toViewList(any())).thenReturn(List.of(view));
+        when(reactiveSelect.all()).thenReturn(Flux.just(entity1, entity2));
+        when(r2dbcEntityTemplate.selectOne(any(Query.class), eq(SysMenuEntity.class))).thenReturn(Mono.empty());
+        when(sysMenuViewMapStruct.toViewList(any())).thenReturn(List.of(view1, view2));
 
         StepVerifier.create(sysMenuQueryService.getMenuTreeWithPermission())
-                .assertNext(result -> assertNotNull(result))
+                .assertNext(result -> {
+                    assertNotNull(result);
+                    assertEquals(2, result.size());
+                })
                 .verifyComplete();
     }
 
@@ -493,6 +521,60 @@ class SysMenuQueryServiceTest {
     }
 
     @Test
+    void queryByPermissions_shouldFilterDeletedParentNodes() {
+        SecurityUtils.setUserId(1L);
+        SecurityUtils.setMenuIds(List.of(2L));
+
+        SysMenuEntity childEntity = new SysMenuEntity();
+        childEntity.setId(2L);
+        childEntity.setParentId(1L);
+        childEntity.setDeleteStatus(false);
+        childEntity.setSortOrder(1);
+        childEntity.setMenuType(1);
+
+        SysMenuEntity parentEntity = new SysMenuEntity();
+        parentEntity.setId(1L);
+        parentEntity.setParentId(null);
+        parentEntity.setDeleteStatus(true);
+        parentEntity.setSortOrder(1);
+        parentEntity.setMenuType(1);
+
+        SysMenuView childView = new SysMenuView();
+        childView.setId(2L);
+        childView.setParentId(1L);
+        childView.setDeleteStatus(false);
+        childView.setMenuType(1);
+        childView.setMenuStatus(true);
+        SysMenuView.Meta childMeta = new SysMenuView.Meta();
+        childMeta.setOrder(1);
+        childView.setMeta(childMeta);
+        childView.setChildren(new ArrayList<>());
+
+        SysMenuView parentView = new SysMenuView();
+        parentView.setId(1L);
+        parentView.setParentId(null);
+        parentView.setDeleteStatus(true);
+        parentView.setMenuType(1);
+        parentView.setMenuStatus(true);
+        SysMenuView.Meta parentMeta = new SysMenuView.Meta();
+        parentMeta.setOrder(1);
+        parentView.setMeta(parentMeta);
+        parentView.setChildren(new ArrayList<>());
+
+        when(r2dbcEntityTemplate.selectOne(any(Query.class), eq(SysMenuEntity.class)))
+                .thenReturn(Mono.just(childEntity))
+                .thenReturn(Mono.just(parentEntity));
+        when(sysMenuViewMapStruct.toView(childEntity)).thenReturn(childView);
+        when(sysMenuViewMapStruct.toView(parentEntity)).thenReturn(parentView);
+        when(sysMenuViewMapStruct.toViewList(any())).thenReturn(List.of(childView));
+        when(reactiveRedisCacheHelper.setCache(any(), any(), any())).thenReturn(Mono.just(true));
+
+        StepVerifier.create(sysMenuQueryService.queryByPermissions())
+                .assertNext(result -> assertNotNull(result))
+                .verifyComplete();
+    }
+
+    @Test
     void getMenuTreeWithoutPermission_shouldError_whenDeserializationFails() {
         SecurityUtils.setUserId(1L);
 
@@ -603,4 +685,67 @@ class SysMenuQueryServiceTest {
         assertEquals(menu.getEmbedded(), copy.getEmbedded());
         assertEquals(menu.getMenuStatus(), copy.getMenuStatus());
     }
+
+    @Test
+    void queryByMenuId_shouldReturnEmpty_whenEntityNotFound() {
+        when(sysMenuRepository.findById(1L)).thenReturn(Mono.empty());
+
+        StepVerifier.create(sysMenuQueryService.queryByMenuId(1L))
+                .verifyComplete();
+    }
+
+    @Test
+    void queryByPermissions_shouldReturnEmpty_whenMenuIdsEmpty() {
+        SecurityUtils.setUserId(1L);
+        SecurityUtils.setMenuIds(Collections.emptyList());
+
+        when(reactiveRedisCacheHelper.setCache(any(), any(), any())).thenReturn(Mono.just(true));
+
+        StepVerifier.create(sysMenuQueryService.queryByPermissions())
+                .assertNext(result -> assertNotNull(result))
+                .verifyComplete();
+    }
+
+    @Test
+    void filterOutInvalidMenusRecursively_shouldHandleNullChildren() throws Exception {
+        Method method = SysMenuQueryService.class.getDeclaredMethod("filterOutInvalidMenusRecursively", SysMenuView.class);
+        method.setAccessible(true);
+
+        SysMenuView menu = new SysMenuView();
+        menu.setMenuType(1);
+        menu.setId(1L);
+        menu.setChildren(null);
+        SysMenuView.Meta meta = new SysMenuView.Meta();
+        meta.setOrder(1);
+        menu.setMeta(meta);
+
+        Object result = method.invoke(sysMenuQueryService, menu);
+        assertNotNull(result);
+        SysMenuView copy = (SysMenuView) result;
+        assertEquals(1L, copy.getId());
+        assertNotNull(copy.getChildren());
+        assertTrue(copy.getChildren().isEmpty());
+    }
+
+    @Test
+    void getMenuTreeWithPermission_shouldSkipNullRole() {
+        SecurityUtils.setRoles(List.of("ROLE_USER"));
+
+        SysRoleView roleView = new SysRoleView();
+        roleView.setRoleCode("ROLE_USER");
+        roleView.setOwnerStatus(false);
+
+        List<SysMenuView> cachedList = List.of();
+
+        when(sysRoleQueryService.getByCode("ROLE_USER")).thenReturn(Mono.empty());
+        when(reactiveRedisCacheHelper.getCache(any(), eq(List.class)))
+                .thenReturn(Mono.just(cachedList));
+        when(objectMapper.convertValue(eq(cachedList), any(TypeReference.class)))
+                .thenReturn(cachedList);
+
+        StepVerifier.create(sysMenuQueryService.getMenuTreeWithPermission())
+                .expectNext(cachedList)
+                .verifyComplete();
+    }
+
 }

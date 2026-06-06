@@ -53,7 +53,6 @@ class SysRoleDomainRepositoryImplTest {
 
         DataPermission dataPermission = new DataPermission();
         dataPermission.setRowScope(new RowScope(Collections.singletonList(1L), null, null, false));
-        dataPermission.setColumnRules(Collections.emptyList());
 
         when(sysRoleRepository.findById(1L)).thenReturn(Mono.just(entity));
         when(objectMapper.readValue(eq("{\"rowScope\":{\"deptIds\":[1],\"self\":false}}"), eq(DataPermission.class)))

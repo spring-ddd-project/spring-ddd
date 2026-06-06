@@ -22,7 +22,7 @@ class SysRoleViewMapStructImplTest {
         entity.setRoleCode("admin");
         entity.setRoleDesc("Admin role");
         entity.setDataScope(1);
-        entity.setDataPermission("{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"columnRules\":[],\"dataScope\":1,\"deptIds\":[]}");
+        entity.setDataPermission("{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"dataScope\":1,\"deptIds\":[]}");
         entity.setRoleStatus(true);
         entity.setOwnerStatus(false);
         entity.setDeptId(1L);
@@ -76,7 +76,7 @@ class SysRoleViewMapStructImplTest {
     @Test
     @DisplayName("toDataPermission 当 dataPermission 为合法 JSON 时应解析为 DataPermission")
     void toDataPermission_whenValidJson_shouldReturnDataPermission() {
-        String json = "{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"columnRules\":[],\"dataScope\":1,\"deptIds\":[]}";
+        String json = "{\"rowScope\":{\"deptIds\":[],\"postIds\":[],\"userIds\":[],\"self\":false},\"dataScope\":1,\"deptIds\":[]}";
         DataPermission dp = impl.toDataPermission(json);
         assertThat(dp).isNotNull();
         assertThat(dp.getDataScope()).isEqualTo(1);

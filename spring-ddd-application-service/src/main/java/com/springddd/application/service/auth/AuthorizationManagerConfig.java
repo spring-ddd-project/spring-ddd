@@ -47,7 +47,7 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
         return sysMenuQueryService.queryByApi(path)
                 .flatMap(menu -> {
                     if (menu == null || ObjectUtils.isEmpty(menu.getPermission())) {
-                        log.error("\n#AuthorizationManagerConfig#[Menu permission is empty]:{}", menu);
+                        log.warn("\n#AuthorizationManagerConfig#[Menu permission is empty]:{}", menu);
                         return Mono.just(new AuthorizationDecision(false));
                     }
 
@@ -62,11 +62,11 @@ public class AuthorizationManagerConfig implements ReactiveAuthorizationManager<
                                         return new AuthorizationDecision(true);
                                     }
                                 }
-                                log.error("\n#AuthorizationManagerConfig#[User authorities is empty]:{}", auth);
+                                log.warn("\n#AuthorizationManagerConfig#[User authorities is empty]:{}", auth);
                                 return new AuthorizationDecision(false);
                             });
                 }).switchIfEmpty(Mono.fromSupplier(() -> {
-                    log.error("\n#AuthorizationManagerConfig#[No menu found for path]:{}", path);
+                    log.warn("\n#AuthorizationManagerConfig#[No menu found for path]:{}", path);
                     return new AuthorizationDecision(false);
                 }));
     }

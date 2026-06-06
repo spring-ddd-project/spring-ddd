@@ -85,6 +85,36 @@ class GenTableInfoQueryServiceTest {
     }
 
     @Test
+    void index_shouldReturnPageResponse_whenTableNameEmpty() {
+        GenTableInfoPageQuery query = new GenTableInfoPageQuery();
+        query.setDatabaseName("spring_ddd");
+        query.setPageNum(1);
+        query.setPageSize(10);
+        query.setTableName("");
+
+        GenTableInfoView view = new GenTableInfoView();
+        view.setTableSchema("spring_ddd");
+        view.setTableName("sys_user");
+        view.setTableComment("User Table");
+        view.setCreateTime(java.time.LocalDateTime.now());
+        view.setTableCollation("utf8mb4");
+
+        when(databaseClient.sql(anyString())).thenReturn(genericExecuteSpec);
+        when(genericExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.bind(anyString(), any())).thenReturn(boundExecuteSpec);
+        when(boundExecuteSpec.map(any(java.util.function.BiFunction.class))).thenReturn(rowsFetchSpec);
+        when(rowsFetchSpec.all()).thenReturn(Flux.just(view));
+        when(rowsFetchSpec.one()).thenReturn(Mono.just(1L));
+
+        StepVerifier.create(service.index(query))
+                .assertNext(page -> {
+                    assertNotNull(page);
+                    assertEquals(1, page.getItems().size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
     void index_shouldReturnPageResponse() {
         GenTableInfoPageQuery query = new GenTableInfoPageQuery();
         query.setDatabaseName("spring_ddd");

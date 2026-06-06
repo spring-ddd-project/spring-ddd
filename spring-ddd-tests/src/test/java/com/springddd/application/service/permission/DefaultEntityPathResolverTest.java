@@ -172,4 +172,24 @@ class DefaultEntityPathResolverTest {
         String result = (String) method.invoke(resolver, "//");
         assertThat(result).isNull();
     }
+
+    @Test
+    @DisplayName("resolveEntityCode 当路径为双斜杠时应返回 empty")
+    void resolveEntityCode_withDoubleSlash_shouldReturnEmpty() {
+        Optional<String> result = resolver.resolveEntityCode("//");
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    @DisplayName("resolveEntityCode 当显式映射值为空字符串时应返回空字符串")
+    void resolveEntityCode_withExplicitMappingEmptyValue_shouldReturnEmptyString() throws Exception {
+        java.lang.reflect.Field field = DefaultEntityPathResolver.class.getDeclaredField("explicitMappings");
+        field.setAccessible(true);
+        DefaultEntityPathResolver explicitResolver = new DefaultEntityPathResolver();
+        field.set(explicitResolver, Map.of("/api/empty", ""));
+        explicitResolver.init();
+
+        Optional<String> result = explicitResolver.resolveEntityCode("/api/empty");
+        assertThat(result).hasValue("");
+    }
 }

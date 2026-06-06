@@ -123,4 +123,20 @@ class WebfluxGlobalErrorHandlerTest {
         StepVerifier.create(handler.handle(exchange, new RuntimeException("fail")))
                 .verifyComplete();
     }
+
+    @Test
+    void handle_shouldReturn500WhenResponseStatusExceptionHasUnknownCode() throws Exception {
+        when(response.isCommitted()).thenReturn(false);
+        when(response.getHeaders()).thenReturn(new org.springframework.http.HttpHeaders());
+        when(objectMapper.writeValueAsBytes(any())).thenReturn("{\"code\":500}".getBytes());
+        when(response.writeWith(any())).thenReturn(Mono.empty());
+
+        ResponseStatusException ex = new ResponseStatusException(
+                org.springframework.http.HttpStatusCode.valueOf(999), "unknown status");
+
+        StepVerifier.create(handler.handle(exchange, ex))
+                .verifyComplete();
+
+        verify(response).setStatusCode((HttpStatus) null);
+    }
 }

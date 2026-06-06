@@ -87,6 +87,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.lmax</groupId>
+                <artifactId>disruptor</artifactId>
+                <version>4.0.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.springddd</groupId>
                 <artifactId>spring-ddd-interface-web</artifactId>
                 <version>${project.version}</version>

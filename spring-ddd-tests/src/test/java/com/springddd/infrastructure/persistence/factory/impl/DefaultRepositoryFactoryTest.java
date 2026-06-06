@@ -4,7 +4,6 @@ import com.springddd.domain.dept.SysDeptDomainRepository;
 import com.springddd.domain.dict.SysDictDomainRepository;
 import com.springddd.domain.dict.SysDictItemDomainRepository;
 import com.springddd.domain.gen.*;
-import com.springddd.domain.leaf.LeafAllocDomainRepository;
 import com.springddd.domain.menu.SysMenuDomainRepository;
 import com.springddd.domain.role.SysRoleDomainRepository;
 import com.springddd.domain.user.SysUserDomainRepository;
@@ -20,7 +19,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class DefaultRepositoryFactoryTest {
 
-    @Mock private LeafAllocDomainRepository leafAllocDomainRepository;
     @Mock private GenAggregateDomainRepository genAggregateDomainRepository;
     @Mock private SysUserDomainRepository sysUserDomainRepository;
     @Mock private SysDeptDomainRepository sysDeptDomainRepository;
@@ -38,7 +36,6 @@ class DefaultRepositoryFactoryTest {
     @BeforeEach
     void setUp() {
         factory = new DefaultRepositoryFactory(
-                leafAllocDomainRepository,
                 genAggregateDomainRepository,
                 sysUserDomainRepository,
                 sysDeptDomainRepository,
@@ -51,12 +48,6 @@ class DefaultRepositoryFactoryTest {
                 genProjectInfoDomainRepository,
                 genTemplateDomainRepository
         );
-    }
-
-    @Test
-    @DisplayName("getLeafAllocDomainRepository 应返回正确的仓库实例")
-    void getLeafAllocDomainRepository_shouldReturnCorrectRepository() {
-        assertThat(factory.getLeafAllocDomainRepository()).isSameAs(leafAllocDomainRepository);
     }
 
     @Test
