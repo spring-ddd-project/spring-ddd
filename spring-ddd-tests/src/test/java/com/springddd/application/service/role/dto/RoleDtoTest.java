@@ -1,6 +1,5 @@
 package com.springddd.application.service.role.dto;
 
-import com.springddd.domain.role.ColumnRule;
 import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.role.RowScope;
 import org.junit.jupiter.api.DisplayName;
@@ -28,8 +27,7 @@ class RoleDtoTest {
         command.setVersion(1);
 
         RowScope rowScope = new RowScope(List.of(1L), List.of(2L), List.of(3L), true);
-        ColumnRule columnRule = new ColumnRule("entity", "Entity", List.of("col1"), "type", List.of(1L));
-        DataPermission dataPermission = new DataPermission(rowScope, List.of(columnRule), 1, List.of(1L));
+        DataPermission dataPermission = new DataPermission(rowScope, 1, List.of(1L));
         command.setDataPermission(dataPermission);
 
         assertThat(command.getId()).isEqualTo(1L);
@@ -169,8 +167,7 @@ class RoleDtoTest {
         view.setVersion(1);
 
         RowScope rowScope = new RowScope(List.of(1L), List.of(2L), List.of(3L), true);
-        ColumnRule columnRule = new ColumnRule("entity", "Entity", List.of("col1"), "type", List.of(1L));
-        DataPermission dataPermission = new DataPermission(rowScope, List.of(columnRule), 1, List.of(1L));
+        DataPermission dataPermission = new DataPermission(rowScope, 1, List.of(1L));
         view.setDataPermission(dataPermission);
 
         assertThat(view.getId()).isEqualTo(1L);

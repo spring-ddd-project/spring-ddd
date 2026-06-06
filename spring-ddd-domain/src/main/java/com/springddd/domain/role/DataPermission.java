@@ -11,7 +11,6 @@ import java.util.List;
 @AllArgsConstructor
 public class DataPermission {
     private RowScope rowScope;
-    private List<ColumnRule> columnRules;
     private Integer dataScope;
     private List<Long> deptIds;
 }

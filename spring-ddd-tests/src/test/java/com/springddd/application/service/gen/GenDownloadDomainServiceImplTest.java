@@ -136,4 +136,50 @@ class GenDownloadDomainServiceImplTest {
                 .expectError(RuntimeException.class)
                 .verify();
     }
+
+    @Test
+    void download_shouldHandleNullChildren() {
+        SecurityUtils.setUserId(1L);
+
+        ProjectTreeView root = new ProjectTreeView();
+        root.setLabel("test-project");
+        root.setChildren(null);
+
+        List<ProjectTreeView> treeList = List.of(root);
+
+        when(cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(1L), List.class))
+                .thenReturn(Mono.just(treeList));
+        when(objectMapper.convertValue(eq(treeList), any(TypeReference.class)))
+                .thenReturn(treeList);
+
+        StepVerifier.create(service.download())
+                .assertNext(response -> {
+                    assertEquals(200, response.getStatusCode().value());
+                    assertNotNull(response.getBody());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void download_shouldHandleEmptyChildren() {
+        SecurityUtils.setUserId(1L);
+
+        ProjectTreeView root = new ProjectTreeView();
+        root.setLabel("test-project");
+        root.setChildren(new ArrayList<>());
+
+        List<ProjectTreeView> treeList = List.of(root);
+
+        when(cacheHelper.getCache(CacheKeys.GEN_FILES.buildKey(1L), List.class))
+                .thenReturn(Mono.just(treeList));
+        when(objectMapper.convertValue(eq(treeList), any(TypeReference.class)))
+                .thenReturn(treeList);
+
+        StepVerifier.create(service.download())
+                .assertNext(response -> {
+                    assertEquals(200, response.getStatusCode().value());
+                    assertNotNull(response.getBody());
+                })
+                .verifyComplete();
+    }
 }

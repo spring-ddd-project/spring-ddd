@@ -16,17 +16,9 @@ spring:
   main:
     allow-circular-references: true
 
-leaf:
-  snowflake:
-    enabled: true
-    worker-id: 0
-    datacenter-id: 0
-    port: 8080
-
 logging:
   level:
     com.springddd.infrastructure.persistence.leaf.LeafSegmentIdGenerateDomainServiceImpl: DEBUG
-    com.springddd.application.service.leaf.SnowflakeDomainServiceImpl: DEBUG
 
 jwt:
   secret: 'test-secret-key-for-integration-testing-only-do-not-use-in-production'

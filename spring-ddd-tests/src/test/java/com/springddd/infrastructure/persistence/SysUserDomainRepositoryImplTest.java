@@ -124,4 +124,52 @@ class SysUserDomainRepositoryImplTest {
                 .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
     }
+
+    @Test
+    void save_shouldHandleNullUsername() {
+        SysUserDomain domain = new SysUserDomain();
+        Account account = new Account(
+                null,
+                new Password("password"),
+                "admin@example.com",
+                "1234567890",
+                false
+        );
+        domain.setAccount(account);
+        domain.setExtendInfo(new ExtendInfo());
+        domain.setDeptId(1L);
+
+        SysUserEntity savedEntity = new SysUserEntity();
+        savedEntity.setId(1L);
+
+        when(sysUserRepository.save(any(SysUserEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
+                .verifyComplete();
+    }
+
+    @Test
+    void save_shouldHandleNullPassword() {
+        SysUserDomain domain = new SysUserDomain();
+        Account account = new Account(
+                new Username("admin"),
+                null,
+                "admin@example.com",
+                "1234567890",
+                false
+        );
+        domain.setAccount(account);
+        domain.setExtendInfo(new ExtendInfo());
+        domain.setDeptId(1L);
+
+        SysUserEntity savedEntity = new SysUserEntity();
+        savedEntity.setId(1L);
+
+        when(sysUserRepository.save(any(SysUserEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        StepVerifier.create(repository.save(domain))
+                .assertNext(id -> assertEquals(1L, id))
+                .verifyComplete();
+    }
 }

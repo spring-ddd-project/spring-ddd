@@ -1,6 +1,7 @@
 package com.springddd.application.service.gen;
 
 import com.springddd.application.service.gen.dto.GenAggregateView;
+import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -21,6 +22,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import com.springddd.application.service.gen.dto.ProjectTreeView;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -215,6 +220,58 @@ class GenerateDomainServiceImplTest {
     }
 
     @Test
+    void generate_shouldBuildTreeWithAllTemplateTypes() throws Exception {
+        SecurityUtils.setUserId(1L);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("projectName", "test-project");
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        java.util.ArrayList<com.springddd.application.service.gen.dto.GenTemplateView> templates = new java.util.ArrayList<>();
+
+        com.springddd.application.service.gen.dto.GenTemplateView t1 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t1.setTemplateName("domain");
+        t1.setTemplateContent("domain ${className}");
+        templates.add(t1);
+
+        com.springddd.application.service.gen.dto.GenTemplateView t2 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t2.setTemplateName("command");
+        t2.setTemplateContent("command ${className}");
+        templates.add(t2);
+
+        com.springddd.application.service.gen.dto.GenTemplateView t3 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t3.setTemplateName("controller");
+        t3.setTemplateContent("controller ${className}");
+        templates.add(t3);
+
+        com.springddd.application.service.gen.dto.GenTemplateView t4 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t4.setTemplateName("api.ts");
+        t4.setTemplateContent("api ${className}");
+        templates.add(t4);
+
+        com.springddd.application.service.gen.dto.GenTemplateView t5 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t5.setTemplateName("i18n.en.json");
+        t5.setTemplateContent("en ${className}");
+        templates.add(t5);
+
+        com.springddd.application.service.gen.dto.GenTemplateView t6 = new com.springddd.application.service.gen.dto.GenTemplateView();
+        t6.setTemplateName("i18n.locale.json");
+        t6.setTemplateContent("locale ${className}");
+        templates.add(t6);
+
+        when(genTableInfoQueryService.buildData("sys_user")).thenReturn(Mono.just(context));
+        when(templateQueryService.queryAllTemplate()).thenReturn(Mono.just(templates));
+        when(cacheHelper.setCache(any(), any(), any())).thenReturn(Mono.just(true));
+
+        StepVerifier.create(service.generate("sys_user"))
+                .verifyComplete();
+    }
+
+    @Test
     void processOtherPaths_shouldAddTree_whenRootNotInList() throws Exception {
         java.lang.reflect.Method method = GenerateDomainServiceImpl.class.getDeclaredMethod(
                 "processOtherPaths", String.class, String.class,
@@ -230,5 +287,221 @@ class GenerateDomainServiceImplTest {
         method.invoke(service, "test.txt", "content", root, treeList);
 
         assertEquals(1, treeList.size());
+    }
+
+    @Test
+    void processOtherPaths_shouldUpdateTree_whenRootAlreadyInList() throws Exception {
+        java.lang.reflect.Method method = GenerateDomainServiceImpl.class.getDeclaredMethod(
+                "processOtherPaths", String.class, String.class,
+                com.springddd.application.service.gen.dto.ProjectTreeView.class, List.class);
+        method.setAccessible(true);
+
+        com.springddd.application.service.gen.dto.ProjectTreeView root = new com.springddd.application.service.gen.dto.ProjectTreeView();
+        root.setLabel("README");
+        root.setChildren(new ArrayList<>());
+
+        java.util.ArrayList<com.springddd.application.service.gen.dto.ProjectTreeView> treeList = new java.util.ArrayList<>();
+        treeList.add(root);
+
+        method.invoke(service, "test.txt", "content", root, treeList);
+
+        assertEquals(1, treeList.size());
+    }
+
+    @Test
+    void generateFilePath_shouldThrow_whenAggregateRootHasNoMatch() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        java.lang.reflect.InvocationTargetException thrown = org.junit.jupiter.api.Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "aggregateRoot", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void generateFilePath_shouldThrow_whenObjectValueHasNoMatch() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        java.lang.reflect.InvocationTargetException thrown = org.junit.jupiter.api.Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "objectValue", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void generateFilePath_shouldThrow_whenExtendInfoHasNoMatch() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        java.lang.reflect.InvocationTargetException thrown = org.junit.jupiter.api.Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "extendInfo", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void generateFilePath_shouldReturnCorrectPath_forRecycleVue() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        String result = (String) method.invoke(service, "recycle.vue", context, "test");
+        assertTrue(result.contains("recycle.vue"));
+    }
+
+    @Test
+    void generateFilePath_shouldReturnCorrectPath_forFormVue() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of());
+
+        String result = (String) method.invoke(service, "form.vue", context, "test");
+        assertTrue(result.contains("form.vue"));
+    }
+
+    @Test
+    void generateFilePath_aggregateRoot_shouldFilterMismatchingObjectType() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        GenAggregateView wrongType = new GenAggregateView();
+        wrongType.setObjectType((byte) 2);
+        wrongType.setHasCreated(true);
+        wrongType.setObjectName("Wrong");
+
+        GenAggregateView rightType = new GenAggregateView();
+        rightType.setObjectType((byte) 1);
+        rightType.setHasCreated(true);
+        rightType.setObjectName("UserId");
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of(wrongType, rightType));
+
+        String result = (String) method.invoke(service, "aggregateRoot", context, "test");
+        assertTrue(result.contains("UserId.java"));
+    }
+
+    @Test
+    void generateFilePath_objectValue_notCreated_shouldThrow() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 2);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("Account");
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of(notCreated));
+
+        java.lang.reflect.InvocationTargetException thrown = org.junit.jupiter.api.Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "objectValue", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void generateFilePath_extendInfo_notCreated_shouldThrow() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 3);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("UserInfo");
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of(notCreated));
+
+        java.lang.reflect.InvocationTargetException thrown = org.junit.jupiter.api.Assertions.assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "extendInfo", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void generateFilePath_aggregateRoot_hasCreatedFalse_shouldThrow() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod("generateFilePath", String.class, Map.class, String.class);
+        method.setAccessible(true);
+
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 1);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("UserId");
+
+        Map<String, Object> context = new HashMap<>();
+        context.put("moduleName", "sys");
+        context.put("packageName", "com.example");
+        context.put("className", "User");
+        context.put("requestName", "user");
+        context.put("aggregateViews", List.of(notCreated));
+
+        java.lang.reflect.InvocationTargetException thrown = assertThrows(
+                java.lang.reflect.InvocationTargetException.class,
+                () -> method.invoke(service, "aggregateRoot", context, "test"));
+        assertTrue(thrown.getCause() instanceof java.util.NoSuchElementException);
+    }
+
+    @Test
+    void saveGeneratedFile_shouldProcessFrontendPath() throws Exception {
+        Method method = GenerateDomainServiceImpl.class.getDeclaredMethod(
+                "saveGeneratedFile", String.class, String.class, List.class, String.class);
+        method.setAccessible(true);
+
+        List<ProjectTreeView> treeList = new ArrayList<>();
+        method.invoke(service, "apps/web-ele/src/views/sys/user/index.vue", "<template></template>", treeList, "test-project");
+
+        Optional<ProjectTreeView> uiRoot = treeList.stream()
+                .filter(t -> t.getLabel().equals("test-project-ui"))
+                .findFirst();
+        assertTrue(uiRoot.isPresent());
+        assertFalse(uiRoot.get().getChildren().isEmpty());
     }
 }

@@ -24,4 +24,9 @@ class TitleCaseConverterTest {
     void toTitleCase_shouldHandleEmptyParts() {
         assertEquals("Hello World", TitleCaseConverter.toTitleCase("hello__world"));
     }
+
+    @Test
+    void toTitleCase_shouldHandleSingleCharParts() {
+        assertEquals("A B", TitleCaseConverter.toTitleCase("a_b"));
+    }
 }

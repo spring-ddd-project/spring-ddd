@@ -24,7 +24,9 @@ public interface SysRoleViewMapStruct {
             return null;
         }
         try {
-            return new ObjectMapper().readValue(dataPermission, DataPermission.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return mapper.readValue(dataPermission, DataPermission.class);
         } catch (JsonProcessingException e) {
             return null;
         }

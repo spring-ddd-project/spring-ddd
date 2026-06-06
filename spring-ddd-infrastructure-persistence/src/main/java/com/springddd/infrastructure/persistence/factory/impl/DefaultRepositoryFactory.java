@@ -4,7 +4,6 @@ import com.springddd.domain.dept.SysDeptDomainRepository;
 import com.springddd.domain.dict.SysDictDomainRepository;
 import com.springddd.domain.dict.SysDictItemDomainRepository;
 import com.springddd.domain.gen.*;
-import com.springddd.domain.leaf.LeafAllocDomainRepository;
 import com.springddd.domain.menu.SysMenuDomainRepository;
 import com.springddd.domain.role.SysRoleDomainRepository;
 import com.springddd.domain.user.SysUserDomainRepository;
@@ -16,7 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DefaultRepositoryFactory implements RepositoryFactory {
 
-    private final LeafAllocDomainRepository leafAllocDomainRepository;
     private final GenAggregateDomainRepository genAggregateDomainRepository;
     private final SysUserDomainRepository sysUserDomainRepository;
     private final SysDeptDomainRepository sysDeptDomainRepository;
@@ -28,11 +26,6 @@ public class DefaultRepositoryFactory implements RepositoryFactory {
     private final GenColumnsDomainRepository genColumnsDomainRepository;
     private final GenProjectInfoDomainRepository genProjectInfoDomainRepository;
     private final GenTemplateDomainRepository genTemplateDomainRepository;
-
-    @Override
-    public LeafAllocDomainRepository getLeafAllocDomainRepository() {
-        return leafAllocDomainRepository;
-    }
 
     @Override
     public GenAggregateDomainRepository getGenAggregateDomainRepository() {

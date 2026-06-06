@@ -92,4 +92,55 @@ class WipeSysMenuByIdsDomainServiceImplTest {
         StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(Collections.emptyList()))
                 .verifyComplete();
     }
+
+    @Test
+    void deleteByIds_shouldIncludeChildren() {
+        List<Long> ids = Arrays.asList(1L);
+        SysMenuView parent = new SysMenuView();
+        parent.setId(1L);
+        parent.setParentId(0L);
+        SysMenuView child = new SysMenuView();
+        child.setId(2L);
+        child.setParentId(1L);
+
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Arrays.asList(parent, child)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(any())).thenReturn(Mono.just(Collections.emptyList()));
+        when(sysMenuRepository.deleteAllById(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(ids))
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteByIds_shouldReturnEmpty_whenAllIdsFiltered() {
+        List<Long> ids = Arrays.asList(1L);
+        SysMenuView view = new SysMenuView();
+        view.setId(1L);
+        view.setParentId(0L);
+        SysMenuView child = new SysMenuView();
+        child.setId(2L);
+        child.setParentId(1L);
+
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Arrays.asList(view, child)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(any())).thenReturn(Mono.just(Collections.emptyList()));
+        when(sysMenuRepository.deleteAllById(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(ids))
+                .verifyComplete();
+    }
+
+    @Test
+    void deleteByIds_shouldComplete_whenIdNotInMenuList() {
+        List<Long> ids = Arrays.asList(999L);
+        SysMenuView view = new SysMenuView();
+        view.setId(1L);
+        view.setParentId(0L);
+
+        when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Collections.singletonList(view)));
+        when(sysRoleMenuQueryService.queryLinkRoleAndMenusByMenuId(any())).thenReturn(Mono.just(Collections.emptyList()));
+        when(sysMenuRepository.deleteAllById(any())).thenReturn(Mono.empty());
+
+        StepVerifier.create(wipeSysMenuByIdsDomainService.deleteByIds(ids))
+                .verifyComplete();
+    }
 }

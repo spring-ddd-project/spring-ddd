@@ -22,6 +22,13 @@ import java.util.concurrent.TimeUnit;
 
 import static org.springframework.data.relational.core.query.Criteria.where;
 
+/**
+ * Leaf 分段 ID 生成器实现。
+ *
+ * <p>使用 {@link DisruptorLock}（Disruptor Sequence + LockSupport parkNanos）
+ * 替代 {@link java.util.concurrent.locks.ReentrantLock} + {@link Thread#onSpinWait()}，
+ * 实现无锁、非阻塞的 segment 切换。
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -57,48 +64,52 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
         return doNextId(buffer, bizTag);
     }
 
+    /**
+     * 核心分配逻辑：全程无锁，使用 Disruptor Sequence CAS + LockSupport parkNanos。
+     */
     private Mono<Long> doNextId(LeafSegmentBuffer buffer, String bizTag) {
         return Mono.fromCallable(() -> {
-            LeafSegment segment = buffer.getCurrent();
-            long value = segment.getValue().getAndIncrement();
+            DisruptorLock lock = buffer.getDisruptorLock();
 
-            if (value < segment.getMax()) {
-                return value;
-            }
+            while (true) {
+                long claimed = lock.tryClaim();
 
-            buffer.lock();
-            try {
-                segment = buffer.getCurrent();
-                value = segment.getValue().getAndIncrement();
-                if (value < segment.getMax()) {
-                    return value;
+                // 快路径：claimed 仍在当前 segment 范围内
+                if (lock.isAvailable(claimed)) {
+                    return claimed;
                 }
 
+                // 慢路径：segment 耗尽，尝试切换
                 if (buffer.isNextReady()) {
-                    buffer.switchPos();
-                    buffer.setNextReady(false);
-                } else {
-                    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
-                    while (!buffer.isNextReady()) {
-                        if (System.nanoTime() > deadline) {
-                            throw new RuntimeException("Leaf segment buffer not ready for bizTag: " + bizTag);
-                        }
-                        Thread.onSpinWait();
+                    int expectedPos = buffer.getCurrentPos();
+                    int nextPos = buffer.nextPos();
+
+                    // CAS 竞争：只有一个线程能成功切换 segment
+                    if (buffer.casCurrentPos(expectedPos, nextPos)) {
+                        LeafSegment newSeg = buffer.getCurrent();
+                        lock.switchToSegment(newSeg.getStart(), newSeg.getMax());
+                        buffer.setNextReady(false);
                     }
-                    buffer.switchPos();
-                    buffer.setNextReady(false);
+                    // 无论 CAS 成败，都重试分配
+                    continue;
                 }
 
-                segment = buffer.getCurrent();
-                return segment.getValue().getAndIncrement();
-            } finally {
-                buffer.unlock();
+                // next segment 未就绪：Disruptor 风格非阻塞等待
+                long timeoutNanos = TimeUnit.SECONDS.toNanos(5);
+                boolean ready = DisruptorLock.waitFor(buffer::isNextReady, timeoutNanos);
+                if (!ready) {
+                    throw new RuntimeException("Leaf segment buffer not ready for bizTag: " + bizTag);
+                }
+                // 等待成功后重试
             }
         }).subscribeOn(Schedulers.boundedElastic())
                 .doOnNext(id -> {
-                    if (buffer.getCurrent().getStep() > 0) {
-                        long threshold = buffer.getCurrent().getMax() - buffer.getCurrent().getStep() / 2;
-                        if (buffer.getCurrent().getValue().get() >= threshold && !buffer.isNextReady() && buffer.getThreadRunning().compareAndSet(false, true)) {
+                    LeafSegment current = buffer.getCurrent();
+                    if (current.getStep() > 0) {
+                        long threshold = current.getMax() - current.getStep() / 2;
+                        if (buffer.getDisruptorLock().getCursor() + 1 >= threshold
+                                && !buffer.isNextReady()
+                                && buffer.getThreadRunning().compareAndSet(false, true)) {
                             preloadNextSegment(buffer, bizTag)
                                     .doFinally(sig -> buffer.getThreadRunning().set(false))
                                     .subscribeOn(Schedulers.boundedElastic())
@@ -146,7 +157,7 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
                                     LeafAllocEntity.class)
                             .doOnSuccess(result -> {
                                 LeafSegment target = isInit ? buffer.getCurrent() : buffer.getNext();
-                                target.getValue().set(oldMaxId);
+                                target.setStart(oldMaxId);
                                 target.setMax(finalNewMaxId);
                                 target.setStep(finalStep);
 
@@ -157,6 +168,8 @@ public class LeafSegmentIdGenerateDomainServiceImpl implements LeafSegmentIdGene
 
                                 if (!isInit) {
                                     buffer.setNextReady(true);
+                                } else {
+                                    buffer.getDisruptorLock().init(oldMaxId, finalNewMaxId);
                                 }
                                 log.debug("Updated segment for bizTag={}, oldMaxId={}, newMaxId={}, step={}",
                                         bizTag, oldMaxId, finalNewMaxId, finalStep);

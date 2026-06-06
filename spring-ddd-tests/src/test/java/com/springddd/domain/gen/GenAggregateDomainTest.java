@@ -109,4 +109,48 @@ class GenAggregateDomainTest {
         assertNull(domain.getValueObject());
         assertNull(domain.getExtendInfo());
     }
+
+    @Test
+    void shouldDeleteWhenStateIsNotNull() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        domain.setDeleteStatus(false);
+        domain.setState(new com.springddd.domain.gen.state.ActiveState());
+
+        domain.delete();
+
+        assertTrue(domain.getDeleteStatus());
+        assertTrue(domain.getState() instanceof com.springddd.domain.gen.state.DeletedState);
+    }
+
+    @Test
+    void shouldDeleteWhenStateIsNullAndAlreadyDeleted() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        domain.setDeleteStatus(true);
+
+        domain.delete();
+
+        assertTrue(domain.getDeleteStatus());
+    }
+
+    @Test
+    void shouldRestoreWhenStateIsNotNull() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        domain.setDeleteStatus(true);
+        domain.setState(new com.springddd.domain.gen.state.DeletedState());
+
+        domain.restore();
+
+        assertFalse(domain.getDeleteStatus());
+        assertTrue(domain.getState() instanceof com.springddd.domain.gen.state.ActiveState);
+    }
+
+    @Test
+    void shouldRestoreWhenStateIsNullAndAlreadyActive() {
+        GenAggregateDomain domain = new GenAggregateDomain();
+        domain.setDeleteStatus(false);
+
+        domain.restore();
+
+        assertFalse(domain.getDeleteStatus());
+    }
 }

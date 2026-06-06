@@ -64,7 +64,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限范围是全部时，应返回原始 Criteria")
     void apply_whenDataScopeIsAll_shouldReturnOriginalCriteria() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 1, null));
+                new DataPermission(null, 1, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -79,7 +79,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限范围是部门时，应添加 deptId 条件")
     void apply_whenDataScopeIsDept_shouldAddDeptIdCondition() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 2, null));
+                new DataPermission(null, 2, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
@@ -100,7 +100,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限范围是部门但实体没有 deptId 字段时，应返回原始 Criteria")
     void apply_whenDataScopeIsDeptAndEntityHasNoDeptId_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 2, null));
+                new DataPermission(null, 2, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(false);
@@ -117,7 +117,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限范围是本人时，应添加 createBy 条件")
     void apply_whenDataScopeIsSelf_shouldAddCreateByCondition() {
         AuthUser user = userWithDataPermission(10L, "admin2",
-                new DataPermission(null, null, 4, null));
+                new DataPermission(null, 4, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(true);
@@ -138,7 +138,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限范围是部门及子部门时，应添加 IN 条件")
     void apply_whenDataScopeIsDeptAndSub_shouldAddInCondition() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 3, null));
+                new DataPermission(null, 3, null));
         Criteria criteria = Criteria.empty();
 
         SysDeptView child1 = new SysDeptView();
@@ -185,7 +185,7 @@ class DataScopeCriteriaBuilderTest {
     void apply_whenDataScopeIsCustomWithDeptIds_shouldAddInCondition() {
         RowScope rowScope = new RowScope(List.of(1L, 2L, 3L), null, null, null);
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(rowScope, null, 5, null));
+                new DataPermission(rowScope, 5, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
@@ -231,7 +231,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当 criteria 为 null 时，应创建空 Criteria 并继续应用数据权限")
     void apply_whenCriteriaIsNull_shouldCreateEmptyCriteria() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 2, null));
+                new DataPermission(null, 2, null));
 
         when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
 
@@ -251,7 +251,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当 entityCode 为空时，应返回原始 Criteria")
     void apply_whenEntityCodeIsEmpty_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 2, null));
+                new DataPermission(null, 2, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -266,7 +266,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当 dataScope 为未知值时，应返回原始 Criteria")
     void apply_whenDataScopeIsDefault_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 99, null));
+                new DataPermission(null, 99, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -281,7 +281,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当用户 deptId 为 null 且数据权限为部门时，应返回原始 Criteria")
     void applyDeptScope_whenDeptIdIsNull_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(null, "user1",
-                new DataPermission(null, null, 2, null));
+                new DataPermission(null, 2, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -296,7 +296,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当用户用户名为空且数据权限为本人时，应返回原始 Criteria")
     void applySelfScope_whenUsernameIsEmpty_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "",
-                new DataPermission(null, null, 4, null));
+                new DataPermission(null, 4, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -311,7 +311,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当实体没有 createBy 字段且数据权限为本人时，应返回原始 Criteria")
     void applySelfScope_whenEntityHasNoCreateBy_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "admin2",
-                new DataPermission(null, null, 4, null));
+                new DataPermission(null, 4, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(false);
@@ -328,7 +328,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当自定义范围 rowScope 为 null 时，应返回原始 Criteria")
     void applyCustomScope_whenRowScopeIsNull_shouldReturnOriginal() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 5, null));
+                new DataPermission(null, 5, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -344,7 +344,7 @@ class DataScopeCriteriaBuilderTest {
     void applyCustomScope_whenSelfIsTrue_shouldAddCreateByCondition() {
         RowScope rowScope = new RowScope(null, null, null, true);
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(rowScope, null, 5, null));
+                new DataPermission(rowScope, 5, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(true);
@@ -366,7 +366,7 @@ class DataScopeCriteriaBuilderTest {
     void applyCustomScope_whenUserIdsPresent_shouldLogDebug() {
         RowScope rowScope = new RowScope(null, null, List.of(1L), null);
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(rowScope, null, 5, null));
+                new DataPermission(rowScope, 5, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(true);
@@ -384,7 +384,7 @@ class DataScopeCriteriaBuilderTest {
     void applyCustomScope_whenNoConditionsMatch_shouldReturnOriginal() {
         RowScope rowScope = new RowScope(null, List.of(1L), null, null);
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(rowScope, null, 5, null));
+                new DataPermission(rowScope, 5, null));
         Criteria criteria = Criteria.empty();
 
         StepVerifier.create(
@@ -400,7 +400,7 @@ class DataScopeCriteriaBuilderTest {
     void applyCustomScope_whenDeptAndSelfBothTrue_shouldAddBothConditions() {
         RowScope rowScope = new RowScope(List.of(1L, 2L), null, null, true);
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(rowScope, null, 5, null));
+                new DataPermission(rowScope, 5, null));
         Criteria criteria = Criteria.empty();
 
         when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
@@ -424,7 +424,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限为部门及子部门且缓存命中时，应使用缓存的部门 ID")
     void apply_whenDataScopeIsDeptAndSubAndCacheHit_shouldUseCachedDeptIds() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 3, null));
+                new DataPermission(null, 3, null));
         Criteria criteria = Criteria.empty();
 
         java.util.ArrayList<Long> cachedIds = new java.util.ArrayList<>();
@@ -455,7 +455,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限为部门及子部门且缓存返回 null 时应回退到 DB 查询")
     void apply_whenDataScopeIsDeptAndSubAndCacheReturnsNull_shouldFallbackToDb() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 3, null));
+                new DataPermission(null, 3, null));
         Criteria criteria = Criteria.empty();
 
         SysDeptView child1 = new SysDeptView();
@@ -483,7 +483,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限为部门及子部门且缓存返回非法类型时应回退到 DB 查询")
     void apply_whenDataScopeIsDeptAndSubAndCacheReturnsInvalidType_shouldFallbackToDb() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 3, null));
+                new DataPermission(null, 3, null));
         Criteria criteria = Criteria.empty();
 
         SysDeptView child1 = new SysDeptView();
@@ -515,7 +515,7 @@ class DataScopeCriteriaBuilderTest {
     @DisplayName("当数据权限为部门及子部门且存在多级嵌套部门时，应收集所有后代部门")
     void apply_whenDataScopeIsDeptAndSubWithNestedDepts_shouldCollectAllDescendants() {
         AuthUser user = userWithDataPermission(10L, "user1",
-                new DataPermission(null, null, 3, null));
+                new DataPermission(null, 3, null));
         Criteria criteria = Criteria.empty();
 
         SysDeptView child1 = new SysDeptView();
@@ -548,6 +548,153 @@ class DataScopeCriteriaBuilderTest {
                     assertThat(result.toString()).contains("12");
                     assertThat(result.toString()).contains("13");
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当自定义范围包含 deptIds 但实体无 deptId 字段时，应返回原始 Criteria")
+    void applyCustomScope_whenDeptIdsPresentButNoDeptIdField_shouldReturnOriginal() {
+        RowScope rowScope = new RowScope(List.of(1L, 2L), null, null, null);
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(rowScope, 5, null));
+        Criteria criteria = Criteria.empty();
+
+        when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(false);
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当自定义范围 self 为 true 但用户名为空时，应返回原始 Criteria")
+    void applyCustomScope_whenSelfTrueButUsernameEmpty_shouldReturnOriginal() {
+        RowScope rowScope = new RowScope(null, null, null, true);
+        AuthUser user = userWithDataPermission(10L, "",
+                new DataPermission(rowScope, 5, null));
+        Criteria criteria = Criteria.empty();
+
+        when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(true);
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当自定义范围 self 为 true 但实体无 createBy 字段时，应返回原始 Criteria")
+    void applyCustomScope_whenSelfTrueButNoCreateByField_shouldReturnOriginal() {
+        RowScope rowScope = new RowScope(null, null, null, true);
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(rowScope, 5, null));
+        Criteria criteria = Criteria.empty();
+
+        when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(false);
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当自定义范围 rowScope 不为 null 但没有任何条件时，应返回原始 Criteria")
+    void applyCustomScope_whenRowScopeHasNoConditions_shouldReturnOriginal() {
+        RowScope rowScope = new RowScope(null, null, null, false);
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(rowScope, 5, null));
+        Criteria criteria = Criteria.empty();
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当部门树包含不匹配的部门时，应只收集匹配的子部门")
+    void apply_whenDataScopeIsDeptAndSubWithUnmatchedDepts_shouldOnlyCollectMatching() {
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(null, 3, null));
+        Criteria criteria = Criteria.empty();
+
+        SysDeptView child1 = new SysDeptView();
+        child1.setId(11L);
+        child1.setParentId(10L);
+
+        SysDeptView unrelated = new SysDeptView();
+        unrelated.setId(99L);
+        unrelated.setParentId(50L);
+
+        when(entityMetadataScanner.hasField("sys_user", "deptId")).thenReturn(true);
+        when(cacheProcessor.getCache(anyString(), eq(List.class))).thenReturn(Mono.empty());
+        when(sysDeptQueryService.queryAllDept()).thenReturn(Mono.just(List.of(child1, unrelated)));
+        when(cacheProcessor.setCache(anyString(), anyList(), any(Duration.class))).thenReturn(Mono.just(true));
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> {
+                    assertThat(result).isNotSameAs(criteria);
+                    assertThat(result.toString()).contains("deptId");
+                    assertThat(result.toString()).contains("IN");
+                    assertThat(result.toString()).contains("10");
+                    assertThat(result.toString()).contains("11");
+                    assertThat(result.toString()).doesNotContain("99");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("isSuperAdmin 当 user 为 null 时应返回 false")
+    void isSuperAdmin_whenUserIsNull_shouldReturnFalse() throws Exception {
+        java.lang.reflect.Method method = DataScopeCriteriaBuilder.class.getDeclaredMethod("isSuperAdmin", AuthUser.class);
+        method.setAccessible(true);
+        boolean result = (boolean) method.invoke(builder, (AuthUser) null);
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @DisplayName("当 dataPermission 非空但 dataScope 为 null 时，应返回原始 Criteria")
+    void apply_whenDataScopeIsNull_shouldReturnOriginal() {
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(null, null, null));
+        Criteria criteria = Criteria.empty();
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
+                .verifyComplete();
+    }
+
+    @Test
+    @DisplayName("当自定义范围包含 userIds 但实体无 createBy 字段时，应返回原始 Criteria")
+    void applyCustomScope_whenUserIdsPresentButNoCreateByField_shouldReturnOriginal() {
+        RowScope rowScope = new RowScope(null, null, List.of(1L), null);
+        AuthUser user = userWithDataPermission(10L, "user1",
+                new DataPermission(rowScope, 5, null));
+        Criteria criteria = Criteria.empty();
+
+        when(entityMetadataScanner.hasField("sys_user", "createBy")).thenReturn(false);
+
+        StepVerifier.create(
+                        builder.apply(criteria, "sys_user")
+                                .contextWrite(withAuthUser(user))
+                )
+                .assertNext(result -> assertThat(result).isSameAs(criteria))
                 .verifyComplete();
     }
 }

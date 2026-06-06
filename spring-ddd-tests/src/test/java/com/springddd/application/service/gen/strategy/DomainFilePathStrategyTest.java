@@ -147,4 +147,190 @@ class DomainFilePathStrategyTest {
         String path = strategy.generatePath("unsupported", context, projectName);
         assertThat(path).isNull();
     }
+
+    @Test
+    @DisplayName("generatePath should throw when aggregateRoot has no matching view")
+    void generatePath_aggregateRoot_noMatch_shouldThrow() {
+        GenAggregateView wrongType = new GenAggregateView();
+        wrongType.setObjectType((byte) 2);
+        wrongType.setHasCreated(true);
+        wrongType.setObjectName("Wrong");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(wrongType)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("aggregateRoot", ctx, projectName));
+    }
+
+    @Test
+    @DisplayName("generatePath should throw when objectValue has no matching view")
+    void generatePath_objectValue_noMatch_shouldThrow() {
+        GenAggregateView wrongType = new GenAggregateView();
+        wrongType.setObjectType((byte) 1);
+        wrongType.setHasCreated(true);
+        wrongType.setObjectName("Wrong");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(wrongType)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("objectValue", ctx, projectName));
+    }
+
+    @Test
+    @DisplayName("generatePath should throw when extendInfo has no matching view")
+    void generatePath_extendInfo_noMatch_shouldThrow() {
+        GenAggregateView wrongType = new GenAggregateView();
+        wrongType.setObjectType((byte) 1);
+        wrongType.setHasCreated(true);
+        wrongType.setObjectName("Wrong");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(wrongType)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("extendInfo", ctx, projectName));
+    }
+
+    @Test
+    @DisplayName("generatePath should throw when matching view has hasCreated false")
+    void generatePath_aggregateRoot_notCreated_shouldThrow() {
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 1);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("UserId");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(notCreated)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("aggregateRoot", ctx, projectName));
+    }
+
+    @Test
+    @DisplayName("generatePath aggregateRoot 当第一个不匹配第二个匹配时应返回正确路径")
+    void generatePath_aggregateRoot_firstMismatchSecondMatch_shouldReturnPath() {
+        GenAggregateView view1 = new GenAggregateView();
+        view1.setObjectType((byte) 2);
+        view1.setHasCreated(true);
+        view1.setObjectName("Wrong");
+
+        GenAggregateView view2 = new GenAggregateView();
+        view2.setObjectType((byte) 1);
+        view2.setHasCreated(true);
+        view2.setObjectName("CorrectAggregate");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(view1, view2)
+        );
+
+        String path = strategy.generatePath("aggregateRoot", ctx, projectName);
+        assertThat(path).isEqualTo("spring-ddd-domain/src/main/java/com/springddd/domain/user/CorrectAggregate.java");
+    }
+
+    @Test
+    @DisplayName("generatePath objectValue 当第一个不匹配第二个匹配时应返回正确路径")
+    void generatePath_objectValue_firstMismatchSecondMatch_shouldReturnPath() {
+        GenAggregateView view1 = new GenAggregateView();
+        view1.setObjectType((byte) 1);
+        view1.setHasCreated(true);
+        view1.setObjectName("Wrong");
+
+        GenAggregateView view2 = new GenAggregateView();
+        view2.setObjectType((byte) 2);
+        view2.setHasCreated(true);
+        view2.setObjectName("CorrectValue");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(view1, view2)
+        );
+
+        String path = strategy.generatePath("objectValue", ctx, projectName);
+        assertThat(path).isEqualTo("spring-ddd-domain/src/main/java/com/springddd/domain/user/CorrectValue.java");
+    }
+
+    @Test
+    @DisplayName("generatePath extendInfo 当第一个不匹配第二个匹配时应返回正确路径")
+    void generatePath_extendInfo_firstMismatchSecondMatch_shouldReturnPath() {
+        GenAggregateView view1 = new GenAggregateView();
+        view1.setObjectType((byte) 1);
+        view1.setHasCreated(true);
+        view1.setObjectName("Wrong");
+
+        GenAggregateView view2 = new GenAggregateView();
+        view2.setObjectType((byte) 3);
+        view2.setHasCreated(true);
+        view2.setObjectName("CorrectExtend");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(view1, view2)
+        );
+
+        String path = strategy.generatePath("extendInfo", ctx, projectName);
+        assertThat(path).isEqualTo("spring-ddd-domain/src/main/java/com/springddd/domain/user/CorrectExtend.java");
+    }
+
+    @Test
+    @DisplayName("generatePath should throw when objectValue has hasCreated false")
+    void generatePath_objectValue_notCreated_shouldThrow() {
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 2);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("Account");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(notCreated)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("objectValue", ctx, projectName));
+    }
+
+    @Test
+    @DisplayName("generatePath should throw when extendInfo has hasCreated false")
+    void generatePath_extendInfo_notCreated_shouldThrow() {
+        GenAggregateView notCreated = new GenAggregateView();
+        notCreated.setObjectType((byte) 3);
+        notCreated.setHasCreated(false);
+        notCreated.setObjectName("UserExtendInfo");
+
+        Map<String, Object> ctx = Map.of(
+                "moduleName", "user",
+                "packageName", "com.springddd",
+                "className", "SysUser",
+                "aggregateViews", List.of(notCreated)
+        );
+
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class,
+                () -> strategy.generatePath("extendInfo", ctx, projectName));
+    }
 }
