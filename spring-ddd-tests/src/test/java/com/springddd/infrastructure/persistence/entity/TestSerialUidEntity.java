@@ -1,6 +1,5 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
@@ -8,7 +7,6 @@ import org.springframework.data.relational.core.mapping.Table;
  * the serialVersionUID branch in extractColumns.
  */
 @Table("test_serial_uid")
-@DataPermissionEntity(name = "Test Serial UID")
 public class TestSerialUidEntity {
 
     private Long id;

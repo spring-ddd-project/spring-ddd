@@ -1,7 +1,6 @@
 package com.springddd.domain.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.springddd.domain.role.DataPermission;
 import com.springddd.domain.user.UserId;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,11 +40,6 @@ public class AuthUser implements Serializable, UserDetails {
     private List<String> permissions;
 
     private List<Long> menuIds;
-
-    /**
-     * 数据权限（行级）
-     */
-    private DataPermission dataPermission;
 
     @JsonIgnore
     @Override

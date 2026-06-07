@@ -22,7 +22,7 @@ class SysRoleDomainTest {
     @Test
     void shouldSetAndGetBasicInfo() {
         SysRoleDomain domain = new SysRoleDomain();
-        RoleBasicInfo basicInfo = new RoleBasicInfo("roleName", "roleCode", 1, true);
+        RoleBasicInfo basicInfo = new RoleBasicInfo("roleName", "roleCode", true);
         domain.setRoleBasicInfo(basicInfo);
         assertEquals(basicInfo, domain.getRoleBasicInfo());
     }
@@ -37,15 +37,13 @@ class SysRoleDomainTest {
     @Test
     void shouldUpdateSysRoleDomain() {
         SysRoleDomain domain = new SysRoleDomain();
-        RoleBasicInfo basicInfo = new RoleBasicInfo("newName", "newCode", 2, false);
+        RoleBasicInfo basicInfo = new RoleBasicInfo("newName", "newCode", false);
         RoleExtendInfo extendInfo = new RoleExtendInfo("newDesc", true);
-        DataPermission dataPermission = new DataPermission();
 
-        domain.updateRole(basicInfo, extendInfo, dataPermission, 1L);
+        domain.updateRole(basicInfo, extendInfo, 1L);
 
         assertEquals(basicInfo, domain.getRoleBasicInfo());
         assertEquals(extendInfo, domain.getRoleExtendInfo());
-        assertEquals(dataPermission, domain.getDataPermission());
         assertEquals(1L, domain.getDeptId());
     }
 
@@ -75,7 +73,7 @@ class SysRoleDomainTest {
     @Test
     void shouldEnableWhenStateIsNullAndRoleStatusTrue() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", true));
 
         domain.enable();
 
@@ -85,7 +83,7 @@ class SysRoleDomainTest {
     @Test
     void shouldEnableWhenStateIsNullAndRoleStatusFalse() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, false, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", false));
 
         domain.enable();
 
@@ -95,7 +93,7 @@ class SysRoleDomainTest {
     @Test
     void shouldEnableWhenStateExists() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", true));
         domain.setState(new com.springddd.domain.role.state.EnabledRoleState());
 
         domain.enable();
@@ -106,7 +104,7 @@ class SysRoleDomainTest {
     @Test
     void shouldDisableWhenStateIsNullAndRoleStatusTrue() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", true));
 
         domain.disable();
 
@@ -116,7 +114,7 @@ class SysRoleDomainTest {
     @Test
     void shouldDisableWhenStateIsNullAndRoleStatusFalse() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, false, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", false));
 
         domain.disable();
 
@@ -126,7 +124,7 @@ class SysRoleDomainTest {
     @Test
     void shouldDisableWhenStateExists() {
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", true));
         domain.setState(new com.springddd.domain.role.state.DisabledRoleState());
 
         domain.disable();
@@ -140,7 +138,6 @@ class SysRoleDomainTest {
         domain.setRoleId(null);
         domain.setRoleBasicInfo(null);
         domain.setRoleExtendInfo(null);
-        domain.setDataPermission(null);
 
         SysRoleDomain clone = domain.clone();
 
@@ -148,16 +145,14 @@ class SysRoleDomainTest {
         assertNull(clone.getRoleId());
         assertNull(clone.getRoleBasicInfo());
         assertNull(clone.getRoleExtendInfo());
-        assertNull(clone.getDataPermission());
     }
 
     @Test
     void shouldCloneWithAllFields() {
         SysRoleDomain domain = new SysRoleDomain();
         domain.setRoleId(new RoleId(1L));
-        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
+        domain.setRoleBasicInfo(new RoleBasicInfo("admin", "ROLE_ADMIN", true));
         domain.setRoleExtendInfo(new RoleExtendInfo("remark", true, "desc", true));
-        domain.setDataPermission(new DataPermission());
 
         SysRoleDomain clone = domain.clone();
 
@@ -165,7 +160,6 @@ class SysRoleDomainTest {
         assertEquals(1L, clone.getRoleId().value());
         assertEquals("admin", clone.getRoleBasicInfo().roleName());
         assertEquals("remark", clone.getRoleExtendInfo().roleRemark());
-        assertNotNull(clone.getDataPermission());
     }
 
     @Test

@@ -7,7 +7,7 @@ public class DisabledRoleState implements RoleState {
     @Override
     public void enable(SysRoleDomain domain) {
         RoleBasicInfo old = domain.getRoleBasicInfo();
-        domain.setRoleBasicInfo(new RoleBasicInfo(old.roleName(), old.roleCode(), old.roleSort(), true, old.roleDataScope(), old.roleOwner()));
+        domain.setRoleBasicInfo(new RoleBasicInfo(old.roleName(), old.roleCode(), old.roleSort(), true, old.roleOwner()));
         domain.setState(new EnabledRoleState());
     }
 

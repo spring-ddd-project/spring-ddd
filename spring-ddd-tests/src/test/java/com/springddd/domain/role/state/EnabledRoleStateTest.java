@@ -14,7 +14,7 @@ class EnabledRoleStateTest {
     void enable_whenAlreadyEnabled_shouldDoNothing() {
         EnabledRoleState state = new EnabledRoleState();
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("ADMIN", "admin", 1, true, 1, false));
+        domain.setRoleBasicInfo(new RoleBasicInfo("ADMIN", "admin", true));
         domain.setState(state);
 
         state.enable(domain);
@@ -28,7 +28,7 @@ class EnabledRoleStateTest {
     void disable_shouldMarkDisabledAndTransitionState() {
         EnabledRoleState state = new EnabledRoleState();
         SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleBasicInfo(new RoleBasicInfo("USER", "user", 1, true, 1, false));
+        domain.setRoleBasicInfo(new RoleBasicInfo("USER", "user", true));
         domain.setState(state);
 
         state.disable(domain);

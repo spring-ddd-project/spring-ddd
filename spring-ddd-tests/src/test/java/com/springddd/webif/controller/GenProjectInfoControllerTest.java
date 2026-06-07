@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenProjectInfoCommandService;
 import com.springddd.application.service.gen.GenProjectInfoQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenProjectInfoCommand;
 import com.springddd.application.service.gen.dto.GenProjectInfoQuery;
 import com.springddd.web.GenProjectInfoController;
@@ -35,8 +34,6 @@ class GenProjectInfoControllerTest {
     @MockBean
     private GenProjectInfoQueryService queryService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

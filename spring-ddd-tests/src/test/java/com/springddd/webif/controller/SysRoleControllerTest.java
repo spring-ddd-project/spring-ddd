@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.role.SysRoleCommandService;
 import com.springddd.application.service.role.SysRoleQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.role.dto.SysRoleCommand;
 import com.springddd.application.service.role.dto.SysRolePageQuery;
 import com.springddd.web.SysRoleController;
@@ -35,8 +34,6 @@ class SysRoleControllerTest {
     @MockBean
     private SysRoleQueryService queryService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

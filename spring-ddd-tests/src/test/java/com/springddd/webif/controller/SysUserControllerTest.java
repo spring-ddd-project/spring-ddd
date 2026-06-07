@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.user.SysUserCommandService;
 import com.springddd.application.service.user.SysUserQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.user.dto.SysUserCommand;
 import com.springddd.application.service.user.dto.SysUserPageQuery;
 import com.springddd.web.SysUserController;
@@ -35,8 +34,6 @@ class SysUserControllerTest {
     @MockBean
     private SysUserQueryService queryService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void page_shouldReturnOk() {

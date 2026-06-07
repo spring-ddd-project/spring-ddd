@@ -17,8 +17,6 @@ public class SysRoleQuery implements Serializable {
 
     private String roleDesc;
 
-    private Integer dataScope;
-
     private Boolean roleStatus;
 
     private Boolean owner;
