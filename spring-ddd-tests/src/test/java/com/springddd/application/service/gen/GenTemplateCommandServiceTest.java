@@ -13,8 +13,9 @@ import reactor.test.StepVerifier;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class GenTemplateCommandServiceTest {
@@ -50,14 +51,17 @@ class GenTemplateCommandServiceTest {
     @Test
     void create_shouldReturnId_whenValidCommand() {
         GenTemplateCommand command = new GenTemplateCommand();
-        command.setTemplateName("TestTemplate");
-        command.setTemplateContent("content");
+        command.setTemplateName("testTemplate");
+        command.setTemplateContent("template content");
 
+        TemplateInfo info = new TemplateInfo("testTemplate", "template content");
         GenTemplateDomain mockDomain = new GenTemplateDomain();
-        when(genTemplateDomainFactory.newInstance(any())).thenReturn(mockDomain);
-        when(genTemplateDomainRepository.save(any())).thenReturn(Mono.just(1L));
+        when(genTemplateDomainFactory.newInstance(any(TemplateInfo.class))).thenReturn(mockDomain);
+        when(genTemplateDomainRepository.save(any(GenTemplateDomain.class))).thenReturn(Mono.just(1L));
 
-        StepVerifier.create(genTemplateCommandService.create(command))
+        Mono<Long> result = genTemplateCommandService.create(command);
+
+        StepVerifier.create(result)
                 .expectNext(1L)
                 .verifyComplete();
     }
@@ -66,41 +70,48 @@ class GenTemplateCommandServiceTest {
     void update_shouldComplete_whenValidCommand() {
         GenTemplateCommand command = new GenTemplateCommand();
         command.setId(1L);
-        command.setTemplateName("UpdatedTemplate");
+        command.setTemplateName("updatedTemplate");
         command.setTemplateContent("updated content");
 
         GenTemplateDomain mockDomain = new GenTemplateDomain();
-        when(genTemplateDomainRepository.load(any())).thenReturn(Mono.just(mockDomain));
-        when(genTemplateDomainRepository.save(any())).thenReturn(Mono.just(1L));
+        when(genTemplateDomainRepository.load(any(TemplateId.class))).thenReturn(Mono.just(mockDomain));
+        when(genTemplateDomainRepository.save(any(GenTemplateDomain.class))).thenReturn(Mono.empty());
 
-        StepVerifier.create(genTemplateCommandService.update(command))
-                .verifyComplete();
+        Mono<Void> result = genTemplateCommandService.update(command);
+
+        StepVerifier.create(result).verifyComplete();
     }
 
     @Test
-    void delete_shouldDelegateToDomainService() {
+    void delete_shouldDelegateToDeleteService() {
         List<Long> ids = Arrays.asList(1L, 2L);
         when(deleteGenTemplateDomainService.deleteByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(genTemplateCommandService.delete(ids))
-                .verifyComplete();
+        Mono<Void> result = genTemplateCommandService.delete(ids);
+
+        StepVerifier.create(result).verifyComplete();
+        verify(deleteGenTemplateDomainService).deleteByIds(ids);
     }
 
     @Test
-    void restore_shouldDelegateToDomainService() {
+    void restore_shouldDelegateToRestoreService() {
         List<Long> ids = Arrays.asList(1L, 2L);
         when(restoreGenTemplateDomainService.restoreByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(genTemplateCommandService.restore(ids))
-                .verifyComplete();
+        Mono<Void> result = genTemplateCommandService.restore(ids);
+
+        StepVerifier.create(result).verifyComplete();
+        verify(restoreGenTemplateDomainService).restoreByIds(ids);
     }
 
     @Test
-    void wipe_shouldDelegateToDomainService() {
+    void wipe_shouldDelegateToWipeService() {
         List<Long> ids = Arrays.asList(1L, 2L);
         when(wipeGenTemplateDomainService.wipeByIds(ids)).thenReturn(Mono.empty());
 
-        StepVerifier.create(genTemplateCommandService.wipe(ids))
-                .verifyComplete();
+        Mono<Void> result = genTemplateCommandService.wipe(ids);
+
+        StepVerifier.create(result).verifyComplete();
+        verify(wipeGenTemplateDomainService).wipeByIds(ids);
     }
 }

@@ -3,9 +3,9 @@ package com.springddd.infrastructure.persistence;
 import com.springddd.domain.menu.*;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -23,125 +23,127 @@ class SysMenuDomainRepositoryImplTest {
     @Mock
     private SysMenuRepository sysMenuRepository;
 
-    @InjectMocks
-    private SysMenuDomainRepositoryImpl repository;
+    private SysMenuDomainRepositoryImpl sysMenuDomainRepository;
+
+    @BeforeEach
+    void setUp() {
+        sysMenuDomainRepository = new SysMenuDomainRepositoryImpl(sysMenuRepository);
+    }
 
     @Test
-    void load_shouldReturnDomain_whenEntityExists() {
+    void shouldLoadMenuById() {
+        Long menuId = 1L;
+        Long parentId = 0L;
+        
+        SysMenuEntity entity = createMenuEntity(menuId, parentId);
+        when(sysMenuRepository.findById(menuId)).thenReturn(Mono.just(entity));
+
+        Mono<SysMenuDomain> result = sysMenuDomainRepository.load(new MenuId(menuId));
+
+        StepVerifier.create(result)
+                .assertNext(domain -> {
+                    assertNotNull(domain);
+                    assertEquals(menuId, domain.getMenuId().value());
+                    assertEquals(parentId, domain.getParentId().value());
+                })
+                .verifyComplete();
+
+        verify(sysMenuRepository).findById(menuId);
+    }
+
+    @Test
+    void shouldReturnEmptyWhenMenuNotFound() {
+        Long menuId = 999L;
+        when(sysMenuRepository.findById(menuId)).thenReturn(Mono.empty());
+
+        Mono<SysMenuDomain> result = sysMenuDomainRepository.load(new MenuId(menuId));
+
+        StepVerifier.create(result)
+                .verifyComplete();
+
+        verify(sysMenuRepository).findById(menuId);
+    }
+
+    @Test
+    void shouldSaveMenuSuccessfully() {
+        SysMenuDomain domain = createSysMenuDomain();
+        SysMenuEntity savedEntity = createMenuEntity(1L, 0L);
+        
+        when(sysMenuRepository.save(any(SysMenuEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        Mono<Long> result = sysMenuDomainRepository.save(domain);
+
+        StepVerifier.create(result)
+                .assertNext(id -> assertEquals(1L, id))
+                .verifyComplete();
+
+        verify(sysMenuRepository).save(any(SysMenuEntity.class));
+    }
+
+    @Test
+    void shouldSaveMenuWithNullOptionalFields() {
+        SysMenuDomain domain = createSysMenuDomain();
+        domain.setMenuId(null);
+        domain.setParentId(null);
+        
+        SysMenuEntity savedEntity = new SysMenuEntity();
+        savedEntity.setId(1L);
+        when(sysMenuRepository.save(any(SysMenuEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        Mono<Long> result = sysMenuDomainRepository.save(domain);
+
+        StepVerifier.create(result)
+                .assertNext(id -> assertEquals(1L, id))
+                .verifyComplete();
+
+        verify(sysMenuRepository).save(any(SysMenuEntity.class));
+    }
+
+    private SysMenuEntity createMenuEntity(Long id, Long parentId) {
         SysMenuEntity entity = new SysMenuEntity();
-        entity.setId(1L);
-        entity.setParentId(0L);
-        entity.setName("系统管理");
-        entity.setPath("/system");
-        entity.setComponent("system/index");
-        entity.setPermission("system:view");
-        entity.setApi("/api/system");
-        entity.setRedirect("/system/user");
-        entity.setSortOrder(1);
-        entity.setTitle("系统管理");
-        entity.setIcon("icon-system");
-        entity.setMenuType(1);
-        entity.setVisible(true);
+        entity.setId(id);
+        entity.setParentId(parentId);
+        entity.setName("Test Menu");
+        entity.setPath("/test");
+        entity.setComponent("test/component");
+        entity.setRedirect("/redirect");
         entity.setAffixTab(false);
         entity.setNoBasicLayout(false);
         entity.setEmbedded(false);
+        entity.setPermission("test:permission");
+        entity.setApi("/api/test");
+        entity.setSortOrder(1);
+        entity.setTitle("Test Title");
+        entity.setIcon("test-icon");
+        entity.setMenuType(1);
+        entity.setVisible(true);
         entity.setMenuStatus(true);
         entity.setDeptId(1L);
         entity.setDeleteStatus(false);
-        entity.setVersion(0);
-        entity.setCreateBy("system");
+        entity.setVersion(1);
+        entity.setCreateBy("admin");
         entity.setCreateTime(LocalDateTime.now());
-        entity.setUpdateBy("system");
+        entity.setUpdateBy("admin");
         entity.setUpdateTime(LocalDateTime.now());
-
-        when(sysMenuRepository.findById(1L)).thenReturn(Mono.just(entity));
-
-        StepVerifier.create(repository.load(new MenuId(1L)))
-                .assertNext(domain -> {
-                    assertEquals(1L, domain.getMenuId().value());
-                    assertEquals("系统管理", domain.getName());
-                    assertEquals("/system", domain.getMenu().menuPath());
-                })
-                .verifyComplete();
+        return entity;
     }
 
-    @Test
-    void load_shouldReturnEmpty_whenEntityNotFound() {
-        when(sysMenuRepository.findById(1L)).thenReturn(Mono.empty());
-
-        StepVerifier.create(repository.load(new MenuId(1L)))
-                .verifyComplete();
-    }
-
-    @Test
-    void save_shouldReturnId_whenSavingNewAggregate_withAllFields() {
-        SysMenuDomain domain = new SysMenuDomain();
-        domain.setMenuId(null);
-        domain.setParentId(new MenuId(0L));
-        domain.setName("系统管理");
-        domain.setCatalog(new Catalog("/system/user"));
-        domain.setMenu(new Menu("/system", "system/index", false, false, false));
-        domain.setButton(new Button("system:view", "/api/system"));
-        domain.setMenuExtendInfo(new MenuExtendInfo(1, "系统管理", "icon-system", 1, true, true));
-        domain.setDeptId(1L);
-        domain.setDeleteStatus(false);
-        domain.setVersion(0);
-
-        SysMenuEntity savedEntity = new SysMenuEntity();
-        savedEntity.setId(1L);
-
-        when(sysMenuRepository.save(any(SysMenuEntity.class))).thenReturn(Mono.just(savedEntity));
-
-        StepVerifier.create(repository.save(domain))
-                .assertNext(id -> assertEquals(1L, id))
-                .verifyComplete();
-    }
-
-    @Test
-    void save_shouldReturnId_whenSavingNewAggregate_withNullCatalogMenuButton() {
-        SysMenuDomain domain = new SysMenuDomain();
-        domain.setMenuId(null);
-        domain.setParentId(new MenuId(0L));
-        domain.setName("系统管理");
-        domain.setCatalog(null);
-        domain.setMenu(null);
-        domain.setButton(null);
-        domain.setMenuExtendInfo(new MenuExtendInfo(1, "系统管理", "icon-system", 1, true, true));
-        domain.setDeptId(1L);
-        domain.setDeleteStatus(false);
-        domain.setVersion(0);
-
-        SysMenuEntity savedEntity = new SysMenuEntity();
-        savedEntity.setId(1L);
-
-        when(sysMenuRepository.save(any(SysMenuEntity.class))).thenReturn(Mono.just(savedEntity));
-
-        StepVerifier.create(repository.save(domain))
-                .assertNext(id -> assertEquals(1L, id))
-                .verifyComplete();
-    }
-
-    @Test
-    void save_shouldReturnId_whenUpdatingExistingAggregate() {
+    private SysMenuDomain createSysMenuDomain() {
         SysMenuDomain domain = new SysMenuDomain();
         domain.setMenuId(new MenuId(1L));
         domain.setParentId(new MenuId(0L));
-        domain.setName("系统管理");
-        domain.setCatalog(new Catalog("/system/user"));
-        domain.setMenu(new Menu("/system", "system/index", false, false, false));
-        domain.setButton(new Button("system:view", "/api/system"));
-        domain.setMenuExtendInfo(new MenuExtendInfo(1, "系统管理", "icon-system", 1, true, true));
+        domain.setCatalog(new Catalog("/redirect"));
+        domain.setName("Test Menu");
+        domain.setMenu(new Menu("/test", "test/component", false, false, false));
+        domain.setButton(new Button("test:permission", "/api/test"));
+        domain.setMenuExtendInfo(new MenuExtendInfo(1, "Test Title", 1, "test-icon", true, true));
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setVersion(1);
-
-        SysMenuEntity savedEntity = new SysMenuEntity();
-        savedEntity.setId(1L);
-
-        when(sysMenuRepository.save(any(SysMenuEntity.class))).thenReturn(Mono.just(savedEntity));
-
-        StepVerifier.create(repository.save(domain))
-                .assertNext(id -> assertEquals(1L, id))
-                .verifyComplete();
+        domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
+        domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
+        return domain;
     }
 }

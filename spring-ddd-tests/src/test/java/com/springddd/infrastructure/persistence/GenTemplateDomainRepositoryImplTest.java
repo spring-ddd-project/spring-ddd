@@ -1,11 +1,13 @@
 package com.springddd.infrastructure.persistence;
 
-import com.springddd.domain.gen.*;
+import com.springddd.domain.gen.GenTemplateDomain;
+import com.springddd.domain.gen.TemplateId;
+import com.springddd.domain.gen.TemplateInfo;
 import com.springddd.infrastructure.persistence.entity.GenTemplateEntity;
 import com.springddd.infrastructure.persistence.r2dbc.GenTemplateRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
@@ -23,74 +25,104 @@ class GenTemplateDomainRepositoryImplTest {
     @Mock
     private GenTemplateRepository genTemplateRepository;
 
-    @InjectMocks
-    private GenTemplateDomainRepositoryImpl repository;
+    private GenTemplateDomainRepositoryImpl genTemplateDomainRepository;
+
+    @BeforeEach
+    void setUp() {
+        genTemplateDomainRepository = new GenTemplateDomainRepositoryImpl(genTemplateRepository);
+    }
 
     @Test
-    void load_shouldReturnDomain_whenEntityExists() {
-        GenTemplateEntity entity = new GenTemplateEntity();
-        entity.setId(1L);
-        entity.setTemplateName("模板A");
-        entity.setTemplateContent("content");
-        entity.setDeleteStatus(false);
-        entity.setVersion(0);
-        entity.setCreateBy("system");
-        entity.setCreateTime(LocalDateTime.now());
-        entity.setUpdateBy("system");
-        entity.setUpdateTime(LocalDateTime.now());
+    void shouldLoadTemplateById() {
+        Long templateId = 1L;
+        GenTemplateEntity entity = createTemplateEntity(templateId);
+        when(genTemplateRepository.findById(templateId)).thenReturn(Mono.just(entity));
 
-        when(genTemplateRepository.findById(1L)).thenReturn(Mono.just(entity));
+        Mono<GenTemplateDomain> result = genTemplateDomainRepository.load(new TemplateId(templateId));
 
-        StepVerifier.create(repository.load(new TemplateId(1L)))
+        StepVerifier.create(result)
                 .assertNext(domain -> {
-                    assertEquals(1L, domain.getId().value());
-                    assertEquals("模板A", domain.getTemplateInfo().templateName());
-                    assertEquals("content", domain.getTemplateInfo().templateContent());
+                    assertNotNull(domain);
+                    assertEquals(templateId, domain.getId().value());
+                    assertEquals("test-template", domain.getTemplateInfo().templateName());
+                    assertEquals("template content", domain.getTemplateInfo().templateContent());
                 })
                 .verifyComplete();
+
+        verify(genTemplateRepository).findById(templateId);
     }
 
     @Test
-    void load_shouldReturnEmpty_whenEntityNotFound() {
-        when(genTemplateRepository.findById(1L)).thenReturn(Mono.empty());
+    void shouldReturnEmptyWhenTemplateNotFound() {
+        Long templateId = 999L;
+        when(genTemplateRepository.findById(templateId)).thenReturn(Mono.empty());
 
-        StepVerifier.create(repository.load(new TemplateId(1L)))
+        Mono<GenTemplateDomain> result = genTemplateDomainRepository.load(new TemplateId(templateId));
+
+        StepVerifier.create(result)
                 .verifyComplete();
+
+        verify(genTemplateRepository).findById(templateId);
     }
 
     @Test
-    void save_shouldReturnId_whenSavingNewAggregate() {
-        GenTemplateDomain domain = new GenTemplateDomain();
-        domain.setId(null);
-        domain.setTemplateInfo(new TemplateInfo("模板A", "content"));
-        domain.setDeleteStatus(false);
-        domain.setVersion(0);
-
-        GenTemplateEntity savedEntity = new GenTemplateEntity();
-        savedEntity.setId(1L);
-
+    void shouldSaveTemplateSuccessfully() {
+        GenTemplateDomain domain = createGenTemplateDomain();
+        GenTemplateEntity savedEntity = createTemplateEntity(1L);
+        
         when(genTemplateRepository.save(any(GenTemplateEntity.class))).thenReturn(Mono.just(savedEntity));
 
-        StepVerifier.create(repository.save(domain))
+        Mono<Long> result = genTemplateDomainRepository.save(domain);
+
+        StepVerifier.create(result)
                 .assertNext(id -> assertEquals(1L, id))
                 .verifyComplete();
+
+        verify(genTemplateRepository).save(any(GenTemplateEntity.class));
     }
 
     @Test
-    void save_shouldReturnId_whenUpdatingExistingAggregate() {
+    void shouldSaveTemplateWithNullId() {
+        GenTemplateDomain domain = createGenTemplateDomain();
+        domain.setId(null);
+        
+        GenTemplateEntity savedEntity = new GenTemplateEntity();
+        savedEntity.setId(1L);
+        when(genTemplateRepository.save(any(GenTemplateEntity.class))).thenReturn(Mono.just(savedEntity));
+
+        Mono<Long> result = genTemplateDomainRepository.save(domain);
+
+        StepVerifier.create(result)
+                .assertNext(id -> assertEquals(1L, id))
+                .verifyComplete();
+
+        verify(genTemplateRepository).save(any(GenTemplateEntity.class));
+    }
+
+    private GenTemplateEntity createTemplateEntity(Long id) {
+        GenTemplateEntity entity = new GenTemplateEntity();
+        entity.setId(id);
+        entity.setTemplateName("test-template");
+        entity.setTemplateContent("template content");
+        entity.setDeleteStatus(false);
+        entity.setVersion(1);
+        entity.setCreateBy("admin");
+        entity.setCreateTime(LocalDateTime.now());
+        entity.setUpdateBy("admin");
+        entity.setUpdateTime(LocalDateTime.now());
+        return entity;
+    }
+
+    private GenTemplateDomain createGenTemplateDomain() {
         GenTemplateDomain domain = new GenTemplateDomain();
         domain.setId(new TemplateId(1L));
-        domain.setTemplateInfo(new TemplateInfo("模板A", "content"));
+        domain.setTemplateInfo(new TemplateInfo("test-template", "template content"));
         domain.setDeleteStatus(false);
         domain.setVersion(1);
-
-        GenTemplateEntity savedEntity = new GenTemplateEntity();
-        savedEntity.setId(1L);
-
-        when(genTemplateRepository.save(any(GenTemplateEntity.class))).thenReturn(Mono.just(savedEntity));
-
-        StepVerifier.create(repository.save(domain))
-                .assertNext(id -> assertEquals(1L, id))
-                .verifyComplete();
+        domain.setCreateBy("admin");
+        domain.setCreateTime(LocalDateTime.now());
+        domain.setUpdateBy("admin");
+        domain.setUpdateTime(LocalDateTime.now());
+        return domain;
     }
 }
