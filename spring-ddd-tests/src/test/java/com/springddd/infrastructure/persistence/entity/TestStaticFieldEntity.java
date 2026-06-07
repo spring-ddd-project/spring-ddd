@@ -1,13 +1,11 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
 import org.springframework.data.relational.core.mapping.Table;
 
 /**
  * Test entity with static fields and serialVersionUID to cover extractColumns branches.
  */
 @Table("test_static_field")
-@DataPermissionEntity(name = "Test Static Field")
 public class TestStaticFieldEntity {
 
     private static final long serialVersionUID = 1L;

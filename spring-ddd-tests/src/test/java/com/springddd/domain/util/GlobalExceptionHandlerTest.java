@@ -131,22 +131,6 @@ class GlobalExceptionHandlerTest {
     }
 
     @Test
-    void shouldHandleMenuPermissionDeniedException() {
-        DomainException exception = new DomainException(ErrorCode.MENU_PERMISSION_DENIED) {};
-        when(messageSource.getMessage(eq("error.menu.permission.denied"), any(), any(Locale.class)))
-                .thenReturn("Menu permission denied");
-
-        Mono<ApiResponse> result = globalExceptionHandler.handleDomainException(exception, Locale.getDefault());
-
-        StepVerifier.create(result)
-                .assertNext(response -> {
-                    assertEquals(1207, response.getCode());
-                    assertEquals("Menu permission denied", response.getMessage());
-                })
-                .verifyComplete();
-    }
-
-    @Test
     void shouldHandleValidationExceptionWithFieldErrors() {
         org.springframework.validation.FieldError fieldError1 =
                 new org.springframework.validation.FieldError("object", "field1", "Field1 is invalid");

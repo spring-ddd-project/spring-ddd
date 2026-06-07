@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.dict.SysDictItemCommandService;
 import com.springddd.application.service.dict.SysDictItemQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.dict.dto.SysDictItemCommand;
 import com.springddd.application.service.dict.dto.SysDictItemPageQuery;
 import com.springddd.web.SysDictItemController;
@@ -35,8 +34,6 @@ class SysDictItemControllerTest {
     @MockBean
     private SysDictItemQueryService queryService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

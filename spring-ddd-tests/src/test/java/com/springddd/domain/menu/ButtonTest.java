@@ -1,6 +1,5 @@
 package com.springddd.domain.menu;
 
-import com.springddd.domain.menu.exception.MenuPermissionNullException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -14,15 +13,15 @@ class ButtonTest {
     }
 
     @Test
-    void shouldThrowMenuPermissionNullExceptionWhenPermissionIsNull() {
-        assertThrows(MenuPermissionNullException.class, () -> {
+    void shouldThrowIllegalArgumentExceptionWhenPermissionIsNull() {
+        assertThrows(IllegalArgumentException.class, () -> {
             new Button(null, "/api/edit");
         });
     }
 
     @Test
-    void shouldThrowMenuPermissionNullExceptionWhenPermissionIsEmpty() {
-        assertThrows(MenuPermissionNullException.class, () -> {
+    void shouldThrowIllegalArgumentExceptionWhenPermissionIsEmpty() {
+        assertThrows(IllegalArgumentException.class, () -> {
             new Button("", "/api/edit");
         });
     }

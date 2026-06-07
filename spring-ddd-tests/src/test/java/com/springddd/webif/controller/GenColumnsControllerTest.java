@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenColumnsCommandService;
 import com.springddd.application.service.gen.GenColumnsQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenColumnsCommand;
 import com.springddd.web.GenColumnsController;
 import org.junit.jupiter.api.Test;
@@ -35,8 +34,6 @@ class GenColumnsControllerTest {
     @MockBean
     private GenColumnsQueryService queryService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void queryJavaEntityInfoByInfoId_shouldReturnOk() {

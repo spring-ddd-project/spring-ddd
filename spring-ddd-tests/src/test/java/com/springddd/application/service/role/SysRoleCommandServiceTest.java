@@ -53,13 +53,12 @@ class SysRoleCommandServiceTest {
         command.setId(1L);
         command.setRoleName("Admin");
         command.setRoleCode("admin");
-        command.setDataScope(1);
         command.setOwnerStatus(true);
         command.setRoleDesc("Administrator");
         command.setRoleStatus(true);
 
         SysRoleDomain mockDomain = new SysRoleDomain();
-        when(sysRoleDomainFactory.newInstance(any(), any(), any(), any(), any())).thenReturn(mockDomain);
+        when(sysRoleDomainFactory.newInstance(any(), any(), any(), any())).thenReturn(mockDomain);
         when(sysRoleDomainRepository.save(any())).thenReturn(Mono.just(1L));
 
         StepVerifier.create(sysRoleCommandService.createRole(command))
@@ -73,7 +72,6 @@ class SysRoleCommandServiceTest {
         command.setId(1L);
         command.setRoleName("UpdatedAdmin");
         command.setRoleCode("updated_admin");
-        command.setDataScope(2);
         command.setOwnerStatus(false);
         command.setRoleDesc("Updated");
         command.setRoleStatus(false);

@@ -11,18 +11,15 @@ class SysRoleDomainFactoryImplTest {
         SysRoleDomainFactoryImpl factory = new SysRoleDomainFactoryImpl();
 
         RoleId roleId = new RoleId(1L);
-        RoleBasicInfo basicInfo = new RoleBasicInfo("RoleName", "ROLE_CODE", 1, true);
+        RoleBasicInfo basicInfo = new RoleBasicInfo("RoleName", "ROLE_CODE", true);
         RoleExtendInfo extendInfo = new RoleExtendInfo("Description", true);
-        DataPermission dataPermission = new DataPermission();
-        dataPermission.setRowScope(new RowScope());
 
-        SysRoleDomain domain = factory.newInstance(roleId, basicInfo, extendInfo, dataPermission, 1L);
+        SysRoleDomain domain = factory.newInstance(roleId, basicInfo, extendInfo, 1L);
 
         assertNotNull(domain);
         assertEquals(roleId, domain.getRoleId());
         assertEquals(basicInfo, domain.getRoleBasicInfo());
         assertEquals(extendInfo, domain.getRoleExtendInfo());
-        assertEquals(dataPermission, domain.getDataPermission());
         assertEquals(1L, domain.getDeptId());
         assertFalse(domain.getDeleteStatus());
     }
@@ -31,11 +28,10 @@ class SysRoleDomainFactoryImplTest {
     void shouldCreateDomainWithNullRoleId() {
         SysRoleDomainFactoryImpl factory = new SysRoleDomainFactoryImpl();
 
-        RoleBasicInfo basicInfo = new RoleBasicInfo("RoleName", "ROLE_CODE", 1, true);
+        RoleBasicInfo basicInfo = new RoleBasicInfo("RoleName", "ROLE_CODE", true);
         RoleExtendInfo extendInfo = new RoleExtendInfo("Description", true);
-        DataPermission dataPermission = new DataPermission();
 
-        SysRoleDomain domain = factory.newInstance(null, basicInfo, extendInfo, dataPermission, 1L);
+        SysRoleDomain domain = factory.newInstance(null, basicInfo, extendInfo, 1L);
 
         assertNotNull(domain);
         assertNull(domain.getRoleId());

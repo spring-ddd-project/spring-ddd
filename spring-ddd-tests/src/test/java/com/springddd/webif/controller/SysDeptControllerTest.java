@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.dept.SysDeptCommandService;
 import com.springddd.application.service.dept.SysDeptQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.dept.dto.SysDeptCommand;
 import com.springddd.application.service.dept.dto.SysDeptQuery;
 import com.springddd.web.SysDeptController;
@@ -35,8 +34,6 @@ class SysDeptControllerTest {
     @MockBean
     private SysDeptCommandService commandService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {

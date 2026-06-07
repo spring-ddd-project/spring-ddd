@@ -468,9 +468,8 @@ class DefaultEntityFactoryTest {
     void createSysRoleEntity_shouldConvertCorrectly() {
         SysRoleDomain domain = new SysRoleDomain();
         domain.setRoleId(new com.springddd.domain.role.RoleId(1L));
-        domain.setRoleBasicInfo(new com.springddd.domain.role.RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
-        domain.setRoleExtendInfo(new com.springddd.domain.role.RoleExtendInfo("desc", true, "desc", true));
-        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, 1, null));
+        domain.setRoleBasicInfo(new com.springddd.domain.role.RoleBasicInfo("admin", "ROLE_ADMIN", true));
+        domain.setRoleExtendInfo(new com.springddd.domain.role.RoleExtendInfo("desc", true));
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setVersion(1);
@@ -480,11 +479,9 @@ class DefaultEntityFactoryTest {
         assertThat(entity.getId()).isEqualTo(1L);
         assertThat(entity.getRoleName()).isEqualTo("admin");
         assertThat(entity.getRoleCode()).isEqualTo("ROLE_ADMIN");
-        assertThat(entity.getDataScope()).isEqualTo(1);
         assertThat(entity.getOwnerStatus()).isTrue();
         assertThat(entity.getRoleDesc()).isEqualTo("desc");
         assertThat(entity.getRoleStatus()).isTrue();
-        assertThat(entity.getDataPermission()).isNotNull();
         assertThat(entity.getDeptId()).isEqualTo(1L);
     }
 
@@ -495,11 +492,9 @@ class DefaultEntityFactoryTest {
         entity.setId(1L);
         entity.setRoleName("admin");
         entity.setRoleCode("ROLE_ADMIN");
-        entity.setDataScope(1);
         entity.setOwnerStatus(true);
         entity.setRoleDesc("desc");
         entity.setRoleStatus(true);
-        entity.setDataPermission("{\"dataScope\":1}");
         entity.setDeptId(1L);
         entity.setDeleteStatus(false);
         entity.setVersion(1);
@@ -509,85 +504,10 @@ class DefaultEntityFactoryTest {
         assertThat(domain.getRoleId().value()).isEqualTo(1L);
         assertThat(domain.getRoleBasicInfo().roleName()).isEqualTo("admin");
         assertThat(domain.getRoleBasicInfo().roleCode()).isEqualTo("ROLE_ADMIN");
-        assertThat(domain.getRoleBasicInfo().roleDataScope()).isEqualTo(1);
+        assertThat(domain.getRoleBasicInfo().roleOwner()).isTrue();
         assertThat(domain.getRoleExtendInfo().roleDesc()).isEqualTo("desc");
         assertThat(domain.getRoleExtendInfo().roleStatus()).isTrue();
-        assertThat(domain.getDataPermission()).isNotNull();
-        assertThat(domain.getDataPermission().getDataScope()).isEqualTo(1);
-    }
-
-    @Test
-    @DisplayName("createSysRoleDomain 当 dataPermission 为空或空字符串时不应设置")
-    void createSysRoleDomain_withEmptyDataPermission_shouldNotSet() {
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-        entity.setRoleName("admin");
-        entity.setRoleCode("ROLE_ADMIN");
-        entity.setDataScope(1);
-        entity.setOwnerStatus(true);
-        entity.setRoleDesc("desc");
-        entity.setRoleStatus(true);
-        entity.setDataPermission("");
-        entity.setDeptId(1L);
-        entity.setDeleteStatus(false);
-        entity.setVersion(1);
-
-        SysRoleDomain domain = factory.createSysRoleDomain(entity);
-
-        assertThat(domain.getDataPermission()).isNull();
-    }
-
-    @Test
-    @DisplayName("createSysRoleDomain 当 dataPermission 为 null 时不应设置")
-    void createSysRoleDomain_withNullDataPermission_shouldNotSet() {
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-        entity.setRoleName("admin");
-        entity.setRoleCode("ROLE_ADMIN");
-        entity.setDataScope(1);
-        entity.setOwnerStatus(true);
-        entity.setRoleDesc("desc");
-        entity.setRoleStatus(true);
-        entity.setDataPermission(null);
-        entity.setDeptId(1L);
-        entity.setDeleteStatus(false);
-        entity.setVersion(1);
-
-        SysRoleDomain domain = factory.createSysRoleDomain(entity);
-
-        assertThat(domain.getDataPermission()).isNull();
-        assertThat(domain.getRoleId().value()).isEqualTo(1L);
-        assertThat(domain.getRoleBasicInfo().roleName()).isEqualTo("admin");
-    }
-
-    @Test
-    @DisplayName("createSysRoleDomain 当 dataPermission JSON 无效时应抛出 RuntimeException")
-    void createSysRoleDomain_withInvalidDataPermission_shouldThrowException() {
-        ObjectMapper customMapper = new ObjectMapper() {
-            @Override
-            public <T> T readValue(String content, Class<T> valueType) throws JsonProcessingException {
-                if (valueType == DataPermission.class) {
-                    throw new JsonProcessingException("invalid json") {};
-                }
-                return super.readValue(content, valueType);
-            }
-        };
-        DefaultEntityFactory customFactory = new DefaultEntityFactory(customMapper);
-
-        SysRoleEntity entity = new SysRoleEntity();
-        entity.setId(1L);
-        entity.setRoleName("admin");
-        entity.setRoleCode("ROLE_ADMIN");
-        entity.setDataScope(1);
-        entity.setOwnerStatus(true);
-        entity.setRoleDesc("desc");
-        entity.setRoleStatus(true);
-        entity.setDataPermission("invalid");
-        entity.setDeptId(1L);
-        entity.setDeleteStatus(false);
-        entity.setVersion(1);
-
-        assertThrows(RuntimeException.class, () -> customFactory.createSysRoleDomain(entity));
+        assertThat(domain.getDeptId()).isEqualTo(1L);
     }
 
     @Test
@@ -597,7 +517,6 @@ class DefaultEntityFactoryTest {
         domain.setRoleId(new com.springddd.domain.role.RoleId(1L));
         domain.setRoleBasicInfo(null);
         domain.setRoleExtendInfo(null);
-        domain.setDataPermission(null);
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
         domain.setVersion(1);
@@ -607,37 +526,9 @@ class DefaultEntityFactoryTest {
         assertThat(entity.getId()).isEqualTo(1L);
         assertThat(entity.getRoleName()).isNull();
         assertThat(entity.getRoleCode()).isNull();
-        assertThat(entity.getDataScope()).isNull();
         assertThat(entity.getOwnerStatus()).isNull();
         assertThat(entity.getRoleDesc()).isNull();
         assertThat(entity.getRoleStatus()).isNull();
-        assertThat(entity.getDataPermission()).isNull();
-    }
-
-    @Test
-    @DisplayName("createSysRoleEntity 当 dataPermission 序列化失败时应抛出 RuntimeException")
-    void createSysRoleEntity_withInvalidDataPermission_shouldThrowException() {
-        ObjectMapper customMapper = new ObjectMapper() {
-            @Override
-            public String writeValueAsString(Object value) throws JsonProcessingException {
-                if (value instanceof DataPermission) {
-                    throw new JsonProcessingException("invalid json") {};
-                }
-                return super.writeValueAsString(value);
-            }
-        };
-        DefaultEntityFactory customFactory = new DefaultEntityFactory(customMapper);
-
-        SysRoleDomain domain = new SysRoleDomain();
-        domain.setRoleId(new com.springddd.domain.role.RoleId(1L));
-        domain.setRoleBasicInfo(new com.springddd.domain.role.RoleBasicInfo("admin", "ROLE_ADMIN", 1, true, 1, true));
-        domain.setRoleExtendInfo(new com.springddd.domain.role.RoleExtendInfo("desc", true));
-        domain.setDataPermission(new com.springddd.domain.role.DataPermission(null, 1, null));
-        domain.setDeptId(1L);
-        domain.setDeleteStatus(false);
-        domain.setVersion(1);
-
-        assertThrows(RuntimeException.class, () -> customFactory.createSysRoleEntity(domain));
     }
 
     // ==================== GenColumnBind ====================

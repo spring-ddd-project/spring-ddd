@@ -2,7 +2,6 @@ package com.springddd.webif.controller;
 
 import com.springddd.application.service.gen.GenTemplateCommandService;
 import com.springddd.application.service.gen.GenTemplateQueryService;
-import com.springddd.application.service.permission.EntityPathResolver;
 import com.springddd.application.service.gen.dto.GenTemplateCommand;
 import com.springddd.application.service.gen.dto.GenTemplatePageQuery;
 import com.springddd.web.GenTemplateController;
@@ -35,8 +34,6 @@ class GenTemplateControllerTest {
     @MockBean
     private GenTemplateCommandService commandService;
 
-    @MockBean
-    private EntityPathResolver entityPathResolver;
 
     @Test
     void index_shouldReturnOk() {
