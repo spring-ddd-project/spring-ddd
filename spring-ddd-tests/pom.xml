@@ -61,13 +61,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- H2 Database for testing -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Embedded Redis for cache testing -->
         <dependency>
             <groupId>it.ozimov</groupId>
@@ -173,7 +166,7 @@
                             <includeGroupIds>com.springddd</includeGroupIds>
                             <includeScope>compile</includeScope>
                             <includes>**/*.class</includes>
-                            <outputDirectory>${project.build.directory}/dependency-classes</outputDirectory>
+                            <outputDirectory>${project.build.directory}/classes</outputDirectory>
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                         </configuration>
@@ -215,16 +208,10 @@
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>test</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
-                        <configuration>
-                            <classDirectories>
-                                <classDirectory>${project.build.directory}/classes</classDirectory>
-                                <classDirectory>${project.build.directory}/dependency-classes</classDirectory>
-                            </classDirectories>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
