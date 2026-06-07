@@ -6,7 +6,10 @@ import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.application.service.role.SysRoleQueryService;
+import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.user.UserId;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.domain.util.ReactiveTreeUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
@@ -76,7 +79,15 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> queryByPermissions() {
-        return Flux.fromIterable(SecurityUtils.getMenuIds())
+        return ReactiveSecurityUtils.getCurrentUser()
+                .switchIfEmpty(Mono.defer(() -> {
+                    AuthUser user = new AuthUser();
+                    user.setUserId(new UserId(SecurityUtils.getUserId()));
+                    user.setMenuIds(SecurityUtils.getMenuIds());
+                    user.setRoles(SecurityUtils.getRoles());
+                    return Mono.just(user);
+                }))
+                .flatMapMany(user -> Flux.fromIterable(user.getMenuIds()))
                 .flatMap(mId -> r2dbcEntityTemplate.selectOne(
                         Query.query(Criteria
                                 .where(SysMenuQuery.Fields.id).is(mId)
@@ -117,13 +128,16 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()),
-                menus, CacheKeys.MENU_WITH_PERMISSIONS.ttl()).then();
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> reactiveRedisCacheHelper.setCache(
+                        CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId),
+                        menus, CacheKeys.MENU_WITH_PERMISSIONS.ttl()).then());
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithoutPermission() {
-        return reactiveRedisCacheHelper
-                .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> reactiveRedisCacheHelper
+                        .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(userId), List.class))
                 .flatMap(list -> {
                     try {
                         List<SysMenuView> sysMenuViews = objectMapper.convertValue(list, new TypeReference<>() {
@@ -138,45 +152,46 @@ public class SysMenuQueryService {
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
-        List<String> codes = SecurityUtils.getRoles();
-
-        if (CollectionUtils.isEmpty(codes)) {
-            return Mono.empty();
-        }
-
-        return Flux.fromIterable(codes)
-                .flatMap(sysRoleQueryService::getByCode)
-                .filter(Objects::nonNull)
-                .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
-                .hasElements()
-                .flatMap(getTreeWithPermission());
+        return ReactiveSecurityUtils.getCurrentUserRoles()
+                .flatMap(codes -> {
+                    if (CollectionUtils.isEmpty(codes)) {
+                        return Mono.empty();
+                    }
+                    return Flux.fromIterable(codes)
+                            .flatMap(sysRoleQueryService::getByCode)
+                            .filter(Objects::nonNull)
+                            .filter(role -> Boolean.TRUE.equals(role.getOwnerStatus()))
+                            .hasElements()
+                            .flatMap(getTreeWithPermission());
+                });
     }
 
     private Function<Boolean, Mono<? extends List<SysMenuView>>> getTreeWithPermission() {
-        return hasOwner -> {
-            if (hasOwner) {
-                return r2dbcEntityTemplate.select(SysMenuEntity.class)
-                        .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
-                        .all()
-                        .collectList()
-                        .map(sysMenuViewMapStruct::toViewList)
-                        .flatMap(buildTree());
-            } else {
-                return reactiveRedisCacheHelper
-                        .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(SecurityUtils.getUserId()), List.class)
-                        .flatMap(list -> {
-                            try {
-                                List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
-                                });
-                                return Mono.just(menuViews);
-                            } catch (IllegalArgumentException e) {
-                                log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
-                                return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
-                            }
-                        })
-                        .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
-            }
-        };
+        return hasOwner -> ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> {
+                    if (hasOwner) {
+                        return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
+                                .all()
+                                .collectList()
+                                .map(sysMenuViewMapStruct::toViewList)
+                                .flatMap(buildTree());
+                    } else {
+                        return reactiveRedisCacheHelper
+                                .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId), List.class)
+                                .flatMap(list -> {
+                                    try {
+                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                                        });
+                                        return Mono.just(menuViews);
+                                    } catch (IllegalArgumentException e) {
+                                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
+                                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                                    }
+                                })
+                                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+                    }
+                });
     }
 
     private List<SysMenuView> extractMenuWithoutPermissionsTree(List<SysMenuView> menus) {
@@ -222,8 +237,10 @@ public class SysMenuQueryService {
     }
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
-        return reactiveRedisCacheHelper.setCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(SecurityUtils.getUserId()),
-                menus, CacheKeys.MENU_WITHOUT_PERMISSIONS.ttl()).then();
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> reactiveRedisCacheHelper.setCache(
+                        CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(userId),
+                        menus, CacheKeys.MENU_WITHOUT_PERMISSIONS.ttl()).then());
     }
 
     public Mono<List<SysMenuView>> queryAllMenu() {
