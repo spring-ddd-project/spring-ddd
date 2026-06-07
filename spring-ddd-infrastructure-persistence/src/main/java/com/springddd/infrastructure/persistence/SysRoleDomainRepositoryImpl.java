@@ -10,16 +10,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.Optional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @Repository
 @RequiredArgsConstructor
 public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
 
     private final SysRoleRepository sysRoleRepository;
-
-    private final ObjectMapper objectMapper;
 
     @Override
     public Mono<SysRoleDomain> load(RoleId aggregateRootId) {
@@ -27,21 +22,13 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
             SysRoleDomain sysRoleDomain = new SysRoleDomain();
             sysRoleDomain.setRoleId(new RoleId(e.getId()));
 
-            RoleBasicInfo roleBasicInfo = new RoleBasicInfo(e.getRoleName(), e.getRoleCode(), e.getDataScope(), e.getOwnerStatus());
+            RoleBasicInfo roleBasicInfo = new RoleBasicInfo(e.getRoleName(), e.getRoleCode(), e.getOwnerStatus());
             sysRoleDomain.setRoleBasicInfo(roleBasicInfo);
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(e.getRoleDesc(), e.getRoleStatus());
             sysRoleDomain.setRoleExtendInfo(roleExtendInfo);
 
             sysRoleDomain.setDeptId(e.getDeptId());
-
-            if (e.getDataPermission() != null) {
-                try {
-                    sysRoleDomain.setDataPermission(objectMapper.readValue(e.getDataPermission(), DataPermission.class));
-                } catch (JsonProcessingException ex) {
-                    throw new RuntimeException("Failed to read data permission config", ex);
-                }
-            }
 
             sysRoleDomain.setDeleteStatus(e.getDeleteStatus());
             sysRoleDomain.setVersion(e.getVersion());
@@ -64,7 +51,6 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         RoleBasicInfo roleBasicInfo = aggregateRoot.getRoleBasicInfo();
         sysRoleEntity.setRoleName(roleBasicInfo.roleName());
         sysRoleEntity.setRoleCode(roleBasicInfo.roleCode());
-        sysRoleEntity.setDataScope(roleBasicInfo.roleDataScope());
         sysRoleEntity.setOwnerStatus(roleBasicInfo.roleOwner());
 
         RoleExtendInfo roleExtendInfo = aggregateRoot.getRoleExtendInfo();
@@ -72,14 +58,6 @@ public class SysRoleDomainRepositoryImpl implements SysRoleDomainRepository {
         sysRoleEntity.setRoleStatus(roleExtendInfo.roleStatus());
 
         sysRoleEntity.setDeptId(aggregateRoot.getDeptId());
-
-        if (aggregateRoot.getDataPermission() != null) {
-            try {
-                sysRoleEntity.setDataPermission(objectMapper.writeValueAsString(aggregateRoot.getDataPermission()));
-            } catch (JsonProcessingException ex) {
-                throw new RuntimeException("Failed to write data permission config", ex);
-            }
-        }
 
         sysRoleEntity.setDeleteStatus(aggregateRoot.getDeleteStatus());
         sysRoleEntity.setVersion(aggregateRoot.getVersion());

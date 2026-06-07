@@ -249,21 +249,12 @@ public class DefaultEntityFactory implements EntityFactory {
         if (domain.getRoleBasicInfo() != null) {
             entity.setRoleName(domain.getRoleBasicInfo().roleName());
             entity.setRoleCode(domain.getRoleBasicInfo().roleCode());
-            entity.setDataScope(domain.getRoleBasicInfo().roleDataScope());
             entity.setOwnerStatus(domain.getRoleBasicInfo().roleOwner());
         }
         
         if (domain.getRoleExtendInfo() != null) {
             entity.setRoleDesc(domain.getRoleExtendInfo().roleDesc());
             entity.setRoleStatus(domain.getRoleExtendInfo().roleStatus());
-        }
-
-        if (domain.getDataPermission() != null) {
-            try {
-                entity.setDataPermission(objectMapper.writeValueAsString(domain.getDataPermission()));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Mapping error", e);
-            }
         }
 
         entity.setDeptId(domain.getDeptId());
@@ -280,7 +271,7 @@ public class DefaultEntityFactory implements EntityFactory {
     public SysRoleDomain createSysRoleDomain(SysRoleEntity entity) {
         SysRoleDomain domain = new SysRoleDomain();
         domain.setRoleId(new RoleId(entity.getId()));
-        domain.setRoleBasicInfo(new RoleBasicInfo(entity.getRoleName(), entity.getRoleCode(), entity.getDataScope(), entity.getOwnerStatus()));
+        domain.setRoleBasicInfo(new RoleBasicInfo(entity.getRoleName(), entity.getRoleCode(), entity.getOwnerStatus()));
         domain.setRoleExtendInfo(new RoleExtendInfo(entity.getRoleDesc(), entity.getRoleStatus()));
         domain.setDeptId(entity.getDeptId());
         domain.setDeleteStatus(entity.getDeleteStatus());
@@ -289,16 +280,6 @@ public class DefaultEntityFactory implements EntityFactory {
         domain.setUpdateBy(entity.getUpdateBy());
         domain.setUpdateTime(entity.getUpdateTime());
         domain.setVersion(entity.getVersion());
-
-        if (entity.getDataPermission() != null && !entity.getDataPermission().isEmpty()) {
-            try {
-                DataPermission dp = objectMapper.readValue(entity.getDataPermission(), DataPermission.class);
-                domain.setDataPermission(dp);
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException("Failed to deserialize dataPermission for role " + entity.getId(), e);
-            }
-        }
-
         return domain;
     }
 

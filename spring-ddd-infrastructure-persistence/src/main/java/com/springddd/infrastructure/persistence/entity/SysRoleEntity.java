@@ -26,10 +26,6 @@ public class SysRoleEntity {
 
     private String roleDesc;
 
-    private Integer dataScope;
-
-    private String dataPermission;
-
     private Boolean roleStatus;
 
     private Boolean ownerStatus;

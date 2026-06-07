@@ -1,6 +1,5 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
 import com.springddd.domain.util.IdGenerate;
 import lombok.Data;
 import org.springframework.data.annotation.*;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
  */
 @Data
 @Table("sys_user")
-@DataPermissionEntity(name = "用户管理")
 public class SysUserEntity {
 
     @Id

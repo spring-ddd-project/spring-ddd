@@ -1,7 +1,5 @@
 package com.springddd.infrastructure.persistence.entity;
 
-import com.springddd.domain.permission.DataPermissionEntity;
-
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
@@ -10,7 +8,6 @@ import java.time.LocalDateTime;
 
 @Data
 @Table("leaf_worker")
-@DataPermissionEntity(name = "Worker节点")
 public class LeafWorkerEntity {
 
     @Id

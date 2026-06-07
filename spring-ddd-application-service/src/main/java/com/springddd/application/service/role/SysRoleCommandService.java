@@ -23,11 +23,11 @@ public class SysRoleCommandService {
     private final RestoreSysRoleByIdDomainService restoreSysRoleByIdDomainService;
 
     public Mono<Long> createRole(SysRoleCommand command) {
-        RoleBasicInfo roleBasicInfo = new RoleBasicInfo(command.getRoleName(), command.getRoleCode(), command.getDataScope(), command.getOwnerStatus());
+        RoleBasicInfo roleBasicInfo = new RoleBasicInfo(command.getRoleName(), command.getRoleCode(), command.getOwnerStatus());
 
         RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
-        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
+        SysRoleDomain domain = sysRoleDomainFactory.newInstance(new RoleId(command.getId()), roleBasicInfo, roleExtendInfo, command.getDeptId());
         domain.create();
 
         return sysRoleDomainRepository.save(domain);
@@ -36,11 +36,11 @@ public class SysRoleCommandService {
     public Mono<Void> updateRole(SysRoleCommand command) {
         return sysRoleDomainRepository.load(new RoleId(command.getId())).flatMap(domain -> {
 
-            RoleBasicInfo roleBasicInfo = new RoleBasicInfo(command.getRoleName(), command.getRoleCode(), command.getDataScope(), command.getOwnerStatus());
+            RoleBasicInfo roleBasicInfo = new RoleBasicInfo(command.getRoleName(), command.getRoleCode(), command.getOwnerStatus());
 
             RoleExtendInfo roleExtendInfo = new RoleExtendInfo(command.getRoleDesc(), command.getRoleStatus());
 
-            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDataPermission(), command.getDeptId());
+            domain.updateRole(roleBasicInfo, roleExtendInfo, command.getDeptId());
             return sysRoleDomainRepository.save(domain);
         }).then();
     }
