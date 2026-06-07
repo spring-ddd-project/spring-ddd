@@ -17,27 +17,27 @@ class SysMenuCommandServiceTest {
     }
 
     @Test
-    void shouldHaveCreateMethod() {
+    void shouldHaveCreateMethod() throws NoSuchMethodException {
         assertNotNull(SysMenuCommandService.class.getDeclaredMethods());
     }
 
     @Test
-    void shouldHaveUpdateMethod() {
+    void shouldHaveUpdateMethod() throws NoSuchMethodException {
         assertNotNull(SysMenuCommandService.class.getDeclaredMethods());
     }
 
     @Test
-    void shouldHaveDeleteMethod() {
+    void shouldHaveDeleteMethod() throws NoSuchMethodException {
         assertNotNull(SysMenuCommandService.class.getDeclaredMethods());
     }
 
     @Test
-    void shouldHaveWipeMethod() {
+    void shouldHaveWipeMethod() throws NoSuchMethodException {
         assertNotNull(SysMenuCommandService.class.getDeclaredMethods());
     }
 
     @Test
-    void shouldHaveRestoreMethod() {
+    void shouldHaveRestoreMethod() throws NoSuchMethodException {
         assertNotNull(SysMenuCommandService.class.getDeclaredMethods());
     }
 }

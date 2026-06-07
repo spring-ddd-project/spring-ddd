@@ -49,7 +49,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnTrueWhenPathIsInIgnorePaths() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/public/api");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of("/public/api"));
 
@@ -65,7 +65,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnTrueWhenPathIsInTokenOnlyPaths() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/token/only/path");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of());
         when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of("/token/only/path"));
@@ -82,7 +82,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnFalseWhenNoMenuFound() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/some/path");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of());
         when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of());
@@ -100,7 +100,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnFalseWhenMenuPermissionIsEmpty() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/some/path");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of());
         when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of());
@@ -122,7 +122,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnTrueWhenUserHasRequiredPermission() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/some/path");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of());
         when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of());
@@ -146,7 +146,7 @@ class AuthorizationManagerConfigTest {
     void shouldReturnFalseWhenUserLacksRequiredPermission() {
         when(authorizationContext.getExchange()).thenReturn(exchange);
         when(exchange.getRequest()).thenReturn(mock(org.springframework.http.server.reactive.ServerHttpRequest.class));
-        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.web.server.adapter.HttpRequest.class));
+        when(exchange.getRequest().getPath()).thenReturn(mock(org.springframework.http.server.RequestPath.class));
         when(exchange.getRequest().getPath().value()).thenReturn("/some/path");
         when(securityProperties.getIgnorePaths()).thenReturn(List.of());
         when(securityProperties.getTokenOnlyPaths()).thenReturn(List.of());

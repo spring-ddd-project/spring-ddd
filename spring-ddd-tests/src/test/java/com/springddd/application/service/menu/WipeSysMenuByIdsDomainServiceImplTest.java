@@ -22,7 +22,7 @@ class WipeSysMenuByIdsDomainServiceImplTest {
     }
 
     @Test
-    void shouldHaveDeleteByIdsMethod() {
+    void shouldHaveDeleteByIdsMethod() throws NoSuchMethodException {
         assertNotNull(WipeSysMenuByIdsDomainServiceImpl.class.getDeclaredMethod("deleteByIds", java.util.List.class));
     }
 }

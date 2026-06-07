@@ -22,7 +22,7 @@ class WipeSysRoleMenuByIdsDomainServiceImplTest {
     }
 
     @Test
-    void shouldHaveDeleteByIdsMethod() {
+    void shouldHaveDeleteByIdsMethod() throws NoSuchMethodException {
         assertNotNull(WipeSysRoleMenuByIdsDomainServiceImpl.class.getDeclaredMethod("deleteByIds", java.util.List.class));
     }
 }

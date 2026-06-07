@@ -16,12 +16,12 @@ class SysDeptViewMapStructImplTest {
     }
 
     @Test
-    void shouldHaveToViewMethod() {
+    void shouldHaveToViewMethod() throws NoSuchMethodException {
         assertNotNull(SysDeptViewMapStruct.class.getDeclaredMethods());
     }
 
     @Test
-    void shouldHaveToViewsMethod() {
+    void shouldHaveToViewsMethod() throws NoSuchMethodException {
         assertNotNull(SysDeptViewMapStruct.class.getDeclaredMethods());
     }
 }

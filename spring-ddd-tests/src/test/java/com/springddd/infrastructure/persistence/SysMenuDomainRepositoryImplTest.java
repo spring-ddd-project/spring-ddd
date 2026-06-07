@@ -115,12 +115,12 @@ class SysMenuDomainRepositoryImplTest {
         entity.setSortOrder(1);
         entity.setTitle("Test Title");
         entity.setIcon("test-icon");
-        entity.setMenuType("M");
+        entity.setMenuType(1);
         entity.setVisible(true);
         entity.setMenuStatus(true);
         entity.setDeptId(1L);
         entity.setDeleteStatus(false);
-        entity.setVersion(1L);
+        entity.setVersion(1);
         entity.setCreateBy("admin");
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateBy("admin");
@@ -136,10 +136,10 @@ class SysMenuDomainRepositoryImplTest {
         domain.setName("Test Menu");
         domain.setMenu(new Menu("/test", "test/component", false, false, false));
         domain.setButton(new Button("test:permission", "/api/test"));
-        domain.setMenuExtendInfo(new MenuExtendInfo(1, "Test Title", "test-icon", "M", true, true));
+        domain.setMenuExtendInfo(new MenuExtendInfo(1, "Test Title", 1, "test-icon", true, true));
         domain.setDeptId(1L);
         domain.setDeleteStatus(false);
-        domain.setVersion(1L);
+        domain.setVersion(1);
         domain.setCreateBy("admin");
         domain.setCreateTime(LocalDateTime.now());
         domain.setUpdateBy("admin");

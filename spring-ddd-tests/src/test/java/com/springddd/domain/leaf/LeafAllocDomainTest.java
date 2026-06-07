@@ -17,32 +17,32 @@ class LeafAllocDomainTest {
     }
 
     @Test
-    void shouldHaveCreateMethod() {
+    void shouldHaveCreateMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("create"));
     }
 
     @Test
-    void shouldHaveUpdateMethod() {
+    void shouldHaveUpdateMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("update", LeafProp.class, ExtendInfo.class));
     }
 
     @Test
-    void shouldHaveDeleteMethod() {
+    void shouldHaveDeleteMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("delete"));
     }
 
     @Test
-    void shouldHaveRestoreMethod() {
+    void shouldHaveRestoreMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("restore"));
     }
 
     @Test
-    void shouldHaveUpdateMaxIdMethod() {
+    void shouldHaveUpdateMaxIdMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("updateMaxId", LeafProp.class));
     }
 
     @Test
-    void shouldHaveUpdateMaxIdByCustomStepMethod() {
+    void shouldHaveUpdateMaxIdByCustomStepMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocDomain.class.getDeclaredMethod("updateMaxIdByCustomStep", LeafProp.class));
     }
 

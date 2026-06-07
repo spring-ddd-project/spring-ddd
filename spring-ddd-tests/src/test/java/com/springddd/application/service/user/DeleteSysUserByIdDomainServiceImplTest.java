@@ -22,7 +22,7 @@ class DeleteSysUserByIdDomainServiceImplTest {
     }
 
     @Test
-    void shouldHaveDeleteByIdsMethod() {
+    void shouldHaveDeleteByIdsMethod() throws NoSuchMethodException {
         assertNotNull(DeleteSysUserByIdDomainServiceImpl.class.getDeclaredMethod("deleteByIds", java.util.List.class));
     }
 }

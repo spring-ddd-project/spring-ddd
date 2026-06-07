@@ -19,22 +19,22 @@ class LeafAllocQueryServiceTest {
     }
 
     @Test
-    void shouldHaveIndexMethod() {
+    void shouldHaveIndexMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocQueryService.class.getDeclaredMethod("index", LeafAllocPageQuery.class));
     }
 
     @Test
-    void shouldHaveRecycleMethod() {
+    void shouldHaveRecycleMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocQueryService.class.getDeclaredMethod("recycle", LeafAllocPageQuery.class));
     }
 
     @Test
-    void shouldHaveGetAllLeafAllocMethod() {
+    void shouldHaveGetAllLeafAllocMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocQueryService.class.getDeclaredMethod("getAllLeafAlloc"));
     }
 
     @Test
-    void shouldHaveGetLeafAllocByTagMethod() {
+    void shouldHaveGetLeafAllocByTagMethod() throws NoSuchMethodException {
         assertNotNull(LeafAllocQueryService.class.getDeclaredMethod("getLeafAllocByTag", String.class));
     }
 }

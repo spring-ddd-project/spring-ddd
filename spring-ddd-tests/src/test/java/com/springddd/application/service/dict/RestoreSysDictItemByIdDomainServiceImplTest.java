@@ -22,7 +22,7 @@ class RestoreSysDictItemByIdDomainServiceImplTest {
     }
 
     @Test
-    void shouldHaveRestoreByIdsMethod() {
+    void shouldHaveRestoreByIdsMethod() throws NoSuchMethodException {
         assertNotNull(RestoreSysDictItemByIdDomainServiceImpl.class.getDeclaredMethod("restoreByIds", java.util.List.class));
     }
 }

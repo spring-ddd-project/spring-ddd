@@ -17,22 +17,22 @@ class SysRoleDomainTest {
     }
 
     @Test
-    void shouldHaveCreateMethod() {
+    void shouldHaveCreateMethod() throws NoSuchMethodException {
         assertNotNull(SysRoleDomain.class.getDeclaredMethod("create"));
     }
 
     @Test
-    void shouldHaveUpdateRoleMethod() {
+    void shouldHaveUpdateRoleMethod() throws NoSuchMethodException {
         assertNotNull(SysRoleDomain.class.getDeclaredMethod("updateRole", RoleBasicInfo.class, RoleExtendInfo.class, DataPermission.class, Long.class));
     }
 
     @Test
-    void shouldHaveDeleteMethod() {
+    void shouldHaveDeleteMethod() throws NoSuchMethodException {
         assertNotNull(SysRoleDomain.class.getDeclaredMethod("delete"));
     }
 
     @Test
-    void shouldHaveRestoreMethod() {
+    void shouldHaveRestoreMethod() throws NoSuchMethodException {
         assertNotNull(SysRoleDomain.class.getDeclaredMethod("restore"));
     }
 

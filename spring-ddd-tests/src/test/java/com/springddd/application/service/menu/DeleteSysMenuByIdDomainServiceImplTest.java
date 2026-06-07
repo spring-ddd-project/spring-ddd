@@ -55,7 +55,7 @@ class DeleteSysMenuByIdDomainServiceImplTest {
         when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Arrays.asList(menuView)));
         when(sysMenuDomainRepository.load(any(MenuId.class))).thenReturn(Mono.just(domain));
         when(sysMenuDomainRepository.save(any(SysMenuDomain.class))).thenReturn(Mono.just(1L));
-        when(SecurityUtils.concurrency()).thenReturn(reactor.util.concurrent.Queues.<SysMenuDomain>unbounded(16).toContextWrite());
+        // SecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(menuId);
 

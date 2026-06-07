@@ -16,7 +16,7 @@ class SysRoleMenuViewMapStructImplTest {
     }
 
     @Test
-    void shouldHaveToViewMethod() {
+    void shouldHaveToViewMethod() throws NoSuchMethodException {
         assertNotNull(SysRoleMenuViewMapStructImpl.class.getDeclaredMethods());
     }
 }

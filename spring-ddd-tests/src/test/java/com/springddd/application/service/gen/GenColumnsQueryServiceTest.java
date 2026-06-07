@@ -4,7 +4,7 @@ import com.springddd.application.service.dict.SysDictQueryService;
 import com.springddd.application.service.gen.dto.GenColumnsView;
 import com.springddd.application.service.gen.dto.GenColumnsViewMapStruct;
 import com.springddd.application.service.gen.dto.GenProjectInfoViewMapStruct;
-import com.springddd.domain.gen.GenColumnBindView;
+import com.springddd.application.service.gen.dto.GenColumnBindView;
 import com.springddd.domain.util.PageResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

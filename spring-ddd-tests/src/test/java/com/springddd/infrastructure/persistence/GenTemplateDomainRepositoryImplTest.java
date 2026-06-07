@@ -105,7 +105,7 @@ class GenTemplateDomainRepositoryImplTest {
         entity.setTemplateName("test-template");
         entity.setTemplateContent("template content");
         entity.setDeleteStatus(false);
-        entity.setVersion(1L);
+        entity.setVersion(1);
         entity.setCreateBy("admin");
         entity.setCreateTime(LocalDateTime.now());
         entity.setUpdateBy("admin");
@@ -118,7 +118,7 @@ class GenTemplateDomainRepositoryImplTest {
         domain.setId(new TemplateId(1L));
         domain.setTemplateInfo(new TemplateInfo("test-template", "template content"));
         domain.setDeleteStatus(false);
-        domain.setVersion(1L);
+        domain.setVersion(1);
         domain.setCreateBy("admin");
         domain.setCreateTime(LocalDateTime.now());
         domain.setUpdateBy("admin");

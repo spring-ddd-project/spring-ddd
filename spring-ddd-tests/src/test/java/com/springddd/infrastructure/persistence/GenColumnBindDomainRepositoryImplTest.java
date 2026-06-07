@@ -27,19 +27,19 @@ class GenColumnBindDomainRepositoryImplTest {
     }
 
     @Test
-    void shouldHaveLoadMethod() {
+    void shouldHaveLoadMethod() throws NoSuchMethodException {
         assertNotNull(GenColumnBindDomainRepositoryImpl.class.getDeclaredMethod("load", ColumnBindId.class));
     }
 
     @Test
-    void shouldHaveSaveMethod() {
+    void shouldHaveSaveMethod() throws NoSuchMethodException {
         assertNotNull(GenColumnBindDomainRepositoryImpl.class.getDeclaredMethod("save", GenColumnBindDomain.class));
     }
 
     @Test
     void genColumnBindDomain_shouldHaveBasicInfo() {
         GenColumnBindDomain domain = new GenColumnBindDomain();
-        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo("String", "String", "input", "string");
+        GenColumnBindBasicInfo basicInfo = new GenColumnBindBasicInfo("String", "String", (byte) 1, (byte) 1);
         domain.setBasicInfo(basicInfo);
         assertEquals(basicInfo, domain.getBasicInfo());
     }

@@ -3,7 +3,9 @@ package com.springddd.application.service.auth.exception;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpResponse;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -15,12 +17,12 @@ class CustomAuthenticationEntryPointTest {
 
     @Test
     void commence_shouldReturnUnauthorizedStatus() {
-        MockServerHttpResponse response = new MockServerHttpResponse();
-        MockServerWebExchange exchange = MockServerWebExchange.from("/test");
+        MockServerWebExchange exchange = MockServerWebExchange.from(
+                MockServerHttpRequest.get("/test").build());
 
-        entryPoint.commence(exchange, new RuntimeException("Test exception"))
+        entryPoint.commence(exchange, new AuthenticationCredentialsNotFoundException("Test exception"))
                 .block();
 
-        assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+        assertEquals(HttpStatus.UNAUTHORIZED, exchange.getResponse().getStatusCode());
     }
 }

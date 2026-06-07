@@ -17,27 +17,27 @@ class SysDictItemCommandServiceTest {
     }
 
     @Test
-    void shouldHaveCreateMethod() {
+    void shouldHaveCreateMethod() throws NoSuchMethodException {
         assertNotNull(SysDictItemCommandService.class.getDeclaredMethod("create", SysDictItemCommand.class));
     }
 
     @Test
-    void shouldHaveUpdateMethod() {
+    void shouldHaveUpdateMethod() throws NoSuchMethodException {
         assertNotNull(SysDictItemCommandService.class.getDeclaredMethod("update", SysDictItemCommand.class));
     }
 
     @Test
-    void shouldHaveDeleteMethod() {
+    void shouldHaveDeleteMethod() throws NoSuchMethodException {
         assertNotNull(SysDictItemCommandService.class.getDeclaredMethod("delete", java.util.List.class));
     }
 
     @Test
-    void shouldHaveWipeMethod() {
+    void shouldHaveWipeMethod() throws NoSuchMethodException {
         assertNotNull(SysDictItemCommandService.class.getDeclaredMethod("wipe", java.util.List.class));
     }
 
     @Test
-    void shouldHaveRestoreMethod() {
+    void shouldHaveRestoreMethod() throws NoSuchMethodException {
         assertNotNull(SysDictItemCommandService.class.getDeclaredMethod("restore", java.util.List.class));
     }
 }

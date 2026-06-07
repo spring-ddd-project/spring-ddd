@@ -40,7 +40,7 @@ class DeleteSysDictItemByIdDomainServiceImplTest {
 
         when(sysDictItemDomainRepository.load(any(DictItemId.class))).thenReturn(Mono.just(domain));
         when(sysDictItemDomainRepository.save(any(SysDictItemDomain.class))).thenReturn(Mono.just(dictItemId));
-        when(SecurityUtils.concurrency()).thenReturn(reactor.util.concurrent.Queues.<SysDictItemDomain>unbounded(16).toContextWrite());
+        // SecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(dictItemId);
 
@@ -61,7 +61,7 @@ class DeleteSysDictItemByIdDomainServiceImplTest {
 
         when(sysDictItemDomainRepository.load(any(DictItemId.class))).thenReturn(Mono.just(domain1), Mono.just(domain2));
         when(sysDictItemDomainRepository.save(any(SysDictItemDomain.class))).thenReturn(Mono.just(1L));
-        when(SecurityUtils.concurrency()).thenReturn(reactor.util.concurrent.Queues.<SysDictItemDomain>unbounded(16).toContextWrite());
+        // SecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(dictItemId1, dictItemId2);
 

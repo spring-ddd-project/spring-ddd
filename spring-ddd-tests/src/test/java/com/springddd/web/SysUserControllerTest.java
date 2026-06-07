@@ -21,37 +21,37 @@ class SysUserControllerTest {
     }
 
     @Test
-    void shouldHavePageEndpoint() {
+    void shouldHavePageEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("page", reactor.core.publisher.Mono.class));
     }
 
     @Test
-    void shouldHaveRecyclePageEndpoint() {
+    void shouldHaveRecyclePageEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("recyclePage", reactor.core.publisher.Mono.class));
     }
 
     @Test
-    void shouldHaveCreateEndpoint() {
+    void shouldHaveCreateEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("create", com.springddd.application.service.user.dto.SysUserCommand.class));
     }
 
     @Test
-    void shouldHaveUpdateEndpoint() {
+    void shouldHaveUpdateEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("update", com.springddd.application.service.user.dto.SysUserCommand.class));
     }
 
     @Test
-    void shouldHaveDeleteEndpoint() {
+    void shouldHaveDeleteEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("delete", List.class));
     }
 
     @Test
-    void shouldHaveWipeEndpoint() {
+    void shouldHaveWipeEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("wipe", List.class));
     }
 
     @Test
-    void shouldHaveRestoreEndpoint() {
+    void shouldHaveRestoreEndpoint() throws NoSuchMethodException {
         assertNotNull(SysUserController.class.getDeclaredMethod("restore", List.class));
     }
 }
