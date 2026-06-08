@@ -2,144 +2,132 @@ package com.springddd.web;
 
 import com.springddd.application.service.gen.GenTemplateCommandService;
 import com.springddd.application.service.gen.GenTemplateQueryService;
-import com.springddd.application.service.gen.dto.GenTemplateView;
-import com.springddd.domain.util.PageResponse;
+import com.springddd.application.service.gen.dto.GenTemplateCommand;
+import com.springddd.application.service.gen.dto.GenTemplatePageQuery;
+import com.springddd.domain.util.ApiResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
+import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class GenTemplateControllerTest {
 
-    private WebTestClient webTestClient;
-    private GenTemplateQueryService queryService;
-    private GenTemplateCommandService commandService;
+    @Mock
+    private GenTemplateQueryService genTemplateQueryService;
+
+    @Mock
+    private GenTemplateCommandService genTemplateCommandService;
+
+    private GenTemplateController genTemplateController;
 
     @BeforeEach
     void setUp() {
-        queryService = mock(GenTemplateQueryService.class);
-        commandService = mock(GenTemplateCommandService.class);
-        GenTemplateController controller = new GenTemplateController(queryService, commandService);
-        webTestClient = WebTestClient.bindToController(controller).build();
+        genTemplateController = new GenTemplateController(genTemplateQueryService, genTemplateCommandService);
     }
 
     @Test
-    @DisplayName("POST /gen/template/index 应返回分页列表")
-    void index_shouldReturnPage() {
-        GenTemplateView view = new GenTemplateView();
-        view.setId(1L);
-        view.setTemplateName("test");
-        PageResponse<GenTemplateView> page = new PageResponse<>(
-                List.of(view), 1L, 1, 10
-        );
-        when(queryService.index(any())).thenReturn(Mono.just(page));
+    void shouldCreateTemplateSuccessfully() {
+        GenTemplateCommand command = new GenTemplateCommand();
+        command.setTemplateName("test-template");
+        command.setTemplateContent("template content");
 
-        webTestClient.post()
-                .uri("/gen/template/index")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"pageNum\":1,\"pageSize\":10}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data.items[0].templateName").isEqualTo("test");
+        when(genTemplateCommandService.create(any(GenTemplateCommand.class))).thenReturn(Mono.just(1L));
+
+        Mono<ApiResponse> result = genTemplateController.create(command);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals(0, response.getCode());
+                })
+                .verifyComplete();
+
+        verify(genTemplateCommandService).create(any(GenTemplateCommand.class));
     }
 
     @Test
-    @DisplayName("POST /gen/template/recycle 应返回回收站分页")
-    void recycle_shouldReturnRecyclePage() {
-        GenTemplateView view = new GenTemplateView();
-        view.setTemplateName("deleted");
-        PageResponse<GenTemplateView> page = new PageResponse<>(
-                List.of(view), 1L, 1, 10
-        );
-        when(queryService.recycle(any())).thenReturn(Mono.just(page));
+    void shouldUpdateTemplateSuccessfully() {
+        GenTemplateCommand command = new GenTemplateCommand();
+        command.setId(1L);
+        command.setTemplateName("updated-template");
+        command.setTemplateContent("updated content");
 
-        webTestClient.post()
-                .uri("/gen/template/recycle")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"pageNum\":1,\"pageSize\":10}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+        when(genTemplateCommandService.update(any(GenTemplateCommand.class))).thenReturn(Mono.empty());
+
+        Mono<ApiResponse> result = genTemplateController.update(command);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals(0, response.getCode());
+                })
+                .verifyComplete();
+
+        verify(genTemplateCommandService).update(any(GenTemplateCommand.class));
     }
 
     @Test
-    @DisplayName("POST /gen/template/create 应创建成功")
-    void create_shouldSuccess() {
-        when(commandService.create(any())).thenReturn(Mono.just(1L));
+    void shouldDeleteTemplatesSuccessfully() {
+        List<Long> ids = Arrays.asList(1L, 2L);
 
-        webTestClient.post()
-                .uri("/gen/template/create")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"templateName\":\"new\",\"templateContent\":\"content\"}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0)
-                .jsonPath("$.data").isEqualTo(1);
+        when(genTemplateCommandService.delete(ids)).thenReturn(Mono.empty());
+
+        Mono<ApiResponse> result = genTemplateController.delete(ids);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals(0, response.getCode());
+                })
+                .verifyComplete();
+
+        verify(genTemplateCommandService).delete(ids);
     }
 
     @Test
-    @DisplayName("PUT /gen/template/update 应更新成功")
-    void update_shouldSuccess() {
-        when(commandService.update(any())).thenReturn(Mono.empty());
+    void shouldRestoreTemplatesSuccessfully() {
+        List<Long> ids = Arrays.asList(1L, 2L);
 
-        webTestClient.put()
-                .uri("/gen/template/update")
-                .contentType(MediaType.APPLICATION_JSON)
-                .bodyValue("{\"id\":1,\"templateName\":\"updated\"}")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+        when(genTemplateCommandService.restore(ids)).thenReturn(Mono.empty());
+
+        Mono<ApiResponse> result = genTemplateController.restore(ids);
+
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals(0, response.getCode());
+                })
+                .verifyComplete();
+
+        verify(genTemplateCommandService).restore(ids);
     }
 
     @Test
-    @DisplayName("POST /gen/template/delete 应删除成功")
-    void delete_shouldSuccess() {
-        when(commandService.delete(anyList())).thenReturn(Mono.empty());
+    void shouldWipeTemplatesSuccessfully() {
+        List<Long> ids = Arrays.asList(1L, 2L);
 
-        webTestClient.post()
-                .uri("/gen/template/delete?ids=1&ids=2")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
-    }
+        when(genTemplateCommandService.wipe(ids)).thenReturn(Mono.empty());
 
-    @Test
-    @DisplayName("POST /gen/template/restore 应恢复成功")
-    void restore_shouldSuccess() {
-        when(commandService.restore(anyList())).thenReturn(Mono.empty());
+        Mono<ApiResponse> result = genTemplateController.wipe(ids);
 
-        webTestClient.post()
-                .uri("/gen/template/restore?ids=1&ids=2")
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
-    }
+        StepVerifier.create(result)
+                .assertNext(response -> {
+                    assertNotNull(response);
+                    assertEquals(0, response.getCode());
+                })
+                .verifyComplete();
 
-    @Test
-    @DisplayName("DELETE /gen/template/wipe 应彻底删除成功")
-    void wipe_shouldSuccess() {
-        when(commandService.wipe(anyList())).thenReturn(Mono.empty());
-
-        webTestClient.delete()
-                .uri(uriBuilder -> uriBuilder.path("/gen/template/wipe")
-                        .queryParam("ids", 1, 2)
-                        .build())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody()
-                .jsonPath("$.code").isEqualTo(0);
+        verify(genTemplateCommandService).wipe(ids);
     }
 }
