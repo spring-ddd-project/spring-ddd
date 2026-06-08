@@ -1,0 +1,23 @@
+package com.springddd.application.service.dict.dto;
+
+import lombok.Data;
+
+import java.io.Serializable;
+
+@Data
+public class SysDictItemView implements Serializable {
+
+    private Long id;
+
+    private Long dictId;
+
+    private String itemLabel;
+
+    private Integer itemValue;
+
+    private Integer sortOrder;
+
+    private Boolean itemStatus;
+
+    private Boolean deleteStatus;
+}
