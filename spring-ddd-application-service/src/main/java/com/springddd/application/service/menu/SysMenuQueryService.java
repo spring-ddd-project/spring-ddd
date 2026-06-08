@@ -85,17 +85,27 @@ public class SysMenuQueryService {
                     user.setUserId(new UserId(SecurityUtils.getUserId()));
                     user.setMenuIds(SecurityUtils.getMenuIds());
                     user.setRoles(SecurityUtils.getRoles());
+                    log.warn("\n#queryByPermissions# fallback to SecurityUtils, menuIds={}", user.getMenuIds());
                     return Mono.just(user);
                 }))
-                .flatMapMany(user -> Flux.fromIterable(user.getMenuIds()))
+                .flatMapMany(user -> {
+                    log.info("\n#queryByPermissions# userId={}, menuIds={}", user.getUserId(), user.getMenuIds());
+                    return Flux.fromIterable(user.getMenuIds() != null ? user.getMenuIds() : List.of());
+                })
                 .flatMap(mId -> r2dbcEntityTemplate.selectOne(
                         Query.query(Criteria
                                 .where(SysMenuQuery.Fields.id).is(mId)
                                 .and(SysMenuQuery.Fields.deleteStatus).is(false)),
-                        SysMenuEntity.class).map(sysMenuViewMapStruct::toView))
+                        SysMenuEntity.class).map(sysMenuViewMapStruct::toView)
+                        .doOnNext(v -> log.info("\n#queryByPermissions# found menu id={}", mId))
+                        .switchIfEmpty(Mono.defer(() -> {
+                            log.warn("\n#queryByPermissions# menu not found id={}", mId);
+                            return Mono.empty();
+                        })))
                 .collectList()
                 .flatMap(buildTree())
-                .flatMap(cacheTree());
+                .flatMap(cacheTree())
+                .doOnNext(result -> log.info("\n#queryByPermissions# result size={}", result.size()));
     }
 
     private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> cacheTree() {
@@ -121,10 +131,15 @@ public class SysMenuQueryService {
                         SysMenuEntity.class).map(sysMenuViewMapStruct::toView),
                 SysMenuView::setChildren,
                 menu -> menu.getParentId() == null || menu.getParentId() == 0,
-                Comparator.comparing(o -> o.getMeta().getOrder()),
+                Comparator.comparingInt(o -> {
+                    if (o.getMeta() == null || o.getMeta().getOrder() == null) {
+                        return Integer.MAX_VALUE;
+                    }
+                    return o.getMeta().getOrder();
+                }),
                 menu -> !menu.getDeleteStatus(),
                 30,
-                menu -> !menu.getDeleteStatus());
+                SysMenuView::getDeleteStatus);
     }
 
     private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
