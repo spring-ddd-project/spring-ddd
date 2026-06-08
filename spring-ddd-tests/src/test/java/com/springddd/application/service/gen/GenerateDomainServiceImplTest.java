@@ -69,7 +69,8 @@ class GenerateDomainServiceImplTest {
 
         Mono<Void> result = generateDomainService.generate("test_table");
 
-        assertNotNull(result);
+        StepVerifier.create(result)
+                .verifyComplete();
     }
 
     @Test
@@ -88,6 +89,7 @@ class GenerateDomainServiceImplTest {
         Map<String, Object> emptyContext = new HashMap<>();
         when(genTableInfoQueryService.buildData(anyString())).thenReturn(Mono.just(emptyContext));
         when(templateQueryService.queryAllTemplate()).thenReturn(Mono.just(new ArrayList<>()));
+        when(cacheHelper.setCache(anyString(), any(), any())).thenReturn(Mono.empty());
 
         Mono<Void> result = generateDomainService.generate("test_table");
 

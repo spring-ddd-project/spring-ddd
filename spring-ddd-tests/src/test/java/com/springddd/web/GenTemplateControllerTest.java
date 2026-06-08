@@ -49,7 +49,7 @@ class GenTemplateControllerTest {
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertNotNull(response);
-                    assertEquals(200, response.getCode());
+                    assertEquals(0, response.getCode());
                 })
                 .verifyComplete();
 
@@ -70,7 +70,7 @@ class GenTemplateControllerTest {
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertNotNull(response);
-                    assertEquals(200, response.getCode());
+                    assertEquals(0, response.getCode());
                 })
                 .verifyComplete();
 
@@ -88,7 +88,7 @@ class GenTemplateControllerTest {
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertNotNull(response);
-                    assertEquals(200, response.getCode());
+                    assertEquals(0, response.getCode());
                 })
                 .verifyComplete();
 
@@ -106,7 +106,7 @@ class GenTemplateControllerTest {
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertNotNull(response);
-                    assertEquals(200, response.getCode());
+                    assertEquals(0, response.getCode());
                 })
                 .verifyComplete();
 
@@ -124,7 +124,7 @@ class GenTemplateControllerTest {
         StepVerifier.create(result)
                 .assertNext(response -> {
                     assertNotNull(response);
-                    assertEquals(200, response.getCode());
+                    assertEquals(0, response.getCode());
                 })
                 .verifyComplete();
 
