@@ -6,6 +6,7 @@ import com.springddd.application.service.auth.dto.UserInfoView;
 import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.auth.SecurityUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -13,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
@@ -48,24 +48,20 @@ public class AuthUserService {
 
                     String token = jwtTemplate.generateToken(map);
 
-                    Mono<Boolean> cacheOp = Mono.empty();
-
-                    if (!CollectionUtils.isEmpty(user.getPermissions())) {
-                        cacheOp = reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
-                                .then(
-                                        reactiveRedisCacheHelper.setCache(
-                                                CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()),
-                                                token,
-                                                Duration.ofDays(jwtSecret.getTtl())
-                                        )
-                                ).then(
-                                        reactiveRedisCacheHelper.setCache(
-                                                CacheKeys.USER_DETAIL.buildKey(user.getUserId().value()),
-                                                user,
-                                                Duration.ofDays(jwtSecret.getTtl())
-                                        )
-                                );
-                    }
+                    Mono<Boolean> cacheOp = reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
+                            .then(
+                                    reactiveRedisCacheHelper.setCache(
+                                            CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()),
+                                            token,
+                                            Duration.ofDays(jwtSecret.getTtl())
+                                    )
+                            ).then(
+                                    reactiveRedisCacheHelper.setCache(
+                                            CacheKeys.USER_DETAIL.buildKey(user.getUserId().value()),
+                                            user,
+                                            Duration.ofDays(jwtSecret.getTtl())
+                                    )
+                            );
 
                     return cacheOp.thenReturn(token);
                 })
@@ -78,22 +74,23 @@ public class AuthUserService {
     }
 
     public Mono<UserInfoView> getUserInfo() {
-        UserInfoView view = new UserInfoView();
-        view.setRealName(SecurityUtils.getUsername());
-        view.setRoles(SecurityUtils.getRoles().stream().toList());
-        return Mono.just(view);
+        return ReactiveSecurityUtils.getCurrentUser()
+                .map(user -> {
+                    UserInfoView view = new UserInfoView();
+                    view.setRealName(user.getUsername());
+                    view.setRoles(user.getRoles());
+                    view.setHomePath("/analytics");
+                    return view;
+                });
     }
 
     public Mono<List<String>> getUserPermissions() {
-        return Mono.just(
-                SecurityUtils.getPermissions()
-                        .stream()
-                        .toList()
-        );
+        return ReactiveSecurityUtils.getCurrentUserPermissions();
     }
 
     public Mono<Void> clearCache() {
-        return reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_ALL.buildKey(SecurityUtils.getUserId()));
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_ALL.buildKey(userId)));
     }
 
 }

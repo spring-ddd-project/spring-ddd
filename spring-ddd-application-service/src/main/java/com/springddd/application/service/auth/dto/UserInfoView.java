@@ -11,4 +11,6 @@ public class UserInfoView implements Serializable {
     private String realName;
 
     private List<String> roles;
+
+    private String homePath;
 }
