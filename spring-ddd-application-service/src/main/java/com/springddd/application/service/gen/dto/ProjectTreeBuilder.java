@@ -45,6 +45,16 @@ public class ProjectTreeBuilder {
         ProjectTreeView currentNode = root;
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
+
+            // If this is the first part and root already has this label, just use root
+            if (i == 0 && root.getLabel().equals(part)) {
+                // For single-part file path, set value on root
+                if (parts.length == 1 && isFile(part)) {
+                    root.setValue(content);
+                }
+                continue;
+            }
+
             Optional<ProjectTreeView> opt = currentNode.getChildren()
                     .stream()
                     .filter(c -> c.getLabel().equals(part))
