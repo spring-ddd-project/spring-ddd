@@ -60,7 +60,6 @@ public class GlobalExceptionHandler {
         if (e instanceof BadCredentialsException) {
             return Mono.just(ApiResponse.error(302, e.getMessage()));
         }
-        e.printStackTrace();
         return Mono.just(ApiResponse.error("Internal Server Error: " + e.getMessage()));
     }
 }
