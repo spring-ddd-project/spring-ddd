@@ -11,7 +11,6 @@ import com.springddd.application.service.user.dto.SysUserRoleView;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.user.UserId;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -21,8 +20,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-@Slf4j
 
 @Component
 @RequiredArgsConstructor
@@ -54,7 +51,6 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                             .distinct()
                             .collectList()
                             .flatMap(roleIds -> {
-                                log.info("\n#findByUsername# userId={}, roleIds={}", user.getUserId().value(), roleIds);
                                 return Flux.fromIterable(roleIds)
                                         .flatMap(sysRoleQueryService::getById)
                                         .collectList()
@@ -67,21 +63,14 @@ public class AuthReactiveUserDetailsService implements ReactiveUserDetailsServic
                                             return Flux.fromIterable(roleIds)
                                                     .flatMap(roleId ->
                                                             sysRoleMenuQueryService.queryLinkRoleAndMenus(roleId)
-                                                                    .doOnNext(list -> log.info("\n#findByUsername# roleId={}, roleMenus={}", roleId, list.stream().map(com.springddd.application.service.role.dto.SysRoleMenuView::getMenuId).toList()))
                                                                     .flatMapMany(Flux::fromIterable)
                                                     )
-                                                    .flatMap(roleMenuView -> {
-                                                        log.info("\n#findByUsername# query menuId={}", roleMenuView.getMenuId());
-                                                        return sysMenuQueryService.queryByMenuId(roleMenuView.getMenuId())
-                                                                .doOnNext(menu -> log.info("\n#findByUsername# found menu id={}", menu.getId()))
-                                                                .switchIfEmpty(Mono.defer(() -> {
-                                                                    log.warn("\n#findByUsername# menu not found menuId={}", roleMenuView.getMenuId());
-                                                                    return Mono.empty();
-                                                                }));
-                                                    })
+                                                    .flatMap(roleMenuView ->
+                                                            sysMenuQueryService.queryByMenuId(roleMenuView.getMenuId())
+                                                                    .switchIfEmpty(Mono.empty())
+                                                    )
                                                     .collectList()
                                                     .map(menus -> {
-                                                        log.info("\n#findByUsername# menus size={}, menuIds={}", menus.size(), menus.stream().map(SysMenuView::getId).toList());
                                                         user.setMenuIds(menus.stream().map(SysMenuView::getId).toList());
 
                                                         List<String> permissions = menus.stream()

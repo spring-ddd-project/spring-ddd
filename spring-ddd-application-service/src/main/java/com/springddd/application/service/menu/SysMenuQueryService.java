@@ -17,7 +17,6 @@ import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -31,7 +30,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SysMenuQueryService {
@@ -85,27 +83,18 @@ public class SysMenuQueryService {
                     user.setUserId(new UserId(SecurityUtils.getUserId()));
                     user.setMenuIds(SecurityUtils.getMenuIds());
                     user.setRoles(SecurityUtils.getRoles());
-                    log.warn("\n#queryByPermissions# fallback to SecurityUtils, menuIds={}", user.getMenuIds());
                     return Mono.just(user);
                 }))
-                .flatMapMany(user -> {
-                    log.info("\n#queryByPermissions# userId={}, menuIds={}", user.getUserId(), user.getMenuIds());
-                    return Flux.fromIterable(user.getMenuIds() != null ? user.getMenuIds() : List.of());
-                })
+                .flatMapMany(user -> Flux.fromIterable(user.getMenuIds() != null ? user.getMenuIds() : List.of()))
                 .flatMap(mId -> r2dbcEntityTemplate.selectOne(
                         Query.query(Criteria
                                 .where(SysMenuQuery.Fields.id).is(mId)
                                 .and(SysMenuQuery.Fields.deleteStatus).is(false)),
                         SysMenuEntity.class).map(sysMenuViewMapStruct::toView)
-                        .doOnNext(v -> log.info("\n#queryByPermissions# found menu id={}", mId))
-                        .switchIfEmpty(Mono.defer(() -> {
-                            log.warn("\n#queryByPermissions# menu not found id={}", mId);
-                            return Mono.empty();
-                        })))
+                        .switchIfEmpty(Mono.empty()))
                 .collectList()
                 .flatMap(buildTree())
-                .flatMap(cacheTree())
-                .doOnNext(result -> log.info("\n#queryByPermissions# result size={}", result.size()));
+                .flatMap(cacheTree());
     }
 
     private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> cacheTree() {
@@ -159,7 +148,6 @@ public class SysMenuQueryService {
                         });
                         return Mono.just(sysMenuViews);
                     } catch (IllegalArgumentException e) {
-                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithoutPermission#:{}", e.toString());
                         return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
                     }
                 })
@@ -200,7 +188,6 @@ public class SysMenuQueryService {
                                         });
                                         return Mono.just(menuViews);
                                     } catch (IllegalArgumentException e) {
-                                        log.error("\n===> #SysMenuQueryService.getMenuTreeWithPermission#:{}", e.toString());
                                         return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
                                     }
                                 })

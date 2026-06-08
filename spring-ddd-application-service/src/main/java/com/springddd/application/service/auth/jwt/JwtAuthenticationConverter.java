@@ -8,7 +8,6 @@ import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,7 +19,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationConverter implements ServerAuthenticationConverter {
@@ -46,7 +44,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
         if (ObjectUtils.isEmpty(authHeader) || !authHeader.startsWith("Bearer ")) {
-            log.error("\n#JwtAuthenticationConverter#[Missing or invalid Authorization header]: {}", authHeader);
             return Mono.error(new AccessDeniedException("Missing or invalid Authorization header"));
         }
 
@@ -64,7 +61,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                 .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
                 .flatMap(cachedToken -> {
                     if (!cachedToken.equals(token)) {
-                        log.error("\n#JwtAuthenticationConverter#[token does not exist]: {}", token);
                         return Mono.error(new AccessDeniedException("Invalid Request"));
                     }
 
@@ -79,7 +75,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
                                 .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
 
                     } catch (Exception e) {
-                        log.error("\n#JwtAuthenticationConverter#[Invalid token]: {}", e.getMessage());
                         return Mono.error(new AccessDeniedException("Invalid token: " + e.getMessage()));
                     }
                 });
