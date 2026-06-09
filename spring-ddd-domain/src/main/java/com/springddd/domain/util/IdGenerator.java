@@ -1,6 +1,7 @@
 package com.springddd.domain.util;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.AuthUser;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -32,8 +33,8 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
                 .toList();
 
         if (idFields.size() > 1) {
-            throw new IllegalStateException("Entity " + entity.getClass().getName() +
-                    " has more than one field annotated with both @Id and @SnowflakeId.");
+            return Mono.error(new IllegalStateException("Entity " + entity.getClass().getName() +
+                    " has more than one field annotated with both @Id and @SnowflakeId."));
         }
 
         if (idFields.isEmpty()) {
@@ -43,36 +44,42 @@ public class IdGenerator implements BeforeConvertCallback<Object> {
         Field field = idFields.getFirst();
         field.setAccessible(true);
 
-        Field createdByField = !createdByFields.isEmpty() ? createdByFields.getFirst() : null;
-        if (createdByField != null) {
-            createdByField.setAccessible(true);
-        }
-
-        Field lastModifiedByField = !lastModifiedByFields.isEmpty() ? lastModifiedByFields.getFirst() : null;
-        if (lastModifiedByField != null) {
-            lastModifiedByField.setAccessible(true);
-        }
-
         try {
             Object currentValue = field.get(entity);
             if (currentValue == null) {
                 long id = IdTemp.generateId();
                 field.set(entity, id);
-                if (createdByField != null) {
-                    createdByField.set(entity, SecurityUtils.getUsername());
-                }
-                if (lastModifiedByField != null) {
-                    lastModifiedByField.set(entity, SecurityUtils.getUsername());
-                }
+                return setAuditFields(entity, createdByFields, lastModifiedByFields, true);
             } else {
-                if (lastModifiedByField != null) {
-                    lastModifiedByField.set(entity, SecurityUtils.getUsername());
-                }
+                return setAuditFields(entity, List.of(), lastModifiedByFields, false);
             }
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to generate ID for field: " + field.getName(), e);
+            return Mono.error(new RuntimeException("Failed to generate ID for field: " + field.getName(), e));
         }
+    }
 
-        return Mono.just(entity);
+    private Mono<Object> setAuditFields(Object entity, List<Field> createdByFields,
+                                         List<Field> lastModifiedByFields, boolean isNew) {
+        return ReactiveSecurityUtils.getCurrentUser()
+                .map(AuthUser::getUsername)
+                .defaultIfEmpty("system")
+                .flatMap(username -> {
+                    try {
+                        if (isNew && !createdByFields.isEmpty()) {
+                            Field createdByField = createdByFields.getFirst();
+                            createdByField.setAccessible(true);
+                            createdByField.set(entity, username);
+                        }
+                        if (!lastModifiedByFields.isEmpty()) {
+                            Field lastModifiedByField = lastModifiedByFields.getFirst();
+                            lastModifiedByField.setAccessible(true);
+                            lastModifiedByField.set(entity, username);
+                        }
+                        return Mono.just(entity);
+                    } catch (IllegalAccessException e) {
+                        return Mono.error(new RuntimeException("Failed to set audit fields", e));
+                    }
+                })
+                .onErrorResume(e -> Mono.just(entity));
     }
 }

@@ -3,20 +3,15 @@ package com.springddd.application.service.auth;
 import com.springddd.application.service.auth.dto.LoginUserQuery;
 import com.springddd.application.service.auth.dto.LoginUserView;
 import com.springddd.application.service.auth.dto.UserInfoView;
-import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
-import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,10 +24,6 @@ public class AuthUserService {
 
     private final JwtTemplate jwtTemplate;
 
-    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
-
-    private final JwtSecret jwtSecret;
-
     public Mono<LoginUserView> getToken(LoginUserQuery query) {
         UsernamePasswordAuthenticationToken unauthenticated =
                 UsernamePasswordAuthenticationToken.unauthenticated(query.getUsername(), query.getPassword());
@@ -41,36 +32,21 @@ public class AuthUserService {
                 .flatMap(auth -> {
                     AuthUser user = (AuthUser) auth.getPrincipal();
 
-                    SecurityUtils.setAuthUserContext(user);
-
                     Map<String, Object> map = new HashMap<>();
                     map.put("userId", user.getUserId().value());
+                    map.put("username", user.getUsername());
+                    map.put("roles", user.getRoles());
+                    map.put("permissions", user.getPermissions());
+                    map.put("menuIds", user.getMenuIds());
 
                     String token = jwtTemplate.generateToken(map);
-
-                    Mono<Boolean> cacheOp = reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()))
-                            .then(
-                                    reactiveRedisCacheHelper.setCache(
-                                            CacheKeys.USER_TOKEN.buildKey(user.getUserId().value()),
-                                            token,
-                                            Duration.ofDays(jwtSecret.getTtl())
-                                    )
-                            ).then(
-                                    reactiveRedisCacheHelper.setCache(
-                                            CacheKeys.USER_DETAIL.buildKey(user.getUserId().value()),
-                                            user,
-                                            Duration.ofDays(jwtSecret.getTtl())
-                                    )
-                            );
-
-                    return cacheOp.thenReturn(token);
+                    return Mono.just(token);
                 })
                 .map(token -> {
                     LoginUserView view = new LoginUserView();
                     view.setAccessToken(token);
                     return view;
                 });
-
     }
 
     public Mono<UserInfoView> getUserInfo() {
@@ -89,9 +65,7 @@ public class AuthUserService {
     }
 
     public Mono<Void> clearCache() {
-        return ReactiveSecurityUtils.getCurrentUserId()
-                .flatMap(userId -> reactiveRedisCacheHelper.deleteCache(CacheKeys.USER_ALL.buildKey(userId)));
+        return Mono.empty();
     }
 
 }
-
