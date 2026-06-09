@@ -3,7 +3,7 @@ package com.springddd.application.service.gen;
 import com.springddd.application.service.gen.dto.GenAggregateView;
 import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.gen.GenerateDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -78,8 +78,9 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                                 }
                                 List<ProjectTreeView> treeList = new ArrayList<>();
                                 generatedFiles.forEach(file -> saveGeneratedFile(file.filePath, file.content, treeList, projectName));
-                                return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
-                                        CacheKeys.GEN_FILES.ttl()).then();
+                                return ReactiveSecurityUtils.getCurrentUserId()
+                                        .flatMap(userId -> cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(userId), treeList,
+                                                CacheKeys.GEN_FILES.ttl()).then());
                             });
                 })
                 .onErrorResume(e -> {

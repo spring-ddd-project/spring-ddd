@@ -7,12 +7,14 @@ import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class ReactiveSecurityUtils {
 
     public static Mono<AuthUser> getCurrentUser() {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
+                .filter(Objects::nonNull)
                 .filter(Authentication::isAuthenticated)
                 .map(Authentication::getPrincipal)
                 .cast(AuthUser.class)

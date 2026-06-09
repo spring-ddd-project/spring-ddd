@@ -3,7 +3,7 @@ package com.springddd.application.service.gen;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.gen.GenDownloadDomainService;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -35,10 +35,11 @@ public class GenDownloadDomainServiceImpl implements GenDownloadDomainService {
 
     @Override
     public Mono<ResponseEntity<Resource>> download() {
-        return cacheHelper.getCache(
-                        CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> cacheHelper.getCache(
+                        CacheKeys.GEN_FILES.buildKey(userId),
                         List.class
-                )
+                ))
                 .flatMap(list -> {
                     try {
                         List<ProjectTreeView> treeViewList = objectMapper.convertValue(list, new TypeReference<>() {
