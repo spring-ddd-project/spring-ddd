@@ -10,6 +10,7 @@ import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.StringReader;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GenerateDomainServiceImpl implements GenerateDomainService {
@@ -36,27 +38,53 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private final ReactiveRedisCacheHelper cacheHelper;
 
-
     @Override
     public Mono<Void> generate(String tableName) {
+        if (tableName == null || tableName.isBlank()) {
+            return Mono.error(new IllegalArgumentException("Table name must not be empty"));
+        }
         return genTableInfoQueryService.buildData(tableName)
+                .switchIfEmpty(Mono.error(new IllegalStateException(
+                        "Table info not found for: " + tableName + ". Please sync table info first.")))
                 .flatMap(context -> {
                     String projectName = (String) context.get("projectName");
+                    if (projectName == null || projectName.isBlank()) {
+                        return Mono.error(new IllegalStateException("Project name is missing in table info"));
+                    }
                     return templateQueryService.queryAllTemplate()
                             .flatMapMany(Flux::fromIterable)
-                            .flatMap(template -> renderTemplate(template.getTemplateName(),
-                                    template.getTemplateContent(), context)
-                                    .map(renderedCode -> {
-                                        String filePath = generateFilePath(template.getTemplateName(), context, projectName);
-                                        return new GeneratedFile(filePath, renderedCode);
-                                    }))
+                            .flatMap(template -> {
+                                String templateName = template.getTemplateName();
+                                String templateContent = template.getTemplateContent();
+                                if (templateName == null || templateContent == null) {
+                                    log.warn("Skipping incomplete template: {}", templateName);
+                                    return Mono.empty();
+                                }
+                                return renderTemplate(templateName, templateContent, context)
+                                        .map(renderedCode -> {
+                                            String filePath = generateFilePath(templateName, context, projectName);
+                                            return new GeneratedFile(filePath, renderedCode);
+                                        })
+                                        .onErrorResume(e -> {
+                                            log.error("Failed to render template {}: {}", templateName, e.getMessage());
+                                            return Mono.empty();
+                                        });
+                            })
                             .collectList()
                             .flatMap(generatedFiles -> {
+                                if (generatedFiles.isEmpty()) {
+                                    log.warn("No files generated for table: {}", tableName);
+                                    return Mono.empty();
+                                }
                                 List<ProjectTreeView> treeList = new ArrayList<>();
                                 generatedFiles.forEach(file -> saveGeneratedFile(file.filePath, file.content, treeList, projectName));
                                 return cacheHelper.setCache(CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()), treeList,
                                         CacheKeys.GEN_FILES.ttl()).then();
                             });
+                })
+                .onErrorResume(e -> {
+                    log.error("Code generation failed for table {}: {}", tableName, e.getMessage(), e);
+                    return Mono.error(e);
                 });
     }
 
@@ -71,6 +99,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         String packageName = (String) context.get("packageName");
         String className = (String) context.get("className");
         String requestName = (String) context.get("requestName");
+        @SuppressWarnings("unchecked")
         List<GenAggregateView> aggregateViews = (List<GenAggregateView>) context.get("aggregateViews");
 
         String srcPath = "src/main/java/";
@@ -89,27 +118,27 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     + className + "DomainRepositoryImpl.java";
 
             // domain
-            case "aggregateRoot" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 1 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
-            case "objectValue" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 2 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
-            case "extendInfo" -> projectName + "-domain/" + srcPath
-                    + packagePath + "/domain/"
-                    + moduleName + "/"
-                    + aggregateViews.stream()
-                    .filter(q -> q.getObjectType() == 3 && q.getHasCreated())
-                    .map(GenAggregateView::getObjectName).toList().getFirst()
-                    + ".java";
+            case "aggregateRoot" -> {
+                String name = safeGetAggregateName(aggregateViews, 1);
+                yield projectName + "-domain/" + srcPath
+                        + packagePath + "/domain/"
+                        + moduleName + "/"
+                        + name + ".java";
+            }
+            case "objectValue" -> {
+                String name = safeGetAggregateName(aggregateViews, 2);
+                yield projectName + "-domain/" + srcPath
+                        + packagePath + "/domain/"
+                        + moduleName + "/"
+                        + name + ".java";
+            }
+            case "extendInfo" -> {
+                String name = safeGetAggregateName(aggregateViews, 3);
+                yield projectName + "-domain/" + srcPath
+                        + packagePath + "/domain/"
+                        + moduleName + "/"
+                        + name + ".java";
+            }
             case "domain" -> projectName + "-domain/" + srcPath
                     + packagePath + "/domain/"
                     + moduleName + "/"
@@ -216,13 +245,22 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         };
     }
 
+    private String safeGetAggregateName(List<GenAggregateView> aggregateViews, int objectType) {
+        if (aggregateViews == null || aggregateViews.isEmpty()) {
+            return "Unknown";
+        }
+        return aggregateViews.stream()
+                .filter(q -> q.getObjectType() == objectType && q.getHasCreated())
+                .map(GenAggregateView::getObjectName)
+                .findFirst()
+                .orElse("Unknown");
+    }
+
     private void saveGeneratedFile(String filePath, String content, List<ProjectTreeView> treeList, String projectName) {
-        // Find or create the root node for both cases
         ProjectTreeView applicationRoot = findOrCreateRootNode(projectName, treeList);
         ProjectTreeView appsRoot = findOrCreateRootNode(projectName + "-ui", treeList);
         ProjectTreeView otherRoot = findOrCreateRootNode("README", treeList);
 
-        // Depending on the file path, process under the correct root
         if (filePath.contains("-infrastructure-persistence/") ||
                 filePath.contains("-domain/") ||
                 filePath.contains("-application-service/") ||
@@ -240,11 +278,10 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
 
     private ProjectTreeView findOrCreateRootNode(String rootLabel, List<ProjectTreeView> treeList) {
         for (ProjectTreeView tree : treeList) {
-            if (tree.getLabel().equals(rootLabel)) {
+            if (rootLabel.equals(tree.getLabel())) {
                 return tree;
             }
         }
-
         ProjectTreeView newRoot = new ProjectTreeView();
         newRoot.setLabel(rootLabel);
         newRoot.setChildren(new ArrayList<>());
@@ -253,28 +290,26 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
     }
 
     private void processPath(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {
-        ProjectTreeView updatedRoot = treeBuilder.buildTree(root, filePath, content);
-
-        if (!updatedRoot.equals(root)) {
-            // checking whether the treeList needs to be updated.
-            // In the new implementation this is less critical since we maintain treeList locally
-        }
+        treeBuilder.buildTree(root, filePath, content);
     }
 
     private void processOtherPaths(String filePath, String content, ProjectTreeView root, List<ProjectTreeView> treeList) {
         ProjectTreeView tree = treeBuilder.buildTree(root, filePath, content);
-
-        // Check if the tree already exists in the list
         Optional<ProjectTreeView> existingTree = treeList.stream()
-                .filter(t -> t.getLabel().equals(root.getLabel()))
+                .filter(t -> rootLabelEquals(t, root))
                 .findFirst();
-
         if (existingTree.isPresent()) {
-            ProjectTreeView existing = existingTree.get();
-            existing.setChildren(tree.getChildren());
+            existingTree.get().setChildren(tree.getChildren());
         } else {
             treeList.add(tree);
         }
+    }
+
+    private boolean rootLabelEquals(ProjectTreeView a, ProjectTreeView b) {
+        if (a == null || b == null) return false;
+        String al = a.getLabel();
+        String bl = b.getLabel();
+        return al != null && al.equals(bl);
     }
 
     public Mono<String> renderTemplate(String templateName, String templateContent, Map<String, Object> dataModel) {
