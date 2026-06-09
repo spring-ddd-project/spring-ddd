@@ -6,10 +6,7 @@ import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
 import com.springddd.application.service.menu.dto.SysMenuViewMapStruct;
 import com.springddd.application.service.role.SysRoleQueryService;
-import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
-import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.domain.user.UserId;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.domain.util.ReactiveTreeUtils;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
@@ -78,13 +75,6 @@ public class SysMenuQueryService {
 
     public Mono<List<SysMenuView>> queryByPermissions() {
         return ReactiveSecurityUtils.getCurrentUser()
-                .switchIfEmpty(Mono.defer(() -> {
-                    AuthUser user = new AuthUser();
-                    user.setUserId(new UserId(SecurityUtils.getUserId()));
-                    user.setMenuIds(SecurityUtils.getMenuIds());
-                    user.setRoles(SecurityUtils.getRoles());
-                    return Mono.just(user);
-                }))
                 .flatMapMany(user -> Flux.fromIterable(user.getMenuIds() != null ? user.getMenuIds() : List.of()))
                 .flatMap(mId -> r2dbcEntityTemplate.selectOne(
                         Query.query(Criteria

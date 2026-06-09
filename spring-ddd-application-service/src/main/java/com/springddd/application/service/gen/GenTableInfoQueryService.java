@@ -3,7 +3,7 @@ package com.springddd.application.service.gen;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.gen.dto.*;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
@@ -137,10 +137,11 @@ public class GenTableInfoQueryService {
     }
 
     public Mono<List<ProjectTreeView>> preview() {
-        return cacheHelper.getCache(
-                        CacheKeys.GEN_FILES.buildKey(SecurityUtils.getUserId()),
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> cacheHelper.getCache(
+                        CacheKeys.GEN_FILES.buildKey(userId),
                         List.class
-                )
+                ))
                 .flatMap(list -> {
                     try {
                         List<ProjectTreeView> treeViewList = objectMapper.convertValue(list, new TypeReference<>() {});
