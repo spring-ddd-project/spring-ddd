@@ -2,9 +2,7 @@ package com.springddd.application.service.auth.jwt;
 
 import com.springddd.application.service.auth.SecurityProperties;
 import com.springddd.domain.auth.AuthUser;
-import com.springddd.domain.auth.SecurityUtils;
-import com.springddd.infrastructure.cache.keys.CacheKeys;
-import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
+import com.springddd.domain.user.UserId;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +17,8 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationConverter implements ServerAuthenticationConverter {
@@ -28,8 +28,6 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
     private final SecurityProperties securityProperties;
 
     private final PathPatternParser pathPatternParser = new PathPatternParser();
-
-    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
     @Override
     public Mono<Authentication> convert(ServerWebExchange exchange) {
@@ -47,39 +45,27 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
             return Mono.error(new AccessDeniedException("Missing or invalid Authorization header"));
         }
 
-        // Extract the token part by removing the "Bearer " prefix and trimming any extra whitespace.
         String token = authHeader.substring(7).trim().replaceAll("\\s+", "");
 
-        boolean isTokenOnly = securityProperties.getTokenOnlyPaths().stream()
-                .map(pathPatternParser::parse)
-                .anyMatch(pattern -> pattern.matches(exchange.getRequest().getPath()));
-
         Jws<Claims> claims = jwtTemplate.parseToken(token);
-        Long userId = claims.getPayload().get("userId", Long.class);
+        Claims payload = claims.getPayload();
+        Long userId = payload.get("userId", Long.class);
+        String username = payload.get("username", String.class);
+        @SuppressWarnings("unchecked")
+        List<String> roles = payload.get("roles", List.class);
+        @SuppressWarnings("unchecked")
+        List<String> permissions = payload.get("permissions", List.class);
+        @SuppressWarnings("unchecked")
+        List<Long> menuIds = payload.get("menuIds", List.class);
 
-        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_TOKEN.buildKey(userId), String.class)
-                .switchIfEmpty(Mono.error(new AccessDeniedException("Request has expired")))
-                .flatMap(cachedToken -> {
-                    if (!cachedToken.equals(token)) {
-                        return Mono.error(new AccessDeniedException("Invalid Request"));
-                    }
+        AuthUser user = new AuthUser();
+        user.setUserId(new UserId(userId));
+        user.setUsername(username);
+        user.setRoles(roles != null ? roles : List.of());
+        user.setPermissions(permissions != null ? permissions : List.of());
+        user.setMenuIds(menuIds != null ? menuIds : List.of());
+        user.setLockStatus(false);
 
-                    // Token matches cache, continue with parsing
-                    try {
-                        return reactiveRedisCacheHelper.getCache(CacheKeys.USER_DETAIL.buildKey(userId), AuthUser.class)
-                                .switchIfEmpty(Mono.error(new AccessDeniedException("User detail not found in cache")))
-                                .flatMap(u -> {
-                                    SecurityUtils.setAuthUserContext(u);
-                                    return Mono.just(u);
-                                })
-                                .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
-
-                    } catch (Exception e) {
-                        return Mono.error(new AccessDeniedException("Invalid token: " + e.getMessage()));
-                    }
-                });
+        return Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
     }
-
-
 }
-
