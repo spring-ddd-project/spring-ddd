@@ -47,7 +47,7 @@ public class GenAggregateCommandService {
                         .flatMap(domain -> {
                             domain.delete();
                             return genAggregateDomainRepository.save(domain);
-                        }), com.springddd.domain.auth.SecurityUtils.concurrency())
+                        }), com.springddd.domain.auth.ReactiveSecurityUtils.concurrency())
                 .then();
     }
 
@@ -57,7 +57,7 @@ public class GenAggregateCommandService {
                         .flatMap(domain -> {
                             domain.restore();
                             return genAggregateDomainRepository.save(domain);
-                        }), com.springddd.domain.auth.SecurityUtils.concurrency())
+                        }), com.springddd.domain.auth.ReactiveSecurityUtils.concurrency())
                 .then();
     }
 }

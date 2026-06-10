@@ -36,4 +36,15 @@ public final class ReactiveSecurityUtils {
     public static Mono<List<Long>> getCurrentUserMenuIds() {
         return getCurrentUser().map(AuthUser::getMenuIds);
     }
+
+    /**
+     * Returns the recommended concurrency level based on available processors.
+     * This is actually NOT a blocking call.
+     * It's a simple JVM call that returns the number of available processors.
+     * It doesn't involve I/O, network, or any blocking operation.
+     * It's essentially a constant during the JVM's lifetime (unless the JVM dynamically adjusts it, but the call itself is non-blocking).
+     */
+    public static Integer concurrency() {
+        return Runtime.getRuntime().availableProcessors() * 2;
+    }
 }

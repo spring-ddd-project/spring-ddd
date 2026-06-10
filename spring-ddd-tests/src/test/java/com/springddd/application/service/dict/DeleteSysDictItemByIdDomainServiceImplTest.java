@@ -1,6 +1,6 @@
 package com.springddd.application.service.dict;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.dict.DeleteSysDictItemByIdDomainService;
 import com.springddd.domain.dict.DictItemId;
 import com.springddd.domain.dict.SysDictItemDomain;
@@ -40,7 +40,7 @@ class DeleteSysDictItemByIdDomainServiceImplTest {
 
         when(sysDictItemDomainRepository.load(any(DictItemId.class))).thenReturn(Mono.just(domain));
         when(sysDictItemDomainRepository.save(any(SysDictItemDomain.class))).thenReturn(Mono.just(dictItemId));
-        // SecurityUtils.concurrency() returns actual processor count, no need to mock
+        // ReactiveSecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(dictItemId);
 
@@ -61,7 +61,7 @@ class DeleteSysDictItemByIdDomainServiceImplTest {
 
         when(sysDictItemDomainRepository.load(any(DictItemId.class))).thenReturn(Mono.just(domain1), Mono.just(domain2));
         when(sysDictItemDomainRepository.save(any(SysDictItemDomain.class))).thenReturn(Mono.just(1L));
-        // SecurityUtils.concurrency() returns actual processor count, no need to mock
+        // ReactiveSecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(dictItemId1, dictItemId2);
 

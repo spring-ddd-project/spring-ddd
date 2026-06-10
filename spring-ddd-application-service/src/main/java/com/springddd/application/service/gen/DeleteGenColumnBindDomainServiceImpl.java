@@ -1,6 +1,6 @@
 package com.springddd.application.service.gen;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.gen.ColumnBindId;
 import com.springddd.domain.gen.DeleteGenColumnBindDomainService;
 import com.springddd.domain.gen.GenColumnBindDomainRepository;
@@ -24,6 +24,6 @@ public class DeleteGenColumnBindDomainServiceImpl implements DeleteGenColumnBind
                         .flatMap(domain -> {
                             domain.delete();
                             return domainRepository.save(domain);
-                        }), SecurityUtils.concurrency()).then();
+                        }), ReactiveSecurityUtils.concurrency()).then();
     }
 }

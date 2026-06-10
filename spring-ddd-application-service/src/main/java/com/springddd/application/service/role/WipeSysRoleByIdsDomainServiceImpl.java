@@ -4,7 +4,7 @@ import com.springddd.application.service.role.dto.SysRoleMenuView;
 import com.springddd.application.service.user.SysUserRoleCommandService;
 import com.springddd.application.service.user.SysUserRoleQueryService;
 import com.springddd.application.service.user.dto.SysUserRoleView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.role.WipeSysRoleByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -49,7 +49,7 @@ public class WipeSysRoleByIdsDomainServiceImpl implements WipeSysRoleByIdsDomain
                                 return Mono.empty();
                             }
                             return sysRoleMenuCommandService.wipe(rmIds);
-                        }), SecurityUtils.concurrency())
+                        }), ReactiveSecurityUtils.concurrency())
                 .thenMany(sysRoleRepository.deleteAllById(ids)).then();
     }
 }
