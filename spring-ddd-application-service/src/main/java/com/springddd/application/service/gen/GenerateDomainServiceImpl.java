@@ -249,7 +249,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                 headerEnded = true;
                 // Save the previous class if exists
                 if (currentClassBuilder != null && currentClassName != null) {
-                    files.add(buildClassFile(headerLines, currentClassBuilder, currentClassName, templateName, context, projectName));
+                    files.add(buildClassFile(headerLines, currentClassBuilder, currentClassName, context, projectName));
                 }
                 // Start new class
                 currentClassName = matcher.group(1);
@@ -258,14 +258,16 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                 if (!line.trim().isEmpty()) {
                     headerLines.add(line);
                 }
-            } else if (currentClassBuilder != null) {
+            } else {
+                // At this point, headerEnded is true, meaning we have already encountered
+                // at least one class declaration, so currentClassBuilder is guaranteed to be non-null.
                 currentClassBuilder.append(line).append("\n");
             }
         }
 
         // Save the last class
         if (currentClassBuilder != null && currentClassName != null) {
-            files.add(buildClassFile(headerLines, currentClassBuilder, currentClassName, templateName, context, projectName));
+            files.add(buildClassFile(headerLines, currentClassBuilder, currentClassName, context, projectName));
         }
 
         // Fallback if no classes were found
@@ -279,7 +281,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      * Assembles the final file content and generates the path for a single class.
      */
     private GeneratedFile buildClassFile(List<String> headerLines, StringBuilder classContent, String className,
-                                         String templateName, Map<String, Object> context, String projectName) {
+                                         Map<String, Object> context, String projectName) {
         StringBuilder finalContent = new StringBuilder();
         headerLines.forEach(header -> finalContent.append(header).append("\n"));
         if (!headerLines.isEmpty()) {
@@ -287,7 +289,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         }
         finalContent.append(classContent);
 
-        String filePath = generateMultiClassFilePath(templateName, className, context, projectName);
+        String filePath = generateMultiClassFilePath(className, context, projectName);
         return new GeneratedFile(filePath, finalContent.toString());
     }
 
@@ -295,7 +297,7 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
      * Generates the file path for a split class.
      * All multi-class templates currently reside in the same domain module directory.
      */
-    private String generateMultiClassFilePath(String templateName, String className, Map<String, Object> context, String projectName) {
+    private String generateMultiClassFilePath(String className, Map<String, Object> context, String projectName) {
         String moduleName = getStr(context, "moduleName");
         String packagePath = getStr(context, "packageName").replace('.', '/');
         return projectName + DOMAIN_SUFFIX + SRC_MAIN_JAVA + packagePath + "/domain/" + moduleName + "/" + className + ".java";
