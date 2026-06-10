@@ -1,6 +1,6 @@
 package com.springddd.application.service.dept;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.dept.DeptId;
 import com.springddd.domain.dept.RestoreSysDeptByIdDomainService;
 import com.springddd.domain.dept.SysDeptDomainRepository;
@@ -24,6 +24,6 @@ public class RestoreSysDeptByIdDomainServiceImpl implements RestoreSysDeptByIdDo
                         .flatMap(domain -> {
                             domain.restore();
                             return sysDeptDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency()).then();
+                        }), ReactiveSecurityUtils.concurrency()).then();
     }
 }
