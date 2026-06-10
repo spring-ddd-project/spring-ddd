@@ -1,6 +1,6 @@
 package com.springddd.application.service.role;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.role.DeleteSysRoleByIdDomainService;
 import com.springddd.domain.role.RoleId;
 import com.springddd.domain.role.SysRoleDomainRepository;
@@ -24,6 +24,6 @@ public class DeleteSysRoleByIdDomainServiceImpl implements DeleteSysRoleByIdDoma
                         .flatMap(domain -> {
                             domain.delete();
                             return sysRoleDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency()).then();
+                        }), ReactiveSecurityUtils.concurrency()).then();
     }
 }

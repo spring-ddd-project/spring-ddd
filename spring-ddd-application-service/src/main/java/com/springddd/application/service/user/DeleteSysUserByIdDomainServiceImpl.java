@@ -1,6 +1,6 @@
 package com.springddd.application.service.user;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.user.DeleteSysUserByIdDomainService;
 import com.springddd.domain.user.SysUserDomainRepository;
 import com.springddd.domain.user.UserId;
@@ -24,7 +24,7 @@ public class DeleteSysUserByIdDomainServiceImpl implements DeleteSysUserByIdDoma
                         .flatMap(domain -> {
                             domain.delete();
                             return sysUserDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency())
+                        }), ReactiveSecurityUtils.concurrency())
                 .then();
     }
 }

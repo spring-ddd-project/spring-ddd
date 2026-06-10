@@ -1,7 +1,7 @@
 package com.springddd.application.service.user;
 
 import com.springddd.application.service.user.dto.SysUserRoleView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.user.WipeSysUserByIdsDomainService;
 import com.springddd.infrastructure.persistence.r2dbc.SysUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +34,7 @@ public class WipeSysUserByIdsDomainServiceImpl implements WipeSysUserByIdsDomain
                                 return Mono.empty();
                             }
                             return sysUserRoleCommandService.wipe(urIds);
-                        }), SecurityUtils.concurrency())
+                        }), ReactiveSecurityUtils.concurrency())
                 .thenMany(sysUserRepository.deleteAllById(ids)).then();
     }
 }

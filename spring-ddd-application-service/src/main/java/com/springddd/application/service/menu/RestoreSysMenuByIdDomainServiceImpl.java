@@ -1,6 +1,6 @@
 package com.springddd.application.service.menu;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.menu.MenuId;
 import com.springddd.domain.menu.RestoreSysMenuByIdDomainService;
 import com.springddd.domain.menu.SysMenuDomainRepository;
@@ -24,6 +24,6 @@ public class RestoreSysMenuByIdDomainServiceImpl implements RestoreSysMenuByIdDo
                         .flatMap(domain -> {
                             domain.restore();
                             return sysMenuDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency()).then();
+                        }), ReactiveSecurityUtils.concurrency()).then();
     }
 }
