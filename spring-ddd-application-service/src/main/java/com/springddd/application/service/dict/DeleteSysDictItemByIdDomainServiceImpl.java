@@ -1,6 +1,6 @@
 package com.springddd.application.service.dict;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.dict.DeleteSysDictItemByIdDomainService;
 import com.springddd.domain.dict.DictItemId;
 import com.springddd.domain.dict.SysDictItemDomainRepository;
@@ -24,6 +24,6 @@ public class DeleteSysDictItemByIdDomainServiceImpl implements DeleteSysDictItem
                         .flatMap(domain -> {
                             domain.delete();
                             return sysDictItemDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency()).then();
+                        }), ReactiveSecurityUtils.concurrency()).then();
     }
 }

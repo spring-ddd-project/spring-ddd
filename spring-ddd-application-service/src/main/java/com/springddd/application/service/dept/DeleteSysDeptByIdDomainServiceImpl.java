@@ -1,7 +1,7 @@
 package com.springddd.application.service.dept;
 
 import com.springddd.application.service.dept.dto.SysDeptView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.dept.DeleteSysDeptByIdDomainService;
 import com.springddd.domain.dept.DeptId;
 import com.springddd.domain.dept.SysDeptDomainRepository;
@@ -31,6 +31,6 @@ public class DeleteSysDeptByIdDomainServiceImpl implements DeleteSysDeptByIdDoma
                         }).distinct()).flatMap(id -> sysDeptDomainRepository.load(new DeptId(id)).flatMap(domain -> {
                     domain.delete();
                     return sysDeptDomainRepository.save(domain);
-                }), SecurityUtils.concurrency()).then();
+                }), ReactiveSecurityUtils.concurrency()).then();
     }
 }

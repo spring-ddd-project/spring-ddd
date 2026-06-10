@@ -1,6 +1,6 @@
 package com.springddd.application.service.gen;
 
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.gen.DeleteGenTemplateDomainService;
 import com.springddd.domain.gen.GenTemplateDomainRepository;
 import com.springddd.domain.gen.TemplateId;
@@ -24,7 +24,7 @@ public class DeleteGenTemplateDomainServiceImpl implements DeleteGenTemplateDoma
                         .flatMap(domain -> {
                             domain.delete();
                             return genTemplateDomainRepository.save(domain);
-                        }), SecurityUtils.concurrency())
+                        }), ReactiveSecurityUtils.concurrency())
                 .then();
     }
 }

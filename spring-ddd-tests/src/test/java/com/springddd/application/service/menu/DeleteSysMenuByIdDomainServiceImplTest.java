@@ -2,7 +2,7 @@ package com.springddd.application.service.menu;
 
 import com.springddd.application.service.menu.dto.SysMenuQuery;
 import com.springddd.application.service.menu.dto.SysMenuView;
-import com.springddd.domain.auth.SecurityUtils;
+import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.menu.DeleteSysMenuByIdDomainService;
 import com.springddd.domain.menu.MenuId;
 import com.springddd.domain.menu.SysMenuDomain;
@@ -55,7 +55,7 @@ class DeleteSysMenuByIdDomainServiceImplTest {
         when(sysMenuQueryService.queryAllMenu()).thenReturn(Mono.just(Arrays.asList(menuView)));
         when(sysMenuDomainRepository.load(any(MenuId.class))).thenReturn(Mono.just(domain));
         when(sysMenuDomainRepository.save(any(SysMenuDomain.class))).thenReturn(Mono.just(1L));
-        // SecurityUtils.concurrency() returns actual processor count, no need to mock
+        // ReactiveSecurityUtils.concurrency() returns actual processor count, no need to mock
 
         List<Long> ids = Arrays.asList(menuId);
 
