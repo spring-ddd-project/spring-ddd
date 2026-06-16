@@ -33,7 +33,6 @@
         <module>spring-ddd-interface-subscriber</module>
         <module>spring-ddd-interface-worker</module>
         <module>spring-ddd-launcher</module>
-        <module>spring-ddd-tests</module>
     </modules>
     <scm>
         <connection/>
@@ -142,11 +141,6 @@
             <dependency>
                 <groupId>com.springddd</groupId>
                 <artifactId>spring-ddd-launcher</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.springddd</groupId>
-                <artifactId>spring-ddd-tests</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
