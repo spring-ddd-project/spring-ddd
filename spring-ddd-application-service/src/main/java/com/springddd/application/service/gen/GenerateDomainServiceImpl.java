@@ -6,6 +6,7 @@ import com.springddd.application.service.gen.dto.ProjectTreeBuilder;
 import com.springddd.application.service.gen.dto.ProjectTreeView;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
 import com.springddd.domain.gen.GenerateDomainService;
+import com.springddd.domain.util.IdTemp;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import freemarker.template.Configuration;
@@ -70,6 +71,8 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
         if (projectName.isBlank()) {
             return Mono.error(new IllegalStateException("Project name is missing in table info"));
         }
+
+        injectMenuIds(context);
 
         return templateQueryService.queryAllTemplate()
                 .flatMapMany(Flux::fromIterable)
@@ -343,6 +346,27 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                     treeList.add(newRoot);
                     return newRoot;
                 });
+    }
+
+    private void injectMenuIds(Map<String, Object> context) {
+        context.put("dirId", IdTemp.generateId());
+        context.put("menuId", IdTemp.generateId());
+        context.put("btnIndexId", IdTemp.generateId());
+        context.put("btnRecycleId", IdTemp.generateId());
+        context.put("btnCreateId", IdTemp.generateId());
+        context.put("btnUpdateId", IdTemp.generateId());
+        context.put("btnDeleteId", IdTemp.generateId());
+        context.put("btnRestoreId", IdTemp.generateId());
+        context.put("btnWipeId", IdTemp.generateId());
+        context.put("rmDirId", IdTemp.generateId());
+        context.put("rmMenuId", IdTemp.generateId());
+        context.put("rmBtnIndexId", IdTemp.generateId());
+        context.put("rmBtnRecycleId", IdTemp.generateId());
+        context.put("rmBtnCreateId", IdTemp.generateId());
+        context.put("rmBtnUpdateId", IdTemp.generateId());
+        context.put("rmBtnDeleteId", IdTemp.generateId());
+        context.put("rmBtnRestoreId", IdTemp.generateId());
+        context.put("rmBtnWipeId", IdTemp.generateId());
     }
 
     private String getStr(Map<String, Object> map, String key) {
