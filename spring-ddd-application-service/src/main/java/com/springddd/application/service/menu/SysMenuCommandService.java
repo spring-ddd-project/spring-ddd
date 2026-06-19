@@ -27,7 +27,9 @@ public class SysMenuCommandService {
     public Mono<Long> create(SysMenuCommand command) {
         Catalog catalog = new Catalog(command.getRedirect());
         Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
-        Button button = new Button(command.getPermission(), command.getApi());
+        Button button = (command.getMenuType() != null && command.getMenuType() == 3)
+                ? new Button(command.getPermission(), command.getApi())
+                : null;
         MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                 command.getOrder(),
                 command.getTitle(),
@@ -47,7 +49,9 @@ public class SysMenuCommandService {
         return sysMenuDomainRepository.load(new MenuId(command.getId())).flatMap(domain -> {
             Catalog catalog = new Catalog(command.getRedirect());
             Menu menu = new Menu(command.getPath(), command.getComponent(), command.getAffixTab(), command.getNoBasicLayout(), command.getEmbedded());
-            Button button = new Button(command.getPermission(), command.getApi());
+            Button button = (command.getMenuType() != null && command.getMenuType() == 3)
+                    ? new Button(command.getPermission(), command.getApi())
+                    : null;
             MenuExtendInfo menuExtendInfo = new MenuExtendInfo(
                     command.getOrder(),
                     command.getTitle(),
