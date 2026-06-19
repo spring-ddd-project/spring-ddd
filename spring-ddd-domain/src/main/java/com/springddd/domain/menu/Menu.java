@@ -7,11 +7,11 @@ import org.springframework.util.ObjectUtils;
 public record Menu(String menuPath, String component, Boolean affixTab, Boolean noBasicLayout, Boolean embedded) {
 
     public Menu {
-        if (ObjectUtils.isEmpty(menuPath)) {
-            throw new MenuPathNullException();
-        }
-        if (ObjectUtils.isEmpty(component)) {
-            throw new MenuComponentNullException();
-        }
+//        if (ObjectUtils.isEmpty(menuPath)) {
+//            throw new MenuPathNullException();
+//        }
+//        if (ObjectUtils.isEmpty(component)) {
+//            throw new MenuComponentNullException();
+//        }
     }
 }
