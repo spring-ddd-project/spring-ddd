@@ -1,8 +1,10 @@
 package com.springddd.application.service.auth;
 
+import com.springddd.application.service.auth.cache.UserDetailCacheService;
 import com.springddd.application.service.auth.dto.LoginUserQuery;
 import com.springddd.application.service.auth.dto.LoginUserView;
 import com.springddd.application.service.auth.dto.UserInfoView;
+import com.springddd.application.service.auth.jwt.JwtSecret;
 import com.springddd.application.service.auth.jwt.JwtTemplate;
 import com.springddd.domain.auth.AuthUser;
 import com.springddd.domain.auth.ReactiveSecurityUtils;
@@ -24,6 +26,10 @@ public class AuthUserService {
 
     private final JwtTemplate jwtTemplate;
 
+    private final JwtSecret jwtSecret;
+
+    private final UserDetailCacheService userDetailCacheService;
+
     public Mono<LoginUserView> getToken(LoginUserQuery query) {
         UsernamePasswordAuthenticationToken unauthenticated =
                 UsernamePasswordAuthenticationToken.unauthenticated(query.getUsername(), query.getPassword());
@@ -31,16 +37,16 @@ public class AuthUserService {
         return authenticationManager.authenticate(unauthenticated)
                 .flatMap(auth -> {
                     AuthUser user = (AuthUser) auth.getPrincipal();
+                    user.setPassword(null);
 
-                    Map<String, Object> map = new HashMap<>();
-                    map.put("userId", user.getUserId().value());
-                    map.put("username", user.getUsername());
-                    map.put("roles", user.getRoles());
-                    map.put("permissions", user.getPermissions());
-                    map.put("menuIds", user.getMenuIds());
-
-                    String token = jwtTemplate.generateToken(map);
-                    return Mono.just(token);
+                    return userDetailCacheService.save(user, jwtSecret.getTtl())
+                            .then(Mono.defer(() -> {
+                                Map<String, Object> map = new HashMap<>();
+                                map.put("userId", user.getUserId().value());
+                                map.put("username", user.getUsername());
+                                String token = jwtTemplate.generateToken(map);
+                                return Mono.just(token);
+                            }));
                 })
                 .map(token -> {
                     LoginUserView view = new LoginUserView();
@@ -65,7 +71,8 @@ public class AuthUserService {
     }
 
     public Mono<Void> clearCache() {
-        return Mono.empty();
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userDetailCacheService::delete);
     }
 
 }
