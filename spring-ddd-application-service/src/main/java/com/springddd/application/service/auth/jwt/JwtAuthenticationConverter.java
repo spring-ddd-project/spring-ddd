@@ -1,8 +1,9 @@
 package com.springddd.application.service.auth.jwt;
 
+import com.springddd.application.service.auth.AuthReactiveUserDetailsService;
 import com.springddd.application.service.auth.SecurityProperties;
+import com.springddd.application.service.auth.cache.UserDetailCacheService;
 import com.springddd.domain.auth.AuthUser;
-import com.springddd.domain.user.UserId;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.util.pattern.PathPatternParser;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationConverter implements ServerAuthenticationConverter {
@@ -26,6 +25,12 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
     private final JwtTemplate jwtTemplate;
 
     private final SecurityProperties securityProperties;
+
+    private final UserDetailCacheService userDetailCacheService;
+
+    private final AuthReactiveUserDetailsService authReactiveUserDetailsService;
+
+    private final JwtSecret jwtSecret;
 
     private final PathPatternParser pathPatternParser = new PathPatternParser();
 
@@ -51,21 +56,19 @@ public class JwtAuthenticationConverter implements ServerAuthenticationConverter
         Claims payload = claims.getPayload();
         Long userId = payload.get("userId", Long.class);
         String username = payload.get("username", String.class);
-        @SuppressWarnings("unchecked")
-        List<String> roles = payload.get("roles", List.class);
-        @SuppressWarnings("unchecked")
-        List<String> permissions = payload.get("permissions", List.class);
-        @SuppressWarnings("unchecked")
-        List<Long> menuIds = payload.get("menuIds", List.class);
 
-        AuthUser user = new AuthUser();
-        user.setUserId(new UserId(userId));
-        user.setUsername(username);
-        user.setRoles(roles != null ? roles : List.of());
-        user.setPermissions(permissions != null ? permissions : List.of());
-        user.setMenuIds(menuIds != null ? menuIds : List.of());
-        user.setLockStatus(false);
+        return userDetailCacheService.get(userId)
+                .switchIfEmpty(loadAndCache(username, userId))
+                .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
+    }
 
-        return Mono.just(new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()));
+    private Mono<AuthUser> loadAndCache(String username, Long userId) {
+        return authReactiveUserDetailsService.findByUsername(username)
+                .cast(AuthUser.class)
+                .flatMap(user -> {
+                    user.setPassword(null);
+                    return userDetailCacheService.save(user, jwtSecret.getTtl()).then(Mono.just(user));
+                })
+                .switchIfEmpty(Mono.error(new AccessDeniedException("User not found: " + userId)));
     }
 }
