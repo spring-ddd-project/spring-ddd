@@ -8,9 +8,11 @@ import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.cache.keys.CacheKeys;
 import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -34,11 +36,13 @@ public class GenTableInfoQueryService {
 
     private final ObjectMapper objectMapper;
 
-    public Mono<PageResponse<GenTableInfoView>> index(GenTableInfoPageQuery query) {
+    @Value("${spring.r2dbc.url:}")
+    private String r2dbcUrl;
 
-        if (ObjectUtils.isEmpty(query.getDatabaseName())) {
-            return Mono.empty();
-        }
+    public Mono<GenTableInfoPageResponse> index(GenTableInfoPageQuery query) {
+        String databaseName = ObjectUtils.isEmpty(query.getDatabaseName())
+                ? extractDatabaseName(r2dbcUrl)
+                : query.getDatabaseName();
 
         int offset = (query.getPageNum() - 1) * query.getPageSize();
         int limit = query.getPageSize();
@@ -63,12 +67,12 @@ public class GenTableInfoQueryService {
         dataSql.append(" ORDER BY create_time DESC LIMIT :limit OFFSET :offset");
 
         DatabaseClient.GenericExecuteSpec dataSpec = databaseClient.sql(dataSql.toString())
-                .bind("db", query.getDatabaseName())
+                .bind("db", databaseName)
                 .bind("limit", limit)
                 .bind("offset", offset);
 
         DatabaseClient.GenericExecuteSpec countSpec = databaseClient.sql(countSql.toString())
-                .bind("db", query.getDatabaseName());
+                .bind("db", databaseName);
 
         if (!ObjectUtils.isEmpty(query.getTableName())) {
             String tableNameLike = "%" + query.getTableName() + "%";
@@ -93,12 +97,29 @@ public class GenTableInfoQueryService {
                 .defaultIfEmpty(0L);
 
         return Mono.zip(data, count)
-                .map(tuple -> new PageResponse<>(
+                .map(tuple -> new GenTableInfoPageResponse(
                         tuple.getT1(),
                         tuple.getT2(),
                         query.getPageNum(),
-                        query.getPageSize()
+                        query.getPageSize(),
+                        databaseName
                 ));
+    }
+
+    private String extractDatabaseName(String url) {
+        if (!StringUtils.hasText(url)) {
+            return "";
+        }
+        int lastSlash = url.lastIndexOf('/');
+        if (lastSlash == -1 || lastSlash == url.length() - 1) {
+            return "";
+        }
+        String databaseName = url.substring(lastSlash + 1);
+        int queryStart = databaseName.indexOf('?');
+        if (queryStart != -1) {
+            databaseName = databaseName.substring(0, queryStart);
+        }
+        return databaseName;
     }
 
     public Mono<Map<String, Object>> buildData(String tableName) {
