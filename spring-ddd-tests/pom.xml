@@ -43,5 +43,20 @@
             <artifactId>mockito-junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.springddd</groupId>
+            <artifactId>spring-ddd-application-service</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.springddd</groupId>
+            <artifactId>spring-ddd-interface-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.springddd</groupId>
+            <artifactId>spring-ddd-launcher</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

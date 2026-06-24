@@ -22,7 +22,9 @@ public class GenTableController {
 
     @PostMapping("/index")
     public Mono<ApiResponse> tableIndex(@RequestBody @Validated Mono<GenTableInfoPageQuery> query) {
-        return ApiResponse.validated(query, genTableInfoQueryService::index);
+        return query.flatMap(genTableInfoQueryService::index)
+                .map(ApiResponse::success)
+                .defaultIfEmpty(ApiResponse.empty());
     }
 
     @PostMapping("/preview")
