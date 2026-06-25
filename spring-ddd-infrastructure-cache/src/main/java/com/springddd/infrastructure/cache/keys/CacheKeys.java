@@ -17,4 +17,5 @@ public class CacheKeys {
 
     // GEN
     public static final CacheDefinition GEN_FILES = CacheDefinition.of("user:%s:files", Duration.ofMinutes(3));
+    public static final CacheDefinition GEN_TABLE_NAME = CacheDefinition.of("user:%s:tableName", Duration.ofMinutes(3));
 }
