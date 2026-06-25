@@ -84,12 +84,17 @@ public class GenerateDomainServiceImpl implements GenerateDomainService {
                         return Mono.empty();
                     }
                     List<ProjectTreeView> treeList = buildProjectTree(generatedFiles, projectName);
+                    String tableName = getStr(context, "tableName");
                     return ReactiveSecurityUtils.getCurrentUserId()
                             .flatMap(userId -> cacheHelper.setCache(
                                     CacheKeys.GEN_FILES.buildKey(userId),
                                     treeList,
                                     CacheKeys.GEN_FILES.ttl()
-                            ).then());
+                            ).then(cacheHelper.setCache(
+                                    CacheKeys.GEN_TABLE_NAME.buildKey(userId),
+                                    tableName,
+                                    CacheKeys.GEN_TABLE_NAME.ttl()
+                            )).then());
                 });
     }
 
