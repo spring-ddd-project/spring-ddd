@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -37,36 +38,50 @@ public class GenDownloadDomainServiceImpl implements GenDownloadDomainService {
     public Mono<ResponseEntity<Resource>> download() {
         return ReactiveSecurityUtils.getCurrentUserId()
                 .flatMap(userId -> cacheHelper.getCache(
-                        CacheKeys.GEN_FILES.buildKey(userId),
-                        List.class
-                ))
-                .flatMap(list -> {
-                    try {
-                        List<ProjectTreeView> treeViewList = objectMapper.convertValue(list, new TypeReference<>() {
-                        });
+                                CacheKeys.GEN_FILES.buildKey(userId),
+                                List.class
+                        )
+                        .flatMap(filesList -> cacheHelper.getCache(
+                                CacheKeys.GEN_TABLE_NAME.buildKey(userId),
+                                String.class
+                        ).defaultIfEmpty("").flatMap(tableName -> {
+                            try {
+                                List<ProjectTreeView> treeViewList = objectMapper.convertValue(filesList, new TypeReference<>() {
+                                });
 
-                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                        try (ZipOutputStream zos = new ZipOutputStream(baos)) {
-                            createZipFromTree(treeViewList, zos, "");
-                            zos.finish();
-                        }
+                                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                try (ZipOutputStream zos = new ZipOutputStream(baos)) {
+                                    createZipFromTree(treeViewList, zos, "");
+                                    zos.finish();
+                                }
 
-                        byte[] zipBytes = baos.toByteArray();
-                        ByteArrayResource resource = new ByteArrayResource(zipBytes);
+                                byte[] zipBytes = baos.toByteArray();
+                                ByteArrayResource resource = new ByteArrayResource(zipBytes);
 
-                        return Mono.just(
-                                ResponseEntity.ok()
-                                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ddd_files.zip")
-                                        .contentLength(zipBytes.length)
-                                        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-                                        .body(resource)
-                        );
+                                String filename = resolveZipFileName(tableName);
+                                String contentDisposition = "attachment; filename*=UTF-8''" + filename;
 
-                    } catch (Exception e) {
-                        log.error("Error preparing ZIP file: {}", e.getMessage(), e);
-                        return Mono.error(new RuntimeException("Error preparing ZIP file"));
-                    }
-                });
+                                return Mono.just(
+                                        ResponseEntity.ok()
+                                                .header(HttpHeaders.CONTENT_DISPOSITION, contentDisposition)
+                                                .contentLength(zipBytes.length)
+                                                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                                                .body(resource)
+                                );
+
+                            } catch (Exception e) {
+                                log.error("Error preparing ZIP file: {}", e.getMessage(), e);
+                                return Mono.error(new RuntimeException("Error preparing ZIP file"));
+                            }
+                        })));
+    }
+
+    private String resolveZipFileName(Object tableName) {
+        String baseName = tableName == null || tableName.toString().isBlank()
+                ? "ddd_files"
+                : tableName.toString();
+        String filename = baseName + ".zip";
+        return URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
     }
 
     private void createZipFromTree(List<ProjectTreeView> treeList, ZipOutputStream zos, String parentPath) throws IOException {
