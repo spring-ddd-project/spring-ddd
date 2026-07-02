@@ -56,15 +56,19 @@ public class WipeSysMenuByIdsDomainServiceImpl implements WipeSysMenuByIdsDomain
                 .filter(menuIds -> !CollectionUtils.isEmpty(menuIds))
                 .switchIfEmpty(Mono.empty())
                 .flatMap(menuIds -> Flux.fromIterable(menuIds)
-                        .flatMap(sysRoleMenuQueryService::queryLinkRoleAndMenusByMenuId)
+                        .flatMap(sysRoleMenuQueryService::queryLinkRoleAndMenusByMenuIdAll)
                         .filter(Objects::nonNull)
                         .flatMap(Flux::fromIterable)
                         .map(SysRoleMenuView::getId)
                         .filter(Objects::nonNull)
                         .distinct()
                         .collectList()
-                        .filter(rmIds -> !CollectionUtils.isEmpty(rmIds))
-                        .flatMap(wipeSysRoleMenuByIdsDomainService::deleteByIds)
+                        .flatMap(rmIds -> {
+                            if (CollectionUtils.isEmpty(rmIds)) {
+                                return Mono.empty();
+                            }
+                            return wipeSysRoleMenuByIdsDomainService.deleteByIds(rmIds);
+                        })
                         .thenMany(sysMenuRepository.deleteAllById(menuIds)).then());
     }
 }
