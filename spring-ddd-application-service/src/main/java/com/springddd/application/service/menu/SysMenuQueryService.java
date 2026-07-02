@@ -56,10 +56,35 @@ public class SysMenuQueryService {
     public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
         Query qry = Query.query(criteria);
-        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+        Mono<List<SysMenuView>> deletedList = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
                 .map(sysMenuViewMapStruct::toViewList);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+
+        return Mono.zip(deletedList, count)
+                .flatMap(tuple -> {
+                    List<SysMenuView> deleted = tuple.getT1();
+                    if (CollectionUtils.isEmpty(deleted)) {
+                        return Mono.just(new PageResponse<>(deleted, tuple.getT2(), 0, 0));
+                    }
+                    return sysMenuRepository.findAll().collectList().map(sysMenuViewMapStruct::toViewList)
+                            .map(allMenus -> {
+                                Map<Long, SysMenuView> menuMap = allMenus.stream()
+                                        .collect(Collectors.toMap(SysMenuView::getId, m -> m, (a, b) -> a));
+                                Set<Long> idsInTree = new HashSet<>();
+                                for (SysMenuView menu : deleted) {
+                                    idsInTree.add(menu.getId());
+                                    Long pid = menu.getParentId();
+                                    while (pid != null && pid != 0 && menuMap.containsKey(pid)) {
+                                        idsInTree.add(pid);
+                                        pid = menuMap.get(pid).getParentId();
+                                    }
+                                }
+                                List<SysMenuView> combined = allMenus.stream()
+                                        .filter(m -> idsInTree.contains(m.getId()))
+                                        .collect(Collectors.toList());
+                                return new PageResponse<>(combined, tuple.getT2(), 0, 0);
+                            });
+                });
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
