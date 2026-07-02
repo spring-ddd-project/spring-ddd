@@ -1,5 +1,7 @@
 package com.springddd.application.service.menu.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,8 +12,10 @@ public class SysMenuView implements Serializable {
 
     private Meta meta;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long parentId;
 
     private String name;
