@@ -10,10 +10,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.*;
 import java.util.stream.Collectors;
 
+/**
+ * Generic, reactive-friendly tree utilities.
+ *
+ * <p>All tree-building methods are iterative (explicit stack) instead of recursive.
+ * This makes them safe for million-level depth and avoids JVM stack overflow.</p>
+ *
+ * <p>The utilities are deliberately stateless: pass your node type and the
+ * id/parent-id/children accessors, and they return a list of roots.</p>
+ */
 public class ReactiveTreeUtils {
 
     /**
      * Builds a hierarchical tree structure from a flat list of nodes.
+     *
+     * <p>Complexity: O(n) time and O(n) extra space, where n = flatList.size().</p>
      *
      * @param flatList           The input flat list of all nodes.
      * @param idGetter           Function to extract the unique ID from a node.
@@ -23,7 +34,7 @@ public class ReactiveTreeUtils {
      * @param sorter             Optional comparator for sorting nodes at each level.
      * @param filter             Optional predicate to filter nodes before tree building.
      * @param maxDepth           The maximum depth to build the tree.
-     * @param isDeletedPredicate Predicate to identify and exclude deleted or disabled nodes and their subtrees.
+     * @param isDeletedPredicate Predicate to identify and exclude deleted or disabled nodes and their entire subtrees.
      * @return A Mono emitting the root nodes of the constructed tree.
      */
     public static <T, ID> Mono<List<T>> buildTree(List<T> flatList,
@@ -46,71 +57,59 @@ public class ReactiveTreeUtils {
                     .filter(combinedFilter)
                     .toList();
 
-            Map<ID, T> idMap = new HashMap<>();
             Map<ID, List<T>> parentMap = new HashMap<>();
-
             for (T item : filteredList) {
-                ID id = idGetter.apply(item);
                 ID parentId = parentIdGetter.apply(item);
-                idMap.put(id, item);
                 parentMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(item);
+            }
+
+            // Initialize empty children for every node to avoid nulls.
+            for (T item : filteredList) {
                 childrenSetter.accept(item, new ArrayList<>());
             }
 
+            // Iteratively wire children up to maxDepth using an explicit stack.
+            // Each stack entry: node + current depth (root depth == 1).
             List<T> roots = filteredList.stream()
                     .filter(isRootPredicate)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(ArrayList::new));
 
             if (sorter != null) {
                 roots.sort(sorter);
             }
 
+            Deque<NodeDepth<T>> stack = new ArrayDeque<>();
             for (T root : roots) {
-                buildChildren(root, idGetter, childrenSetter, parentMap, sorter, maxDepth, 1);
+                stack.push(new NodeDepth<>(root, 1));
+            }
+
+            while (!stack.isEmpty()) {
+                NodeDepth<T> current = stack.pop();
+                if (current.depth >= maxDepth) {
+                    continue;
+                }
+                ID currentId = idGetter.apply(current.node);
+                List<T> children = parentMap.getOrDefault(currentId, Collections.emptyList());
+                if (sorter != null) {
+                    children.sort(sorter);
+                }
+                childrenSetter.accept(current.node, new ArrayList<>(children));
+                for (T child : children) {
+                    stack.push(new NodeDepth<>(child, current.depth + 1));
+                }
             }
 
             return roots;
         });
     }
 
-    /**
-     * Recursively builds the child nodes of a given parent node.
-     *
-     * @param parent         The parent node.
-     * @param idGetter       Function to get the node ID.
-     * @param childrenSetter BiConsumer to set child nodes.
-     * @param parentIdMap    Map of parent ID to their direct children.
-     * @param sorter         Optional comparator for child node sorting.
-     * @param maxDepth       Maximum allowed tree depth.
-     * @param currentDepth   Current recursion depth.
-     */
-    private static <T, ID> void buildChildren(T parent,
-                                              Function<T, ID> idGetter,
-                                              BiConsumer<T, List<T>> childrenSetter,
-                                              Map<ID, List<T>> parentIdMap,
-                                              @Nullable Comparator<T> sorter,
-                                              int maxDepth,
-                                              int currentDepth) {
-        if (currentDepth >= maxDepth) return;
-
-        ID parentId = idGetter.apply(parent);
-        List<T> children = parentIdMap.getOrDefault(parentId, Collections.emptyList());
-
-        if (sorter != null) {
-            children.sort(sorter);
-        }
-
-        childrenSetter.accept(parent, children);
-
-        for (T child : children) {
-            buildChildren(child, idGetter, childrenSetter, parentIdMap, sorter, maxDepth, currentDepth + 1);
-        }
+    private record NodeDepth<T>(T node, int depth) {
     }
 
     /**
      * Recursively loads all ancestor nodes (parent chain) of a given node in a reactive way.
      *
-     * @param parentId       The ID of the current node’s parent.
+     * @param parentId       The ID of the current node's parent.
      * @param nodeMap        Map for caching already loaded nodes to avoid redundant fetches.
      * @param parentLoader   Reactive function to load a node by its ID.
      * @param idGetter       Function to extract node ID.
@@ -217,8 +216,9 @@ public class ReactiveTreeUtils {
         Map<ID, List<T>> parentMap = new HashMap<>();
         Map<ID, T> nodeMap = new HashMap<>();
         for (T node : flatList) {
-            nodeMap.put(idGetter.apply(node), node);
+            ID id = idGetter.apply(node);
             ID parentId = parentIdGetter.apply(node);
+            nodeMap.put(id, node);
             parentMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(node);
         }
 
@@ -226,36 +226,30 @@ public class ReactiveTreeUtils {
         Set<ID> visited = new HashSet<>();
 
         T rootNode = nodeMap.get(rootId);
-        if (rootNode != null) {
-            collectChildren(rootNode, idGetter, parentMap, result, visited);
+        if (rootNode == null) {
+            return result;
+        }
+
+        Deque<T> stack = new ArrayDeque<>();
+        stack.push(rootNode);
+        while (!stack.isEmpty()) {
+            T current = stack.pop();
+            ID currentId = idGetter.apply(current);
+            if (!visited.add(currentId)) {
+                continue;
+            }
+            result.add(current);
+            List<T> children = parentMap.getOrDefault(currentId, Collections.emptyList());
+            // Push in reverse order so that natural order is preserved when popping.
+            for (int i = children.size() - 1; i >= 0; i--) {
+                T child = children.get(i);
+                if (!visited.contains(idGetter.apply(child))) {
+                    stack.push(child);
+                }
+            }
         }
 
         return result;
-    }
-
-    /**
-     * Recursively collects all descendants of a given node.
-     *
-     * @param current   The current node being traversed.
-     * @param idGetter  Function to get node ID.
-     * @param parentMap Map of parent ID to their children.
-     * @param result    List to accumulate all visited nodes.
-     * @param visited   Set to track visited nodes and avoid infinite recursion.
-     */
-    private static <T, ID> void collectChildren(T current,
-                                                Function<T, ID> idGetter,
-                                                Map<ID, List<T>> parentMap,
-                                                List<T> result,
-                                                Set<ID> visited) {
-        ID currentId = idGetter.apply(current);
-        if (!visited.add(currentId)) return;
-
-        result.add(current);
-
-        List<T> children = parentMap.getOrDefault(currentId, Collections.emptyList());
-        for (T child : children) {
-            collectChildren(child, idGetter, parentMap, result, visited);
-        }
     }
 
     /**
@@ -269,7 +263,7 @@ public class ReactiveTreeUtils {
      * @param sorter             Optional comparator for sorting children.
      * @param maxDepth           Maximum tree depth to build.
      * @param isDeletedPredicate Predicate to identify and exclude deleted nodes.
-     * @return List of root node’s immediate children and their subtrees.
+     * @return List of root node's immediate children and their subtrees.
      */
     public static <T, ID> List<T> buildSubTreeFrom(
             ID rootId,
@@ -291,20 +285,43 @@ public class ReactiveTreeUtils {
         for (T node : flatList) {
             ID parentId = parentIdGetter.apply(node);
             parentMap.computeIfAbsent(parentId, k -> new ArrayList<>()).add(node);
+        }
+
+        for (T node : flatList) {
             childrenSetter.accept(node, new ArrayList<>());
         }
 
         List<T> roots = parentMap.getOrDefault(rootId, Collections.emptyList())
                 .stream()
                 .filter(node -> !excludedIds.contains(idGetter.apply(node)))
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ArrayList::new));
 
         if (sorter != null) {
             roots.sort(sorter);
         }
 
+        Deque<NodeDepth<T>> stack = new ArrayDeque<>();
         for (T root : roots) {
-            buildChildren(root, idGetter, childrenSetter, parentMap, sorter, maxDepth, 1);
+            stack.push(new NodeDepth<>(root, 1));
+        }
+
+        while (!stack.isEmpty()) {
+            NodeDepth<T> current = stack.pop();
+            if (current.depth >= maxDepth) {
+                continue;
+            }
+            ID currentId = idGetter.apply(current.node);
+            List<T> children = parentMap.getOrDefault(currentId, Collections.emptyList())
+                    .stream()
+                    .filter(child -> !excludedIds.contains(idGetter.apply(child)))
+                    .collect(Collectors.toCollection(ArrayList::new));
+            if (sorter != null) {
+                children.sort(sorter);
+            }
+            childrenSetter.accept(current.node, children);
+            for (T child : children) {
+                stack.push(new NodeDepth<>(child, current.depth + 1));
+            }
         }
 
         return roots;
@@ -332,34 +349,24 @@ public class ReactiveTreeUtils {
         }
 
         Set<ID> excludedIds = new HashSet<>();
+        Deque<T> stack = new ArrayDeque<>();
         for (T node : flatList) {
             if (isDeletedPredicate.test(node)) {
-                collectChildrenForExclusion(node, idGetter, parentMap, excludedIds);
+                stack.push(node);
+            }
+        }
+
+        while (!stack.isEmpty()) {
+            T current = stack.pop();
+            ID currentId = idGetter.apply(current);
+            if (!excludedIds.add(currentId)) {
+                continue;
+            }
+            List<T> children = parentMap.getOrDefault(currentId, Collections.emptyList());
+            for (T child : children) {
+                stack.push(child);
             }
         }
         return excludedIds;
-    }
-
-    /**
-     * Recursively collects all descendant node IDs starting from a deleted node.
-     *
-     * @param node        The starting (deleted) node.
-     * @param idGetter    Function to extract node ID.
-     * @param parentMap   Map of parent ID to children.
-     * @param excludedIds Set collecting all IDs that should be excluded.
-     */
-    private static <T, ID> void collectChildrenForExclusion(
-            T node,
-            Function<T, ID> idGetter,
-            Map<ID, List<T>> parentMap,
-            Set<ID> excludedIds
-    ) {
-        ID nodeId = idGetter.apply(node);
-        if (!excludedIds.add(nodeId)) return;
-
-        List<T> children = parentMap.getOrDefault(nodeId, Collections.emptyList());
-        for (T child : children) {
-            collectChildrenForExclusion(child, idGetter, parentMap, excludedIds);
-        }
     }
 }
