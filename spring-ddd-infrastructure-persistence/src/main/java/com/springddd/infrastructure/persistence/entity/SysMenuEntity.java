@@ -51,6 +51,10 @@ public class SysMenuEntity {
 
     private Boolean deleteStatus;
 
+    private String treePath;
+
+    private Integer depth;
+
     @CreatedBy
     private String createBy;
 
