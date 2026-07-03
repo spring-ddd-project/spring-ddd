@@ -20,6 +20,7 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -30,6 +31,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SysMenuQueryService {
+
+    /**
+     * Hard ceiling for full-tree loading. Rendering more than a few dozen levels in the
+     * UI is meaningless, and this protects both the DB and the browser from 1M-depth chains.
+     */
+    private static final int FULL_TREE_MAX_DEPTH = 30;
 
     private final SysMenuRepository sysMenuRepository;
 
@@ -43,52 +50,22 @@ public class SysMenuQueryService {
 
     private final SysRoleQueryService sysRoleQueryService;
 
+    /* ==========================================================
+     * Flat / paginated listing (no tree building)
+     * ========================================================== */
+
     public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
         Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
-        Query qry = Query.query(criteria)
-                .sort(Sort.by("sort_order"));
+        Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
         Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
                 .map(sysMenuViewMapStruct::toViewList);
         Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
         return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
     }
 
-    public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
-        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria);
-        Mono<List<SysMenuView>> deletedList = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
-                .map(sysMenuViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
-
-        return Mono.zip(deletedList, count)
-                .flatMap(tuple -> {
-                    List<SysMenuView> deleted = tuple.getT1();
-                    if (CollectionUtils.isEmpty(deleted)) {
-                        return Mono.just(new PageResponse<>(deleted, tuple.getT2(), 0, 0));
-                    }
-                    return sysMenuRepository.findAll().collectList().map(sysMenuViewMapStruct::toViewList)
-                            .map(allMenus -> {
-                                Map<Long, SysMenuView> menuMap = allMenus.stream()
-                                        .collect(Collectors.toMap(SysMenuView::getId, m -> m, (a, b) -> a));
-                                Set<Long> idsInTree = new HashSet<>();
-                                for (SysMenuView menu : deleted) {
-                                    idsInTree.add(menu.getId());
-                                    Long pid = menu.getParentId();
-                                    while (pid != null && pid != 0 && menuMap.containsKey(pid)) {
-                                        idsInTree.add(pid);
-                                        pid = menuMap.get(pid).getParentId();
-                                    }
-                                }
-                                List<SysMenuView> combined = allMenus.stream()
-                                        .filter(m -> idsInTree.contains(m.getId()))
-                                        .collect(Collectors.toList());
-                                return new PageResponse<>(combined, tuple.getT2(), 0, 0);
-                            });
-                });
-    }
-
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
-        return sysMenuRepository.findById(menuId).filter(menu -> !menu.getDeleteStatus())
+        return sysMenuRepository.findById(menuId)
+                .filter(menu -> !Boolean.TRUE.equals(menu.getDeleteStatus()))
                 .map(sysMenuViewMapStruct::toView);
     }
 
@@ -98,75 +75,39 @@ public class SysMenuQueryService {
         return r2dbcEntityTemplate.selectOne(qry, SysMenuEntity.class).map(sysMenuViewMapStruct::toView);
     }
 
+    /* ==========================================================
+     * Lazy tree loading: primary path for the Menu Management UI.
+     * Reads only one level at a time; each call is a single indexed
+     * query plus one batch children-existence check.
+     * ========================================================== */
+
+    public Mono<List<SysMenuView>> getMenuTreeWithoutPermission(Long parentId) {
+        Flux<SysMenuEntity> entityFlux = (parentId == null || parentId == 0)
+                ? sysMenuRepository.findRootMenus()
+                : sysMenuRepository.findDirectChildrenByParentId(parentId);
+
+        return entityFlux.collectList()
+                .flatMap(this::toViewsWithChildrenFlag);
+    }
+
+    /* ==========================================================
+     * Full permission tree: used during login and by /sys/menu/all.
+     * Result is cached per user because the permission set is small.
+     * ========================================================== */
+
     public Mono<List<SysMenuView>> queryByPermissions() {
         return ReactiveSecurityUtils.getCurrentUser()
-                .flatMapMany(user -> Flux.fromIterable(user.getMenuIds() != null ? user.getMenuIds() : List.of()))
-                .flatMap(mId -> r2dbcEntityTemplate.selectOne(
-                        Query.query(Criteria
-                                .where(SysMenuQuery.Fields.id).is(mId)
-                                .and(SysMenuQuery.Fields.deleteStatus).is(false)),
-                        SysMenuEntity.class).map(sysMenuViewMapStruct::toView)
-                        .switchIfEmpty(Mono.empty()))
-                .collectList()
-                .flatMap(buildTree())
-                .flatMap(cacheTree());
-    }
-
-    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> cacheTree() {
-        return menus -> {
-            Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
-
-            List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
-            Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
-
-            return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
-        };
-    }
-
-    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> buildTree() {
-        return menus -> ReactiveTreeUtils.loadParentsAndBuildTree(
-                menus,
-                SysMenuView::getId,
-                SysMenuView::getParentId,
-                parentId -> r2dbcEntityTemplate.selectOne(
-                        Query.query(Criteria
-                                .where(SysMenuQuery.Fields.id).is(parentId)
-                                .and(SysMenuQuery.Fields.deleteStatus).is(false)),
-                        SysMenuEntity.class).map(sysMenuViewMapStruct::toView),
-                SysMenuView::setChildren,
-                menu -> menu.getParentId() == null || menu.getParentId() == 0,
-                Comparator.comparingInt(o -> {
-                    if (o.getMeta() == null || o.getMeta().getOrder() == null) {
-                        return Integer.MAX_VALUE;
+                .flatMap(user -> {
+                    List<Long> menuIds = user.getMenuIds() != null ? user.getMenuIds() : List.of();
+                    if (CollectionUtils.isEmpty(menuIds)) {
+                        return Mono.just(Collections.<SysMenuView>emptyList());
                     }
-                    return o.getMeta().getOrder();
-                }),
-                menu -> !menu.getDeleteStatus(),
-                30,
-                SysMenuView::getDeleteStatus);
-    }
-
-    private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
-        return ReactiveSecurityUtils.getCurrentUserId()
-                .flatMap(userId -> reactiveRedisCacheHelper.setCache(
-                        CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId),
-                        menus, CacheKeys.MENU_WITH_PERMISSIONS.ttl()).then());
-    }
-
-    public Mono<List<SysMenuView>> getMenuTreeWithoutPermission() {
-        return ReactiveSecurityUtils.getCurrentUserId()
-                .flatMap(userId -> reactiveRedisCacheHelper
-                        .getCache(CacheKeys.MENU_WITHOUT_PERMISSIONS.buildKey(userId), List.class))
-                .flatMap(list -> {
-                    try {
-                        List<SysMenuView> sysMenuViews = objectMapper.convertValue(list, new TypeReference<>() {
-                        });
-                        return Mono.just(sysMenuViews);
-                    } catch (IllegalArgumentException e) {
-                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
-                    }
+                    return sysMenuRepository.findMenusByIdsWithAncestors(menuIds)
+                            .collectList()
+                            .map(sysMenuViewMapStruct::toViewList)
+                            .flatMap(buildTree());
                 })
-                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
+                .flatMap(cacheTree());
     }
 
     public Mono<List<SysMenuView>> getMenuTreeWithPermission() {
@@ -184,30 +125,98 @@ public class SysMenuQueryService {
                 });
     }
 
+    /**
+     * Loads the full active tree up to {@link #FULL_TREE_MAX_DEPTH}. This is intended for
+     * small-to-medium menus; for million-row datasets the lazy endpoints should be used.
+     */
+    public Mono<List<SysMenuView>> getFullMenuTree() {
+        return sysMenuRepository.findAllActive(FULL_TREE_MAX_DEPTH)
+                .collectList()
+                .map(sysMenuViewMapStruct::toViewList)
+                .flatMap(buildTree());
+    }
+
+    /* ==========================================================
+     * Recycle bin: show deleted nodes together with their live ancestors.
+     * CTE is acceptable here because the deleted set is normally small.
+     * ========================================================== */
+
+    public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
+        return sysMenuRepository.findDeletedMenusWithAncestors()
+                .collectList()
+                .map(sysMenuViewMapStruct::toViewList)
+                .map(views -> {
+                    long count = views.stream().filter(SysMenuView::getDeleteStatus).count();
+                    return new PageResponse<>(views, count, 0, 0);
+                });
+    }
+
+    /* ==========================================================
+     * Internal helpers
+     * ========================================================== */
+
+    private Mono<List<SysMenuView>> toViewsWithChildrenFlag(List<SysMenuEntity> entities) {
+        if (entities.isEmpty()) {
+            return Mono.just(Collections.emptyList());
+        }
+        List<SysMenuView> views = sysMenuViewMapStruct.toViewList(entities);
+        List<Long> ids = views.stream().map(SysMenuView::getId).toList();
+        return sysMenuRepository.findParentIdsWithActiveChildren(ids)
+                .collect(Collectors.toSet())
+                .map(hasChildrenSet -> {
+                    views.forEach(view -> view.setHasChildren(hasChildrenSet.contains(view.getId())));
+                    return views;
+                });
+    }
+
+    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> buildTree() {
+        return menus -> ReactiveTreeUtils.buildTree(
+                menus,
+                SysMenuView::getId,
+                SysMenuView::getParentId,
+                SysMenuView::setChildren,
+                menu -> menu.getParentId() == null || menu.getParentId() == 0,
+                Comparator.comparingInt(o -> {
+                    if (o.getMeta() == null || o.getMeta().getOrder() == null) {
+                        return Integer.MAX_VALUE;
+                    }
+                    return o.getMeta().getOrder();
+                }),
+                menu -> !Boolean.TRUE.equals(menu.getDeleteStatus()),
+                FULL_TREE_MAX_DEPTH,
+                SysMenuView::getDeleteStatus);
+    }
+
+    private Function<List<SysMenuView>, Mono<? extends List<SysMenuView>>> cacheTree() {
+        return menus -> {
+            Mono<Void> withPermissionsTreeCache = cacheMenuWithPermissionsTree(menus);
+            List<SysMenuView> withoutPermissionsTree = extractMenuWithoutPermissionsTree(menus);
+            Mono<Void> withoutPermissionsTreeCache = cacheMenuWithoutPermissionsTree(withoutPermissionsTree);
+            return Mono.when(withPermissionsTreeCache, withoutPermissionsTreeCache).thenReturn(withoutPermissionsTree);
+        };
+    }
+
     private Function<Boolean, Mono<? extends List<SysMenuView>>> getTreeWithPermission() {
         return hasOwner -> ReactiveSecurityUtils.getCurrentUserId()
                 .flatMap(userId -> {
                     if (hasOwner) {
-                        return r2dbcEntityTemplate.select(SysMenuEntity.class)
-                                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)))
-                                .all()
+                        return sysMenuRepository.findAllActive(FULL_TREE_MAX_DEPTH)
                                 .collectList()
                                 .map(sysMenuViewMapStruct::toViewList)
                                 .flatMap(buildTree());
-                    } else {
-                        return reactiveRedisCacheHelper
-                                .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId), List.class)
-                                .flatMap(list -> {
-                                    try {
-                                        List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
-                                        });
-                                        return Mono.just(menuViews);
-                                    } catch (IllegalArgumentException e) {
-                                        return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
-                                    }
-                                })
-                                .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
                     }
+                    return reactiveRedisCacheHelper
+                            .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId), List.class)
+                            .flatMap(list -> {
+                                try {
+                                    List<SysMenuView> menuViews = objectMapper.convertValue(list, new TypeReference<>() {
+                                    });
+                                    return Mono.just(menuViews);
+                                } catch (IllegalArgumentException e) {
+                                    return Mono.error(new RuntimeException("Error deserializing SysMenuView list"));
+                                }
+                            })
+                            .switchIfEmpty(Mono.error(new RuntimeException("No menus found")));
                 });
     }
 
@@ -222,14 +231,12 @@ public class SysMenuQueryService {
         if (menu.getMenuType() == 3) {
             return null;
         }
-
         List<SysMenuView> validChildren = Optional.ofNullable(menu.getChildren())
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(this::filterOutInvalidMenusRecursively)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
-
         SysMenuView copy = copyMenuWithoutChildren(menu);
         copy.setChildren(validChildren);
         return copy;
@@ -246,11 +253,18 @@ public class SysMenuQueryService {
         copy.setComponent(menu.getComponent());
         copy.setApi(menu.getApi());
         copy.setPermission(menu.getPermission());
-        copy.setMenuType(menu.getMenuType());
         copy.setVisible(menu.getVisible());
         copy.setEmbedded(menu.getEmbedded());
         copy.setMenuStatus(menu.getMenuStatus());
+        copy.setDeleteStatus(menu.getDeleteStatus());
         return copy;
+    }
+
+    private Mono<Void> cacheMenuWithPermissionsTree(List<SysMenuView> menus) {
+        return ReactiveSecurityUtils.getCurrentUserId()
+                .flatMap(userId -> reactiveRedisCacheHelper.setCache(
+                        CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId),
+                        menus, CacheKeys.MENU_WITH_PERMISSIONS.ttl()).then());
     }
 
     private Mono<Void> cacheMenuWithoutPermissionsTree(List<SysMenuView> menus) {
