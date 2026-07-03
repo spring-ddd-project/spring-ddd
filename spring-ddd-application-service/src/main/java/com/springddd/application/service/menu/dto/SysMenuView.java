@@ -42,6 +42,8 @@ public class SysMenuView implements Serializable {
 
     private Boolean deleteStatus;
 
+    private Boolean hasChildren;
+
     private List<SysMenuView> children;
 
     @Data

@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Repository
@@ -23,6 +24,8 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
             SysMenuDomain sysMenuDomain = new SysMenuDomain();
             sysMenuDomain.setMenuId(new MenuId(e.getId()));
             sysMenuDomain.setParentId(new MenuId(e.getParentId()));
+            sysMenuDomain.setDepth(e.getDepth());
+            sysMenuDomain.setTreePath(e.getTreePath());
 
             Catalog catalog = new Catalog(e.getRedirect());
             sysMenuDomain.setCatalog(catalog);
@@ -58,6 +61,8 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
 
         entity.setId(Optional.ofNullable(aggregateRoot.getMenuId()).map(MenuId::value).orElse(null));
         entity.setParentId(Optional.ofNullable(aggregateRoot.getParentId()).map(MenuId::value).orElse(null));
+        entity.setDepth(aggregateRoot.getDepth());
+        entity.setTreePath(aggregateRoot.getTreePath());
 
         Catalog catalog = aggregateRoot.getCatalog();
         if (!ObjectUtils.isEmpty(catalog)) {
@@ -90,12 +95,19 @@ public class SysMenuDomainRepositoryImpl implements SysMenuDomainRepository {
 
         entity.setDeptId(aggregateRoot.getDeptId());
         entity.setDeleteStatus(aggregateRoot.getDeleteStatus());
+        // Preserve the aggregate version so updates retain the correct optimistic-lock value.
+        // Null version indicates a new entity to Spring Data R2DBC.
         entity.setVersion(aggregateRoot.getVersion());
-        entity.setCreateBy(aggregateRoot.getCreateBy());
-        entity.setCreateTime(aggregateRoot.getCreateTime());
-        entity.setUpdateBy(aggregateRoot.getUpdateBy());
-        entity.setUpdateTime(aggregateRoot.getUpdateTime());
+        entity.setCreateBy(Optional.ofNullable(aggregateRoot.getCreateBy()).orElse("system"));
+        entity.setCreateTime(Optional.ofNullable(aggregateRoot.getCreateTime()).orElse(LocalDateTime.now()));
+        entity.setUpdateBy(Optional.ofNullable(aggregateRoot.getUpdateBy()).orElse("system"));
+        entity.setUpdateTime(Optional.ofNullable(aggregateRoot.getUpdateTime()).orElse(LocalDateTime.now()));
 
-        return sysMenuRepository.save(entity).map(SysMenuEntity::getId);
+        return sysMenuRepository.save(entity)
+                .doOnNext(saved -> {
+                    aggregateRoot.setMenuId(new MenuId(saved.getId()));
+                    aggregateRoot.setVersion(Optional.ofNullable(saved.getVersion()).orElse(0));
+                })
+                .map(SysMenuEntity::getId);
     }
 }

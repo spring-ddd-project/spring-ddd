@@ -36,8 +36,9 @@ public class SysMenuController {
     }
 
     @PostMapping("/getMenuTreeWithoutPermission")
-    public Mono<ApiResponse> getMenuTreeWithoutPermission() {
-        return ApiResponse.ok(sysMenuQueryService.getMenuTreeWithoutPermission());
+    public Mono<ApiResponse> getMenuTreeWithoutPermission(
+            @RequestParam(value = "parentId", required = false) Long parentId) {
+        return ApiResponse.ok(sysMenuQueryService.getMenuTreeWithoutPermission(parentId));
     }
 
     @PostMapping("/getMenuTreeWithPermission")
