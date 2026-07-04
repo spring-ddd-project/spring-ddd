@@ -202,9 +202,9 @@ public class SysMenuQueryService {
      * Collects all deleted menus plus their live ancestors iteratively.
      */
     private Flux<SysMenuEntity> collectDeletedMenusWithAncestors() {
-        return sysMenuRepository.findByDeleteStatusAndParentIdIsNull(true)
-                .concatWith(sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(true, FULL_TREE_MAX_DEPTH))
-                .distinct(SysMenuEntity::getId)
+        return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                .matching(Query.query(Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true)))
+                .all()
                 .collectList()
                 .flatMapMany(deleted -> {
                     Set<Long> deletedIds = deleted.stream().map(SysMenuEntity::getId).collect(Collectors.toSet());
