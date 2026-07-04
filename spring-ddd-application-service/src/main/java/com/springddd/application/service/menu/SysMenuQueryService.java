@@ -20,7 +20,6 @@ import org.springframework.data.relational.core.query.Criteria;
 import org.springframework.data.relational.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -83,8 +82,8 @@ public class SysMenuQueryService {
 
     public Mono<List<SysMenuView>> getMenuTreeWithoutPermission(Long parentId) {
         Flux<SysMenuEntity> entityFlux = (parentId == null || parentId == 0)
-                ? sysMenuRepository.findRootMenus()
-                : sysMenuRepository.findDirectChildrenByParentId(parentId);
+                ? sysMenuRepository.findByDeleteStatusAndParentIdIsNull(false)
+                : sysMenuRepository.findByParentIdAndDeleteStatus(parentId, false);
 
         return entityFlux.collectList()
                 .flatMap(this::toViewsWithChildrenFlag);
@@ -102,7 +101,7 @@ public class SysMenuQueryService {
                     if (CollectionUtils.isEmpty(menuIds)) {
                         return Mono.just(Collections.<SysMenuView>emptyList());
                     }
-                    return sysMenuRepository.findMenusByIdsWithAncestors(menuIds)
+                    return collectMenusWithAncestors(menuIds)
                             .collectList()
                             .map(sysMenuViewMapStruct::toViewList)
                             .flatMap(buildTree());
@@ -130,7 +129,7 @@ public class SysMenuQueryService {
      * small-to-medium menus; for million-row datasets the lazy endpoints should be used.
      */
     public Mono<List<SysMenuView>> getFullMenuTree() {
-        return sysMenuRepository.findAllActive(FULL_TREE_MAX_DEPTH)
+        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
                 .collectList()
                 .map(sysMenuViewMapStruct::toViewList)
                 .flatMap(buildTree());
@@ -138,11 +137,10 @@ public class SysMenuQueryService {
 
     /* ==========================================================
      * Recycle bin: show deleted nodes together with their live ancestors.
-     * CTE is acceptable here because the deleted set is normally small.
      * ========================================================== */
 
     public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
-        return sysMenuRepository.findDeletedMenusWithAncestors()
+        return collectDeletedMenusWithAncestors()
                 .collectList()
                 .map(sysMenuViewMapStruct::toViewList)
                 .map(views -> {
@@ -155,13 +153,84 @@ public class SysMenuQueryService {
      * Internal helpers
      * ========================================================== */
 
+    /**
+     * Collects all menus in the input set plus their active ancestors iteratively.
+     * Avoids recursive CTEs for cross-database compatibility.
+     */
+    private Flux<SysMenuEntity> collectMenusWithAncestors(Collection<Long> menuIds) {
+        return sysMenuRepository.findByIdInAndDeleteStatus(menuIds, false)
+                .collectList()
+                .flatMapMany(entities -> {
+                    Set<Long> collectedIds = entities.stream().map(SysMenuEntity::getId).collect(Collectors.toSet());
+                    Set<Long> parentIds = entities.stream()
+                            .map(SysMenuEntity::getParentId)
+                            .filter(Objects::nonNull)
+                            .filter(id -> !collectedIds.contains(id) && id > 0)
+                            .collect(Collectors.toSet());
+                    if (parentIds.isEmpty()) {
+                        return Flux.fromIterable(entities);
+                    }
+                    return Flux.fromIterable(entities)
+                            .concatWith(collectAncestorsIteratively(parentIds, collectedIds));
+                });
+    }
+
+    private Flux<SysMenuEntity> collectAncestorsIteratively(Set<Long> parentIds, Set<Long> collectedIds) {
+        if (parentIds.isEmpty()) {
+            return Flux.empty();
+        }
+        return sysMenuRepository.findByIdInAndDeleteStatus(parentIds, false)
+                .collectList()
+                .flatMapMany(parents -> {
+                    for (SysMenuEntity parent : parents) {
+                        collectedIds.add(parent.getId());
+                    }
+                    Set<Long> nextParentIds = parents.stream()
+                            .map(SysMenuEntity::getParentId)
+                            .filter(Objects::nonNull)
+                            .filter(id -> !collectedIds.contains(id) && id > 0)
+                            .collect(Collectors.toSet());
+                    if (nextParentIds.isEmpty()) {
+                        return Flux.fromIterable(parents);
+                    }
+                    return Flux.fromIterable(parents)
+                            .concatWith(collectAncestorsIteratively(nextParentIds, collectedIds));
+                });
+    }
+
+    /**
+     * Collects all deleted menus plus their live ancestors iteratively.
+     */
+    private Flux<SysMenuEntity> collectDeletedMenusWithAncestors() {
+        return sysMenuRepository.findByDeleteStatusAndParentIdIsNull(true)
+                .concatWith(sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(true, FULL_TREE_MAX_DEPTH))
+                .distinct(SysMenuEntity::getId)
+                .collectList()
+                .flatMapMany(deleted -> {
+                    Set<Long> deletedIds = deleted.stream().map(SysMenuEntity::getId).collect(Collectors.toSet());
+                    Set<Long> parentIds = deleted.stream()
+                            .map(SysMenuEntity::getParentId)
+                            .filter(Objects::nonNull)
+                            .filter(id -> !deletedIds.contains(id) && id > 0)
+                            .collect(Collectors.toSet());
+                    if (parentIds.isEmpty()) {
+                        return Flux.fromIterable(deleted);
+                    }
+                    return Flux.fromIterable(deleted)
+                            .concatWith(collectAncestorsIteratively(parentIds, deletedIds));
+                });
+    }
+
     private Mono<List<SysMenuView>> toViewsWithChildrenFlag(List<SysMenuEntity> entities) {
         if (entities.isEmpty()) {
             return Mono.just(Collections.emptyList());
         }
         List<SysMenuView> views = sysMenuViewMapStruct.toViewList(entities);
         List<Long> ids = views.stream().map(SysMenuView::getId).toList();
-        return sysMenuRepository.findParentIdsWithActiveChildren(ids)
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.parentId).in(ids)
+                .and(SysMenuQuery.Fields.deleteStatus).is(false);
+        return r2dbcEntityTemplate.select(SysMenuEntity.class).matching(Query.query(criteria)).all()
+                .map(SysMenuEntity::getParentId)
                 .collect(Collectors.toSet())
                 .map(hasChildrenSet -> {
                     views.forEach(view -> view.setHasChildren(hasChildrenSet.contains(view.getId())));
@@ -200,7 +269,7 @@ public class SysMenuQueryService {
         return hasOwner -> ReactiveSecurityUtils.getCurrentUserId()
                 .flatMap(userId -> {
                     if (hasOwner) {
-                        return sysMenuRepository.findAllActive(FULL_TREE_MAX_DEPTH)
+                        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
                                 .collectList()
                                 .map(sysMenuViewMapStruct::toViewList)
                                 .flatMap(buildTree());
