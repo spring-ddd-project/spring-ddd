@@ -1,6 +1,7 @@
 package com.springddd.application.service.menu;
 
 import com.springddd.domain.menu.RestoreSysMenuByIdDomainService;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.entity.SysMenuTreeNodeEntity;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,8 @@ public class RestoreSysMenuByIdDomainServiceImpl implements RestoreSysMenuByIdDo
 
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
 
+    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
+
     @Override
     public Mono<Void> restoreByIds(List<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
@@ -35,7 +38,9 @@ public class RestoreSysMenuByIdDomainServiceImpl implements RestoreSysMenuByIdDo
                 .collectList()
                 .flatMap(deletedMenus -> {
                     List<Long> allIds = DeleteSysMenuByIdDomainServiceImpl.collectDescendantIds(deletedMenus, ids);
-                    return updateDeleteStatusInBatches(allIds, false);
+                    return updateDeleteStatusInBatches(allIds, false)
+                            .then(reactiveRedisCacheHelper.deleteCache("user:*:menuWithPermissions"))
+                            .then(reactiveRedisCacheHelper.deleteCache("user:*:menuWithoutPermissions"));
                 });
     }
 
