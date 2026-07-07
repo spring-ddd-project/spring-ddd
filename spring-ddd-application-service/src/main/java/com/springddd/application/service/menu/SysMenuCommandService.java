@@ -2,6 +2,7 @@ package com.springddd.application.service.menu;
 
 import com.springddd.application.service.menu.dto.SysMenuCommand;
 import com.springddd.domain.menu.*;
+import com.springddd.infrastructure.cache.util.ReactiveRedisCacheHelper;
 import com.springddd.infrastructure.persistence.entity.SysMenuEntity;
 import com.springddd.infrastructure.persistence.r2dbc.SysMenuRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,8 @@ public class SysMenuCommandService {
     private final DeleteSysMenuByIdDomainService deleteSysMenuByIdDomainService;
 
     private final RestoreSysMenuByIdDomainService restoreSysMenuByIdDomainService;
+
+    private final ReactiveRedisCacheHelper reactiveRedisCacheHelper;
 
     @Transactional(rollbackFor = Exception.class)
     public Mono<Long> create(SysMenuCommand command) {
@@ -60,7 +63,11 @@ public class SysMenuCommandService {
                                 sysMenuDomain.setTreePath(treePath);
                                 return sysMenuDomain;
                             })
-                            .flatMap(sysMenuDomainRepository::save);
+                            .flatMap(sysMenuDomainRepository::save)
+                            .doFinally(signalType -> reactiveRedisCacheHelper
+                                    .deleteCache("user:*:menuWithPermissions")
+                                    .then(reactiveRedisCacheHelper.deleteCache("user:*:menuWithoutPermissions"))
+                                    .subscribe());
                 });
     }
 
@@ -103,7 +110,11 @@ public class SysMenuCommandService {
                                         domain.setTreePath(newTreePath);
 
                                         return sysMenuDomainRepository.save(domain)
-                                                .flatMap(savedId -> updateDescendantsIfNeeded(command.getId(), oldDepth, oldTreePath, newDepth, newTreePath));
+                                                .flatMap(savedId -> updateDescendantsIfNeeded(command.getId(), oldDepth, oldTreePath, newDepth, newTreePath))
+                                                .doFinally(signalType -> reactiveRedisCacheHelper
+                                                        .deleteCache("user:*:menuWithPermissions")
+                                                        .then(reactiveRedisCacheHelper.deleteCache("user:*:menuWithoutPermissions"))
+                                                        .subscribe());
                                     }));
                         } else {
                             Catalog catalog = new Catalog(command.getRedirect());
@@ -123,7 +134,11 @@ public class SysMenuCommandService {
                                     new MenuId(command.getParentId()), command.getName(), catalog, menu, button, menuExtendInfo, command.getDeptId());
 
                             domain.update(new MenuId(command.getParentId()), dummy.getName(), dummy.getCatalog(), dummy.getMenu(), dummy.getButton(), dummy.getMenuExtendInfo(), command.getDeptId());
-                            return sysMenuDomainRepository.save(domain).then();
+                            return sysMenuDomainRepository.save(domain).then()
+                                    .doFinally(signalType -> reactiveRedisCacheHelper
+                                            .deleteCache("user:*:menuWithPermissions")
+                                            .then(reactiveRedisCacheHelper.deleteCache("user:*:menuWithoutPermissions"))
+                                            .subscribe());
                         }
                     });
         }).then();

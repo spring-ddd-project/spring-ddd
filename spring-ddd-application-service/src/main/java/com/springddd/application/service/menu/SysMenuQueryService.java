@@ -81,11 +81,17 @@ public class SysMenuQueryService {
      * ========================================================== */
 
     public Mono<List<SysMenuView>> getMenuTreeWithoutPermission(Long parentId) {
-        Flux<SysMenuEntity> entityFlux = (parentId == null || parentId == 0)
-                ? sysMenuRepository.findByDeleteStatusAndParentIdIsNull(false)
-                : sysMenuRepository.findByParentIdAndDeleteStatus(parentId, false);
-
-        return entityFlux.collectList()
+        Criteria criteria;
+        if (parentId == null || parentId == 0) {
+            criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)
+                    .and(SysMenuQuery.Fields.parentId).isNull();
+        } else {
+            criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)
+                    .and(SysMenuQuery.Fields.parentId).is(parentId);
+        }
+        Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
+        return r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all()
+                .collectList()
                 .flatMap(this::toViewsWithChildrenFlag);
     }
 
@@ -141,6 +147,9 @@ public class SysMenuQueryService {
 
     public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
         return collectDeletedMenusWithAncestors()
+                .sort(Comparator.comparing(
+                        SysMenuEntity::getSortOrder,
+                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .collectList()
                 .map(sysMenuViewMapStruct::toViewList)
                 .map(views -> {
