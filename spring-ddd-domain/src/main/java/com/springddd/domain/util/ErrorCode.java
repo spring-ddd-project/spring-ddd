@@ -75,6 +75,19 @@ public enum ErrorCode {
     GEN_INFO_MODULE_NAME_NULL(1531, "error.gen.info.module.name.null"),
     GEN_INFO_PROJECT_NAME_NULL(1532, "error.gen.info.project.name.null"),
 
+    POST_CODE_NULL(1600, "error.post.code.null"),
+    POST_NAME_NULL(1601, "error.post.name.null"),
+    POST_SORT_ORDER_NULL(1602, "error.post.sortOrder.null"),
+    POST_STATUS_NULL(1603, "error.post.status.null"),
+    POST_ID_NULL(1604, "error.post.id.null"),
+
+    USER_POST_USER_ID_NULL(1700, "error.userPost.userId.null"),
+    USER_POST_POST_ID_NULL(1701, "error.userPost.postId.null"),
+
+    ROLE_MENU_DATA_SCOPE_ROLE_ID_NULL(1800, "error.roleMenuDataScope.roleId.null"),
+    ROLE_MENU_DATA_SCOPE_MENU_ID_NULL(1801, "error.roleMenuDataScope.menuId.null"),
+    ROLE_MENU_DATA_SCOPE_NULL(1802, "error.roleMenuDataScope.dataScope.null"),
+
     ;
 
     private final int code;
