@@ -13,6 +13,7 @@ public enum ErrorCode {
     ROLE_CODE_NULL(1100, "error.role.code.null"),
     ROLE_NAME_NULL(1101, "error.role.name.null"),
     ROLE_DATA_SCOPE_NULL(1102, "error.role.dataScope.null"),
+    ROLE_DATA_SCOPE_INVALID(1105, "error.role.dataScope.invalid"),
     ROLE_ID_NULL(1103, "error.role.id.null"),
     ROLE_STATUS_NULL(1104, "error.role.status.null"),
 

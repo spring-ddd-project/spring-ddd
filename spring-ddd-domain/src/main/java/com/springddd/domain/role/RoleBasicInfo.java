@@ -1,6 +1,7 @@
 package com.springddd.domain.role;
 
 import com.springddd.domain.role.exception.RoleCodeNullException;
+import com.springddd.domain.role.exception.RoleDataScopeInvalidException;
 import com.springddd.domain.role.exception.RoleDataScopeNullException;
 import com.springddd.domain.role.exception.RoleNameNullException;
 import org.springframework.util.ObjectUtils;
@@ -16,6 +17,9 @@ public record RoleBasicInfo(String roleName, String roleCode, Integer roleDataSc
         }
         if (ObjectUtils.isEmpty(roleDataScope)) {
             throw new RoleDataScopeNullException();
+        }
+        if (!DataScope.isValid(roleDataScope)) {
+            throw new RoleDataScopeInvalidException();
         }
     }
 }
