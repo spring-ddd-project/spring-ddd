@@ -1,5 +1,6 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.springddd.application.service.gen.dto.GenColumnBindPageQuery;
 import com.springddd.application.service.gen.dto.GenColumnBindView;
 import com.springddd.application.service.gen.dto.GenColumnBindViewMapStruct;
@@ -23,27 +24,41 @@ public class GenColumnBindQueryService {
 
     private final GenColumnBindViewMapStruct genColumnBindViewMapStruct;
 
-    public Mono<PageResponse<GenColumnBindView>> index(GenColumnBindPageQuery query) {
-        Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(false);
-        if (!ObjectUtils.isEmpty(query.getColumnType())) {
-            criteria = criteria.and(GenColumnBindPageQuery.Fields.columnType).like("%" + query.getColumnType() + "%");
-        }
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenColumnBindView>> list = r2dbcEntityTemplate.select(GenColumnBindEntity.class).matching(qry).all().collectList().map(genColumnBindViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenColumnBindEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
+    public Mono<PageResponse<GenColumnBindView>> index(Long menuId, GenColumnBindPageQuery query) {
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(false);
+                    if (!ObjectUtils.isEmpty(query.getColumnType())) {
+                        criteria = criteria.and(GenColumnBindPageQuery.Fields.columnType).like("%" + query.getColumnType() + "%");
+                    }
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(GenColumnBindPageQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                    }
+                    Query qry = Query.query(criteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+                    Mono<List<GenColumnBindView>> list = r2dbcEntityTemplate.select(GenColumnBindEntity.class).matching(qry).all().collectList().map(genColumnBindViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenColumnBindEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
-    public Mono<PageResponse<GenColumnBindView>> recycle(GenColumnBindPageQuery query) {
-        Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<GenColumnBindView>> list = r2dbcEntityTemplate.select(GenColumnBindEntity.class).matching(qry).all().collectList().map(genColumnBindViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenColumnBindEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    public Mono<PageResponse<GenColumnBindView>> recycle(Long menuId, GenColumnBindPageQuery query) {
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(true);
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(GenColumnBindPageQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                    }
+                    Query qry = Query.query(criteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+                    Mono<List<GenColumnBindView>> list = r2dbcEntityTemplate.select(GenColumnBindEntity.class).matching(qry).all().collectList().map(genColumnBindViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenColumnBindEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
     public Mono<GenColumnBindView> queryByColumnType(String columnType) {

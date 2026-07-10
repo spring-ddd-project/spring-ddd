@@ -22,8 +22,9 @@ public class GenAggregateController {
     private final GenAggregateQueryService queryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenAggregatePageQuery> query) {
-        return ApiResponse.validated(query, queryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<GenAggregatePageQuery> query) {
+        return ApiResponse.validated(query, q -> queryService.index(menuId, q));
     }
 
     @PostMapping("/create")

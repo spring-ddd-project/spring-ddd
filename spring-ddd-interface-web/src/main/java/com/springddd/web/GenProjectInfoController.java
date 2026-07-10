@@ -6,6 +6,7 @@ import com.springddd.application.service.gen.dto.GenProjectInfoCommand;
 import com.springddd.application.service.gen.dto.GenProjectInfoQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,8 +22,9 @@ public class GenProjectInfoController {
     private final GenProjectInfoCommandService genProjectInfoCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody GenProjectInfoQuery query) {
-        return ApiResponse.ok(genProjectInfoQueryService.index(query));
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<GenProjectInfoQuery> query) {
+        return ApiResponse.validated(query, q -> genProjectInfoQueryService.index(menuId, q));
     }
 
     @PostMapping("/queryInfoByTableName")

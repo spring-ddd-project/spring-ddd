@@ -23,5 +23,7 @@ public class GenProjectInfoQuery implements Serializable {
 
     private String requestName;
 
+    private String createBy;
+
     private Boolean deleteStatus;
 }

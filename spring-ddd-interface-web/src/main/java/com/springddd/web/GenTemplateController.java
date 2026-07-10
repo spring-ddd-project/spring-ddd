@@ -22,13 +22,15 @@ public class GenTemplateController {
     private final GenTemplateCommandService genTemplateCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenTemplatePageQuery> query) {
-        return ApiResponse.validated(query, genTemplateQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<GenTemplatePageQuery> query) {
+        return ApiResponse.validated(query, q -> genTemplateQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<GenTemplatePageQuery> query) {
-        return ApiResponse.validated(query, genTemplateQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<GenTemplatePageQuery> query) {
+        return ApiResponse.validated(query, q -> genTemplateQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/create")

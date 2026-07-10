@@ -16,4 +16,6 @@ public class GenTemplateQuery implements Serializable {
     private String templateContent;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }

@@ -20,4 +20,6 @@ public class GenColumnBindQuery implements Serializable {
     private Byte typescriptType;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }

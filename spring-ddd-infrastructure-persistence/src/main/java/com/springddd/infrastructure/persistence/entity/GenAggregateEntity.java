@@ -25,6 +25,8 @@ public class GenAggregateEntity {
 
     private Boolean hasCreated;
 
+    private Boolean deleteStatus;
+
     @CreatedBy
     private String createBy;
 
