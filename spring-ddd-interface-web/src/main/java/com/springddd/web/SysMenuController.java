@@ -21,13 +21,15 @@ public class SysMenuController {
     private final SysMenuCommandService sysMenuCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody Mono<SysMenuQuery> query) {
-        return ApiResponse.validated(query, sysMenuQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody Mono<SysMenuQuery> query) {
+        return ApiResponse.validated(query, q -> sysMenuQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody Mono<SysMenuQuery> query) {
-        return ApiResponse.validated(query, sysMenuQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody Mono<SysMenuQuery> query) {
+        return ApiResponse.validated(query, q -> sysMenuQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/all")

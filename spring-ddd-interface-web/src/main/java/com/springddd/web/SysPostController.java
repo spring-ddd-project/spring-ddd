@@ -21,13 +21,15 @@ public class SysPostController {
     private final SysPostCommandService sysPostCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody Mono<SysPostQuery> query) {
-        return ApiResponse.validated(query, sysPostQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody Mono<SysPostQuery> query) {
+        return ApiResponse.validated(query, q -> sysPostQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody Mono<SysPostQuery> query) {
-        return ApiResponse.validated(query, sysPostQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody Mono<SysPostQuery> query) {
+        return ApiResponse.validated(query, q -> sysPostQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/tree")

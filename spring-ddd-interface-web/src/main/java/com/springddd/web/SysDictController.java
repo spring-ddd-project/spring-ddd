@@ -22,8 +22,9 @@ public class SysDictController {
     private final SysDictQueryService sysDictQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<SysDictPageQuery> query) {
-        return ApiResponse.validated(query, sysDictQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<SysDictPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysDictQueryService.index(menuId, q));
     }
 
     @PostMapping("/queryAll")
@@ -37,8 +38,9 @@ public class SysDictController {
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictPageQuery> query) {
-        return ApiResponse.validated(query, sysDictQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<SysDictPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysDictQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/getItemLabel")

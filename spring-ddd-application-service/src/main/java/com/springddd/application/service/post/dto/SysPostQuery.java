@@ -22,4 +22,6 @@ public class SysPostQuery implements Serializable {
     private Boolean postStatus;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }

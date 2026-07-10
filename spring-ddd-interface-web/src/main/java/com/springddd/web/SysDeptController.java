@@ -6,6 +6,7 @@ import com.springddd.application.service.dept.dto.SysDeptCommand;
 import com.springddd.application.service.dept.dto.SysDeptQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,13 +22,15 @@ public class SysDeptController {
     private final SysDeptCommandService sysDeptCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody Mono<SysDeptQuery> query) {
-        return ApiResponse.validated(query, sysDeptQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<SysDeptQuery> query) {
+        return ApiResponse.validated(query, q -> sysDeptQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody Mono<SysDeptQuery> query) {
-        return ApiResponse.validated(query, sysDeptQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<SysDeptQuery> query) {
+        return ApiResponse.validated(query, q -> sysDeptQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/tree")

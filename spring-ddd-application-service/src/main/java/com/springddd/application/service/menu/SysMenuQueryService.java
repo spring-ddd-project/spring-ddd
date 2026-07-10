@@ -1,5 +1,6 @@
 package com.springddd.application.service.menu;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
@@ -49,17 +50,26 @@ public class SysMenuQueryService {
 
     private final SysRoleQueryService sysRoleQueryService;
 
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
     /* ==========================================================
      * Flat / paginated listing (no tree building)
      * ========================================================== */
 
-    public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
-        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
-        Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
-        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
-                .map(sysMenuViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    public Mono<PageResponse<SysMenuView>> index(Long menuId, SysMenuQuery query) {
+        Criteria baseCriteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(SysMenuQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                    }
+                    Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
+                    Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+                            .map(sysMenuViewMapStruct::toViewList);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+                });
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
@@ -145,16 +155,19 @@ public class SysMenuQueryService {
      * Recycle bin: show deleted nodes together with their live ancestors.
      * ========================================================== */
 
-    public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
-        return collectDeletedMenusWithAncestors()
-                .sort(Comparator.comparing(
-                        SysMenuEntity::getSortOrder,
-                        Comparator.nullsLast(Comparator.naturalOrder())))
-                .collectList()
-                .map(sysMenuViewMapStruct::toViewList)
-                .map(views -> {
-                    long count = views.stream().filter(SysMenuView::getDeleteStatus).count();
-                    return new PageResponse<>(views, count, 0, 0);
+    public Mono<PageResponse<SysMenuView>> recycle(Long menuId, SysMenuQuery query) {
+        Criteria baseCriteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(SysMenuQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                    }
+                    Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
+                    Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+                            .map(sysMenuViewMapStruct::toViewList);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
                 });
     }
 

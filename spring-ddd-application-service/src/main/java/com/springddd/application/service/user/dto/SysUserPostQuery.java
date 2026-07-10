@@ -16,4 +16,6 @@ public class SysUserPostQuery implements Serializable {
     private Long postId;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }

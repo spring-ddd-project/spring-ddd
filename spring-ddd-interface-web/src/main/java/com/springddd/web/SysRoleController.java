@@ -24,13 +24,15 @@ public class SysRoleController {
     private final SysRoleQueryService sysRoleQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@Validated @RequestBody Mono<SysRolePageQuery> query) {
-        return ApiResponse.validated(query, sysRoleQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query, q -> sysRoleQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@Validated @RequestBody Mono<SysRolePageQuery> query) {
-        return ApiResponse.validated(query, sysRoleQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                         @Validated @RequestBody Mono<SysRolePageQuery> query) {
+        return ApiResponse.validated(query, q -> sysRoleQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/all")

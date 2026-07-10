@@ -20,4 +20,6 @@ public class SysDeptQuery implements Serializable {
     private Boolean deptStatus;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }

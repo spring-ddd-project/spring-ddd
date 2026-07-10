@@ -2,8 +2,10 @@ package com.springddd.web;
 
 import com.springddd.application.service.user.SysUserPostCommandService;
 import com.springddd.application.service.user.SysUserPostQueryService;
+import com.springddd.application.service.user.dto.SysUserPostPageQuery;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -22,6 +24,18 @@ public class SysUserPostController {
     @GetMapping
     public Mono<ApiResponse> list(@RequestParam Long userId) {
         return ApiResponse.ok(sysUserPostQueryService.listByUserId(userId));
+    }
+
+    @PostMapping("/index")
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<SysUserPostPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysUserPostQueryService.index(menuId, q));
+    }
+
+    @PostMapping("/recycle")
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                         @RequestBody @Validated Mono<SysUserPostPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysUserPostQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/batch")

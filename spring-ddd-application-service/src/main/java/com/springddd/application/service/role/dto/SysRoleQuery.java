@@ -27,5 +27,7 @@ public class SysRoleQuery implements Serializable {
 
     private Boolean deleteStatus;
 
+    private String createBy;
+
     private Integer version;
 }

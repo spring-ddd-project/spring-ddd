@@ -20,4 +20,6 @@ public class SysDictQuery implements Serializable {
     private Boolean dictStatus;
 
     private Boolean deleteStatus;
+
+    private String createBy;
 }
