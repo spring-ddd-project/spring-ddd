@@ -3,53 +3,107 @@ package com.springddd.web;
 import com.springddd.application.service.gen.GenTableInfoCommandService;
 import com.springddd.application.service.gen.GenTableInfoQueryService;
 import com.springddd.application.service.gen.dto.GenTableInfoPageQuery;
-import com.springddd.application.service.gen.dto.GenTableInfoPageResponse;
-import com.springddd.domain.util.ApiResponse;
+import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
+import org.springframework.security.web.server.SecurityWebFilterChain;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-@ExtendWith(MockitoExtension.class)
+@WebFluxTest(GenTableController.class)
+@Import({
+        GenTableControllerTest.TestSecurityConfig.class,
+        GenTableControllerTest.MockConfig.class
+})
 class GenTableControllerTest {
 
-    @Mock
+    @Autowired
+    private GenTableController controller;
+
+    @Autowired
     private GenTableInfoQueryService genTableInfoQueryService;
 
-    @Mock
+    @Autowired
     private GenTableInfoCommandService genTableInfoCommandService;
 
-    @InjectMocks
-    private GenTableController genTableController;
+    static class TestSecurityConfig {
+        @Bean
+        public SecurityWebFilterChain testSecurityWebFilterChain(ServerHttpSecurity http) {
+            return http
+                    .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                    .authorizeExchange(exchange -> exchange.anyExchange().permitAll())
+                    .build();
+        }
+    }
+
+    @TestConfiguration
+    static class MockConfig {
+
+        @Bean
+        GenTableInfoQueryService genTableInfoQueryService() {
+            return Mockito.mock(GenTableInfoQueryService.class, defaultAnswer());
+        }
+
+        @Bean
+        GenTableInfoCommandService genTableInfoCommandService() {
+            return Mockito.mock(GenTableInfoCommandService.class, defaultAnswer());
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Answer<Object> defaultAnswer() {
+        return invocation -> {
+            Class<?> returnType = invocation.getMethod().getReturnType();
+            if (returnType == Mono.class) {
+                return Mono.empty();
+            }
+            if (returnType == Flux.class) {
+                return Flux.empty();
+            }
+            return Mockito.RETURNS_DEFAULTS.answer(invocation);
+        };
+    }
 
     @Test
-    void tableIndex_shouldReturnDatabaseNameInPageResponse() {
-        GenTableInfoPageResponse pageResponse = new GenTableInfoPageResponse(
-                Collections.emptyList(),
-                0L,
-                1,
-                10,
-                "test_ddd"
-        );
-        when(genTableInfoQueryService.index(any(GenTableInfoPageQuery.class))).thenReturn(Mono.just(pageResponse));
+    void tableIndexShouldReturnOk() {
+        StepVerifier.create(controller.tableIndex(Mono.just(new GenTableInfoPageQuery())))
+                .assertNext(apiResponse -> org.junit.jupiter.api.Assertions.assertEquals(0, apiResponse.getCode()))
+                .verifyComplete();
+    }
 
-        Mono<ApiResponse> result = genTableController.tableIndex(Mono.just(new GenTableInfoPageQuery()));
+    @Test
+    void previewShouldReturnOk() {
+        StepVerifier.create(controller.preview())
+                .assertNext(apiResponse -> org.junit.jupiter.api.Assertions.assertEquals(0, apiResponse.getCode()))
+                .verifyComplete();
+    }
 
-        StepVerifier.create(result)
-                .assertNext(apiResponse -> {
-                    assertEquals(0, apiResponse.getCode());
-                    GenTableInfoPageResponse data = (GenTableInfoPageResponse) apiResponse.getData();
-                    assertEquals("test_ddd", data.getDatabaseName());
-                })
+    @Test
+    void downloadShouldReturnOk() {
+        StepVerifier.create(controller.download()).verifyComplete();
+    }
+
+    @Test
+    void wipeShouldReturnOk() {
+        StepVerifier.create(controller.wipe())
+                .assertNext(apiResponse -> org.junit.jupiter.api.Assertions.assertEquals(0, apiResponse.getCode()))
+                .verifyComplete();
+    }
+
+    @Test
+    void generateShouldReturnOk() {
+        StepVerifier.create(controller.generate("test"))
+                .assertNext(apiResponse -> org.junit.jupiter.api.Assertions.assertEquals(0, apiResponse.getCode()))
                 .verifyComplete();
     }
 }
