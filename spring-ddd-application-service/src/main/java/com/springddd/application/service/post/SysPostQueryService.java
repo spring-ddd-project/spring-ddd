@@ -34,7 +34,7 @@ public class SysPostQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysPostQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysPostQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria);
                     Mono<List<SysPostView>> list = r2dbcEntityTemplate.select(SysPostEntity.class).matching(qry).all().collectList().map(sysPostViewMapStruct::toViews);
@@ -49,7 +49,7 @@ public class SysPostQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysPostQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysPostQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria);
                     Mono<List<SysPostView>> list = r2dbcEntityTemplate.select(SysPostEntity.class).matching(qry).all().collectList().map(sysPostViewMapStruct::toViews);

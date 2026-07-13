@@ -47,7 +47,7 @@ public class SysUserPostQueryService {
                         criteria = criteria.and(SysUserPostQuery.Fields.postId).is(query.getPostId());
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysUserPostQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysUserPostQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
@@ -64,7 +64,7 @@ public class SysUserPostQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysUserPostQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysUserPostQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
