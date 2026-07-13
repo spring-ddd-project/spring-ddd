@@ -4,6 +4,8 @@ import com.springddd.application.service.role.SysRoleMenuDataScopeCommandService
 import com.springddd.application.service.role.SysRoleMenuDataScopeQueryService;
 import com.springddd.application.service.role.dto.SysRoleMenuDataScopeCommand;
 import com.springddd.domain.util.ApiResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -20,6 +22,8 @@ public class SysRoleMenuDataScopeController {
 
     private final SysRoleMenuDataScopeQueryService sysRoleMenuDataScopeQueryService;
 
+    private final ObjectMapper objectMapper;
+
     @GetMapping
     public Mono<ApiResponse> list(@RequestParam Long roleId) {
         return ApiResponse.ok(sysRoleMenuDataScopeQueryService.listByRoleId(roleId));
@@ -33,8 +37,9 @@ public class SysRoleMenuDataScopeController {
     @PostMapping("/batch")
     public Mono<ApiResponse> batchSave(@RequestBody Map<String, Object> body) {
         Long roleId = Long.valueOf(body.get("roleId").toString());
-        @SuppressWarnings("unchecked")
-        List<SysRoleMenuDataScopeCommand> items = (List<SysRoleMenuDataScopeCommand>) body.get("items");
+        List<SysRoleMenuDataScopeCommand> items = objectMapper.convertValue(
+                body.get("items"), new TypeReference<List<SysRoleMenuDataScopeCommand>>() {}
+        );
         return ApiResponse.ok(sysRoleMenuDataScopeCommandService.batchSave(roleId, items));
     }
 }

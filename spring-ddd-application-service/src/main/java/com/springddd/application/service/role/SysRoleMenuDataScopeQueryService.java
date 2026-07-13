@@ -27,6 +27,7 @@ public class SysRoleMenuDataScopeQueryService {
 
     public Mono<SysRoleMenuDataScopeView> findByRoleIdAndMenuId(Long roleId, Long menuId) {
         return sysRoleMenuDataScopeRepository.findByRoleIdAndMenuIdAndDeleteStatusFalse(roleId, menuId)
+                .single()
                 .map(sysRoleMenuDataScopeViewMapStruct::toView);
     }
 }

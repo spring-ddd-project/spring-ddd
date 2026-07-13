@@ -9,5 +9,5 @@ public interface SysRoleMenuDataScopeRepository extends ReactiveCrudRepository<S
 
     Flux<SysRoleMenuDataScopeEntity> findByRoleIdAndDeleteStatusFalse(Long roleId);
 
-    Mono<SysRoleMenuDataScopeEntity> findByRoleIdAndMenuIdAndDeleteStatusFalse(Long roleId, Long menuId);
+    Flux<SysRoleMenuDataScopeEntity> findByRoleIdAndMenuIdAndDeleteStatusFalse(Long roleId, Long menuId);
 }
