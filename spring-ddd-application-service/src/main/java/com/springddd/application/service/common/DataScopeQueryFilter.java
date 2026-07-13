@@ -9,6 +9,8 @@ import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
 import com.springddd.infrastructure.persistence.entity.SysRoleMenuDataScopeEntity;
 import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import com.springddd.infrastructure.persistence.entity.SysUserPostEntity;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleMenuDataScopeRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.data.relational.core.query.Criteria;
@@ -25,6 +27,8 @@ import java.util.stream.Collectors;
 public class DataScopeQueryFilter {
 
     private final R2dbcEntityTemplate r2dbcEntityTemplate;
+    private final SysRoleRepository sysRoleRepository;
+    private final SysRoleMenuDataScopeRepository sysRoleMenuDataScopeRepository;
 
     public Mono<DataScopeResult> apply(Long menuId) {
         if (menuId == null) {
@@ -45,18 +49,18 @@ public class DataScopeQueryFilter {
         if (roleCodes == null || roleCodes.isEmpty()) {
             return Mono.just(DataScope.PERSONAL);
         }
-        return r2dbcEntityTemplate.select(SysRoleEntity.class)
-                .matching(Query.query(Criteria.where("roleCode").in(roleCodes).and("deleteStatus").is(false)))
-                .all()
+        // 使用 Repository 方法绕开 R2dbcEntityTemplate + Criteria 在 asyncer r2dbc-mysql 驱动下
+        // 对含参数 SELECT 误用 executeMany 的问题。
+        return Flux.fromIterable(roleCodes)
+                .flatMap(sysRoleRepository::findByRoleCodeAndDeleteStatusFalse)
                 .collectList()
                 .flatMap(roles -> {
                     if (roles.isEmpty()) {
                         return Mono.just(DataScope.PERSONAL);
                     }
-                    List<Long> roleIds = roles.stream().map(SysRoleEntity::getId).toList();
-                    return r2dbcEntityTemplate.select(SysRoleMenuDataScopeEntity.class)
-                            .matching(Query.query(Criteria.where("roleId").in(roleIds).and("menuId").is(menuId).and("deleteStatus").is(false)))
-                            .all()
+                    List<Long> roleIds = roles.stream().map(SysRoleEntity::getId).distinct().toList();
+                    return Flux.fromIterable(roleIds)
+                            .flatMap(roleId -> sysRoleMenuDataScopeRepository.findByRoleIdAndMenuIdAndDeleteStatusFalse(roleId, menuId))
                             .collectList()
                             .map(configs -> {
                                 if (configs.isEmpty()) {
@@ -108,9 +112,10 @@ public class DataScopeQueryFilter {
                                 if (scope == DataScope.DEPT_AND_CHILDREN) {
                                     deptIds.addAll(findChildrenDeptIds(deptId, depts));
                                 }
-                                return r2dbcEntityTemplate.select(SysUserEntity.class)
-                                        .matching(Query.query(Criteria.where("deptId").in(deptIds).and("deleteStatus").is(false)))
-                                        .all()
+                                return Flux.fromIterable(deptIds)
+                                        .flatMap(id -> r2dbcEntityTemplate.select(SysUserEntity.class)
+                                                .matching(Query.query(Criteria.where("deptId").is(id).and("deleteStatus").is(false)))
+                                                .all())
                                         .map(SysUserEntity::getUsername)
                                         .collect(Collectors.toSet());
                             });
@@ -140,17 +145,24 @@ public class DataScopeQueryFilter {
                                         for (Long postId : postIds) {
                                             allPostIds.addAll(findChildrenPostIds(postId, posts));
                                         }
-                                        return r2dbcEntityTemplate.select(SysUserPostEntity.class)
-                                                .matching(Query.query(Criteria.where("postId").in(allPostIds).and("deleteStatus").is(false)))
-                                                .all()
+                                        return Flux.fromIterable(allPostIds)
+                                                .flatMap(postId -> r2dbcEntityTemplate.select(SysUserPostEntity.class)
+                                                        .matching(Query.query(Criteria.where("postId").is(postId).and("deleteStatus").is(false)))
+                                                        .all())
                                                 .map(SysUserPostEntity::getUserId)
                                                 .collect(Collectors.toSet());
                                     })
-                                    .flatMap(userIds -> r2dbcEntityTemplate.select(SysUserEntity.class)
-                                            .matching(Query.query(Criteria.where("id").in(userIds).and("deleteStatus").is(false)))
-                                            .all()
-                                            .map(SysUserEntity::getUsername)
-                                            .collect(Collectors.toSet()));
+                                    .flatMap(userIds -> {
+                                        if (userIds.isEmpty()) {
+                                            return Mono.just(Set.of(username));
+                                        }
+                                        return Flux.fromIterable(userIds)
+                                                .flatMap(userId -> r2dbcEntityTemplate.select(SysUserEntity.class)
+                                                        .matching(Query.query(Criteria.where("id").is(userId).and("deleteStatus").is(false)))
+                                                        .all())
+                                                .map(SysUserEntity::getUsername)
+                                                .collect(Collectors.toSet());
+                                    });
                         }))
                 .switchIfEmpty(Mono.just(Set.of(username)));
     }
@@ -175,6 +187,23 @@ public class DataScopeQueryFilter {
             }
         }
         return result;
+    }
+
+    /**
+     * 绕过 asyncer-r2dbc-mysql 驱动对 Criteria#in(Collection) 误用 executeMany 的问题。
+     * 将用户名集合转换成 (field = u1 OR field = u2 OR ...) 的 Criteria 链。
+     * 空集合返回 field IS NULL，保证匹配不到任何记录。
+     */
+    public static Criteria createByInCriteria(String field, Set<String> usernames) {
+        if (usernames == null || usernames.isEmpty()) {
+            return Criteria.where(field).is(null);
+        }
+        Iterator<String> iterator = usernames.iterator();
+        Criteria criteria = Criteria.where(field).is(iterator.next());
+        while (iterator.hasNext()) {
+            criteria = criteria.or(field).is(iterator.next());
+        }
+        return criteria;
     }
 
     private static int compareScope(DataScope a, DataScope b) {
