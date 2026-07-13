@@ -36,7 +36,7 @@ public class GenProjectInfoQueryService {
                         criteria = criteria.and(GenProjectInfoPageQuery.Fields.tableName).is(query.getTableName());
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenProjectInfoPageQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenProjectInfoPageQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(Integer.MAX_VALUE)

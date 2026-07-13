@@ -37,7 +37,7 @@ public class GenAggregateQueryService {
                     Criteria criteria = Criteria.where(GenAggregateQuery.Fields.deleteStatus).is(false)
                             .and(GenAggregateQuery.Fields.infoId).is(query.getInfoId());
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenAggregateQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenAggregateQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())

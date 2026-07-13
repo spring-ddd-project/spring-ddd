@@ -34,7 +34,7 @@ public class GenColumnBindQueryService {
                         criteria = criteria.and(GenColumnBindPageQuery.Fields.columnType).like("%" + query.getColumnType() + "%");
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenColumnBindPageQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenColumnBindPageQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
@@ -50,7 +50,7 @@ public class GenColumnBindQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = Criteria.where(GenColumnBindPageQuery.Fields.deleteStatus).is(true);
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenColumnBindPageQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenColumnBindPageQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())

@@ -33,7 +33,7 @@ public class SysUserQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysUserQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysUserQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
@@ -61,7 +61,7 @@ public class SysUserQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysUserQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysUserQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())

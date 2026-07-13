@@ -62,7 +62,7 @@ public class SysMenuQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysMenuQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysMenuQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
                     Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
@@ -145,7 +145,9 @@ public class SysMenuQueryService {
      * small-to-medium menus; for million-row datasets the lazy endpoints should be used.
      */
     public Mono<List<SysMenuView>> getFullMenuTree() {
-        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)
+                .and("depth").lessThanOrEquals(FULL_TREE_MAX_DEPTH);
+        return r2dbcEntityTemplate.select(SysMenuEntity.class).matching(Query.query(criteria)).all()
                 .collectList()
                 .map(sysMenuViewMapStruct::toViewList)
                 .flatMap(buildTree());
@@ -161,7 +163,7 @@ public class SysMenuQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysMenuQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysMenuQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
                     Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
@@ -180,7 +182,7 @@ public class SysMenuQueryService {
      * Avoids recursive CTEs for cross-database compatibility.
      */
     private Flux<SysMenuEntity> collectMenusWithAncestors(Collection<Long> menuIds) {
-        return sysMenuRepository.findByIdInAndDeleteStatus(menuIds, false)
+        return findByIdInAndDeleteStatus(menuIds, false)
                 .collectList()
                 .flatMapMany(entities -> {
                     Set<Long> collectedIds = entities.stream().map(SysMenuEntity::getId).collect(Collectors.toSet());
@@ -197,11 +199,19 @@ public class SysMenuQueryService {
                 });
     }
 
+    private Flux<SysMenuEntity> findByIdInAndDeleteStatus(Collection<Long> menuIds, boolean deleteStatus) {
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.id).in(menuIds)
+                .and(SysMenuQuery.Fields.deleteStatus).is(deleteStatus);
+        return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                .matching(Query.query(criteria))
+                .all();
+    }
+
     private Flux<SysMenuEntity> collectAncestorsIteratively(Set<Long> parentIds, Set<Long> collectedIds) {
         if (parentIds.isEmpty()) {
             return Flux.empty();
         }
-        return sysMenuRepository.findByIdInAndDeleteStatus(parentIds, false)
+        return findByIdInAndDeleteStatus(parentIds, false)
                 .collectList()
                 .flatMapMany(parents -> {
                     for (SysMenuEntity parent : parents) {
@@ -291,10 +301,7 @@ public class SysMenuQueryService {
         return hasOwner -> ReactiveSecurityUtils.getCurrentUserId()
                 .flatMap(userId -> {
                     if (hasOwner) {
-                        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
-                                .collectList()
-                                .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(buildTree());
+                        return getFullMenuTree();
                     }
                     return reactiveRedisCacheHelper
                             .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId), List.class)

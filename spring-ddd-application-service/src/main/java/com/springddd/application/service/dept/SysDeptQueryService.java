@@ -33,7 +33,7 @@ public class SysDeptQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysDeptQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDeptQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria);
                     Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
@@ -48,7 +48,7 @@ public class SysDeptQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysDeptQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDeptQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria);
                     Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);

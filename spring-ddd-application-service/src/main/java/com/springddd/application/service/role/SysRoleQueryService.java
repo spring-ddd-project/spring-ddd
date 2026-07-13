@@ -44,7 +44,7 @@ public class SysRoleQueryService {
                 .flatMap(scopeResult -> {
                     Criteria finalCriteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        finalCriteria = finalCriteria.and(SysRoleQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        finalCriteria = finalCriteria.and(DataScopeQueryFilter.createByInCriteria(SysRoleQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(finalCriteria)
                             .limit(query.getPageSize())
@@ -63,7 +63,7 @@ public class SysRoleQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = baseCriteria;
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysRoleQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysRoleQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())

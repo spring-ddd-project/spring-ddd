@@ -35,7 +35,7 @@ public class GenTemplateQueryService {
                         criteria = criteria.and(GenTemplateQuery.Fields.templateName).like("%" + query.getTemplateName() + "%");
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenTemplateQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenTemplateQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
@@ -51,7 +51,7 @@ public class GenTemplateQueryService {
                 .flatMap(scopeResult -> {
                     Criteria criteria = Criteria.where(GenTemplateQuery.Fields.deleteStatus).is(true);
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(GenTemplateQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenTemplateQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())

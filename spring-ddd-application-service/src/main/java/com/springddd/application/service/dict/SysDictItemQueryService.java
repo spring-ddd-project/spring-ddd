@@ -33,7 +33,7 @@ public class SysDictItemQueryService {
                         criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysDictItemQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDictItemQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
@@ -53,7 +53,7 @@ public class SysDictItemQueryService {
                         criteria = criteria.and(SysDictItemQuery.Fields.dictId).is(query.getDictId());
                     }
                     if (!scopeResult.isAll()) {
-                        criteria = criteria.and(SysDictItemQuery.Fields.createBy).in(scopeResult.getVisibleUsernames());
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDictItemQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
                     }
                     Query qry = Query.query(criteria)
                             .limit(query.getPageSize())
