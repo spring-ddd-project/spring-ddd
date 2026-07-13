@@ -20,4 +20,8 @@ public class GenAggregateQuery implements Serializable {
     private Byte objectType;
 
     private Boolean hasCreated;
+
+    private Boolean deleteStatus;
+
+    private String createBy;
 }

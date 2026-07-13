@@ -28,18 +28,14 @@ public class ReactiveRedisCacheHelper {
         return redisTemplate.opsForValue().get(key)
                 .flatMap(json -> deserialize(json, clazz).map(obj -> (R) obj))
                 .switchIfEmpty(
-                        dbLoader.get()
-                                .flatMap(value -> {
-                                    if (value == null) {
-                                        return redisTemplate.opsForValue()
-                                                .set(key, NULL_MARK, Duration.ofMinutes(1))
-                                                .then(Mono.empty());
-                                    }
-                                    return serialize(value)
-                                            .flatMap(json -> redisTemplate.opsForValue()
-                                                    .set(key, json, ttl)
-                                                    .thenReturn(value));
-                                })
+                        Mono.defer(() -> dbLoader.get()
+                                .switchIfEmpty(redisTemplate.opsForValue()
+                                        .set(key, NULL_MARK, Duration.ofMinutes(1))
+                                        .then(Mono.empty()))
+                                .flatMap(value -> serialize(value)
+                                        .flatMap(json -> redisTemplate.opsForValue()
+                                                .set(key, json, ttl)
+                                                .thenReturn(value))))
                 )
                 .publishOn(Schedulers.boundedElastic())
                 .onErrorResume(e -> dbLoader.get());

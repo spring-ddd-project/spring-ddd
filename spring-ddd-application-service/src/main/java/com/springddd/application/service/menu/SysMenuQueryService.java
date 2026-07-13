@@ -1,5 +1,6 @@
 package com.springddd.application.service.menu;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springddd.application.service.menu.dto.SysMenuQuery;
@@ -49,17 +50,26 @@ public class SysMenuQueryService {
 
     private final SysRoleQueryService sysRoleQueryService;
 
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
     /* ==========================================================
      * Flat / paginated listing (no tree building)
      * ========================================================== */
 
-    public Mono<PageResponse<SysMenuView>> index(SysMenuQuery query) {
-        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
-        Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
-        Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
-                .map(sysMenuViewMapStruct::toViewList);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    public Mono<PageResponse<SysMenuView>> index(Long menuId, SysMenuQuery query) {
+        Criteria baseCriteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysMenuQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
+                    Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+                            .map(sysMenuViewMapStruct::toViewList);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+                });
     }
 
     public Mono<SysMenuView> queryByMenuId(Long menuId) {
@@ -135,7 +145,9 @@ public class SysMenuQueryService {
      * small-to-medium menus; for million-row datasets the lazy endpoints should be used.
      */
     public Mono<List<SysMenuView>> getFullMenuTree() {
-        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(false)
+                .and("depth").lessThanOrEquals(FULL_TREE_MAX_DEPTH);
+        return r2dbcEntityTemplate.select(SysMenuEntity.class).matching(Query.query(criteria)).all()
                 .collectList()
                 .map(sysMenuViewMapStruct::toViewList)
                 .flatMap(buildTree());
@@ -145,16 +157,19 @@ public class SysMenuQueryService {
      * Recycle bin: show deleted nodes together with their live ancestors.
      * ========================================================== */
 
-    public Mono<PageResponse<SysMenuView>> recycle(SysMenuQuery query) {
-        return collectDeletedMenusWithAncestors()
-                .sort(Comparator.comparing(
-                        SysMenuEntity::getSortOrder,
-                        Comparator.nullsLast(Comparator.naturalOrder())))
-                .collectList()
-                .map(sysMenuViewMapStruct::toViewList)
-                .map(views -> {
-                    long count = views.stream().filter(SysMenuView::getDeleteStatus).count();
-                    return new PageResponse<>(views, count, 0, 0);
+    public Mono<PageResponse<SysMenuView>> recycle(Long menuId, SysMenuQuery query) {
+        Criteria baseCriteria = Criteria.where(SysMenuQuery.Fields.deleteStatus).is(true);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysMenuQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria).sort(Sort.by("sort_order"));
+                    Mono<List<SysMenuView>> list = r2dbcEntityTemplate.select(SysMenuEntity.class).matching(qry).all().collectList()
+                            .map(sysMenuViewMapStruct::toViewList);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysMenuEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
                 });
     }
 
@@ -167,7 +182,7 @@ public class SysMenuQueryService {
      * Avoids recursive CTEs for cross-database compatibility.
      */
     private Flux<SysMenuEntity> collectMenusWithAncestors(Collection<Long> menuIds) {
-        return sysMenuRepository.findByIdInAndDeleteStatus(menuIds, false)
+        return findByIdInAndDeleteStatus(menuIds, false)
                 .collectList()
                 .flatMapMany(entities -> {
                     Set<Long> collectedIds = entities.stream().map(SysMenuEntity::getId).collect(Collectors.toSet());
@@ -184,11 +199,19 @@ public class SysMenuQueryService {
                 });
     }
 
+    private Flux<SysMenuEntity> findByIdInAndDeleteStatus(Collection<Long> menuIds, boolean deleteStatus) {
+        Criteria criteria = Criteria.where(SysMenuQuery.Fields.id).in(menuIds)
+                .and(SysMenuQuery.Fields.deleteStatus).is(deleteStatus);
+        return r2dbcEntityTemplate.select(SysMenuEntity.class)
+                .matching(Query.query(criteria))
+                .all();
+    }
+
     private Flux<SysMenuEntity> collectAncestorsIteratively(Set<Long> parentIds, Set<Long> collectedIds) {
         if (parentIds.isEmpty()) {
             return Flux.empty();
         }
-        return sysMenuRepository.findByIdInAndDeleteStatus(parentIds, false)
+        return findByIdInAndDeleteStatus(parentIds, false)
                 .collectList()
                 .flatMapMany(parents -> {
                     for (SysMenuEntity parent : parents) {
@@ -278,10 +301,7 @@ public class SysMenuQueryService {
         return hasOwner -> ReactiveSecurityUtils.getCurrentUserId()
                 .flatMap(userId -> {
                     if (hasOwner) {
-                        return sysMenuRepository.findByDeleteStatusAndDepthLessThanEqual(false, FULL_TREE_MAX_DEPTH)
-                                .collectList()
-                                .map(sysMenuViewMapStruct::toViewList)
-                                .flatMap(buildTree());
+                        return getFullMenuTree();
                     }
                     return reactiveRedisCacheHelper
                             .getCache(CacheKeys.MENU_WITH_PERMISSIONS.buildKey(userId), List.class)

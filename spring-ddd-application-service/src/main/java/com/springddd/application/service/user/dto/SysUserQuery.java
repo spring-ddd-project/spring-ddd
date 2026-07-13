@@ -27,6 +27,8 @@ public class SysUserQuery implements Serializable {
 
     private Long deptId;
 
+    private String createBy;
+
     private Boolean deleteStatus;
 
     private Integer version;

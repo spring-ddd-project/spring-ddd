@@ -1,5 +1,6 @@
 package com.springddd.application.service.gen;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.springddd.application.service.gen.dto.GenProjectInfoPageQuery;
 import com.springddd.application.service.gen.dto.GenProjectInfoQuery;
 import com.springddd.application.service.gen.dto.GenProjectInfoView;
@@ -25,17 +26,25 @@ public class GenProjectInfoQueryService {
 
     private final GenProjectInfoViewMapStruct genProjectInfoViewMapStruct;
 
-    public Mono<PageResponse<GenProjectInfoView>> index(GenProjectInfoQuery query) {
-        Criteria criteria = Criteria.where(GenProjectInfoPageQuery.Fields.deleteStatus).is(false);
-        if (!ObjectUtils.isEmpty(query.getTableName())) {
-            criteria = criteria.and(GenProjectInfoPageQuery.Fields.tableName).is(query.getTableName());
-        }
-        Query qry = Query.query(criteria)
-                .limit(Integer.MAX_VALUE)
-                .offset(0);
-        Mono<List<GenProjectInfoView>> list = r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(qry).all().collectList().map(genProjectInfoViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenProjectInfoEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
+    public Mono<PageResponse<GenProjectInfoView>> index(Long menuId, GenProjectInfoQuery query) {
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = Criteria.where(GenProjectInfoPageQuery.Fields.deleteStatus).is(false);
+                    if (!ObjectUtils.isEmpty(query.getTableName())) {
+                        criteria = criteria.and(GenProjectInfoPageQuery.Fields.tableName).is(query.getTableName());
+                    }
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(GenProjectInfoPageQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria)
+                            .limit(Integer.MAX_VALUE)
+                            .offset(0);
+                    Mono<List<GenProjectInfoView>> list = r2dbcEntityTemplate.select(GenProjectInfoEntity.class).matching(qry).all().collectList().map(genProjectInfoViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), GenProjectInfoEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+                });
     }
 
     public Mono<GenProjectInfoView> queryGenInfoByTableName(String tableName) {

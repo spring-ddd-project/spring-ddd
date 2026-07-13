@@ -22,13 +22,15 @@ public class SysUserController {
     private final SysUserQueryService sysUserQueryService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> page(@RequestBody @Validated Mono<SysUserPageQuery> query) {
-        return ApiResponse.validated(query, sysUserQueryService::page);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<SysUserPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysUserQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recyclePage(@RequestBody @Validated Mono<SysUserPageQuery> query) {
-        return ApiResponse.validated(query, sysUserQueryService::recycle);
+    public Mono<ApiResponse> recyclePage(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<SysUserPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysUserQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/create")

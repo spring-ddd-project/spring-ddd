@@ -22,13 +22,15 @@ public class SysDictItemController {
     private final SysDictItemCommandService sysDictItemCommandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<SysDictItemPageQuery> query) {
-        return ApiResponse.validated(query, sysDictItemQueryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<SysDictItemPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysDictItemQueryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<SysDictItemPageQuery> query) {
-        return ApiResponse.validated(query, sysDictItemQueryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<SysDictItemPageQuery> query) {
+        return ApiResponse.validated(query, q -> sysDictItemQueryService.recycle(menuId, q));
     }
 
     @PostMapping("/create")

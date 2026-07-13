@@ -22,13 +22,15 @@ public class GenColumnBindController {
     private final GenColumnBindCommandService commandService;
 
     @PostMapping("/index")
-    public Mono<ApiResponse> index(@RequestBody @Validated Mono<GenColumnBindPageQuery> query) {
-        return ApiResponse.validated(query, queryService::index);
+    public Mono<ApiResponse> index(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                       @RequestBody @Validated Mono<GenColumnBindPageQuery> query) {
+        return ApiResponse.validated(query, q -> queryService.index(menuId, q));
     }
 
     @PostMapping("/recycle")
-    public Mono<ApiResponse> recycle(@RequestBody @Validated Mono<GenColumnBindPageQuery> query) {
-        return ApiResponse.validated(query, queryService::recycle);
+    public Mono<ApiResponse> recycle(@RequestHeader(value = "X-Menu-Id", required = false) Long menuId,
+                                        @RequestBody @Validated Mono<GenColumnBindPageQuery> query) {
+        return ApiResponse.validated(query, q -> queryService.recycle(menuId, q));
     }
 
     @PostMapping("/create")

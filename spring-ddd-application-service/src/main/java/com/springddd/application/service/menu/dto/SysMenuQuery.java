@@ -45,5 +45,7 @@ public class SysMenuQuery implements Serializable {
 
     private Long deptId;
 
+    private String createBy;
+
     private Boolean deleteStatus;
 }

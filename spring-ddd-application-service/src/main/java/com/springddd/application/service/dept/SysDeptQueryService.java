@@ -1,5 +1,6 @@
 package com.springddd.application.service.dept;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.springddd.application.service.dept.dto.SysDeptQuery;
 import com.springddd.application.service.dept.dto.SysDeptView;
 import com.springddd.application.service.dept.dto.SysDeptViewMapStruct;
@@ -24,20 +25,36 @@ public class SysDeptQueryService {
 
     private final SysDeptViewMapStruct sysDeptViewMapStruct;
 
-    public Mono<PageResponse<SysDeptView>> index(SysDeptQuery query) {
-        Criteria criteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(false);
-        Query qry = Query.query(criteria);
-        Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
+    public Mono<PageResponse<SysDeptView>> index(Long menuId, SysDeptQuery query) {
+        Criteria baseCriteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(false);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDeptQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria);
+                    Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+                });
     }
 
-    public Mono<PageResponse<SysDeptView>> recycle(SysDeptQuery query) {
-        Criteria criteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria);
-        Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+    public Mono<PageResponse<SysDeptView>> recycle(Long menuId, SysDeptQuery query) {
+        Criteria baseCriteria = Criteria.where(SysDeptQuery.Fields.deleteStatus).is(true);
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = baseCriteria;
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDeptQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria);
+                    Mono<List<SysDeptView>> list = r2dbcEntityTemplate.select(SysDeptEntity.class).matching(qry).all().collectList().map(sysDeptViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDeptEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), 0, 0));
+                });
     }
 
     public Mono<List<SysDeptView>> deptTree() {

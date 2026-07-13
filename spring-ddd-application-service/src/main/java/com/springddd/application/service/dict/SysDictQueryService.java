@@ -1,5 +1,6 @@
 package com.springddd.application.service.dict;
 
+import com.springddd.application.service.common.DataScopeQueryFilter;
 import com.springddd.application.service.dict.dto.*;
 import com.springddd.domain.util.PageResponse;
 import com.springddd.infrastructure.persistence.entity.SysDictEntity;
@@ -25,34 +26,48 @@ public class SysDictQueryService {
 
     private final SysDictItemViewMapStruct sysDictItemViewMapStruct;
 
-    public Mono<PageResponse<SysDictView>> index(SysDictPageQuery query) {
-        Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(false);
-        if (!ObjectUtils.isEmpty(query.getDictName())) {
-            criteria = criteria.and(SysDictQuery.Fields.dictName).like("%" + query.getDictName() + "%");
-        }
-        if (!ObjectUtils.isEmpty(query.getDictCode())) {
-            criteria = criteria.and(SysDictQuery.Fields.dictCode).like("%" + query.getDictCode() + "%");
-        }
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<SysDictView>> list = r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDictEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    private final DataScopeQueryFilter dataScopeQueryFilter;
+
+    public Mono<PageResponse<SysDictView>> index(Long menuId, SysDictPageQuery query) {
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(false);
+                    if (!ObjectUtils.isEmpty(query.getDictName())) {
+                        criteria = criteria.and(SysDictQuery.Fields.dictName).like("%" + query.getDictName() + "%");
+                    }
+                    if (!ObjectUtils.isEmpty(query.getDictCode())) {
+                        criteria = criteria.and(SysDictQuery.Fields.dictCode).like("%" + query.getDictCode() + "%");
+                    }
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDictQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+                    Mono<List<SysDictView>> list = r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDictEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
     public Mono<List<SysDictView>> queryAll() {
         return r2dbcEntityTemplate.select(SysDictEntity.class).matching(Query.query(Criteria.where(SysDictQuery.Fields.deleteStatus).is(false))).all().collectList().map(sysDictViewMapStruct::toViews);
     }
 
-    public Mono<PageResponse<SysDictView>> recycle(SysDictPageQuery query) {
-        Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(true);
-        Query qry = Query.query(criteria)
-                .limit(query.getPageSize())
-                .offset((long) (query.getPageNum() - 1) * query.getPageSize());
-        Mono<List<SysDictView>> list = r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
-        Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDictEntity.class);
-        return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+    public Mono<PageResponse<SysDictView>> recycle(Long menuId, SysDictPageQuery query) {
+        return dataScopeQueryFilter.apply(menuId)
+                .flatMap(scopeResult -> {
+                    Criteria criteria = Criteria.where(SysDictQuery.Fields.deleteStatus).is(true);
+                    if (!scopeResult.isAll()) {
+                        criteria = criteria.and(DataScopeQueryFilter.createByInCriteria(SysDictQuery.Fields.createBy, scopeResult.getVisibleUsernames()));
+                    }
+                    Query qry = Query.query(criteria)
+                            .limit(query.getPageSize())
+                            .offset((long) (query.getPageNum() - 1) * query.getPageSize());
+                    Mono<List<SysDictView>> list = r2dbcEntityTemplate.select(SysDictEntity.class).matching(qry).all().collectList().map(sysDictViewMapStruct::toViews);
+                    Mono<Long> count = r2dbcEntityTemplate.count(Query.query(criteria), SysDictEntity.class);
+                    return Mono.zip(list, count).map(tuple -> new PageResponse<>(tuple.getT1(), tuple.getT2(), query.getPageNum(), query.getPageSize()));
+                });
     }
 
     public Mono<String> queryItemLabelByDictCode(String dictCode, Integer itemValue) {
