@@ -37,6 +37,11 @@ public class SysPostController {
         return ApiResponse.ok(sysPostQueryService.postTree());
     }
 
+    @PostMapping("/list")
+    public Mono<ApiResponse> list() {
+        return ApiResponse.ok(sysPostQueryService.queryAllPost());
+    }
+
     @PostMapping("/create")
     public Mono<ApiResponse> create(@RequestBody SysPostCommand command) {
         return ApiResponse.ok(sysPostCommandService.create(command));
