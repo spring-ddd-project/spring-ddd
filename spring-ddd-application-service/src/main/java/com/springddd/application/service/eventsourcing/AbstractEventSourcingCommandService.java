@@ -13,15 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
-
-/**
- * 事件溯源命令服务抽象模板。
- *
- * <p>统一封装「加载聚合根 → 执行业务逻辑 → 保存聚合根 → 发布领域事件」的流程。
- *
- * @param <ID> 聚合根 ID 类型
- * @param <E>  聚合根类型
- */
 @RequiredArgsConstructor
 public abstract class AbstractEventSourcingCommandService<
         ID extends AggregateRootId<?>,
@@ -29,14 +20,6 @@ public abstract class AbstractEventSourcingCommandService<
 
     private final EventSourcingRepository<ID, E> repository;
     private final DomainEventPublisher eventPublisher;
-
-    /**
-     * 对指定聚合根执行业务操作并保存、发布事件。
-     *
-     * @param aggregateRootId 聚合根 ID
-     * @param action          业务操作
-     * @return 完成信号
-     */
     protected Mono<Void> execute(ID aggregateRootId, Consumer<E> action) {
         return repository.load(aggregateRootId)
                 .doOnNext(action)
@@ -46,14 +29,6 @@ public abstract class AbstractEventSourcingCommandService<
                             .then(publishEvents(events));
                 });
     }
-
-    /**
-     * 对指定聚合根执行业务操作并保存、发布事件，返回自定义结果。
-     *
-     * @param aggregateRootId 聚合根 ID
-     * @param action          业务操作，返回一个结果与聚合根的元组
-     * @return 业务结果
-     */
     protected <R> Mono<R> executeAndReturn(ID aggregateRootId, Function<E, Tuple2<R, E>> action) {
         return repository.load(aggregateRootId)
                 .map(action)

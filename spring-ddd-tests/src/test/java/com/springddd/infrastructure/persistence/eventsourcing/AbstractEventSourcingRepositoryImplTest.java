@@ -7,6 +7,8 @@ import com.springddd.domain.eventsourcing.fixture.TestCountChanged;
 import com.springddd.domain.eventsourcing.fixture.TestCreated;
 import com.springddd.infrastructure.persistence.entity.eventsourcing.EventSourcingEventEntity;
 import com.springddd.infrastructure.persistence.entity.eventsourcing.EventSourcingSnapshotEntity;
+import com.springddd.infrastructure.persistence.eventsourcing.buffer.EventSourcingEventBuffer;
+import com.springddd.infrastructure.persistence.eventsourcing.cache.EventSourcingSnapshotCache;
 import com.springddd.infrastructure.persistence.r2dbc.eventsourcing.EventSourcingEventRepository;
 import com.springddd.infrastructure.persistence.r2dbc.eventsourcing.EventSourcingSnapshotRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -26,8 +28,10 @@ import static org.mockito.Mockito.when;
 
 class AbstractEventSourcingRepositoryImplTest {
 
+    private EventSourcingEventBuffer eventBuffer;
     private EventSourcingEventRepository eventRepository;
     private EventSourcingSnapshotRepository snapshotRepository;
+    private EventSourcingSnapshotCache snapshotCache;
     private EventSourcingJson eventSourcingJson;
     private TestEventSourcingRepository repository;
 
@@ -37,11 +41,15 @@ class AbstractEventSourcingRepositoryImplTest {
         EventTypeMapping.register("TestCreated", TestCreated.class);
         EventTypeMapping.register("TestCountChanged", TestCountChanged.class);
 
+        eventBuffer = Mockito.mock(EventSourcingEventBuffer.class);
         eventRepository = Mockito.mock(EventSourcingEventRepository.class);
         snapshotRepository = Mockito.mock(EventSourcingSnapshotRepository.class);
+        snapshotCache = Mockito.mock(EventSourcingSnapshotCache.class);
+        when(snapshotRepository.findByEntityId(anyString())).thenReturn(Mono.empty());
+        when(snapshotCache.findByEntityId(anyString())).thenReturn(Mono.empty());
         eventSourcingJson = new EventSourcingJson(new ObjectMapper());
         repository = new TestEventSourcingRepository(
-                eventRepository, snapshotRepository, eventSourcingJson);
+                eventBuffer, eventRepository, snapshotRepository, snapshotCache, eventSourcingJson);
     }
 
     @AfterEach
@@ -54,8 +62,8 @@ class AbstractEventSourcingRepositoryImplTest {
         TestAggregateRoot aggregate = new TestAggregateRoot();
         aggregate.apply(TestCreated.of("1", "name1"));
 
-        when(eventRepository.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
-        when(snapshotRepository.findByEntityId(anyString())).thenReturn(Mono.empty());
+        when(eventBuffer.submit(anyString(), anyString(), any(List.class), any(), anyString(), any()))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(repository.save(aggregate))
                 .verifyComplete();
@@ -68,7 +76,7 @@ class AbstractEventSourcingRepositoryImplTest {
         eventEntity.setEventData(eventSourcingJson.toJson(TestCreated.of("1", "name1")));
         eventEntity.setEventTime(LocalDateTime.now());
 
-        when(snapshotRepository.findByEntityId("1")).thenReturn(Mono.empty());
+        when(snapshotCache.findByEntityId("1")).thenReturn(Mono.empty());
         when(eventRepository.findHistoryEvents("1")).thenReturn(Flux.just(eventEntity));
 
         StepVerifier.create(repository.load(new TestAggregateRoot.TestId("1")))
@@ -92,7 +100,7 @@ class AbstractEventSourcingRepositoryImplTest {
         eventEntity.setEventData(eventSourcingJson.toJson(TestCountChanged.of("1", 5)));
         eventEntity.setEventTime(LocalDateTime.now());
 
-        when(snapshotRepository.findByEntityId("1")).thenReturn(Mono.just(snapshotEntity));
+        when(snapshotCache.findByEntityId("1")).thenReturn(Mono.just(snapshotEntity));
         when(eventRepository.findEventsAfter(anyString(), any())).thenReturn(Flux.just(eventEntity));
 
         StepVerifier.create(repository.load(new TestAggregateRoot.TestId("1")))
@@ -109,9 +117,8 @@ class AbstractEventSourcingRepositoryImplTest {
         }
         aggregate.setTakeSnapshot(Boolean.TRUE);
 
-        when(eventRepository.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
-        when(snapshotRepository.findByEntityId("1")).thenReturn(Mono.empty());
-        when(snapshotRepository.save(any())).thenAnswer(inv -> Mono.just(inv.getArgument(0)));
+        when(eventBuffer.submit(anyString(), anyString(), any(List.class), any(), anyString(), any()))
+                .thenReturn(Mono.empty());
 
         StepVerifier.create(repository.save(aggregate))
                 .verifyComplete();
@@ -129,10 +136,12 @@ class AbstractEventSourcingRepositoryImplTest {
     static class TestEventSourcingRepository
             extends AbstractEventSourcingRepositoryImpl<TestAggregateRoot.TestId, TestAggregateRoot> {
 
-        TestEventSourcingRepository(EventSourcingEventRepository eventRepository,
+        TestEventSourcingRepository(EventSourcingEventBuffer eventBuffer,
+                                    EventSourcingEventRepository eventRepository,
                                     EventSourcingSnapshotRepository snapshotRepository,
+                                    EventSourcingSnapshotCache snapshotCache,
                                     EventSourcingJson eventSourcingJson) {
-            super(eventRepository, snapshotRepository, eventSourcingJson);
+            super(eventBuffer, eventRepository, snapshotRepository, snapshotCache, eventSourcingJson);
         }
 
         @Override

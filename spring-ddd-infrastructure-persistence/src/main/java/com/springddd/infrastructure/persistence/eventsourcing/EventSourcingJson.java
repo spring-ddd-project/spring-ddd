@@ -6,10 +6,6 @@ import com.springddd.domain.eventsourcing.DomainEvent;
 import com.springddd.domain.eventsourcing.EventSourcingException;
 import com.springddd.domain.eventsourcing.EventTypeMapping;
 import com.springddd.domain.util.ErrorCode;
-
-/**
- * 事件溯源 JSON 序列化工具。
- */
 public class EventSourcingJson {
 
     private final ObjectMapper objectMapper;
@@ -18,10 +14,6 @@ public class EventSourcingJson {
         this.objectMapper = objectMapper.copy();
         this.objectMapper.findAndRegisterModules();
     }
-
-    /**
-     * 将对象序列化为 JSON 字符串。
-     */
     public String toJson(Object object) {
         try {
             return objectMapper.writeValueAsString(object);
@@ -30,10 +22,6 @@ public class EventSourcingJson {
                     "JSON 序列化失败: " + object.getClass().getName(), e.getMessage());
         }
     }
-
-    /**
-     * 将 JSON 字符串反序列化为指定类型。
-     */
     public <T> T toObject(String json, Class<T> clazz) {
         try {
             return objectMapper.readValue(json, clazz);
@@ -42,10 +30,6 @@ public class EventSourcingJson {
                     "JSON 反序列化失败: " + clazz.getName(), e.getMessage());
         }
     }
-
-    /**
-     * 根据事件类型反序列化领域事件。
-     */
     public DomainEvent toDomainEvent(String eventType, String eventData) {
         Class<? extends DomainEvent> eventClass = EventTypeMapping.getEventTypeClass(eventType);
         if (eventClass == null) {

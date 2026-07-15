@@ -7,10 +7,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-/**
- * 基于 Spring {@link ApplicationEventPublisher} 的领域事件发布器实现。
- */
 @Component
 @RequiredArgsConstructor
 public class SpringDomainEventPublisher implements DomainEventPublisher {
