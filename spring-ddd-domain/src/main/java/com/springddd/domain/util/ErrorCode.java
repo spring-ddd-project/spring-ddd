@@ -88,17 +88,17 @@ public enum ErrorCode {
     ROLE_MENU_DATA_SCOPE_MENU_ID_NULL(1801, "error.roleMenuDataScope.menuId.null"),
     ROLE_MENU_DATA_SCOPE_NULL(1802, "error.roleMenuDataScope.dataScope.null"),
 
-    ROW_PERMISSION_ROLE_ID_NULL(1803, "error.rowPermission.roleId.null"),
-    ROW_PERMISSION_MENU_ID_NULL(1804, "error.rowPermission.menuId.null"),
-    ROW_PERMISSION_SCOPE_TYPE_NULL(1805, "error.rowPermission.scopeType.null"),
-    ROW_PERMISSION_SCOPE_TYPE_INVALID(1806, "error.rowPermission.scopeType.invalid"),
+    PERMISSION_ROLE_ID_NULL(1803, "error.permission.roleId.null"),
+    PERMISSION_MENU_ID_NULL(1804, "error.permission.menuId.null"),
+    PERMISSION_SCOPE_TYPE_NULL(1805, "error.permission.scopeType.null"),
+    PERMISSION_SCOPE_TYPE_INVALID(1806, "error.permission.scopeType.invalid"),
 
-    EVENT_SOURCING_APPLY_METHOD_NOT_FOUND(1900, "error.eventSourcing.applyMethod.notFound"),
-    EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED(1901, "error.eventSourcing.applyMethod.invokeFailed"),
-    EVENT_TYPE_NOT_REGISTERED(1902, "error.eventSourcing.eventType.notRegistered"),
-    EVENT_SOURCING_ENTITY_ID_NULL(1903, "error.eventSourcing.entityId.null"),
-    EVENT_SOURCING_JSON_SERIALIZE_FAILED(1904, "error.eventSourcing.json.serializeFailed"),
-    EVENT_SOURCING_JSON_DESERIALIZE_FAILED(1905, "error.eventSourcing.json.deserializeFailed"),
+    EVENT_APPLY_METHOD_NOT_FOUND(1900, "error.event.applyMethod.notFound"),
+    EVENT_APPLY_METHOD_INVOKE_FAILED(1901, "error.event.applyMethod.invokeFailed"),
+    EVENT_TYPE_NOT_REGISTERED(1902, "error.event.type.notRegistered"),
+    EVENT_ENTITY_ID_NULL(1903, "error.event.entityId.null"),
+    EVENT_JSON_SERIALIZE_FAILED(1904, "error.event.json.serializeFailed"),
+    EVENT_JSON_DESERIALIZE_FAILED(1905, "error.event.json.deserializeFailed"),
 
     ;
 

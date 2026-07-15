@@ -95,7 +95,7 @@ public abstract class AbstractEventSourcingRepositoryImpl<
     private String extractEntityId(E aggregateRoot) {
         String entityId = entityIdFromAggregateRoot(aggregateRoot);
         if (Objects.isNull(entityId)) {
-            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_ENTITY_ID_NULL);
+            throw new EventSourcingException(ErrorCode.EVENT_ENTITY_ID_NULL);
         }
         return entityId;
     }

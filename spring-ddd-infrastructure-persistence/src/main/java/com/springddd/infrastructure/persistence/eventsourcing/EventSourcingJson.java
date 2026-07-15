@@ -19,7 +19,7 @@ public class EventSourcingJson {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_JSON_SERIALIZE_FAILED,
+            throw new EventSourcingException(ErrorCode.EVENT_JSON_SERIALIZE_FAILED,
                     object.getClass().getName());
         }
     }
@@ -27,7 +27,7 @@ public class EventSourcingJson {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
-            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_JSON_DESERIALIZE_FAILED,
+            throw new EventSourcingException(ErrorCode.EVENT_JSON_DESERIALIZE_FAILED,
                     clazz.getName());
         }
     }

@@ -32,14 +32,14 @@ public abstract class EventSourcingAggregateRoot extends AbstractDomainMask {
         Method method = resolveApplyMethod(domainEvent.getClass());
         if (method == null) {
             throw new EventSourcingException(
-                    ErrorCode.EVENT_SOURCING_APPLY_METHOD_NOT_FOUND,
+                    ErrorCode.EVENT_APPLY_METHOD_NOT_FOUND,
                     getClass().getName(), domainEvent.getClass().getName());
         }
         try {
             method.invoke(this, domainEvent);
         } catch (Exception e) {
             throw new EventSourcingException(
-                    ErrorCode.EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED,
+                    ErrorCode.EVENT_APPLY_METHOD_INVOKE_FAILED,
                     getClass().getName(), domainEvent.getClass().getName(), e.getMessage());
         }
     }
