@@ -57,4 +57,9 @@ public class SysUserController {
     public Mono<ApiResponse> restore(@RequestParam("ids") List<Long> ids) {
         return ApiResponse.ok(sysUserCommandService.restore(ids));
     }
+
+    @PostMapping("/list")
+    public Mono<ApiResponse> list() {
+        return ApiResponse.ok(sysUserQueryService.queryAllUsers());
+    }
 }
