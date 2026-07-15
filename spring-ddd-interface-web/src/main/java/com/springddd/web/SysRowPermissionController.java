@@ -1,8 +1,8 @@
 package com.springddd.web;
 
-import com.springddd.application.service.rowpermission.RowPermissionCommandService;
-import com.springddd.application.service.rowpermission.RowPermissionQueryService;
-import com.springddd.application.service.rowpermission.dto.RowPermissionSaveCommand;
+import com.springddd.application.service.permission.row.RowPermissionCommandService;
+import com.springddd.application.service.permission.row.RowPermissionQueryService;
+import com.springddd.application.service.permission.row.dto.RowPermissionSaveCommand;
 import com.springddd.domain.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
