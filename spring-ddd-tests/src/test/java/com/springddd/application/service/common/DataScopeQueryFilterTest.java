@@ -6,11 +6,11 @@ import com.springddd.domain.role.DataScope;
 import com.springddd.infrastructure.persistence.entity.SysDeptEntity;
 import com.springddd.infrastructure.persistence.entity.SysPostEntity;
 import com.springddd.infrastructure.persistence.entity.SysRoleEntity;
-import com.springddd.infrastructure.persistence.entity.SysRoleMenuDataScopeEntity;
+import com.springddd.infrastructure.persistence.entity.SysRowPermissionEntity;
 import com.springddd.infrastructure.persistence.entity.SysUserEntity;
 import com.springddd.infrastructure.persistence.entity.SysUserPostEntity;
-import com.springddd.infrastructure.persistence.r2dbc.SysRoleMenuDataScopeRepository;
 import com.springddd.infrastructure.persistence.r2dbc.SysRoleRepository;
+import com.springddd.infrastructure.persistence.r2dbc.SysRowPermissionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -52,19 +52,19 @@ class DataScopeQueryFilterTest {
     private SysRoleRepository sysRoleRepository;
 
     @Mock
-    private SysRoleMenuDataScopeRepository sysRoleMenuDataScopeRepository;
+    private SysRowPermissionRepository sysRowPermissionRepository;
 
     private DataScopeQueryFilter filter;
     private final Map<Class<?>, List<StubConfig<?>>> stubRegistry = new HashMap<>();
     private final Map<String, SysRoleEntity> roleByCode = new HashMap<>();
-    private final Map<Long, List<SysRoleMenuDataScopeEntity>> configsByRoleId = new HashMap<>();
+    private final Map<Long, List<SysRowPermissionEntity>> configsByRoleId = new HashMap<>();
 
     @BeforeEach
     void setUp() {
         stubRegistry.clear();
         roleByCode.clear();
         configsByRoleId.clear();
-        filter = new DataScopeQueryFilter(r2dbcEntityTemplate, sysRoleRepository, sysRoleMenuDataScopeRepository);
+        filter = new DataScopeQueryFilter(r2dbcEntityTemplate, sysRoleRepository, sysRowPermissionRepository);
         when(r2dbcEntityTemplate.select(any(Class.class))).thenAnswer(invocation -> {
             Class<?> entityClass = invocation.getArgument(0);
             ReactiveSelectOperation.ReactiveSelect<?> select = mock(ReactiveSelectOperation.ReactiveSelect.class);
@@ -81,7 +81,7 @@ class DataScopeQueryFilterTest {
             SysRoleEntity role = roleByCode.get(roleCode);
             return role == null ? Mono.empty() : Mono.just(role);
         });
-        when(sysRoleMenuDataScopeRepository.findByRoleIdAndMenuIdAndDeleteStatusFalse(any(), any())).thenAnswer(invocation -> {
+        when(sysRowPermissionRepository.findByRoleIdAndMenuIdAndDeleteStatusFalse(any(), any())).thenAnswer(invocation -> {
             Long roleId = invocation.getArgument(0);
             return Flux.fromIterable(configsByRoleId.getOrDefault(roleId, List.of()));
         });
@@ -151,7 +151,7 @@ class DataScopeQueryFilterTest {
         AuthUser user = authUser("zhangsan", List.of("admin"));
         SysRoleEntity role = role(1L, "admin", DataScope.ALL);
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
             mocked.when(ReactiveSecurityUtils::getCurrentUser).thenReturn(Mono.just(user));
@@ -169,7 +169,7 @@ class DataScopeQueryFilterTest {
     void allScopeFromMenuConfigShouldReturnAll() {
         AuthUser user = authUser("zhangsan", List.of("admin"));
         SysRoleEntity role = role(1L, "admin", DataScope.PERSONAL);
-        SysRoleMenuDataScopeEntity config = menuConfig(1L, 1L, 1L, DataScope.ALL);
+        SysRowPermissionEntity config = menuConfig(1L, 1L, 1L, DataScope.ALL);
         registerRole(role);
         registerMenuConfig(config);
 
@@ -190,7 +190,7 @@ class DataScopeQueryFilterTest {
         AuthUser user = authUser("zhangsan", List.of("user"));
         SysRoleEntity role = role(1L, "user", DataScope.PERSONAL);
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
             mocked.when(ReactiveSecurityUtils::getCurrentUser).thenReturn(Mono.just(user));
@@ -212,7 +212,7 @@ class DataScopeQueryFilterTest {
         SysUserEntity peer = user(2L, "lisi", 10L);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), currentUser);
         registerAll(SysUserEntity.class, queryDeptIdEquals(), List.of(currentUser, peer));
         registerAll(SysDeptEntity.class, anyQuery(), List.of());
@@ -242,7 +242,7 @@ class DataScopeQueryFilterTest {
         SysDeptEntity other = dept(20L, 0L);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), currentUser);
         registerAll(SysUserEntity.class, queryDeptIdEquals(), List.of(currentUser, peer, childUser));
         registerAll(SysDeptEntity.class, anyQuery(), List.of(parent, child, other));
@@ -265,7 +265,7 @@ class DataScopeQueryFilterTest {
         SysRoleEntity role = role(1L, "dept_mgr", DataScope.DEPT_ONLY);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), null);
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
@@ -287,7 +287,7 @@ class DataScopeQueryFilterTest {
         SysUserEntity currentUser = user(1L, "zhangsan", null);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), currentUser);
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
@@ -316,7 +316,7 @@ class DataScopeQueryFilterTest {
         SysPostEntity otherPost = post(200L, 0L);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), currentUser);
         registerAll(SysUserEntity.class, queryIdEquals(), List.of(currentUser, user(2L, "lisi", 10L), user(3L, "wangwu", 11L)));
         registerAll(SysUserPostEntity.class, queryUserId(1L), List.of(up1));
@@ -342,7 +342,7 @@ class DataScopeQueryFilterTest {
         SysUserEntity currentUser = user(1L, "zhangsan", 10L);
 
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
         registerFirst(SysUserEntity.class, queryUsername("zhangsan"), currentUser);
         registerAll(SysUserPostEntity.class, queryUserId(1L), List.of());
 
@@ -365,7 +365,7 @@ class DataScopeQueryFilterTest {
         SysRoleEntity roleB = role(2L, "role_b", DataScope.ALL);        // value 0
         registerRole(roleA);
         registerRole(roleB);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
             mocked.when(ReactiveSecurityUtils::getCurrentUser).thenReturn(Mono.just(user));
@@ -383,8 +383,8 @@ class DataScopeQueryFilterTest {
     void multipleMenuConfigsShouldPickMinScope() {
         AuthUser user = authUser("zhangsan", List.of("admin"));
         SysRoleEntity role = role(1L, "admin", DataScope.ALL);
-        SysRoleMenuDataScopeEntity cfg1 = menuConfig(1L, 1L, 1L, DataScope.PERSONAL); // value 3
-        SysRoleMenuDataScopeEntity cfg2 = menuConfig(2L, 1L, 1L, DataScope.ALL);      // value 0
+        SysRowPermissionEntity cfg1 = menuConfig(1L, 1L, 1L, DataScope.PERSONAL); // value 3
+        SysRowPermissionEntity cfg2 = menuConfig(2L, 1L, 1L, DataScope.ALL);      // value 0
         registerRole(role);
         registerMenuConfig(cfg1);
         registerMenuConfig(cfg2);
@@ -410,7 +410,7 @@ class DataScopeQueryFilterTest {
         role.setDataScope(null);
         role.setDeleteStatus(false);
         registerRole(role);
-        registerAll(SysRoleMenuDataScopeEntity.class, anyQuery(), List.of());
+        registerAll(SysRowPermissionEntity.class, anyQuery(), List.of());
 
         try (MockedStatic<ReactiveSecurityUtils> mocked = mockStatic(ReactiveSecurityUtils.class)) {
             mocked.when(ReactiveSecurityUtils::getCurrentUser).thenReturn(Mono.just(user));
@@ -439,12 +439,12 @@ class DataScopeQueryFilterTest {
         return role;
     }
 
-    private SysRoleMenuDataScopeEntity menuConfig(Long id, Long roleId, Long menuId, DataScope scope) {
-        SysRoleMenuDataScopeEntity cfg = new SysRoleMenuDataScopeEntity();
+    private SysRowPermissionEntity menuConfig(Long id, Long roleId, Long menuId, DataScope scope) {
+        SysRowPermissionEntity cfg = new SysRowPermissionEntity();
         cfg.setId(id);
         cfg.setRoleId(roleId);
         cfg.setMenuId(menuId);
-        cfg.setDataScope(scope.value());
+        cfg.setScopeType(scope.value());
         cfg.setDeleteStatus(false);
         return cfg;
     }
@@ -499,7 +499,7 @@ class DataScopeQueryFilterTest {
         roleByCode.put(role.getRoleCode(), role);
     }
 
-    private void registerMenuConfig(SysRoleMenuDataScopeEntity config) {
+    private void registerMenuConfig(SysRowPermissionEntity config) {
         configsByRoleId.computeIfAbsent(config.getRoleId(), k -> new ArrayList<>()).add(config);
     }
 

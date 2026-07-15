@@ -78,4 +78,12 @@ public class SysUserQueryService {
                         .is(username).and(SysUserQuery.Fields.deleteStatus).is(false)), SysUserEntity.class)
                 .map(sysUserViewMapStruct::toView);
     }
+
+    public Mono<List<SysUserView>> queryAllUsers() {
+        return r2dbcEntityTemplate.select(SysUserEntity.class)
+                .matching(Query.query(Criteria.where(SysUserQuery.Fields.deleteStatus).is(false)))
+                .all()
+                .collectList()
+                .map(sysUserViewMapStruct::toViewList);
+    }
 }

@@ -88,6 +88,18 @@ public enum ErrorCode {
     ROLE_MENU_DATA_SCOPE_MENU_ID_NULL(1801, "error.roleMenuDataScope.menuId.null"),
     ROLE_MENU_DATA_SCOPE_NULL(1802, "error.roleMenuDataScope.dataScope.null"),
 
+    PERMISSION_ROLE_ID_NULL(1803, "error.permission.roleId.null"),
+    PERMISSION_MENU_ID_NULL(1804, "error.permission.menuId.null"),
+    PERMISSION_SCOPE_TYPE_NULL(1805, "error.permission.scopeType.null"),
+    PERMISSION_SCOPE_TYPE_INVALID(1806, "error.permission.scopeType.invalid"),
+
+    EVENT_APPLY_METHOD_NOT_FOUND(1900, "error.event.applyMethod.notFound"),
+    EVENT_APPLY_METHOD_INVOKE_FAILED(1901, "error.event.applyMethod.invokeFailed"),
+    EVENT_TYPE_NOT_REGISTERED(1902, "error.event.type.notRegistered"),
+    EVENT_ENTITY_ID_NULL(1903, "error.event.entityId.null"),
+    EVENT_JSON_SERIALIZE_FAILED(1904, "error.event.json.serializeFailed"),
+    EVENT_JSON_DESERIALIZE_FAILED(1905, "error.event.json.deserializeFailed"),
+
     ;
 
     private final int code;
