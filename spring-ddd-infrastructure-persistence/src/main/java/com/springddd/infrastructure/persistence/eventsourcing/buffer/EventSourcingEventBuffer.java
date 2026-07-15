@@ -5,16 +5,13 @@ import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import com.springddd.domain.eventsourcing.DomainEvent;
 import jakarta.annotation.PreDestroy;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-@Component
 public class EventSourcingEventBuffer {
 
     private final Disruptor<SaveEntry> disruptor;

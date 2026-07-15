@@ -223,9 +223,9 @@ public class DataScopeQueryFilter {
     }
 
     /**
-     * 绕过 asyncer-r2dbc-mysql 驱动对 Criteria#in(Collection) 误用 executeMany 的问题。
-     * 将用户名集合转换成 (field = u1 OR field = u2 OR ...) 的 Criteria 链。
-     * 空集合返回 field IS NULL，保证匹配不到任何记录。
+     * Work around asyncer-r2dbc-mysql incorrectly using executeMany for Criteria#in(Collection).
+     * Converts a set of usernames into an OR-chained Criteria (field = u1 OR field = u2 ...).
+     * An empty set returns field IS NULL to match no records.
      */
     public static Criteria createByInCriteria(String field, Set<String> usernames) {
         if (usernames == null || usernames.isEmpty()) {

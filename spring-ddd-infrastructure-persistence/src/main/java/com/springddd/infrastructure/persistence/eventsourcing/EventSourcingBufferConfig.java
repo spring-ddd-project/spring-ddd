@@ -29,7 +29,7 @@ public class EventSourcingBufferConfig {
         return new SaveEntryHandler(batchSize, flushInterval.toNanos(), bulkRepository, snapshotRepository, eventSourcingJson);
     }
 
-    @Bean(initMethod = "", destroyMethod = "shutdown")
+    @Bean(destroyMethod = "shutdown")
     public EventSourcingEventBuffer eventSourcingEventBuffer(
             @Value("${eventsourcing.buffer.ring-size:1024}") int ringSize,
             @Value("${eventsourcing.buffer.batch-size:100}") int batchSize,

@@ -4,12 +4,10 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.benmanes.caffeine.cache.LoadingCache;
 import com.springddd.infrastructure.persistence.entity.eventsourcing.EventSourcingSnapshotEntity;
 import com.springddd.infrastructure.persistence.r2dbc.eventsourcing.EventSourcingSnapshotRepository;
-import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
-@Component
 public class EventSourcingSnapshotCache {
 
     private final LoadingCache<String, EventSourcingSnapshotEntity> cache;

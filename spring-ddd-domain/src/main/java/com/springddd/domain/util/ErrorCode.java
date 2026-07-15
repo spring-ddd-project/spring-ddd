@@ -96,6 +96,9 @@ public enum ErrorCode {
     EVENT_SOURCING_APPLY_METHOD_NOT_FOUND(1900, "error.eventSourcing.applyMethod.notFound"),
     EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED(1901, "error.eventSourcing.applyMethod.invokeFailed"),
     EVENT_TYPE_NOT_REGISTERED(1902, "error.eventSourcing.eventType.notRegistered"),
+    EVENT_SOURCING_ENTITY_ID_NULL(1903, "error.eventSourcing.entityId.null"),
+    EVENT_SOURCING_JSON_SERIALIZE_FAILED(1904, "error.eventSourcing.json.serializeFailed"),
+    EVENT_SOURCING_JSON_DESERIALIZE_FAILED(1905, "error.eventSourcing.json.deserializeFailed"),
 
     ;
 

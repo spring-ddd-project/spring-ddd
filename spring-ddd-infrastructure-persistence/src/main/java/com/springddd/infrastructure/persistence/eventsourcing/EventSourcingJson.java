@@ -6,6 +6,7 @@ import com.springddd.domain.eventsourcing.DomainEvent;
 import com.springddd.domain.eventsourcing.EventSourcingException;
 import com.springddd.domain.eventsourcing.EventTypeMapping;
 import com.springddd.domain.util.ErrorCode;
+
 public class EventSourcingJson {
 
     private final ObjectMapper objectMapper;
@@ -18,16 +19,16 @@ public class EventSourcingJson {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED,
-                    "JSON 序列化失败: " + object.getClass().getName(), e.getMessage());
+            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_JSON_SERIALIZE_FAILED,
+                    object.getClass().getName());
         }
     }
     public <T> T toObject(String json, Class<T> clazz) {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
-            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED,
-                    "JSON 反序列化失败: " + clazz.getName(), e.getMessage());
+            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_JSON_DESERIALIZE_FAILED,
+                    clazz.getName());
         }
     }
     public DomainEvent toDomainEvent(String eventType, String eventData) {

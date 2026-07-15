@@ -3,7 +3,9 @@ package com.springddd.infrastructure.persistence.eventsourcing;
 import com.springddd.domain.AggregateRootId;
 import com.springddd.domain.eventsourcing.DomainEvent;
 import com.springddd.domain.eventsourcing.EventSourcingAggregateRoot;
+import com.springddd.domain.eventsourcing.EventSourcingException;
 import com.springddd.domain.eventsourcing.EventSourcingRepository;
+import com.springddd.domain.util.ErrorCode;
 import com.springddd.infrastructure.persistence.entity.eventsourcing.EventSourcingEventEntity;
 import com.springddd.infrastructure.persistence.entity.eventsourcing.EventSourcingSnapshotEntity;
 import com.springddd.infrastructure.persistence.eventsourcing.buffer.EventSourcingEventBuffer;
@@ -93,7 +95,7 @@ public abstract class AbstractEventSourcingRepositoryImpl<
     private String extractEntityId(E aggregateRoot) {
         String entityId = entityIdFromAggregateRoot(aggregateRoot);
         if (Objects.isNull(entityId)) {
-            throw new IllegalStateException("聚合根 entityId 不能为空");
+            throw new EventSourcingException(ErrorCode.EVENT_SOURCING_ENTITY_ID_NULL);
         }
         return entityId;
     }
