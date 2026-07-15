@@ -88,6 +88,15 @@ public enum ErrorCode {
     ROLE_MENU_DATA_SCOPE_MENU_ID_NULL(1801, "error.roleMenuDataScope.menuId.null"),
     ROLE_MENU_DATA_SCOPE_NULL(1802, "error.roleMenuDataScope.dataScope.null"),
 
+    ROW_PERMISSION_ROLE_ID_NULL(1803, "error.rowPermission.roleId.null"),
+    ROW_PERMISSION_MENU_ID_NULL(1804, "error.rowPermission.menuId.null"),
+    ROW_PERMISSION_SCOPE_TYPE_NULL(1805, "error.rowPermission.scopeType.null"),
+    ROW_PERMISSION_SCOPE_TYPE_INVALID(1806, "error.rowPermission.scopeType.invalid"),
+
+    EVENT_SOURCING_APPLY_METHOD_NOT_FOUND(1900, "error.eventSourcing.applyMethod.notFound"),
+    EVENT_SOURCING_APPLY_METHOD_INVOKE_FAILED(1901, "error.eventSourcing.applyMethod.invokeFailed"),
+    EVENT_TYPE_NOT_REGISTERED(1902, "error.eventSourcing.eventType.notRegistered"),
+
     ;
 
     private final int code;
